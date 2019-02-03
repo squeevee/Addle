@@ -1,0 +1,10 @@
+.vscode
+Makefile
+
+bin
+moc
+obj
+resources/forms/headers
+
+*.ui.autosave
+*.qmake.stash
