@@ -2,7 +2,7 @@
 #define DRAWING_OPERATION_H
 
 #include <QRect>
-#include <QImage>
+#include <QPixmap>
 
 #include "interfaces/drawing/idrawingoperation.h"
 
@@ -12,7 +12,7 @@ public:
     virtual DrawingOperationType getDrawingOperationType() = 0;
 
     virtual QRect getBoundary() = 0;
-    virtual void apply(QImage& image) = 0;
+    virtual void apply(QPixmap& image) = 0;
 };
 
 #endif //DRAWING_OPERATION_H

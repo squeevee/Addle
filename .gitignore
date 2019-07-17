@@ -6,5 +6,6 @@ moc
 obj
 resources/forms/headers
 
+.directory
 *.ui.autosave
 *.qmake.stash

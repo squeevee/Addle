@@ -3,14 +3,14 @@
 
 #include <QObject>
 
+#include "iservicelocator.h"
+
 class IService
 {
 public:
-    IService() {}
     virtual ~IService() {}
 
+    virtual void setServiceLocator(IServiceLocator* serviceLocator) = 0;
 };
-
-Q_DECLARE_INTERFACE(IService, "Addle.IService")
 
 #endif //ISERVICE_H

@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Addle source code
+ Copyright 2019 Eleanor Hawk
+ Modification and distribution permitted under the terms of the MIT License.
+ See "LICENSE" for full details.
+-->
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
@@ -7,55 +13,59 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>600</height>
+    <height>679</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Addle</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
-    <property name="leftMargin">
-     <number>0</number>
-    </property>
-    <property name="topMargin">
-     <number>0</number>
-    </property>
-    <property name="rightMargin">
-     <number>0</number>
-    </property>
-    <property name="bottomMargin">
-     <number>0</number>
-    </property>
-    <item>
-     <widget class="QFrame" name="frame">
-      <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
-      </property>
-      <layout class="QGridLayout" name="gridLayout_3">
-       <property name="leftMargin">
-        <number>0</number>
-       </property>
-       <property name="topMargin">
-        <number>0</number>
-       </property>
-       <property name="rightMargin">
-        <number>0</number>
-       </property>
-       <property name="bottomMargin">
-        <number>0</number>
-       </property>
-       <property name="spacing">
-        <number>0</number>
-       </property>
-       <item row="0" column="0">
-        <widget class="QWidget" name="widget" native="true"/>
-       </item>
-      </layout>
-     </widget>
+   <layout class="QGridLayout" name="gridLayout_4">
+    <item row="0" column="0">
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <widget class="QFrame" name="frame">
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout">
+         <item row="0" column="0">
+          <widget class="EditorViewPort" name="editorViewPort" native="true">
+           <property name="minimumSize">
+            <size>
+             <width>320</width>
+             <height>240</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QScrollBar" name="verticalScrollBar">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QScrollBar" name="horizontalScrollBar">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
    </layout>
   </widget>
@@ -65,22 +75,23 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>22</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
-     <string>File</string>
+     <string>Fi&amp;le</string>
     </property>
     <addaction name="actionNew"/>
     <addaction name="actionOpen"/>
     <addaction name="actionSave"/>
     <addaction name="actionSave_As"/>
     <addaction name="separator"/>
+    <addaction name="actionPrint"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
-     <string>Edit</string>
+     <string>E&amp;dit</string>
     </property>
     <addaction name="actionUndo"/>
     <addaction name="actionRedo"/>
@@ -88,18 +99,23 @@
     <addaction name="actionCopy"/>
     <addaction name="actionCut"/>
     <addaction name="actionPaste"/>
+    <addaction name="actionPaste_as_Layer"/>
+    <addaction name="actionDelete"/>
     <addaction name="separator"/>
-    <addaction name="actionPreferences_2"/>
+    <addaction name="actionImport"/>
+    <addaction name="actionExport"/>
+    <addaction name="separator"/>
+    <addaction name="actionScale_Rotate"/>
+    <addaction name="actionCrop_to_Selection"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
      <string>View</string>
     </property>
-    <addaction name="actionReset"/>
-    <addaction name="actionReset_Rotation"/>
-    <addaction name="actionZoom_to_Fit"/>
-    <addaction name="actionRotate_Left"/>
-    <addaction name="actionRotate_Right"/>
+    <addaction name="separator"/>
+    <addaction name="actionAdvanced_Tools"/>
+    <addaction name="actionLayers_2"/>
+    <addaction name="actionColor_Pallete"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -108,223 +124,116 @@
     <addaction name="actionHelp"/>
     <addaction name="actionAbout"/>
    </widget>
+   <widget class="QMenu" name="menuFilter">
+    <property name="title">
+     <string>Fil&amp;ter</string>
+    </property>
+    <addaction name="actionInvert_colors"/>
+    <addaction name="actionBlur"/>
+    <addaction name="actionSharpen"/>
+    <addaction name="actionHLS_Adjust"/>
+    <addaction name="actionBrightness_Contrast"/>
+   </widget>
+   <widget class="QMenu" name="menuCustomize">
+    <property name="title">
+     <string>C&amp;ustomize</string>
+    </property>
+    <addaction name="actionSticker_Packs"/>
+    <addaction name="actionColor_Palettes"/>
+    <addaction name="separator"/>
+    <addaction name="actionPreferences_2"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuView"/>
+   <addaction name="menuFilter"/>
+   <addaction name="menuCustomize"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
-  <widget class="QDockWidget" name="dockWidget">
-   <property name="sizePolicy">
-    <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-     <horstretch>0</horstretch>
-     <verstretch>0</verstretch>
-    </sizepolicy>
-   </property>
-   <property name="minimumSize">
-    <size>
-     <width>151</width>
-     <height>107</height>
-    </size>
-   </property>
-   <property name="features">
-    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
-   </property>
-   <property name="allowedAreas">
-    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
-   </property>
+  <widget class="QDockWidget" name="dockWidget_4">
    <property name="windowTitle">
-    <string>Toolbox</string>
+    <string>&amp;Color Palette</string>
    </property>
    <attribute name="dockWidgetArea">
-    <number>1</number>
+    <number>8</number>
    </attribute>
-   <widget class="QWidget" name="dockWidgetContents">
-    <layout class="QGridLayout" name="gridLayout">
-     <property name="leftMargin">
-      <number>2</number>
-     </property>
-     <property name="topMargin">
-      <number>2</number>
-     </property>
-     <property name="rightMargin">
-      <number>2</number>
-     </property>
-     <property name="bottomMargin">
-      <number>2</number>
-     </property>
-     <property name="spacing">
-      <number>2</number>
-     </property>
+   <widget class="QWidget" name="dockWidgetContents_4">
+    <layout class="QGridLayout" name="gridLayout_3">
      <item row="0" column="0">
-      <widget class="QScrollArea" name="scrollArea">
-       <property name="widgetResizable">
-        <bool>true</bool>
+      <widget class="QWidget" name="widget" native="true">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
        </property>
-       <widget class="QWidget" name="scrollAreaWidgetContents">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>145</width>
-          <height>531</height>
-         </rect>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_2">
-         <property name="spacing">
-          <number>2</number>
-         </property>
-         <property name="leftMargin">
-          <number>2</number>
-         </property>
-         <property name="topMargin">
-          <number>2</number>
-         </property>
-         <property name="rightMargin">
-          <number>2</number>
-         </property>
-         <property name="bottomMargin">
-          <number>2</number>
-         </property>
-         <item>
-          <widget class="QGroupBox" name="groupBox">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="title">
-            <string>Tools</string>
-           </property>
-           <layout class="QGridLayout" name="gridLayout_2">
-            <item row="0" column="2">
-             <widget class="QToolButton" name="toolButton_7">
-              <property name="text">
-               <string>...</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="2">
-             <widget class="QToolButton" name="toolButton_9">
-              <property name="text">
-               <string>...</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0">
-             <widget class="QToolButton" name="toolButton_5">
-              <property name="text">
-               <string>...</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QToolButton" name="toolButton_2">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>...</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QToolButton" name="toolButton_4">
-              <property name="text">
-               <string>...</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="2">
-             <widget class="QToolButton" name="toolButton_8">
-              <property name="text">
-               <string>...</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0">
-             <widget class="QToolButton" name="toolButton">
-              <property name="text">
-               <string>...</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QToolButton" name="toolButton_3">
-              <property name="text">
-               <string>...</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1">
-             <widget class="QToolButton" name="toolButton_6">
-              <property name="text">
-               <string>...</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="0">
-             <widget class="QToolButton" name="toolButton_10">
-              <property name="text">
-               <string>...</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="1">
-             <widget class="QToolButton" name="toolButton_11">
-              <property name="text">
-               <string>...</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="2">
-             <widget class="QToolButton" name="toolButton_12">
-              <property name="text">
-               <string>...</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="groupBox_2">
-           <property name="title">
-            <string>Options</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="groupBox_3">
-           <property name="title">
-            <string>Colors</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
       </widget>
      </item>
     </layout>
    </widget>
   </widget>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionNew"/>
+   <addaction name="actionOpen"/>
+   <addaction name="actionSave"/>
+   <addaction name="separator"/>
+   <addaction name="actionUndo"/>
+   <addaction name="actionRedo"/>
+   <addaction name="separator"/>
+   <addaction name="actionCopy"/>
+   <addaction name="actionPaste"/>
+   <addaction name="separator"/>
+  </widget>
+  <widget class="QToolBar" name="toolBar_3">
+   <property name="windowTitle">
+    <string>toolBar_3</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>LeftToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="action_toolselect_select"/>
+   <addaction name="separator"/>
+   <addaction name="action_toolselect_brush"/>
+   <addaction name="action_toolselect_eraser"/>
+   <addaction name="action_toolselect_fill"/>
+   <addaction name="separator"/>
+   <addaction name="action_toolselect_text"/>
+   <addaction name="action_toolselect_shapes"/>
+   <addaction name="action_toolselect_stickers"/>
+   <addaction name="separator"/>
+   <addaction name="action_toolselect_eyedrop"/>
+   <addaction name="action_toolselect_navigate"/>
+   <addaction name="action_toolselect_measure"/>
+   <addaction name="separator"/>
+   <addaction name="action_Color_1"/>
+   <addaction name="actionColor_2"/>
+  </widget>
   <action name="actionUndo">
    <property name="text">
-    <string>Undo</string>
+    <string>&amp;Undo</string>
    </property>
   </action>
   <action name="actionRedo">
    <property name="text">
-    <string>Redo</string>
+    <string>&amp;Redo</string>
    </property>
   </action>
   <action name="actionCopy">
    <property name="text">
-    <string>Copy</string>
+    <string>&amp;Copy</string>
    </property>
   </action>
   <action name="actionCut">
@@ -334,27 +243,27 @@
   </action>
   <action name="actionPaste">
    <property name="text">
-    <string>Paste</string>
+    <string>&amp;Paste</string>
    </property>
   </action>
   <action name="actionNew">
    <property name="text">
-    <string>New</string>
+    <string>&amp;New</string>
    </property>
   </action>
   <action name="actionOpen">
    <property name="text">
-    <string>Open</string>
+    <string>&amp;Open</string>
    </property>
   </action>
   <action name="actionSave">
    <property name="text">
-    <string>Save</string>
+    <string>&amp;Save</string>
    </property>
   </action>
   <action name="actionSave_As">
    <property name="text">
-    <string>Save As</string>
+    <string>Sa&amp;ve As</string>
    </property>
   </action>
   <action name="actionPreferences">
@@ -364,76 +273,259 @@
   </action>
   <action name="actionPreferences_2">
    <property name="text">
-    <string>Preferences</string>
+    <string>Pr&amp;eferences...</string>
    </property>
   </action>
   <action name="actionReset">
    <property name="text">
-    <string>Reset View</string>
+    <string>&amp;Reset View</string>
    </property>
   </action>
   <action name="actionReset_Rotation">
    <property name="text">
-    <string>Reset Rotation</string>
+    <string>R&amp;eset Rotation</string>
    </property>
   </action>
   <action name="actionZoom_to_Fit">
    <property name="text">
-    <string>Zoom to Fit</string>
+    <string>&amp;Zoom to Fit</string>
    </property>
   </action>
-  <action name="actionRotate_Left">
+  <action name="action_turntableCcw">
    <property name="text">
     <string>Rotate Left</string>
    </property>
   </action>
-  <action name="actionRotate_Right">
+  <action name="action_turntableCw">
    <property name="text">
     <string>Rotate Right</string>
    </property>
   </action>
-  <action name="actionPaintbrush">
+  <action name="action_toolselect_brush">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
    <property name="text">
-    <string>Paintbrush</string>
+    <string>Brush</string>
    </property>
   </action>
-  <action name="actionShapes">
-   <property name="text">
-    <string>Eraser</string>
+  <action name="action_toolselect_shapes">
+   <property name="checkable">
+    <bool>false</bool>
    </property>
-  </action>
-  <action name="actionShapes_2">
    <property name="text">
     <string>Shapes</string>
    </property>
   </action>
-  <action name="actionSelect">
+  <action name="action_toolselect_select">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Select</string>
    </property>
   </action>
   <action name="actionHelp">
    <property name="text">
-    <string>Help</string>
+    <string>&amp;Help</string>
    </property>
   </action>
   <action name="actionAbout">
    <property name="text">
-    <string>About</string>
+    <string>&amp;About</string>
    </property>
   </action>
-  <action name="actionPaintbrush_2">
-   <property name="text">
-    <string>Paintbrush</string>
+  <action name="action_toolselect_eraser">
+   <property name="checkable">
+    <bool>false</bool>
    </property>
-  </action>
-  <action name="actionEraser">
    <property name="text">
     <string>Eraser</string>
    </property>
   </action>
+  <action name="actionNavigat">
+   <property name="text">
+    <string>&amp;Navigator</string>
+   </property>
+  </action>
+  <action name="actionLayers">
+   <property name="text">
+    <string>&amp;Layers</string>
+   </property>
+  </action>
+  <action name="actionColor_Wheel">
+   <property name="text">
+    <string>&amp;Colors</string>
+   </property>
+  </action>
+  <action name="actionCrop">
+   <property name="text">
+    <string>Crop</string>
+   </property>
+  </action>
+  <action name="action_toolselect_navigate">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Navigate</string>
+   </property>
+  </action>
+  <action name="action_toolselect_measure">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Measure</string>
+   </property>
+  </action>
+  <action name="action_toolselect_fill">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Fill</string>
+   </property>
+  </action>
+  <action name="action_toolselect_text">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Text</string>
+   </property>
+  </action>
+  <action name="action_toolselect_eyedrop">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Eyedrop</string>
+   </property>
+  </action>
+  <action name="actionImport">
+   <property name="text">
+    <string>&amp;Import...</string>
+   </property>
+  </action>
+  <action name="actionExport">
+   <property name="text">
+    <string>&amp;Export...</string>
+   </property>
+  </action>
+  <action name="actionPaste_as_Layer">
+   <property name="text">
+    <string>Paste as &amp;Layer</string>
+   </property>
+  </action>
+  <action name="actionPrint">
+   <property name="text">
+    <string>&amp;Print</string>
+   </property>
+  </action>
+  <action name="actionAdvanced_Tools">
+   <property name="text">
+    <string>&amp;Navigator</string>
+   </property>
+  </action>
+  <action name="actionInvert_colors">
+   <property name="text">
+    <string>&amp;Invert colors</string>
+   </property>
+  </action>
+  <action name="actionBlur">
+   <property name="text">
+    <string>&amp;Blur</string>
+   </property>
+  </action>
+  <action name="actionSharpen">
+   <property name="text">
+    <string>&amp;Sharpen</string>
+   </property>
+  </action>
+  <action name="actionHLS_Adjust">
+   <property name="text">
+    <string>&amp;HLS Adjust</string>
+   </property>
+  </action>
+  <action name="actionBrightness_Contrast">
+   <property name="text">
+    <string>Brightness / &amp;Contrast</string>
+   </property>
+  </action>
+  <action name="actionScale_Rotate">
+   <property name="text">
+    <string>&amp;Scale / Rotate</string>
+   </property>
+  </action>
+  <action name="actionCrop_to_Selection">
+   <property name="text">
+    <string>Cr&amp;op</string>
+   </property>
+  </action>
+  <action name="actionSticker_Packs">
+   <property name="text">
+    <string>&amp;Sticker Packs</string>
+   </property>
+  </action>
+  <action name="actionColor_Palettes">
+   <property name="text">
+    <string>&amp;Color Palettes</string>
+   </property>
+  </action>
+  <action name="action_toolselect_stickers">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Stickers</string>
+   </property>
+  </action>
+  <action name="actionDelete">
+   <property name="text">
+    <string>&amp;Delete</string>
+   </property>
+  </action>
+  <action name="actionColor_Pallete">
+   <property name="text">
+    <string>&amp;Color Pallete</string>
+   </property>
+  </action>
+  <action name="actionLayers_2">
+   <property name="text">
+    <string>&amp;Layers</string>
+   </property>
+  </action>
+  <action name="action_Color_1">
+   <property name="text">
+    <string> Color 1</string>
+   </property>
+  </action>
+  <action name="actionColor_2">
+   <property name="text">
+    <string>Color 2</string>
+   </property>
+  </action>
+  <action name="action_zoomIn">
+   <property name="text">
+    <string>Zoom In</string>
+   </property>
+  </action>
+  <action name="action_zoomOut">
+   <property name="text">
+    <string>Zoom Out</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>EditorViewPort</class>
+   <extends>QWidget</extends>
+   <header>views/editorviewport.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

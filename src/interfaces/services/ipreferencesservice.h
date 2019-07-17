@@ -10,5 +10,3 @@ public:
 };
 
 #endif //IPREFERENCESSERVICE_H
-
-Q_DECLARE_INTERFACE(IPreferencesService, "Addle.IPreferencesService")
