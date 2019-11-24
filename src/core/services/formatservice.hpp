@@ -1,0 +1,40 @@
+#ifndef FILESERVICE_HPP
+#define FILESERVICE_HPP
+
+#include <QHash>
+#include <QList>
+#include <QSet>
+
+#include "servicebase.hpp"
+#include "common/utilities/qt_extensions/qhash.hpp"
+#include "common/interfaces/format/iformatdriver.hpp"
+#include "common/interfaces/services/iformatservice.hpp"
+
+#include "common/utilities/data/formatid.hpp"
+
+
+class FormatService : public virtual ServiceBase, public virtual IFormatService
+{
+public:
+    FormatService();
+    virtual ~FormatService();
+
+protected:
+    //IDocument* loadFile(QString filename);
+    IFormatModel* importModel_p(const std::type_info& modelType, QIODevice& device, const ImportExportInfo& info, ITaskStatusController* status = nullptr);
+
+private:
+
+    QHash<QString, FormatId> _formats_byExtension;
+    QHash<QString, FormatId> _formats_byMimeType;
+    QHash<QByteArray, FormatId> _formats_bySignature;
+    QHash<std::type_index, QSet<FormatId>> _formats_byModelType;
+
+    QHash<FormatId, IFormatDriver*> _drivers_byFormat;
+
+    FormatId inferFormatFromSignature(QIODevice& device);
+
+    int _maxSignatureLength = 0;
+};
+
+#endif // FILESERVICE_HPP

@@ -1,0 +1,14 @@
+find_package(Qt5 REQUIRED COMPONENTS Core Gui)
+
+set ( CMAKE_AUTOMOC ON)
+
+add_library( common SHARED 
+    ${INTERFACES}
+    servicelocator.cpp
+    staticdefinitions.cpp
+    exceptions/baseaddleexception.cpp
+    utilities/debugging.cpp
+    utilities/qt_extensions/qhash.cpp
+    utilities/qt_extensions/translation.cpp
+)
+target_link_libraries(common Qt5::Core Qt5::Gui)

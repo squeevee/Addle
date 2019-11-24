@@ -1,18 +1,24 @@
 # Addle
 
-Addle is an image editor and drawing program that prioritizes speed, simplicity,and effortlessness over making really nice pictures or taking advanced control over image data. Think more "Microsoft Paint" than "Adobe Photoshop".
+(Addle is currently early in development. The concept is as follows.)
 
-However, Addle is more than just another open source Paint clone. There is room there for improvement and modernization. Addle intends to up the ante, being more powerful and versatile than Paint and solving old gripes its users have had these last 30 years -- while at the same time being even more convenient and straightforward.
+Addle is an open source, cross-platform image editor and drawing program that prioritizes **speed** and **effortlessness**. It is the digital back of an envelope: rough, ready, and at your fingertips. Use it to scratch out an idea, to make a quick diagram, to doodle something silly for a group chat. Addle is simple yet versatile, making it easy to commit visual thoughts to a visual medium.
 
-Addle is free and permissively open source, (MIT licensed). It is written in C++ using the Qt Framework. It is currently very early in development. Its developer is Eleanor Hawk.
+Addle is written in C++ using the Qt Framework.
+
+## Design intent
+
+Addle is not meant to be the best tool for every image editing task. Its design is optimized for cases that don't require high quality results or technically advanced control over image data. It's not meant as a competitor to Adobe Photoshop, or even a full replacement for GIMP. (Perhaps it would be more accurate to think more along the lines of Microsoft Paint. However, Addle is not a Paint clone. Paint does a lot of things right, and Addle will borrow from these successes, but Paint is old-fashioned and feature poor. We can do better.)
+
+Addle being "simple" is not a vow of poverty, but a commitment to a particular ideal user experience. Indeed, Addle should include many useful features, provided that the amount of complexity exposed to the user is managed well. The user should at all times be able to understand the program's state and predict its behavior. To accomplish this, complexity should be managed first by enriching output and second by simplifying behavior.
+
+If state can be made easily comprehensible, or behavior easily predictable by presenting the user with additional information, this is the preferred solution. In order to be effective, this information shouldn't be noisy or overly technical. Words and numbers can be used for clarification, but direct visual indicators -- especially on the canvas surface -- should be preferred. Menus and dialogs should be as optional as possible, and should be organized so the most important information or options are more accessible than less important parts.
+
+Some amount of simplified behavior is inevitably necessary, even at the expense of Addle's ultimate capability as an image editor. Extra caution should be taken about features that combine or compound, as these are a likely source of chaotic (to the user) behavior.
 
 ## Features
 
-The full list of features Addle will support is likely to fluctuate throughout early development. I recognize the danger of feature creep, so I will continue to test the waters of what's practical to implement or support. Hopefully I will be willing to kill my darlings for the good of the project's core goals.
-
-Addle's features are not meant to be worse versions of those of more advanced image editors, but rather the complete set covering a different and not-much-overlapping set of use cases.
-
-I have not been subtle in comparing Addle to Paint, certainly I want Addle to at least support every useful feature Paint has. The following are notable additions or alterations:
+This list is subject to modification as development progresses. I mentioned Microsoft Paint before. Paint's features can be regarded as a basic starting point for what Addle intends to support.
 
 ### Improved viewport
 
@@ -62,11 +68,12 @@ I anticipate the fill bucket will replace underlying color rather than mix with 
 - **Text:** I want as much rich text formatting as is practical, probably no indentation stuff but definitely inline editing of font, size, style, color, applied to sections of text and not just the whole box uniformly. Maybe text alignment too. Also, text outlining and emoji support via Blobmoji (and probably Twemoji too). Not 100% sure how text will interact with view rotation. Perhaps text should not be merged with the layer unless the user expressly commands it.
 - **Stickers:** not married to this idea, but a lot of art programs when I was a kid had reusable art assets called stamps. Most of the time, these would be merged directly onto the canvas, but in one program (StoryBook Weaver) they could be rearranged, transformed, and even recolored. I think stickers would be a better name for this kind of thing, and I think they'd be useful and fun. Especially since a sticker book would only need to be some .png files and a manifest -- it'd be very open to the users to hack and share.
 - **Pallet:** I want the color pallet to be really big by default. Like 200 colors. I wonder if it might be harder to use if the pallet isn't fixed-width though. Worth investigating. I also think being able to define custom color pallets, name them, name the colors, save and load them would be a neat feature even if an advanced one.
+- **Measurement:** there will be tools to measure locations, paths, and angles on the surface of the canvas.
 - **Screenshots:** one of the most practical use cases for Paint I find is when I need to annotate a screenshot. So how about we cut out the middle-man. This might require a daemon for system integration or just some command line flags and keybindings. I also think it'd be better if Addle captures the whole screen and lets the user crop it in the editor (where they can zoom, and where the image isn't changing), rather than selecting a portion of the screen. This could be aided by also noting the positions of windows on the screen and using that data to allow for smart cropping. If all that's even possible.
 - **Filters:** things like blur, emboss, brightness/contrast, HLS adjust.
 - **Import animation frames:** Addle won't support animation, but it could take frames from an animation (certainly from a .gif or .webm, but perhaps also a proper video file) and aggregate them somehow or open new windows for multiple frames.
 - **Extension framework:** The extension I had in mind would be novelty brushes and filters like KidPix Studio, specifically intended for kids to play with. This isn't something I would want cluttering the UI by default. Some others of these features might more logically work as extensions, even if they are included by default. Qt offers some plugin-related features, and also Python is a popular tool for this kind of thing (so plugins don't have to be built for different targets). That sounds like a lot of work so if it happens it's *way* down the line, possibly 2.0 kind of stuff.
-- **Image viewer**, there seems to be a bit of a vacuum for a good desktop-agnostic image viewer on Linux. An image editor is most of the way there, so maybe Addle could be extended into an image viewer too. Selection and viewport rotation could be useful features on a viewer.
+- **Image viewer**, there seems to be a bit of a vacuum for a good desktop-agnostic image viewer on Linux. An image editor is most of the way there, so maybe Addle could be extended into an image viewer too. Selection, measurement, and viewport rotation could be useful features on a viewer.
 - **Patterns and bitmaps** as fill contents, kind of vector-like. Not loving this tbh.
 - **Drawpile integration**/compatibility. I don't know, it sounded like a good idea in my head.
 - **Improved clipboard data:** the clipboard can often be used to upload images to social media or web chat clients, so Addle could probably be a useful tool for taking clips. However, depending on the application it might be inconvenient for lots of images to be uploaded with the name "unknown.png" or "image0.png". Addle might be able to do something about this.

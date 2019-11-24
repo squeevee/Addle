@@ -1,11 +1,14 @@
-.vscode
+/.vscode
 Makefile
 
-bin
-moc
-obj
-resources/forms/headers
+/debug
+/release
+/docs
+/resources/forms/headers
+/tests/utilities/generated_headers
 
 .directory
 *.ui.autosave
 *.qmake.stash
+
+__pycache__

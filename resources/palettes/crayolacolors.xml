@@ -1,0 +1,399 @@
+<?xml version="1.0" encoding="utF-8"?>
+<palette>
+  <title lang="en">Crayola colors</title>
+  <list>
+    <color value="#ED0A3F">
+      <name lang="en">Red</name>
+    </color>
+    <color value="#C32148">
+      <name lang="en">Maroon</name>
+    </color>
+    <color value="#FD0E35">
+      <name lang="en">Scarlet (a.k.a., Torch Red)</name>
+    </color>
+    <color value="#C62D42">
+      <name lang="en">Brick Red</name>
+    </color>
+    <color value="#B94E48">
+      <name lang="en">Chestnut (a.k.a., Indian Red)</name>
+    </color>
+    <color value="#FF5349">
+      <name lang="en">Orange-Red</name>
+    </color>
+    <color value="#FE4C40">
+      <name lang="en">Sunset Orange</name>
+    </color>
+    <color value="#FE6F5E">
+      <name lang="en">Bittersweet</name>
+    </color>
+    <color value="#FF9980">
+      <name lang="en">Vivid Tangerine</name>
+    </color>
+    <color value="#FF7034">
+      <name lang="en">Burnt Orange</name>
+    </color>
+    <color value="#FF681F">
+      <name lang="en">Red-Orange</name>
+    </color>
+    <color value="#FFCC33">
+      <name lang="en">Sunglow</name>
+    </color>
+    <color value="#FF8833">
+      <name lang="en">Orange</name>
+    </color>
+    <color value="#FFB97B">
+      <name lang="en">Macaroni and Cheese</name>
+    </color>
+    <color value="#E77200">
+      <name lang="en">Mango Tango</name>
+    </color>
+    <color value="#FFAE42">
+      <name lang="en">Yellow-Orange</name>
+    </color>
+    <color value="#FBE7B2">
+      <name lang="en">Banana Mania</name>
+    </color>
+    <color value="#F2C649">
+      <name lang="en">Maize (a.k.a., Gold Ochre)</name>
+    </color>
+    <color value="#F8D568">
+      <name lang="en">Orange-Yellow</name>
+    </color>
+    <color value="#FCD667">
+      <name lang="en">Goldenrod</name>
+    </color>
+    <color value="#FED85D">
+      <name lang="en">Dandelion</name>
+    </color>
+    <color value="#FBE870">
+      <name lang="en">Yellow</name>
+    </color>
+    <color value="#F1E788">
+      <name lang="en">Green-Yellow</name>
+    </color>
+    <color value="#B5B35C">
+      <name lang="en">Olive Green</name>
+    </color>
+    <color value="#ECEBBD">
+      <name lang="en">Spring Green</name>
+    </color>
+    <color value="#FFFF99">
+      <name lang="en">Canary</name>
+    </color>
+    <color value="#FFFF9F">
+      <name lang="en">Lemon Yellow</name>
+    </color>
+    <color value="#AFE313">
+      <name lang="en">Inchworm</name>
+    </color>
+    <color value="#C5E17A">
+      <name lang="en">Yellow-Green</name>
+    </color>
+    <color value="#7BA05B">
+      <name lang="en">Asparagus</name>
+    </color>
+    <color value="#9DE093">
+      <name lang="en">Granny Smith Apple</name>
+    </color>
+    <color value="#63B76C">
+      <name lang="en">Fern</name>
+    </color>
+    <color value="#3AA655">
+      <name lang="en">Green</name>
+    </color>
+    <color value="#5FA777">
+      <name lang="en">Forest Green</name>
+    </color>
+    <color value="#93DFB8">
+      <name lang="en">Sea Green</name>
+    </color>
+    <color value="#33CC99">
+      <name lang="en">Shamrock</name>
+    </color>
+    <color value="#1AB385">
+      <name lang="en">Mountain Meadow</name>
+    </color>
+    <color value="#29AB87">
+      <name lang="en">Jungle Green</name>
+    </color>
+    <color value="#00CC99">
+      <name lang="en">Caribbean Green</name>
+    </color>
+    <color value="#00755E">
+      <name lang="en">Tropical Rain Forest</name>
+    </color>
+    <color value="#01786F">
+      <name lang="en">Pine Green</name>
+    </color>
+    <color value="#00CCCC">
+      <name lang="en">Robin's Egg Blue</name>
+    </color>
+    <color value="#008080">
+      <name lang="en">Teal Blue</name>
+    </color>
+    <color value="#95E0E8">
+      <name lang="en">Aquamarine</name>
+    </color>
+    <color value="#6CDAE7">
+      <name lang="en">Turquoise Blue</name>
+    </color>
+    <color value="#2D383A">
+      <name lang="en">Outer Space</name>
+    </color>
+    <color value="#76D7EA">
+      <name lang="en">Sky Blue</name>
+    </color>
+    <color value="#0095B7">
+      <name lang="en">Blue-Green</name>
+    </color>
+    <color value="#009DC4">
+      <name lang="en">Pacific Blue</name>
+    </color>
+    <color value="#02A4D3">
+      <name lang="en">Cerulean</name>
+    </color>
+    <color value="#93CCEA">
+      <name lang="en">Cornflower</name>
+    </color>
+    <color value="#2887C8">
+      <name lang="en">Green-Blue</name>
+    </color>
+    <color value="#003366">
+      <name lang="en">Midnight Blue</name>
+    </color>
+    <color value="#0066CC">
+      <name lang="en">Navy Blue</name>
+    </color>
+    <color value="#1560BD">
+      <name lang="en">Denim</name>
+    </color>
+    <color value="#0066FF">
+      <name lang="en">Blue</name>
+    </color>
+    <color value="#A9B2C3">
+      <name lang="en">Cadet Blue</name>
+    </color>
+    <color value="#C3CDE6">
+      <name lang="en">Periwinkle</name>
+    </color>
+    <color value="#3C69E7">
+      <name lang="en">Bluetiful</name>
+    </color>
+    <color value="#7A89B8">
+      <name lang="en">Wild Blue Yonder</name>
+    </color>
+    <color value="#4F69C6">
+      <name lang="en">Indigo</name>
+    </color>
+    <color value="#8D90A1">
+      <name lang="en">Manatee</name>
+    </color>
+    <color value="#9999CC">
+      <name lang="en">Blue Bell</name>
+    </color>
+    <color value="#6456B7">
+      <name lang="en">Blue-Violet</name>
+    </color>
+    <color value="#652DC1">
+      <name lang="en">Purple Heart</name>
+    </color>
+    <color value="#6B3FA0">
+      <name lang="en">Royal Purple</name>
+    </color>
+    <color value="#8359A3">
+      <name lang="en">Violet (Purple)</name>
+    </color>
+    <color value="#C9A0DC">
+      <name lang="en">Wisteria</name>
+    </color>
+    <color value="#803790">
+      <name lang="en">Vivid Violet</name>
+    </color>
+    <color value="#D6AEDD">
+      <name lang="en">Purple Mountains' Majesty</name>
+    </color>
+    <color value="#C154C1">
+      <name lang="en">Fuchsia</name>
+    </color>
+    <color value="#FC74FD">
+      <name lang="en">Pink Flamingo</name>
+    </color>
+    <color value="#E29CD2">
+      <name lang="en">Orchid</name>
+    </color>
+    <color value="#8E3179">
+      <name lang="en">Plum</name>
+    </color>
+    <color value="#EBB0D7">
+      <name lang="en">Thistle</name>
+    </color>
+    <color value="#C8509B">
+      <name lang="en">Mulberry</name>
+    </color>
+    <color value="#BB3385">
+      <name lang="en">Red-Violet</name>
+    </color>
+    <color value="#A50B5E">
+      <name lang="en">Jazzberry Jam</name>
+    </color>
+    <color value="#614051">
+      <name lang="en">Eggplant</name>
+    </color>
+    <color value="#F653A6">
+      <name lang="en">Magenta</name>
+    </color>
+    <color value="#DA3287">
+      <name lang="en">Cerise</name>
+    </color>
+    <color value="#FF6EFF">
+      <name lang="en">Shocking Pink</name>
+    </color>
+    <color value="#FF3399">
+      <name lang="en">Wild Strawberry</name>
+    </color>
+    <color value="#FBAED2">
+      <name lang="en">Lavender</name>
+    </color>
+    <color value="#FFB7D5">
+      <name lang="en">Cotton Candy</name>
+    </color>
+    <color value="#FFA6C9">
+      <name lang="en">Carnation Pink</name>
+    </color>
+    <color value="#F7468A">
+      <name lang="en">Violet-Red</name>
+    </color>
+    <color value="#E30B5C">
+      <name lang="en">Razzmatazz</name>
+    </color>
+    <color value="#FDD7E4">
+      <name lang="en">Piggy Pink</name>
+    </color>
+    <color value="#DB5079">
+      <name lang="en">Blush</name>
+    </color>
+    <color value="#FC80A5">
+      <name lang="en">Tickle Me Pink</name>
+    </color>
+    <color value="#F091A9">
+      <name lang="en">Mauvelous</name>
+    </color>
+    <color value="#FF91A4">
+      <name lang="en">Salmon</name>
+    </color>
+    <color value="#CA3435">
+      <name lang="en">Mahogany</name>
+    </color>
+    <color value="#FEBAAD">
+      <name lang="en">Melon</name>
+    </color>
+    <color value="#F7A38E">
+      <name lang="en">Pink Sherbert (a.k.a., Brink Pink)</name>
+    </color>
+    <color value="#E97451">
+      <name lang="en">Burnt Sienna</name>
+    </color>
+    <color value="#AF593E">
+      <name lang="en">Brown</name>
+    </color>
+    <color value="#9E5B40">
+      <name lang="en">Sepia</name>
+    </color>
+    <color value="#87421F">
+      <name lang="en">Fuzzy Wuzzy</name>
+    </color>
+    <color value="#926F5B">
+      <name lang="en">Beaver</name>
+    </color>
+    <color value="#DEA681">
+      <name lang="en">Tumbleweed</name>
+    </color>
+    <color value="#D27D46">
+      <name lang="en">Raw Sienna</name>
+    </color>
+    <color value="#FA9D5A">
+      <name lang="en">Tan</name>
+    </color>
+    <color value="#EDC9AF">
+      <name lang="en">Desert Sand</name>
+    </color>
+    <color value="#FFCBA4">
+      <name lang="en">Peach</name>
+    </color>
+    <color value="#FDD5B1">
+      <name lang="en">Apricot</name>
+    </color>
+    <color value="#EED9C4">
+      <name lang="en">Almond</name>
+    </color>
+    <color value="#665233">
+      <name lang="en">Raw Umber</name>
+    </color>
+    <color value="#837050">
+      <name lang="en">Shadow</name>
+    </color>
+    <color value="#D9D6CF">
+      <name lang="en">Timberwolf</name>
+    </color>
+    <color value="#E6BE8A">
+      <name lang="en">Gold</name>
+    </color>
+    <color value="#C9C0BB">
+      <name lang="en">Silver</name>
+    </color>
+    <color value="#DA8A67">
+      <name lang="en">Copper</name>
+    </color>
+    <color value="#C88A65">
+      <name lang="en">Antique Brass</name>
+    </color>
+    <color value="#000000">
+      <name lang="en">Black</name>
+    </color>
+    <color value="#8B8680">
+      <name lang="en">Gray</name>
+    </color>
+    <color value="#C8C8CD">
+      <name lang="en">Blue-Gray</name>
+    </color>
+    <color value="#FFFFFF">
+      <name lang="en">White</name>
+    </color>
+    <color value="#FF355E">
+      <name lang="en">Radical Red</name>
+    </color>
+    <color value="#FF7034">
+      <name lang="en">Wild Watermelon (a.k.a., Ultra Red)</name>
+    </color>
+    <color value="#FF6037">
+      <name lang="en">Outrageous Orange (a.k.a., Ultra Orange)</name>
+    </color>
+    <color value="#FF9966">
+      <name lang="en">Atomic Tangerine (a.k.a., Ultra Yellow)</name>
+    </color>
+    <color value="#FF9933">
+      <name lang="en">Neon Carrot</name>
+    </color>
+    <color value="#FFFF66">
+      <name lang="en">Laser Lemon (a.k.a., Unmellow Yellow)</name>
+    </color>
+    <color value="#CCFF00">
+      <name lang="en">Electric Lime</name>
+    </color>
+    <color value="#66FF66">
+      <name lang="en">Screamin' Green</name>
+    </color>
+    <color value="#AAF0D1">
+      <name lang="en">Magic Mint</name>
+    </color>
+    <color value="#50BFE6">
+      <name lang="en">Blizzard Blue</name>
+    </color>
+    <color value="#EE34D2">
+      <name lang="en">Razzle Dazzle Rose</name>
+    </color>
+    <color value="#FF00CC">
+      <name lang="en">Hot Magenta (a.k.a., Purple Pizzazz)</name>
+    </color>
+  </list>
+</palette>

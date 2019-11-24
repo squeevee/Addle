@@ -1,0 +1,16 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+
+<qresource>
+    <!-- Palettes -->
+    <file>palettes/crayolacolors.xml</file>
+    <file>palettes/kidpixcolors.xml</file>
+    <file>palettes/mspaintcolors.xml</file>
+    <file>palettes/websafecolors.xml</file>
+    <file>palettes/x11colors.xml</file>
+
+    <!-- Schemas -->
+    <file>schemas/colorpalette.xsd</file>
+</qresource>
+
+</RCC>

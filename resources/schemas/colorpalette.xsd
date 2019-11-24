@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="palette">
+    <xs:complexType>
+        <xs:sequence>
+
+        <xs:element name="title" minOccurs="0" maxOccurs="unbounded">
+        <xs:complexType>
+            <xs:simpleContent>
+                 <xs:extension base="xs:string">
+                    <xs:attribute name="lang" type="xs:string" use="required"/>
+                 </xs:extension>
+            </xs:simpleContent>
+        </xs:complexType>
+        </xs:element>
+
+        <xs:element name="description" minOccurs="0" maxOccurs="unbounded">
+        <xs:complexType>
+            <xs:simpleContent>
+                 <xs:extension base="xs:string">
+                    <xs:attribute name="lang" type="xs:string" use="required"/>
+                 </xs:extension>
+            </xs:simpleContent>
+        </xs:complexType>
+        </xs:element>
+
+        <xs:element name="list" minOccurs="1" maxOccurs="1">
+        <xs:complexType>
+            <xs:sequence>
+
+            <xs:element name="color" minOccurs="1" maxOccurs="unbounded">
+            <xs:complexType>
+                <xs:sequence>
+                    <xs:element name="name" minOccurs="0" maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:simpleContent>
+                            <xs:extension base="xs:string">
+                                <xs:attribute name="lang" type="xs:string" use="required"/>
+                            </xs:extension>
+                        </xs:simpleContent>
+                    </xs:complexType>
+                    </xs:element>
+                </xs:sequence>
+
+                <xs:attribute name="value" use="required">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:pattern value="#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{8}"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:attribute>
+
+                <xs:attribute name="index" >
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:pattern value="0x[0-9A-Fa-f]{2}"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:attribute>
+
+                <xs:attribute name="row" type="xs:positiveInteger"/>
+                <xs:attribute name="column" type="xs:positiveInteger"/>
+                <xs:anyAttribute />
+            </xs:complexType>
+            </xs:element>
+
+            </xs:sequence>
+
+            <xs:anyAttribute />
+
+        </xs:complexType>
+
+        <xs:unique name="namelang">
+            <xs:selector xpath="name"/>
+            <xs:field xpath="@lang"/>
+        </xs:unique>
+
+        </xs:element>
+
+        <xs:any minOccurs="0"/>
+
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:unique name="titlelang">
+        <xs:selector xpath="title"/>
+        <xs:field xpath="@lang"/>
+    </xs:unique>
+
+    <xs:unique name="descriptionlang">
+        <xs:selector xpath="description"/>
+        <xs:field xpath="@lang"/>
+    </xs:unique>
+    
+    </xs:element>
+</xs:schema>

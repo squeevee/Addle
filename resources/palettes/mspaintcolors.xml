@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<palette>
+    <title lang="en">Microsoft Paint colors</title>
+
+    <list>
+        <color value="#FF8080" row="1" column="1" />
+        <color value="#FFFF80" row="1" column="2" />
+        <color value="#80FF80" row="1" column="3" />
+        <color value="#00FF80" row="1" column="4" />
+        <color value="#80FFFF" row="1" column="5" />
+        <color value="#0080FF" row="1" column="6" />
+        <color value="#FF80C0" row="1" column="7" />
+        <color value="#FF80FF" row="1" column="8" />
+        <color value="#FF0000" row="2" column="1" />
+        <color value="#FFFF00" row="2" column="2" />
+        <color value="#80FF00" row="2" column="3" />
+        <color value="#00FF40" row="2" column="4" />
+        <color value="#00FFFF" row="2" column="5" />
+        <color value="#0080C0" row="2" column="6" />
+        <color value="#8080C0" row="2" column="7" />
+        <color value="#FF00FF" row="2" column="8" />
+        <color value="#804040" row="3" column="1" />
+        <color value="#FF8040" row="3" column="2" />
+        <color value="#00FF00" row="3" column="3" />
+        <color value="#008080" row="3" column="4" />
+        <color value="#004080" row="3" column="5" />
+        <color value="#8080FF" row="3" column="6" />
+        <color value="#800040" row="3" column="7" />
+        <color value="#FF0080" row="3" column="8" />
+        <color value="#800000" row="4" column="1" />
+        <color value="#FF8000" row="4" column="2" />
+        <color value="#008000" row="4" column="3" />
+        <color value="#008040" row="4" column="4" />
+        <color value="#0000FF" row="4" column="5" />
+        <color value="#0000A0" row="4" column="6" />
+        <color value="#800080" row="4" column="7" />
+        <color value="#8000FF" row="4" column="8" />
+        <color value="#400000" row="5" column="1" />
+        <color value="#804000" row="5" column="2" />
+        <color value="#004000" row="5" column="3" />
+        <color value="#004040" row="5" column="4" />
+        <color value="#000080" row="5" column="5" />
+        <color value="#000040" row="5" column="6" />
+        <color value="#400040" row="5" column="7" />
+        <color value="#400080" row="5" column="8" />
+        <color value="#000000" row="6" column="1" />
+        <color value="#808000" row="6" column="2" />
+        <color value="#808040" row="6" column="3" />
+        <color value="#808080" row="6" column="4" />
+        <color value="#408080" row="6" column="5" />
+        <color value="#C0C0C0" row="6" column="6" />
+        <color value="#400040" row="6" column="7" />
+        <color value="#FFFFFF" row="6" column="8" />
+    </list>
+</palette>

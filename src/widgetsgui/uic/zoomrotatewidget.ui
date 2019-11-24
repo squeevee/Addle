@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Addle source code
+ Copyright 2019 Eleanor Hawk
+ Modification and distribution permitted under the terms of the MIT License.
+ See "LICENSE" for full details.
+-->
+<ui version="4.0">
+ <class>ZoomRotateWidget</class>
+ <widget class="QWidget" name="ZoomRotateWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>429</width>
+    <height>45</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,2,0,0,0,0">
+   <item>
+    <widget class="QToolButton" name="button_turntable_ccw">
+     <property name="text">
+      <string>left</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QToolButton" name="button_zoom_minus">
+     <property name="text">
+      <string>-</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="ZoomSlider" name="slider_zoom">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>150</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QToolButton" name="button_zoom_plus">
+     <property name="text">
+      <string>+</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDoubleSpinBox" name="spinBox_zoom_percent">
+     <property name="suffix">
+      <string>%</string>
+     </property>
+     <property name="maximum">
+      <double>0.000000000000000</double>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QToolButton" name="button_turntable_cw">
+     <property name="text">
+      <string>right</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QToolButton" name="button_reset">
+     <property name="text">
+      <string>reset</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ZoomSlider</class>
+   <extends>QSlider</extends>
+   <header>widgetsgui/utilities/zoomslider.hpp</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

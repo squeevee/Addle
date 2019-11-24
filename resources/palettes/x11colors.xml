@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<palette>
+    <title lang="en">X11 colors</title>
+
+    <list>
+        <color value="#FFC0CB"><name lang="en">Pink</name></color>
+        <color value="#FFB6C1"><name lang="en">Light Pink</name></color>
+        <color value="#FF69B4"><name lang="en">Hot Pink</name></color>
+        <color value="#FF1493"><name lang="en">Deep Pink</name></color>
+        <color value="#DB7093"><name lang="en">Pale Violet Red</name></color>
+        <color value="#C71585"><name lang="en">Medium Violet Red</name></color>
+        <color value="#FFA07A"><name lang="en">Light Salmon</name></color>
+        <color value="#FA8072"><name lang="en">Salmon</name></color>
+        <color value="#E9967A"><name lang="en">Dark Salmon</name></color>
+        <color value="#F08080"><name lang="en">Light Coral</name></color>
+        <color value="#CD5C5C"><name lang="en">Indian Red</name></color>
+        <color value="#DC143C"><name lang="en">Crimson</name></color>
+        <color value="#B22222"><name lang="en">Firebrick</name></color>
+        <color value="#8B0000"><name lang="en">Dark Red</name></color>
+        <color value="#FF0000"><name lang="en">Red</name></color>
+        <color value="#FF4500"><name lang="en">Orange Red</name></color>
+        <color value="#FF6347"><name lang="en">Tomato</name></color>
+        <color value="#FF7F50"><name lang="en">Coral</name></color>
+        <color value="#FF8C00"><name lang="en">Dark Orange</name></color>
+        <color value="#FFA500"><name lang="en">Orange</name></color>
+        <color value="#FFFF00"><name lang="en">Yellow</name></color>
+        <color value="#FFFFE0"><name lang="en">Light Yellow</name></color>
+        <color value="#FFFACD"><name lang="en">Lemon Chiffon</name></color>
+        <color value="#FAFAD2"><name lang="en">Light Goldenrod Yellow</name></color>
+        <color value="#FFEFD5"><name lang="en">Papaya Whip</name></color>
+        <color value="#FFE4B5"><name lang="en">Moccasin</name></color>
+        <color value="#FFDAB9"><name lang="en">Peach Puff</name></color>
+        <color value="#EEE8AA"><name lang="en">Pale Goldenrod</name></color>
+        <color value="#F0E68C"><name lang="en">Khaki</name></color>
+        <color value="#BDB76B"><name lang="en">Dark Khaki</name></color>
+        <color value="#FFD700"><name lang="en">Gold</name></color>
+        <color value="#FFF8DC"><name lang="en">Cornsilk</name></color>
+        <color value="#FFEBCD"><name lang="en">Blanched Almond</name></color>
+        <color value="#FFE4C4"><name lang="en">Bisque</name></color>
+        <color value="#FFDEAD"><name lang="en">Navajo White</name></color>
+        <color value="#F5DEB3"><name lang="en">Wheat</name></color>
+        <color value="#DEB887"><name lang="en">Burlywood</name></color>
+        <color value="#D2B48C"><name lang="en">Tan</name></color>
+        <color value="#BC8F8F"><name lang="en">Rosy Brown</name></color>
+        <color value="#F4A460"><name lang="en">Sandy Brown</name></color>
+        <color value="#DAA520"><name lang="en">Goldenrod</name></color>
+        <color value="#B8860B"><name lang="en">Dark Goldenrod</name></color>
+        <color value="#CD853F"><name lang="en">Peru</name></color>
+        <color value="#D2691E"><name lang="en">Chocolate</name></color>
+        <color value="#8B4513"><name lang="en">Saddle Brown</name></color>
+        <color value="#A0522D"><name lang="en">Sienna</name></color>
+        <color value="#A52A2A"><name lang="en">Brown</name></color>
+        <color value="#B03060"><name lang="en">Maroon</name></color>
+        <color value="#556B2F"><name lang="en">Dark Olive Green</name></color>
+        <color value="#808000"><name lang="en">Olive</name></color>
+        <color value="#6B8E23"><name lang="en">Olive Drab</name></color>
+        <color value="#9ACD32"><name lang="en">Yellow Green</name></color>
+        <color value="#32CD32"><name lang="en">Lime Green</name></color>
+        <color value="#7CFC00"><name lang="en">Lawn Green</name></color>
+        <color value="#7FFF00"><name lang="en">Chartreuse</name></color>
+        <color value="#ADFF2F"><name lang="en">Green Yellow</name></color>
+        <color value="#00FF7F"><name lang="en">Spring Green</name></color>
+        <color value="#00FA9A"><name lang="en">Medium Spring Green</name></color>
+        <color value="#90EE90"><name lang="en">Light Green</name></color>
+        <color value="#98FB98"><name lang="en">Pale Green</name></color>
+        <color value="#8FBC8F"><name lang="en">Dark Sea Green</name></color>
+        <color value="#66CDAA"><name lang="en">Medium Aquamarine</name></color>
+        <color value="#3CB371"><name lang="en">Medium Sea Green</name></color>
+        <color value="#2E8B57"><name lang="en">Sea Green</name></color>
+        <color value="#228B22"><name lang="en">Forest Green</name></color>
+        <color value="#00FF00"><name lang="en">Green (W3C Lime)</name></color>
+        <color value="#006400"><name lang="en">Dark Green</name></color>
+        <color value="#00FFFF"><name lang="en">Cyan (W3C Aqua)</name></color>
+        <color value="#E0FFFF"><name lang="en">Light Cyan</name></color>
+        <color value="#AFEEEE"><name lang="en">Pale Turquoise</name></color>
+        <color value="#7FFFD4"><name lang="en">Aquamarine</name></color>
+        <color value="#40E0D0"><name lang="en">Turquoise</name></color>
+        <color value="#48D1CC"><name lang="en">Medium Turquoise</name></color>
+        <color value="#00CED1"><name lang="en">Dark Turquoise</name></color>
+        <color value="#20B2AA"><name lang="en">Light Sea Green</name></color>
+        <color value="#5F9EA0"><name lang="en">Cadet Blue</name></color>
+        <color value="#008B8B"><name lang="en">Dark Cyan</name></color>
+        <color value="#008080"><name lang="en">Teal</name></color>
+        <color value="#B0C4DE"><name lang="en">Light Steel Blue</name></color>
+        <color value="#B0E0E6"><name lang="en">Powder Blue</name></color>
+        <color value="#ADD8E6"><name lang="en">Light Blue</name></color>
+        <color value="#87CEEB"><name lang="en">Sky Blue</name></color>
+        <color value="#87CEFA"><name lang="en">Light Sky Blue</name></color>
+        <color value="#00BFFF"><name lang="en">Deep Sky Blue</name></color>
+        <color value="#1E90FF"><name lang="en">Dodger Blue</name></color>
+        <color value="#6495ED"><name lang="en">Cornflower Blue</name></color>
+        <color value="#4682B4"><name lang="en">Steel Blue</name></color>
+        <color value="#4169E1"><name lang="en">Royal Blue</name></color>
+        <color value="#0000FF"><name lang="en">Blue</name></color>
+        <color value="#0000CD"><name lang="en">Medium Blue</name></color>
+        <color value="#00008B"><name lang="en">Dark Blue</name></color>
+        <color value="#000080"><name lang="en">Navy</name></color>
+        <color value="#191970"><name lang="en">Midnight Blue</name></color>
+        <color value="#E6E6FA"><name lang="en">Lavender</name></color>
+        <color value="#D8BFD8"><name lang="en">Thistle</name></color>
+        <color value="#DDA0DD"><name lang="en">Plum</name></color>
+        <color value="#EE82EE"><name lang="en">Violet</name></color>
+        <color value="#DA70D6"><name lang="en">Orchid</name></color>
+        <color value="#FF00FF"><name lang="en">Magenta (W3C Fuchsia)</name></color>
+        <color value="#BA55D3"><name lang="en">Medium Orchid</name></color>
+        <color value="#9370DB"><name lang="en">Medium Purple</name></color>
+        <color value="#8A2BE2"><name lang="en">Blue Violet</name></color>
+        <color value="#9400D3"><name lang="en">Dark Violet</name></color>
+        <color value="#9932CC"><name lang="en">Dark Orchid</name></color>
+        <color value="#8B008B"><name lang="en">Dark Magenta</name></color>
+        <color value="#A020F0"><name lang="en">Purple</name></color>
+        <color value="#4B0082"><name lang="en">Indigo</name></color>
+        <color value="#483D8B"><name lang="en">Dark Slate Blue</name></color>
+        <color value="#6A5ACD"><name lang="en">Slate Blue</name></color>
+        <color value="#7B68EE"><name lang="en">Medium Slate Blue</name></color>
+        <color value="#FFFFFF"><name lang="en">White</name></color>
+        <color value="#FFFAFA"><name lang="en">Snow</name></color>
+        <color value="#F0FFF0"><name lang="en">Honeydew</name></color>
+        <color value="#F5FFFA"><name lang="en">Mint Cream</name></color>
+        <color value="#F0FFFF"><name lang="en">Azure</name></color>
+        <color value="#F0F8FF"><name lang="en">Alice Blue</name></color>
+        <color value="#F8F8FF"><name lang="en">Ghost White</name></color>
+        <color value="#F5F5F5"><name lang="en">White Smoke</name></color>
+        <color value="#FFF5EE"><name lang="en">Seashell</name></color>
+        <color value="#F5F5DC"><name lang="en">Beige</name></color>
+        <color value="#FDF5E6"><name lang="en">Old Lace</name></color>
+        <color value="#FFFAF0"><name lang="en">Floral White</name></color>
+        <color value="#FFFFF0"><name lang="en">Ivory</name></color>
+        <color value="#FAEBD7"><name lang="en">Antique White</name></color>
+        <color value="#FAF0E6"><name lang="en">Linen</name></color>
+        <color value="#FFF0F5"><name lang="en">Lavender Blush</name></color>
+        <color value="#FFE4E1"><name lang="en">Misty Rose</name></color>
+        <color value="#DCDCDC"><name lang="en">Gainsboro</name></color>
+        <color value="#D3D3D3"><name lang="en">Light Gray</name></color>
+        <color value="#C0C0C0"><name lang="en">Silver</name></color>
+        <color value="#A9A9A9"><name lang="en">Dark Gray</name></color>
+        <color value="#BEBEBE"><name lang="en">Gray</name></color>
+        <color value="#696969"><name lang="en">Dim Gray</name></color>
+        <color value="#778899"><name lang="en">Light Slate Gray</name></color>
+        <color value="#708090"><name lang="en">Slate Gray</name></color>
+        <color value="#2F4F4F"><name lang="en">Dark Slate Gray</name></color>
+        <color value="#000000"><name lang="en">Black</name></color>
+    </list>
+
+</palette>

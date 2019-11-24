@@ -1,0 +1,11 @@
+if I non-virtually inherit IMakeable and IService does that mean I can use
+static_cast in service locator?
+
+when porting to Windows, make sure to specify cmake version 3.4 and add the
+property WINDOWS_EXPORT_ALL_SYMBOLS to the shared object modules.
+
+style: enum capitalization, BaseXXX or XXXBase?, initialize_p
+
+zoom slider needs some work
+
+destroy document views and presenters
