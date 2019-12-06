@@ -3,15 +3,16 @@
 
 #include <QObject>
 
+
+#include "interfaces/editing/irasteroperation.hpp"
 #include "idocumentpresenter.hpp"
 
-#include "common/interfaces/traits/initialize_traits.hpp"
-#include "common/interfaces/traits/qobject_trait.hpp"
-#include "common/interfaces/servicelocator/imakeable.hpp"
+#include "interfaces/traits/initialize_traits.hpp"
+#include "interfaces/traits/qobject_trait.hpp"
+#include "interfaces/servicelocator/imakeable.hpp"
 #include "ierrorpresenter.hpp"
 
 class IEditorView;
-class ICanvasPresenter;
 //class IToolOptionsPresenter;
 
 class IEditorPresenter : public virtual IDocumentPresenter, public virtual IMakeable
@@ -31,8 +32,25 @@ public:
     // virtual QColor getColor2() = 0;
     // virtual void setColor2(QColor color) = 0;
 
+    virtual ILayerPresenter* getSelectedLayer() = 0;
+    virtual void setSelectedLayer(int index) = 0;
+
 //signals:
     //virtual void selectedToolChanged(IToolOptionsPresenter::ToolRole tool) = 0;
+
+    struct DefaultTools
+    {
+        static const ToolId SELECT;
+        static const ToolId BRUSH;
+        static const ToolId ERASER;
+        static const ToolId FILL;
+        static const ToolId TEXT;
+        static const ToolId SHAPES;
+        static const ToolId STICKERS;
+        static const ToolId EYEDROP;
+        static const ToolId NAVIGATE;
+        static const ToolId MEASURE;
+    };
 };
 
 DECL_IMPLEMENTED_AS_QOBJECT(IEditorPresenter)

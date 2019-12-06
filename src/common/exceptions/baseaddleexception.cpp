@@ -2,11 +2,11 @@
 #include "baseaddleexception.hpp"
 #include <QStringBuilder>
 
-#include "common/utilities/qt_extensions/translation.hpp"
+#include "utilities/qt_extensions/translation.hpp"
 
 #ifdef ADDLE_DEBUG
 
-#include "common/utilities/debugging.hpp"
+#include "utilities/debugging.hpp"
 
 BaseAddleException::BaseAddleException(const QString& what)
     : _what(what)

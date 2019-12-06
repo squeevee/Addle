@@ -8,6 +8,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DADDLE_DEBUG")
 
 include_directories(
     src
+    src/common
 )
 
 add_subdirectory( src )

@@ -1,4 +1,5 @@
 #include "layer.hpp"
+#include "interfaces/editing/irasteroperation.hpp"
 
 #include <QPainter>
 
@@ -40,18 +41,18 @@ void Layer::initialize(LayerBuilder& builder)
     _initHelper.initializeEnd();
 }
 
-void Layer::render(QRect area, QPaintDevice* device)
+void Layer::render(QPainter& painter, QRect area)
 {
     _initHelper.assertInitialized();
 
-    if (!device)
-        return; //throw?
-
-    QPainter painter(device);
-
     QRect intersection = _boundary.intersected(area);
-
     painter.drawImage(intersection, _buffer, _ontoBuffer.mapRect(intersection));
-    painter.end();
 }
 
+
+void Layer::applyRasterOperation(IRasterOperation* operation)
+{
+    QPainter painter(&_buffer);
+
+    operation->render(painter, _boundary);
+}

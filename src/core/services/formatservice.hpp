@@ -6,11 +6,11 @@
 #include <QSet>
 
 #include "servicebase.hpp"
-#include "common/utilities/qt_extensions/qhash.hpp"
-#include "common/interfaces/format/iformatdriver.hpp"
-#include "common/interfaces/services/iformatservice.hpp"
+#include "utilities/qt_extensions/qhash.hpp"
+#include "interfaces/format/iformatdriver.hpp"
+#include "interfaces/services/iformatservice.hpp"
 
-#include "common/utilities/data/formatid.hpp"
+#include "data/formatid.hpp"
 
 
 class FormatService : public virtual ServiceBase, public virtual IFormatService

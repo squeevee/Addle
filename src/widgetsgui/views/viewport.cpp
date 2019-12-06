@@ -1,17 +1,21 @@
 #include "viewport.hpp"
+#include <QtDebug>
 
 #include <QPaintEngine>
 
 #include <QLayout>
 #include <QGridLayout>
 #include <QGraphicsPixmapItem>
+#include <QGraphicsSceneMouseEvent>
 
+#include <QPolygonF>
 #include <QResizeEvent>
 
-#include "common/servicelocator.hpp"
-#include "common/utilities/qt_extensions/qobject.hpp"
+#include "servicelocator.hpp"
+#include "utilities/qt_extensions/qobject.hpp"
 
-#include "common/interfaces/views/icanvasview.hpp"
+#include "interfaces/views/icanvasview.hpp"
+#include "interfaces/presenters/tools/itoolpresenter.hpp"
 
 void ViewPort::initialize(IViewPortPresenter* presenter)
 {
@@ -21,14 +25,24 @@ void ViewPort::initialize(IViewPortPresenter* presenter)
     QGraphicsView::setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     
     QFrame::setFrameShape(QFrame::Shape::StyledPanel);
+    QGraphicsView::setTransformationAnchor(ViewportAnchor::AnchorViewCenter);
 
     _presenter = presenter;
-    _canvasPresenter = _presenter->getCanvasPresenter();
 
-    QGraphicsScene* scene = dynamic_cast<QGraphicsScene*>(_canvasPresenter->getView());
+    QGraphicsScene* scene = dynamic_cast<QGraphicsScene*>(_presenter->getDocumentPresenter()->getCanvasView());
     QGraphicsView::setScene(scene);
 
-    connect_interface(_presenter, SIGNAL(transformsChanged()), this, SLOT(onPresenterTransformsChanged()));
+    connect_interface(
+        _presenter,
+        SIGNAL(transformsChanged()),
+        this,
+        SLOT(onPresenterTransformsChanged()),
+        // QueuedConnection is important for avoiding jitter with tools that move
+        // the viewport, on X11. X11 mouse events are asynchronous so changing
+        // the transforms inside the mouse event handler causes Qt to calculate
+        // positions based on mismatched mouse positions and transforms.
+        Qt::ConnectionType::QueuedConnection
+    );
 
     _initHelper.initializeEnd();
 }
@@ -36,18 +50,31 @@ void ViewPort::initialize(IViewPortPresenter* presenter)
 void ViewPort::resizeEvent(QResizeEvent *event)
 {
     _initHelper.assertInitialized();
-    _presenter->setSize(QWidget::contentsRect().size());
+    _presenter->setViewPortSize(QWidget::contentsRect().size());
+}
+
+void ViewPort::moveEvent(QMoveEvent *event)
+{
+    _presenter->setGlobalOffset(QWidget::mapToGlobal(QWidget::contentsRect().topLeft()));
 }
 
 void ViewPort::onPresenterTransformsChanged()
 {
     _initHelper.assertInitialized();
-    QTransform fromCanvas = _presenter->getFromCanvasTransform();
 
+    QRectF bound = _presenter->getOntoCanvasTransform().mapRect(QRectF(QPointF(), _presenter->getViewPortSize()));
+
+    // Moving the scene while the mouse is pressed can cause additional mouse
+    // events to be sent with positions based on outdated transforms, and this
+    // causes jitter when a tool is moving the viewport. We block these events
+    // until the transform is done.
     MouseEventBlocker blocker;
     QGraphicsView::scene()->installEventFilter(&blocker);
-    QGraphicsView::setTransform(fromCanvas);
-    QGraphicsView::setSceneRect(_presenter->getSceneRect());
+
+    QGraphicsView::setSceneRect(bound);
+    QGraphicsView::setTransform(_presenter->getFromCanvasTransform());
+    QGraphicsView::centerOn(_presenter->getPosition());
+
     QGraphicsView::scene()->removeEventFilter(&blocker);
 }
 

@@ -1,11 +1,11 @@
 #ifndef IPNGFORMATDRIVER_HPP
 #define IPNGFORMATDRIVER_HPP
 
-#include "common/interfaces/servicelocator/imakeable.hpp"
+#include "interfaces/servicelocator/imakeable.hpp"
 
 #include "../iformatdriver.hpp"
 
-#include "common/utilities/data/formatid.hpp"
+#include "data/formatid.hpp"
 
 class IPNGFormatDriver : public virtual IFormatDriver, public virtual IMakeable
 {

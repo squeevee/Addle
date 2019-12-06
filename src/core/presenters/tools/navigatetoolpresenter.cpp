@@ -1,40 +1,37 @@
 #include "navigatetoolpresenter.hpp"
+#include <QtDebug>
+#include <QMetaEnum>
 
 void NavigateToolPresenter::initialize(IDocumentPresenter* owner)
 {
     _initHelper.initializeBegin();
 
-    _documentPresenter = owner;
-    _viewPortPresenter = _documentPresenter->getViewPortPresenter();
     ToolPresenterBase::initialize_p(owner);
+
+    _translationContext = "NavigateToolPresenter";
+
+    initializeEnumOptionText<NavigateOperationOptions>("navigateOperation");
 
     _initHelper.initializeEnd();
 }
 
-void NavigateToolPresenter::pointerEngage(QPoint pos)
+
+void NavigateToolPresenter::onPointerEngage()
+{
+    _initHelper.assertInitialized();
+}
+
+void NavigateToolPresenter::onPointerMove()
 {
     _initHelper.assertInitialized();
 
-    if (!_dragHelper.isEngaged())
+    switch (_operation)
     {
-        _anchor = _viewPortPresenter->getPosition();
-        _dragHelper.engage(pos);
+    case NavigateOperationOptions::gripPan:
+        _viewPortPresenter->gripPan(_toolPathHelper.getFirstCanvasPosition(), _toolPathHelper.getLastCanvasPosition());
+        break;
+    case NavigateOperationOptions::gripPivot:
+        _viewPortPresenter->gripPivot(_toolPathHelper.getFirstCanvasPosition(), _toolPathHelper.getLastCanvasPosition());
+        break;
     }
-}
-void NavigateToolPresenter::pointerMove(QPoint pos)
-{
-    _initHelper.assertInitialized();
-    if (_dragHelper.isEngaged())
-    {
-        _dragHelper.move(pos);
-        QTransform ontoCanvas = _viewPortPresenter->getOntoCanvasTransform();
-        QPointF diff = ontoCanvas.map(QPointF(_dragHelper.getFirstPosition()))
-             - ontoCanvas.map(QPointF(_dragHelper.getLastPosition()));
-        _viewPortPresenter->setPosition(_anchor + diff);
-    }
-}
-void NavigateToolPresenter::pointerDisengage(QPoint pos)
-{
-    _initHelper.assertInitialized();
-    _dragHelper.disengage(pos);
 }

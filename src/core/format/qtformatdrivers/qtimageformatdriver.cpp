@@ -1,7 +1,7 @@
 #include "qtimageformatdriver.hpp"
 
-#include "common/interfaces/models/idocument.hpp"
-#include "common/servicelocator.hpp"
+#include "interfaces/models/idocument.hpp"
+#include "servicelocator.hpp"
 
 #include <QImage>
 #include <QString>

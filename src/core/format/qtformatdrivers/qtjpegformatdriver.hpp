@@ -1,7 +1,7 @@
 #ifndef QTJPEGFORMATDRIVER_HPP
 #define QTJPEGFORMATDRIVER_HPP
 
-#include "common/interfaces/format/drivers/ijpegformatdriver.hpp"
+#include "interfaces/format/drivers/ijpegformatdriver.hpp"
 
 #include "qtimageformatdriver.hpp"
 

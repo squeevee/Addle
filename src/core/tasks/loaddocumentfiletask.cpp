@@ -1,7 +1,7 @@
 #include "loaddocumentfiletask.hpp"
 
-#include "common/servicelocator.hpp"
-#include "common/interfaces/services/iformatservice.hpp"
+#include "servicelocator.hpp"
+#include "interfaces/services/iformatservice.hpp"
 
 LoadDocumentFileTask::LoadDocumentFileTask()
     : _initHelper(this)

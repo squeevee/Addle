@@ -1,5 +1,5 @@
 if I non-virtually inherit IMakeable and IService does that mean I can use
-static_cast in service locator?
+static_cast in service locator? Probably a few cases that'd work like that.
 
 when porting to Windows, make sure to specify cmake version 3.4 and add the
 property WINDOWS_EXPORT_ALL_SYMBOLS to the shared object modules.
@@ -9,3 +9,21 @@ style: enum capitalization, BaseXXX or XXXBase?, initialize_p
 zoom slider needs some work
 
 destroy document views and presenters
+
+cut icon
+redo icon looks like it's disabled
+
+tool mouse inputs
+
+tighten up default editor tools
+
+take user text translation keys out of FormatId and ToolId, and make the
+presenters responsible for that instead (?). Opt instead for programmer-readable
+names
+
+clean up the preset helper API with initializier lists or something, even if
+heaven forbid it makes lookups operate on logarithmic time instead of constant
+time.
+
+Canvas presenter and document presenter feel redundant, and document view feels
+mis-named. I need to work on this structure.

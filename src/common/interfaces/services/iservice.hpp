@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include "common/interfaces/servicelocator/iservicelocator.hpp"
+#include "interfaces/servicelocator/iservicelocator.hpp"
 
 class IService
 {

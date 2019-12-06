@@ -7,12 +7,12 @@
  * 
  * Specifies various general-purpose extensions to QObject functionality
  */
-#ifndef QT_EXTENSIONS__QOBJECT_H
-#define QT_EXTENSIONS__QOBJECT_H
+#ifndef QT_EXTENSIONS__QOBJECT_HPP
+#define QT_EXTENSIONS__QOBJECT_HPP
 
 #include <QObject>
 
-#include "common/interfaces/traits/qobject_trait.hpp"
+#include "interfaces/traits/qobject_trait.hpp"
 
 /**
  * @brief Wrapper for dynamic_cast<QObject*>(object), which requires
@@ -131,5 +131,4 @@ inline QMetaObject::Connection connect_interface2(
     return QObject::connect(qsender, signal, qreceiver, slot);
 }
 
-
-#endif // QT_EXTENSIONS__QOBJECT_H
+#endif // QT_EXTENSIONS__QOBJECT_HPP

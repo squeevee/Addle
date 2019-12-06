@@ -2,12 +2,14 @@
 #define BASEDOCUMENTPRESENTER_HPP
 
 #include <QObject>
+#include <QList>
 #include <QSet>
+#include <QHash>
 
-#include "common/interfaces/tasks/itask.hpp"
-#include "common/interfaces/presenters/iviewportpresenter.hpp"
-#include "common/interfaces/presenters/idocumentpresenter.hpp"
-//#include "common/interfaces/presenters/itooloptionspresenter.hpp"
+#include "interfaces/tasks/itask.hpp"
+#include "interfaces/presenters/iviewportpresenter.hpp"
+#include "interfaces/presenters/idocumentpresenter.hpp"
+//#include "interfaces/presenters/itoolpresenter.hpp"
 
 class BaseDocumentPresenter : public QObject, public virtual IDocumentPresenter
 {
@@ -16,19 +18,30 @@ class BaseDocumentPresenter : public QObject, public virtual IDocumentPresenter
 public:
     virtual ~BaseDocumentPresenter();
 
+    ICanvasView* getCanvasView();
+
     IViewPortPresenter* getViewPortPresenter();
-    ICanvasPresenter* getCanvasPresenter();
 
     //virtual IToolOptionsPresenter* getToolOptionsPresenter() { _toolOptionsPresenter; }
 
-    void setCurrentTool(IToolPresenter* tool);
-    IToolPresenter* getCurrentTool() { return _currentTool; }
-    QList<IToolPresenter*> getTools() { return _tools; }
+    ToolId getCurrentTool() { return _currentTool; }
+    void setCurrentTool(ToolId tool);
+    QList<ToolId> getTools() { return _tools; }
+
+    IToolPresenter* getToolPresenter(ToolId id) { return _toolPresenters.value(id); }
+    IToolPresenter* getCurrentToolPresenter() { return _currentToolPresenter; }
+
+
+    bool isEmpty() { return !_document; }
+    QSize getCanvasSize() { return _document->getSize(); }
+    QColor getBackgroundColor() { return Qt::GlobalColor::white; } // todo
+
+    QList<ILayerPresenter*> getLayerPresenters() { return _layerPresenters; }
 
 signals:
     void raiseError(QSharedPointer<IErrorPresenter> error);
     void documentChanged(QSharedPointer<IDocument> document);
-    void currentToolChanged(IToolPresenter* tool);
+    void currentToolChanged(ToolId tool);
 
 public slots:
     void loadDocument(QFileInfo fileInfo);
@@ -39,24 +52,22 @@ private slots:
     void onLoadDocumentTaskDone(ITask* task);
 
 protected:
+    QList<ToolId> _tools;
+    QHash<ToolId, IToolPresenter*> _toolPresenters;
+    ToolId _currentTool;
+    IToolPresenter* _currentToolPresenter = nullptr;
 
-    void setTools(const QList<IToolPresenter*>& tools);
-
-
-    IToolPresenter* _currentTool = nullptr;
-
-    void setDocument(QSharedPointer<IDocument> document);
+    virtual void setDocument(QSharedPointer<IDocument> document);
 
     QSharedPointer<IDocument> _document;
+
+    QList<ILayerPresenter*> _layerPresenters;
 
     //IToolOptionsPresenter* _toolOptionsPresenter;
 
 private:
-    QList<IToolPresenter*> _tools;
-    QSet<IToolPresenter*> _toolsSet;
-
     IViewPortPresenter* _viewPortPresenter = nullptr;
-    ICanvasPresenter* _canvasPresenter = nullptr;
+    ICanvasView* _canvasView = nullptr;
 };
 
 #endif // BASEDOCUMENTPRESENTER_HPP

@@ -1,13 +1,32 @@
 #include "editorpresenter.hpp"
 
-#include "common/interfaces/presenters/tools/inavigatetoolpresenter.hpp"
-#include "common/servicelocator.hpp"
+#include "interfaces/presenters/tools/inavigatetoolpresenter.hpp"
+#include "servicelocator.hpp"
 
 EditorPresenter::EditorPresenter()
 {
-    setTools({
-        _navigateTool = ServiceLocator::make<INavigateToolPresenter>(this)
-        });
+    _tools = {
+        DefaultTools::SELECT,
+        DefaultTools::BRUSH,
+        DefaultTools::ERASER,
+        DefaultTools::TEXT,
+        DefaultTools::SHAPES,
+        DefaultTools::STICKERS,
+        DefaultTools::EYEDROP,
+        DefaultTools::NAVIGATE,
+        DefaultTools::MEASURE
+    };
+
+    _toolPresenters = {
+        {
+            DefaultTools::BRUSH,
+            _brushTool = ServiceLocator::make<IBrushToolPresenter>(this)
+        },
+        {
+            DefaultTools::NAVIGATE,
+            _navigateTool = ServiceLocator::make<INavigateToolPresenter>(this)
+        }
+    };
 }
 
 IEditorView* EditorPresenter::getEditorView()
@@ -31,4 +50,12 @@ void EditorPresenter::onActionLoadDocument(QString filename)
     {
         loadDocument(QFileInfo(filename));
     }
+}
+
+void EditorPresenter::setDocument(QSharedPointer<IDocument> document)
+{
+    BaseDocumentPresenter::setDocument(document);
+
+    setCurrentTool(DefaultTools::NAVIGATE);
+    setSelectedLayer(0);
 }

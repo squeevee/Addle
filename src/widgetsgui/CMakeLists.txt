@@ -1,16 +1,21 @@
 find_package(Qt5 REQUIRED COMPONENTS Core Widgets)
 
-set ( CMAKE_AUTOUIC ON )
 set ( CMAKE_AUTOMOC ON )
-
-set ( CMAKE_AUTOUIC_SEARCH_PATHS uic )
 
 set (
     SOURCES
-    utilities/zoomslider.cpp
+    widgets/tooloptionsbars/helpers/enumactiongroup.cpp
+    widgets/tooloptionsbars/brushtooloptionsbar.cpp
+    widgets/tooloptionsbars/navigatetooloptionsbar.cpp
+    widgets/tooloptionsbars/tooloptionbarbase.cpp
+    widgets/selecttoolaction.cpp
+    widgets/viewportwidget.cpp
+    widgets/zoomrotatewidget.cpp
+    widgets/zoomslider.cpp
     views/canvasview.cpp
     views/basedocumentview.cpp
     views/editorview.cpp
+    views/layerview.cpp
     views/viewport.cpp
 )
 

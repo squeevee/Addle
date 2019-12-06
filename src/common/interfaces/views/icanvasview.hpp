@@ -1,17 +1,17 @@
 #ifndef ICANVASVIEW_HPP
 #define ICANVASVIEW_HPP
 
-#include "common/interfaces/servicelocator/imakeable.hpp"
-#include "common/interfaces/traits/qobject_trait.hpp"
-#include "common/interfaces/traits/initialize_traits.hpp"
+#include "interfaces/servicelocator/imakeable.hpp"
+#include "interfaces/traits/qobject_trait.hpp"
+#include "interfaces/traits/initialize_traits.hpp"
 
-class ICanvasPresenter;
+class IDocumentPresenter;
 class ICanvasView: public virtual IMakeable
 {
 public:
     virtual ~ICanvasView() = default;
 
-    virtual void initialize(ICanvasPresenter* presenter) = 0;
+    virtual void initialize(IDocumentPresenter* presenter) = 0;
 public slots:
     virtual void update() = 0;
 };

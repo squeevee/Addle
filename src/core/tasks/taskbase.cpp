@@ -1,5 +1,5 @@
 #include "taskbase.hpp"
-#include "common/servicelocator.hpp"
+#include "servicelocator.hpp"
 
 TaskBase::TaskBase()
 {

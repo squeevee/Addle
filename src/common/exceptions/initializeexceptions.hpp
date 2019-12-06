@@ -13,8 +13,8 @@
 #include <QObject>
 #include <QStringBuilder>
 
-#include "common/globalconstants.hpp"
-#include "common/utilities/qt_extensions/translation.hpp"
+#include "globalconstants.hpp"
+#include "utilities/qt_extensions/translation.hpp"
 #include "baseaddleexception.hpp"
 
 DECL_LOGIC_ERROR(InitializeException)

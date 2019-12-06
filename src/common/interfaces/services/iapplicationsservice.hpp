@@ -5,10 +5,10 @@
 
 #include <QStringList>
 
-#include "common/interfaces/presenters/idocumentpresenter.hpp"
-#include "common/interfaces/traits/initialize_traits.hpp"
-#include "common/interfaces/traits/qobject_trait.hpp"
-#include "common/interfaces/servicelocator/imakeable.hpp"
+#include "interfaces/presenters/idocumentpresenter.hpp"
+#include "interfaces/traits/initialize_traits.hpp"
+#include "interfaces/traits/qobject_trait.hpp"
+#include "interfaces/servicelocator/imakeable.hpp"
 
 class IApplicationService : public virtual IService, public virtual IMakeable
 {

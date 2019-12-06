@@ -1,7 +1,7 @@
 #ifndef QTPNGFORMATDRIVER_HPP
 #define QTPNGFORMATDRIVER_HPP
 
-#include "common/interfaces/format/drivers/ipngformatdriver.hpp"
+#include "interfaces/format/drivers/ipngformatdriver.hpp"
 
 #include "qtimageformatdriver.hpp"
 

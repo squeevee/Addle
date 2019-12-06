@@ -12,16 +12,18 @@
 #include <memory>
 
 #include "serviceconfiguration.hpp"
-#include "common/utilities/configuration/registerqmetatypes.hpp"
-#include "common/utilities/qt_extensions/qobject.hpp"
+#include "utilities/configuration/registerqmetatypes.hpp"
+#include "utilities/qt_extensions/qobject.hpp"
 
-#include "common/interfaces/services/iapplicationsservice.hpp"
+#include "interfaces/services/iapplicationsservice.hpp"
 
-#include "common/globalconstants.hpp"
+#include "globalconstants.hpp"
 
 #ifdef ADDLE_DEBUG
-#include "common/utilities/debugging.hpp"
+#include "utilities/debugging.hpp"
 #endif //ADDLE_DEBUG
+
+#include "core/presenters/tools/navigatetoolpresenter.hpp"
 
 int main(int argc, char *argv[])
 {

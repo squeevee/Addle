@@ -5,8 +5,8 @@
 #include <QQueue>
 #include <QThread>
 
-#include "common/interfaces/services/itaskservice.hpp"
-#include "common/interfaces/tasks/itask.hpp"
+#include "interfaces/services/itaskservice.hpp"
+#include "interfaces/tasks/itask.hpp"
 #include "servicebase.hpp"
 
 #include "helpers/servicethreadhelper.hpp"

@@ -5,13 +5,13 @@
 #include <QUrl>
 #include "servicebase.hpp"
 
-#include "common/interfaces/views/idocumentview.hpp"
-#include "common/interfaces/views/ieditorview.hpp"
+#include "interfaces/views/idocumentview.hpp"
+#include "interfaces/views/ieditorview.hpp"
 
-#include "common/interfaces/presenters/idocumentpresenter.hpp"
-#include "common/interfaces/presenters/ieditorpresenter.hpp"
+#include "interfaces/presenters/idocumentpresenter.hpp"
+#include "interfaces/presenters/ieditorpresenter.hpp"
 
-#include "common/interfaces/services/iapplicationsservice.hpp"
+#include "interfaces/services/iapplicationsservice.hpp"
 
 #include "helpers/servicethreadhelper.hpp"
 

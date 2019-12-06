@@ -1,36 +1,44 @@
 #ifndef INAVIGATETOOLPRESENTER_HPP
 #define INAVIGATETOOLPRESENTER_HPP
 
+#include <QObject>
+#include <QString>
+#include <QIcon>
+
 #include "itoolpresenter.hpp"
-#include "common/interfaces/traits/initialize_traits.hpp"
-#include "common/interfaces/traits/qobject_trait.hpp"
-#include "common/interfaces/servicelocator/imakeable.hpp"
-#include "common/interfaces/presenters/iviewportpresenter.hpp"
+#include "interfaces/traits/initialize_traits.hpp"
+#include "interfaces/traits/qobject_trait.hpp"
+#include "interfaces/servicelocator/imakeable.hpp"
+#include "interfaces/presenters/iviewportpresenter.hpp"
 
 class INavigateToolPresenter : public virtual IToolPresenter, public virtual IMakeable
 {
+    Q_GADGET
 public:
+
+    static const ToolId NAVIGATE_TOOL_ID;
+
     enum NavigateOperationOptions {
         gripPan,
-        gripZoom,
-        gripRotate,
+        gripPivot,
         rectangleZoomTo
     };
+    Q_ENUM(NavigateOperationOptions)
 
     static const NavigateOperationOptions DEFAULT_NAVIGATE_OPERATION_OPTION = gripPan;
 
     virtual ~INavigateToolPresenter() = default;
 
     virtual void initialize(IDocumentPresenter* owner) = 0;
-
+    
     virtual NavigateOperationOptions getNavigateOperation() = 0;
+
+public slots:
     virtual void setNavigateOperation(NavigateOperationOptions operation) = 0;
 
 signals:
     virtual void navigateOperationChanged(NavigateOperationOptions operation) = 0;
 };
-
-Q_DECLARE_METATYPE(INavigateToolPresenter::NavigateOperationOptions)
 
 DECL_EXPECTS_INITIALIZE(INavigateToolPresenter)
 DECL_INIT_DEPENDENCY(INavigateToolPresenter, IDocumentPresenter)

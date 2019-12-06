@@ -8,9 +8,9 @@
 
 #include <type_traits>
 
-#include "common/utilities/configuration/tfactory.hpp"
+#include "utilities/configuration/tfactory.hpp"
 
-#include "common/exceptions/baseaddleexception.hpp"
+#include "exceptions/baseaddleexception.hpp"
 
 namespace QObjectFactory_options
 {

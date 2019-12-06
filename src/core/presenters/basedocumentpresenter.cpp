@@ -2,59 +2,66 @@
 
 #include "basedocumentpresenter.hpp"
 
-#include "common/servicelocator.hpp"
+#include "servicelocator.hpp"
 
-#include "common/interfaces/services/itaskservice.hpp"
-#include "common/interfaces/services/iformatservice.hpp"
-#include "common/interfaces/presenters/icanvaspresenter.hpp"
+#include "interfaces/services/itaskservice.hpp"
+#include "interfaces/services/iformatservice.hpp"
 
-#include "common/interfaces/tasks/itaskcontroller.hpp"
-#include "common/interfaces/tasks/iloaddocumentfiletask.hpp"
+#include "interfaces/tasks/itaskcontroller.hpp"
+#include "interfaces/tasks/iloaddocumentfiletask.hpp"
 
-#include "common/utilities/qt_extensions/qobject.hpp"
+#include "interfaces/presenters/ilayerpresenter.hpp"
 
-#include "common/exceptions/fileexceptions.hpp"
+#include "utilities/qt_extensions/qobject.hpp"
 
-#include "common/interfaces/presenters/tools/itoolpresenter.hpp"
+#include "exceptions/fileexceptions.hpp"
+
+#include "interfaces/presenters/tools/itoolpresenter.hpp"
 
 #include <QFile>
 #include <QImage>
 
 BaseDocumentPresenter::~BaseDocumentPresenter()
 {
-    for (IToolPresenter* tool : _tools)
+    for (IToolPresenter* tool : _toolPresenters)
     {
         delete tool;
     }
 
     if (_viewPortPresenter)
         delete _viewPortPresenter;
+}
 
-    if (_canvasPresenter)
-        delete _canvasPresenter;
+
+ICanvasView* BaseDocumentPresenter::getCanvasView()
+{
+    if (!_canvasView)
+    {
+        _canvasView = ServiceLocator::make<ICanvasView>(this);
+    }
+    return _canvasView;
 }
 
 IViewPortPresenter* BaseDocumentPresenter::getViewPortPresenter()
 {
     if (!_viewPortPresenter)
     {
-        _viewPortPresenter = ServiceLocator::make<IViewPortPresenter>(this, getCanvasPresenter());
+        _viewPortPresenter = ServiceLocator::make<IViewPortPresenter>(this);
     }
     return _viewPortPresenter;
 }
 
-ICanvasPresenter* BaseDocumentPresenter::getCanvasPresenter()
-{
-    if (!_canvasPresenter)
-    {
-        _canvasPresenter = ServiceLocator::make<ICanvasPresenter>(this);
-    }
-    return _canvasPresenter;
-}
 
 void BaseDocumentPresenter::setDocument(QSharedPointer<IDocument> document)
 {
     _document = document;
+
+    _layerPresenters.clear(); //leak
+    for (ILayer* layer : _document->getLayers())
+    {
+        _layerPresenters.append(ServiceLocator::make<ILayerPresenter>(this, layer));
+    }
+
     emit documentChanged(_document);
     getViewPortPresenter()->resetView();
 }
@@ -117,21 +124,22 @@ void BaseDocumentPresenter::onLoadDocumentTaskDone(ITask* task)
     }
 }
 
-void BaseDocumentPresenter::setTools(const QList<IToolPresenter*>& tools)
+void BaseDocumentPresenter::setCurrentTool(ToolId tool)
 {
-    _tools = tools;
-    _toolsSet = _tools.toSet();
-    _currentTool = _tools.first();
-}
+    if (tool == _currentTool)
+        return;
 
-void BaseDocumentPresenter::setCurrentTool(IToolPresenter* tool)
-{
-    if (!_toolsSet.contains(tool))
+    if (!_toolPresenters.contains(tool))
     {
         //throw or something i dunno
         return;
     }
 
     _currentTool = tool;
+    IToolPresenter* previousTool = _currentToolPresenter;
+    _currentToolPresenter = _toolPresenters.value(tool);
     emit currentToolChanged(_currentTool);
+    emit _currentToolPresenter->selectionChanged(true);
+    if (previousTool)
+        emit previousTool->selectionChanged(false);
 }

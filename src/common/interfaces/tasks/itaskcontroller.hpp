@@ -1,10 +1,10 @@
 #ifndef ITASKCONTROLLER_HPP
 #define ITASKCONTROLLER_HPP
 
-#include "common/interfaces/iaddleexception.hpp"
-#include "common/interfaces/traits/qobject_trait.hpp"
+#include "interfaces/iaddleexception.hpp"
+#include "interfaces/traits/qobject_trait.hpp"
 #include "itask.hpp"
-#include "common/interfaces/servicelocator/imakeable.hpp"
+#include "interfaces/servicelocator/imakeable.hpp"
 
 class ITaskController : public IMakeable
 {

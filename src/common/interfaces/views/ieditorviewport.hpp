@@ -2,9 +2,9 @@
 #define IEDITORVIEWPORT_HPP
 
 #include "iviewport.hpp"
-#include "common/interfaces/servicelocator/imakeable.hpp"
-#include "common/interfaces/traits/qobject_trait.hpp"
-#include "common/interfaces/traits/initialize_traits.hpp"
+#include "interfaces/servicelocator/imakeable.hpp"
+#include "interfaces/traits/qobject_trait.hpp"
+#include "interfaces/traits/initialize_traits.hpp"
 
 
 class IEditorViewPort : public virtual IViewPort, public IMakeable

@@ -7,9 +7,9 @@
 
 #include "itask.hpp"
 
-#include "common/interfaces/models/idocument.hpp"
-#include "common/interfaces/traits/qobject_trait.hpp"
-#include "common/interfaces/servicelocator/imakeable.hpp"
+#include "interfaces/models/idocument.hpp"
+#include "interfaces/traits/qobject_trait.hpp"
+#include "interfaces/servicelocator/imakeable.hpp"
 
 class ILoadDocumentFileTask : public virtual ITask, public virtual IMakeable
 {

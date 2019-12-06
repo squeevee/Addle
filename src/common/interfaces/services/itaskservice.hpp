@@ -5,13 +5,13 @@
 
 #include <QSharedPointer>
 
-#include "common/interfaces/tasks/itask.hpp"
+#include "interfaces/tasks/itask.hpp"
 
-#include "common/interfaces/traits/initialize_traits.hpp"
-#include "common/interfaces/traits/qobject_trait.hpp"
-#include "common/interfaces/servicelocator/imakeable.hpp"
+#include "interfaces/traits/initialize_traits.hpp"
+#include "interfaces/traits/qobject_trait.hpp"
+#include "interfaces/servicelocator/imakeable.hpp"
 
-#include "common/interfaces/tasks/itaskcontroller.hpp"
+#include "interfaces/tasks/itaskcontroller.hpp"
 
 class ITaskService : public virtual IService,  public virtual IMakeable
 {

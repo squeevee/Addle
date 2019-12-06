@@ -1,9 +1,9 @@
 #ifndef IVIEWPORTVIEW_HPP
 #define IVIEWPORTVIEW_HPP
 
-#include "common/interfaces/servicelocator/imakeable.hpp"
-#include "common/interfaces/traits/initialize_traits.hpp"
-#include "common/interfaces/presenters/iviewportpresenter.hpp"
+#include "interfaces/servicelocator/imakeable.hpp"
+#include "interfaces/traits/initialize_traits.hpp"
+#include "interfaces/presenters/iviewportpresenter.hpp"
 
 class IViewPort: public virtual IMakeable
 {

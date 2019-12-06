@@ -7,14 +7,14 @@
 
 #include "applicationservice.hpp"
 
-#include "common/servicelocator.hpp"
+#include "servicelocator.hpp"
 
-#include "common/utilities/qt_extensions/qobject.hpp"
-#include "common/globalconstants.hpp"
-#include "common/exceptions/commandlineexceptions.hpp"
+#include "utilities/qt_extensions/qobject.hpp"
+#include "globalconstants.hpp"
+#include "exceptions/commandlineexceptions.hpp"
 
 #ifdef ADDLE_DEBUG
-#include "common/utilities/debugging.hpp"
+#include "utilities/debugging.hpp"
 #endif
 
 ApplicationService::~ApplicationService()

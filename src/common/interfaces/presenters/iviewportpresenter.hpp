@@ -6,11 +6,10 @@
 #include <QTransform>
 
 #include "idocumentpresenter.hpp"
-#include "icanvaspresenter.hpp"
 
-#include "common/interfaces/servicelocator/imakeable.hpp"
-#include "common/interfaces/traits/initialize_traits.hpp"
-#include "common/interfaces/traits/qobject_trait.hpp"
+#include "interfaces/servicelocator/imakeable.hpp"
+#include "interfaces/traits/initialize_traits.hpp"
+#include "interfaces/traits/qobject_trait.hpp"
 
 class IViewPort;
 class IViewPortPresenter: public virtual IMakeable
@@ -54,13 +53,14 @@ public:
     const ZoomPreset MAX_ZOOM_PRESET = ZoomPreset::_2000percent;
     const ZoomPreset DEFAULT_ZOOM_PRESET = ZoomPreset::_100percent;
 
+    const RotatePreset DEFAULT_ROTATE_PRESET = RotatePreset::_0deg;
+
     virtual ~IViewPortPresenter() = default;
 
-    virtual void initialize(IDocumentPresenter* documentPresenter, ICanvasPresenter* canvasPresenter) = 0;
+    virtual void initialize(IDocumentPresenter* documentPresenter) = 0;
 
     virtual IViewPort* getViewPort() = 0;
     virtual IDocumentPresenter* getDocumentPresenter() = 0;
-    virtual ICanvasPresenter* getCanvasPresenter() = 0;
 
     // # Scrolling / positioning
 public:
@@ -68,11 +68,12 @@ public:
     virtual void setPosition(QPointF center) = 0;
 
     virtual bool canScroll() = 0;
-    virtual bool canScrollInfinitely() = 0;
     virtual QRect getScrollRect() = 0;
     virtual void scrollX(int x) = 0;
     virtual void scrollY(int y) = 0;
     virtual void setScrollPosition(QPoint position) = 0;
+
+    virtual void gripPan(QPointF start, QPointF end) = 0;
 
 signals:
     virtual void positionChanged(QPointF position) = 0;
@@ -106,9 +107,7 @@ signals:
 public:
     virtual double getRotation() = 0;
     virtual void setRotation(double rotation) = 0;
-    //virtual void gripRotate(QPoint gripStart, QPoint gripEnd) = 0;
 
-    //virtual void twoGripTransform(QPoint grip1Start, QPoint grip1End, QPoint grip2Start, QPoint grip2End) = 0;
 
 public slots:
     virtual RotatePreset turntableCcw(bool* rotated = nullptr) = 0;
@@ -119,20 +118,22 @@ signals:
 
     // # General transforming
 public:
-    virtual QSize getSize() = 0;
+    virtual QSize getViewPortSize() = 0;
+    virtual QPoint getGlobalOffset() = 0;
     virtual QPointF getCenter() = 0;
+
+    virtual void gripPivot(QPointF start, QPointF end) = 0;
 
     virtual QTransform getOntoCanvasTransform() = 0;
     virtual QTransform getFromCanvasTransform() = 0;
-
-    virtual QRectF getSceneRect() = 0; // dubious
 
 public slots:
     virtual void resetView() = 0;
     virtual void fitWidth() = 0;
     virtual void fitCanvas() = 0;
 
-    virtual void setSize(QSize size) = 0;
+    virtual void setViewPortSize(QSize size) = 0;
+    virtual void setGlobalOffset(QPoint offset) = 0;
 
 signals:
     virtual void transformsChanged() = 0;
@@ -140,7 +141,6 @@ signals:
 
 DECL_EXPECTS_INITIALIZE(IViewPortPresenter)
 DECL_INIT_DEPENDENCY(IViewPortPresenter, IDocumentPresenter)
-DECL_INIT_DEPENDENCY(IViewPortPresenter, ICanvasPresenter)
 DECL_IMPLEMENTED_AS_QOBJECT(IViewPortPresenter)
 
 #endif // IVIEWPORTPRESENTER_HPP

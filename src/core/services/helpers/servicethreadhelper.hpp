@@ -1,7 +1,7 @@
 #ifndef SERVICETHREADHELPER_HPP
 #define SERVICETHREADHELPER_HPP
 
-#include "common/interfaces/services/iservice.hpp"
+#include "interfaces/services/iservice.hpp"
 
 #include <typeinfo>
 #include <QObject>

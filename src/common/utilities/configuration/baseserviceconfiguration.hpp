@@ -7,9 +7,9 @@
 
 #include <QCoreApplication>
 
-#include "common/servicelocator.hpp"
-#include "common/interfaces/traits/qobject_trait.hpp"
-#include "common/interfaces/traits/initialize_traits.hpp"
+#include "servicelocator.hpp"
+#include "interfaces/traits/qobject_trait.hpp"
+#include "interfaces/traits/initialize_traits.hpp"
 
 #define ASSERT_IMPLEMENTATION_HINTS(Interface, Impl) \
 static_assert( !implemented_as_QObject<Interface>::value || std::is_base_of<QObject, Impl>::value, "This implementation was expected to be QObject, but was not." );

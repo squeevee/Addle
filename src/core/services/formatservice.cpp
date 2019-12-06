@@ -1,18 +1,18 @@
 #include "formatservice.hpp"
 
-#include "common/interfaces/format/iformatdriver.hpp"
-#include "common/interfaces/format/drivers/ipngformatdriver.hpp"
-#include "common/interfaces/format/drivers/ijpegformatdriver.hpp"
+#include "interfaces/format/iformatdriver.hpp"
+#include "interfaces/format/drivers/ipngformatdriver.hpp"
+#include "interfaces/format/drivers/ijpegformatdriver.hpp"
 
 #include <typeinfo>
 #include <algorithm>
 #include <QSharedPointer>
 
-#include "common/servicelocator.hpp"
-#include "common/exceptions/formatexceptions.hpp"
+#include "servicelocator.hpp"
+#include "exceptions/formatexceptions.hpp"
 
-#include "common/utilities/fileassertions.hpp"
-#include "common/utilities/data/taskmessages/formatmismatchmessage.hpp"
+#include "utilities/fileassertions.hpp"
+#include "data/taskmessages/formatmismatchmessage.hpp"
 
 FormatService::FormatService()
 {

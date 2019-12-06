@@ -10,5 +10,6 @@ add_library( common SHARED
     utilities/debugging.cpp
     utilities/qt_extensions/qhash.cpp
     utilities/qt_extensions/translation.cpp
+    utilities/qt_extensions/propertyobserver.cpp
 )
 target_link_libraries(common Qt5::Core Qt5::Gui)

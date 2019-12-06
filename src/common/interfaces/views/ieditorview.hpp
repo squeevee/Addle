@@ -3,10 +3,10 @@
 
 #include "idocumentview.hpp"
 
-#include "common/interfaces/traits/initialize_traits.hpp"
-#include "common/interfaces/traits/qobject_trait.hpp"
-#include "common/interfaces/servicelocator/imakeable.hpp"
-#include "common/interfaces/presenters/ieditorpresenter.hpp"
+#include "interfaces/traits/initialize_traits.hpp"
+#include "interfaces/traits/qobject_trait.hpp"
+#include "interfaces/servicelocator/imakeable.hpp"
+#include "interfaces/presenters/ieditorpresenter.hpp"
 
 class IEditorView: public virtual IDocumentView, public virtual IMakeable
 {

@@ -9,13 +9,15 @@
  * QHash and QSet
  */
 
-#ifndef QT_EXTENSIONS__QHASH_H
-#define QT_EXTENSIONS__QHASH_H
+#ifndef QT_EXTENSIONS__QHASH_HPP
+#define QT_EXTENSIONS__QHASH_HPP
 
 #include <typeindex>
 #include <QHash>
 
-#include "common/utilities/data/formatid.hpp"
+#include "data/formatid.hpp"
+#include "data/toolid.hpp"
+#include "data/brushtipid.hpp"
 
 namespace std
 {
@@ -23,5 +25,7 @@ namespace std
 }
 
 uint qHash(const FormatId& format);
+uint qHash(const ToolId& tool);
+uint qHash(const BrushTipId& brush);
 
-#endif //QT_EXTENSIONS__QHASH_H
+#endif //QT_EXTENSIONS__QHASH_HPP

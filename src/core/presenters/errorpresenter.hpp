@@ -1,9 +1,9 @@
 #ifndef ERRORPRESENTER_HPP
 #define ERRORPRESENTER_HPP
 
-#include "common/interfaces/presenters/ierrorpresenter.hpp"
+#include "interfaces/presenters/ierrorpresenter.hpp"
 
-#include "common/utilities/initializehelper.hpp"
+#include "utilities/initializehelper.hpp"
 
 class ErrorPresenter : public IErrorPresenter
 {

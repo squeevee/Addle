@@ -3,8 +3,8 @@
 
 #include <QString>
 
-#include "common/interfaces/traits/initialize_traits.hpp"
-#include "common/interfaces/servicelocator/imakeable.hpp"
+#include "interfaces/traits/initialize_traits.hpp"
+#include "interfaces/servicelocator/imakeable.hpp"
 
 class IErrorPresenter : public virtual IMakeable
 {

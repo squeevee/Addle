@@ -1,8 +1,8 @@
 #ifndef SERVICEBASE_HPP
 #define SERVICEBASE_HPP
 
-#include "common/interfaces/services/iservice.hpp"
-#include "common/interfaces/servicelocator/iservicelocator.hpp"
+#include "interfaces/services/iservice.hpp"
+#include "interfaces/servicelocator/iservicelocator.hpp"
 
 class ServiceBase : public virtual IService
 {

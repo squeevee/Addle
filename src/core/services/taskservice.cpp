@@ -2,13 +2,13 @@
 #include <QtDebug>
 #include <cstdlib>
 
-#include "common/utilities/qt_extensions/qobject.hpp"
-#include "common/utilities/qt_extensions/translation.hpp"
+#include "utilities/qt_extensions/qobject.hpp"
+#include "utilities/qt_extensions/translation.hpp"
 
-#include "common/servicelocator.hpp"
+#include "servicelocator.hpp"
 
 #ifdef ADDLE_DEBUG
-#include "common/utilities/debugging.hpp"
+#include "utilities/debugging.hpp"
 #endif
 
 TaskService::TaskService()

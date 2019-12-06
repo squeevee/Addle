@@ -10,15 +10,15 @@
 #include <type_traits>
 
 #include "iservice.hpp"
-#include "common/interfaces/models/idocument.hpp"
+#include "interfaces/models/idocument.hpp"
 
-#include "common/interfaces/format/iformatmodel.hpp"
+#include "interfaces/format/iformatmodel.hpp"
 
-#include "common/interfaces/tasks/itaskstatuscontroller.hpp"
+#include "interfaces/tasks/itaskstatuscontroller.hpp"
 
-#include "common/interfaces/traits/initialize_traits.hpp"
-#include "common/utilities/data/importexportinfo.hpp"
-#include "common/interfaces/servicelocator/imakeable.hpp"
+#include "interfaces/traits/initialize_traits.hpp"
+#include "data/importexportinfo.hpp"
+#include "interfaces/servicelocator/imakeable.hpp"
 
 /**
  * @class IFormatService

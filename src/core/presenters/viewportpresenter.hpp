@@ -4,13 +4,13 @@
 #include <QObject>
 #include <QRect>
 
-#include "common/interfaces/presenters/icanvaspresenter.hpp"
-#include "common/interfaces/presenters/ieditorpresenter.hpp"
-#include "common/interfaces/presenters/iviewportpresenter.hpp"
-#include "common/interfaces/views/iviewport.hpp"
-#include "./helpers/zoomrotatehelper.hpp"
+#include "interfaces/presenters/ieditorpresenter.hpp"
+#include "interfaces/presenters/iviewportpresenter.hpp"
+#include "interfaces/views/iviewport.hpp"
+#include "utilities/presethelpers/zoompresethelper.hpp"
+#include "utilities/presethelpers/rotatepresethelper.hpp"
 
-#include "common/utilities/initializehelper.hpp"
+#include "utilities/initializehelper.hpp"
 
 //The ViewPort is the main presenter for the Canvas, representing a rectangular
 //region onscreen that transforms and displays the Canvas' contents. The
@@ -20,16 +20,16 @@ class ViewPortPresenter: public QObject, public virtual IViewPortPresenter
     Q_OBJECT
 public:
 
-    ViewPortPresenter() : _initHelper(this)
+    ViewPortPresenter()
+        : _initHelper(this)
     {
     }
     virtual ~ViewPortPresenter() = default;
 
-    void initialize(IDocumentPresenter* documentPresenter, ICanvasPresenter* canvasPresenter);
+    void initialize(IDocumentPresenter* documentPresenter);
 
     IViewPort* getViewPort();
     IDocumentPresenter* getDocumentPresenter() { _initHelper.assertInitialized(); return _documentPresenter; }
-    ICanvasPresenter* getCanvasPresenter() { _initHelper.assertInitialized(); return _canvasPresenter; }
 
     // # Scrolling / positioning
 public:
@@ -37,12 +37,16 @@ public:
     void setPosition(QPointF center);
     
     bool canScroll();
-    bool canScrollInfinitely() { return false; } //TODO
     QRect getScrollRect();
     void scrollX(int x) { setScrollPosition(QPoint(x, 0)); }
     void scrollY(int y) { setScrollPosition(QPoint(0, y)); }
     void setScrollPosition(QPoint position);
 
+    void gripPan(QPointF start, QPointF end);
+
+private:
+    QPoint getScrollPosition(QPointF position);
+    QPoint projectOntoScrollRect(QPoint scrollPosition);
 signals:
     void positionChanged(QPointF position);
     void scrollStateChanged();
@@ -58,8 +62,8 @@ public:
     
     ZoomPreset getZoomPreset() { _initHelper.assertInitialized(); return _zoomPreset; }
     void setZoomPreset(ZoomPreset preset);
-    double getMaxZoomPresetValue() { _initHelper.assertInitialized(); return ZoomRotateHelper::zoomValueOf(MAX_ZOOM_PRESET); }
-    double getMinZoomPresetValue() { _initHelper.assertInitialized(); return ZoomRotateHelper::zoomValueOf(MIN_ZOOM_PRESET); }
+    double getMaxZoomPresetValue() { _initHelper.assertInitialized(); return ZoomPresetHelper::zoomValueOf(MAX_ZOOM_PRESET); }
+    double getMinZoomPresetValue() { _initHelper.assertInitialized(); return ZoomPresetHelper::zoomValueOf(MIN_ZOOM_PRESET); }
 
     ZoomPreset zoomTo(double zoom, bool snapToPreset = true);
 
@@ -71,9 +75,14 @@ public slots:
 signals:
     void zoomChanged(double zoom);
 
+private:
+    double constrainZoom(double zoom);
+
 public:
     double getRotation() { _initHelper.assertInitialized(); return _rotation; }
     void setRotation(double rotation);
+    RotatePreset getRotatePreset() { _initHelper.assertInitialized(); return _rotatePreset; }
+    void setRotatePreset(RotatePreset preset);
 
 public slots:
     RotatePreset turntableCcw(bool* rotated = nullptr);
@@ -84,25 +93,29 @@ signals:
 
 public:
 
-    QSize getSize() { _initHelper.assertInitialized(); return _size; }
+    QSize getViewPortSize() { _initHelper.assertInitialized(); return _size; }
     virtual QPointF getCenter() { _initHelper.assertInitialized(); return _center; }
+
+    void gripPivot(QPointF gripStart, QPointF gripEnd);
 
     QTransform getOntoCanvasTransform() { _initHelper.assertInitialized(); return _ontoCanvas; }
     QTransform getFromCanvasTransform() { _initHelper.assertInitialized(); return _fromCanvas; }
-
-    QRectF getSceneRect();
 
 //    void gripMove(QPoint gripStart, QPoint gripEnd);
 //    void nudgeMove(int dx, int dy);
 //    void gripRotate(QPoint gripStart, QPoint gripEnd);
 //    void twoGripTransform(QPoint grip1Start, QPoint grip1End, QPoint grip2Start, QPoint grip2End);
 
+    QPoint getGlobalOffset() { _initHelper.assertInitialized(); return _globalOffset; }
+
 public slots:
     void resetView();
     void fitWidth();
     void fitCanvas();
 
-    void setSize(QSize size);
+    void setViewPortSize(QSize size);
+
+    void setGlobalOffset(QPoint offset) { _initHelper.assertInitialized(); _globalOffset = offset; }
 
 signals:
     void transformsChanged();
@@ -110,7 +123,6 @@ signals:
 private:
     IViewPort* _viewPort = nullptr;
     IDocumentPresenter* _documentPresenter;
-    ICanvasPresenter* _canvasPresenter;
 
     //The actual size of the viewport on the screen.
     QSize _size;
@@ -121,10 +133,14 @@ private:
     //The zoom factor of the viewport
     double _zoom = 1.0;
 
-
+    ZoomPreset _zoomPreset;
 
     //The rotation of the viewport in degrees
     double _rotation = 0.0;
+
+    RotatePreset _rotatePreset;
+
+    QPoint _globalOffset;
 
     //The center of the viewport in the canvas' coordinates.
     QPointF _position;
@@ -136,8 +152,6 @@ private:
     QTransform _fromCanvas;
 
     void calculateTransforms();
-    ZoomPreset _zoomPreset;
-    ZoomRotateHelper _zoomHelper;
 
     void centerView();
     const double ZOOM_SNAP_THRESHOLD = 0.10;

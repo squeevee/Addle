@@ -8,10 +8,10 @@
 
 #include <QTransform>
 
-#include "common/interfaces/models/ilayer.hpp"
-#include "common/interfaces/models/idocument.hpp"
+#include "interfaces/models/ilayer.hpp"
+#include "interfaces/models/idocument.hpp"
 
-#include "common/utilities/initializehelper.hpp"
+#include "utilities/initializehelper.hpp"
 
 class Layer : public QObject, public ILayer
 {
@@ -26,13 +26,15 @@ public:
     bool isEmpty() { _initHelper.assertInitialized(); return _empty; }
 
     //Area is relative to the Document
-    void render(QRect area, QPaintDevice* device);
+    void render(QPainter& painter, QRect area);
 
     QRect getBoundary() { _initHelper.assertInitialized(); return _boundary; }
     QPoint getTopLeft() { _initHelper.assertInitialized(); return _boundary.topLeft(); }
     void setTopLeft(QPoint) { _initHelper.assertInitialized(); }
 
     QColor getSkirtColor() { _initHelper.assertInitialized(); return Qt::GlobalColor::transparent; }
+
+    void applyRasterOperation(IRasterOperation* operation);
 
 private:
     const int DEFAULT_BUFFER_MARGIN = 1024;

@@ -6,11 +6,10 @@
 #include <QGraphicsScene>
 #include <QTransform>
 
-#include "common/interfaces/presenters/ieditorpresenter.hpp"
-#include "common/interfaces/presenters/icanvaspresenter.hpp"
+#include "interfaces/presenters/ieditorpresenter.hpp"
 
-#include "common/interfaces/views/iviewport.hpp"
-#include "common/utilities/initializehelper.hpp"
+#include "interfaces/views/iviewport.hpp"
+#include "utilities/initializehelper.hpp"
 
 class ViewPort : public QGraphicsView, public virtual IViewPort
 {
@@ -24,14 +23,16 @@ public:
     void initialize(IViewPortPresenter* presenter);
 
 protected:
-    void resizeEvent(QResizeEvent *event);
+    void resizeEvent(QResizeEvent* event);
+    void moveEvent(QMoveEvent *event);
     
 private slots:
     void onPresenterTransformsChanged();
 
 private:
+    QTransform calculateTransform();
+
     IViewPortPresenter* _presenter;
-    ICanvasPresenter* _canvasPresenter;
 
     InitializeHelper<ViewPort> _initHelper;
 };

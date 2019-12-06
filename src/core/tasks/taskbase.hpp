@@ -1,7 +1,7 @@
 #ifndef TASKHELPERBASE_HPP
 #define TASKHELPERBASE_HPP
 
-#include "common/interfaces/tasks/itask.hpp"
+#include "interfaces/tasks/itask.hpp"
 
 class TaskBase: public virtual ITask
 {

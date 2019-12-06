@@ -6,7 +6,7 @@
  */
 
 
-#include "common/utilities/configuration/baseserviceconfiguration.hpp"
+#include "utilities/configuration/baseserviceconfiguration.hpp"
 
 class ServiceConfiguration : public BaseServiceConfiguration
 {

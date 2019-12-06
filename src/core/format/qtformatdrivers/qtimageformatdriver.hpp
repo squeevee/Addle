@@ -1,7 +1,7 @@
 #ifndef QTIMAGEFORMATDRIVER_HPP
 #define QTIMAGEFORMATDRIVER_HPP
 
-#include "common/interfaces/format/iformatdriver.hpp"
+#include "interfaces/format/iformatdriver.hpp"
 
 // An image format driver that uses Qt's image processing functionality as its
 // backend

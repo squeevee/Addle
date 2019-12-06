@@ -4,12 +4,12 @@
 #include <QObject>
 #include <QSharedPointer>
 
-#include "common/utilities/initializehelper.hpp"
+#include "utilities/initializehelper.hpp"
 
-#include "common/exceptions/baseaddleexception.hpp"
-#include "common/interfaces/tasks/itask.hpp"
-#include "common/interfaces/tasks/itaskcontroller.hpp"
-#include "common/interfaces/tasks/itaskstatuscontroller.hpp"
+#include "exceptions/baseaddleexception.hpp"
+#include "interfaces/tasks/itask.hpp"
+#include "interfaces/tasks/itaskcontroller.hpp"
+#include "interfaces/tasks/itaskstatuscontroller.hpp"
 
 class TaskController : public QObject, public virtual ITaskController, public virtual ITaskStatusController
 {

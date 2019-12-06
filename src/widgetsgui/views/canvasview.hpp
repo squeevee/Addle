@@ -3,23 +3,22 @@
 
 #include <QObject>
 #include <QGraphicsScene>
-#include <QGraphicsPixmapItem>
+#include <QGraphicsItemGroup>
 
-#include "common/interfaces/presenters/icanvaspresenter.hpp"
-#include "common/interfaces/views/icanvasview.hpp"
+#include "interfaces/presenters/idocumentpresenter.hpp"
+#include "interfaces/views/icanvasview.hpp"
+#include "interfaces/views/ilayerview.hpp"
 
-#include "common/utilities/initializehelper.hpp"
+#include "utilities/initializehelper.hpp"
 
 class CanvasView : public QGraphicsScene, public ICanvasView
 {
     Q_OBJECT
 public:
-    CanvasView() : _initHelper(this)
-    {
-    }
+    CanvasView() : _initHelper(this) { }
     virtual ~CanvasView() = default;
 
-    void initialize(ICanvasPresenter* presenter);
+    void initialize(IDocumentPresenter* presenter);
 
 public slots:
     void update();
@@ -30,9 +29,11 @@ protected:
     void mouseReleaseEvent(QGraphicsSceneMouseEvent* mouseEvent);
 
 private:
-    ICanvasPresenter* _presenter;
-    QGraphicsPixmapItem* _render = nullptr;
+    IDocumentPresenter* _presenter;
     InitializeHelper<CanvasView> _initHelper;
+
+    QList<ILayerView*> _layers;
+    QGraphicsItemGroup* _layersContainer = nullptr;
 };
 
 #endif // CANVASVIEW_HPP

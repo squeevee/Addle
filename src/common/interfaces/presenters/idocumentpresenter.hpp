@@ -7,11 +7,13 @@
 #include "iraiseerrorpresenter.hpp"
 #include "ihavetoolspresenter.hpp"
 
-#include "common/interfaces/models/idocument.hpp"
+#include "interfaces/models/idocument.hpp"
 
-#include "common/interfaces/traits/qobject_trait.hpp"
+#include "interfaces/views/icanvasview.hpp"
 
-class ICanvasPresenter;
+#include "interfaces/traits/qobject_trait.hpp"
+
+class ILayerPresenter;
 class IViewPortPresenter;
 class IDocumentView;
 class IDocumentPresenter: public virtual IHaveToolsPresenter, public virtual IRaiseErrorPresenter
@@ -22,8 +24,15 @@ public:
 
     virtual IDocumentView* getDocumentView() = 0;
 
-    virtual ICanvasPresenter* getCanvasPresenter() = 0;
     virtual IViewPortPresenter* getViewPortPresenter() = 0;
+
+    virtual ICanvasView* getCanvasView() = 0;
+
+    virtual bool isEmpty() = 0;
+    virtual QSize getCanvasSize() = 0;
+    virtual QColor getBackgroundColor() = 0;
+
+    virtual QList<ILayerPresenter*> getLayerPresenters() = 0;
 
 public slots: 
     virtual void onActionLoadDocument(QString filename) = 0;

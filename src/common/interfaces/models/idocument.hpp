@@ -9,12 +9,12 @@
 #include <QSharedPointer>
 
 #include "ilayer.hpp"
-#include "common/interfaces/format/iformatmodel.hpp"
-#include "common/interfaces/servicelocator/imakeable.hpp"
+#include "interfaces/format/iformatmodel.hpp"
+#include "interfaces/servicelocator/imakeable.hpp"
 
-#include "common/utilities/data/documentbuilder.hpp"
-#include "common/interfaces/traits/initialize_traits.hpp"
-#include "common/interfaces/traits/qobject_trait.hpp"
+#include "data/documentbuilder.hpp"
+#include "interfaces/traits/initialize_traits.hpp"
+#include "interfaces/traits/qobject_trait.hpp"
 
 class IDocument : public virtual IFormatModel, public virtual IMakeable
 {
@@ -41,6 +41,8 @@ public:
 
     virtual QString getFilename() = 0;
     virtual void setFilename(QString filename) = 0;
+
+    virtual QList<ILayer*> getLayers() = 0;
 
 signals:
     void renderChanged(QRect area);

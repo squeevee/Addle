@@ -23,7 +23,7 @@
  * Use DECL_EXPECTS_INITIALIZE to apply this trait to an interface.
  *  
  * @sa
- * - [Initialization](src/common/docs/initialization.md)
+ * - [Initialization](src/docs/initialization.md)
  * - InitializeHelper
  * - DECL_EXPECTS_INITIALIZE
  */

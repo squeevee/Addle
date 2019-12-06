@@ -4,16 +4,17 @@ set ( CMAKE_AUTOMOC ON)
 
 set (
     SOURCES
+    editing/rasteroperation.cpp
     models/document.cpp
     models/layer.cpp
-    presenters/helpers/zoomrotatehelper.cpp
     presenters/basedocumentpresenter.cpp
-    presenters/canvaspresenter.cpp
     presenters/editorpresenter.cpp
     presenters/errorpresenter.cpp
+    presenters/layerpresenter.cpp
     presenters/viewportpresenter.cpp
     presenters/tools/toolpresenterbase.cpp
     presenters/tools/navigatetoolpresenter.cpp
+    presenters/tools/brushtoolpresenter.cpp
     services/applicationservice.cpp
     services/formatservice.cpp
     services/taskservice.cpp

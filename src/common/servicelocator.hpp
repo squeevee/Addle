@@ -1,6 +1,6 @@
 /**
  * Addle source code
- * @file common/servicelocator.h
+ * @file servicelocator.h
  * @copyright Copyright 2019 Eleanor Hawk
  * @copyright Modification and distribution permitted under the terms of the
  * MIT License. See "LICENSE" for full details.
@@ -16,11 +16,11 @@
 #include <QMutex>
 #include <QSharedPointer>
 
-#include "common/interfaces/servicelocator/ifactory.hpp"
-#include "common/interfaces/servicelocator/iservicelocator.hpp"
-#include "common/interfaces/services/iservice.hpp"
+#include "interfaces/servicelocator/ifactory.hpp"
+#include "interfaces/servicelocator/iservicelocator.hpp"
+#include "interfaces/services/iservice.hpp"
 
-#include "common/exceptions/servicelocatorexceptions.hpp"
+#include "exceptions/servicelocatorexceptions.hpp"
 
 #include "./interfaces/traits/initialize_traits.hpp"
 #include "./utilities/qt_extensions/qhash.hpp"

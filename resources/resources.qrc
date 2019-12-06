@@ -2,6 +2,30 @@
 <RCC version="1.0">
 
 <qresource>
+    <!-- Icons -->
+    <file>icons/brush.png</file>
+    <file>icons/copy.png</file>
+    <file>icons/eraser.png</file>
+    <file>icons/eyedrop.png</file>
+    <file>icons/fill.png</file>
+    <file>icons/measure.png</file>
+    <file>icons/navigate.png</file>
+    <file>icons/new.png</file>
+    <file>icons/open.png</file>
+    <file>icons/paste.png</file>
+    <file>icons/redo.png</file>
+    <file>icons/reset_view.png</file>
+    <file>icons/save.png</file>
+    <file>icons/select.png</file>
+    <file>icons/shapes.png</file>
+    <file>icons/stickers.png</file>
+    <file>icons/text_en.png</file>
+    <file>icons/turntable_cw.png</file>
+    <file>icons/turntable_ccw.png</file>
+    <file>icons/undo.png</file>
+    <file>icons/zoom_in.png</file>
+    <file>icons/zoom_out.png</file>
+
     <!-- Palettes -->
     <file>palettes/crayolacolors.xml</file>
     <file>palettes/kidpixcolors.xml</file>

@@ -1,4 +1,4 @@
-#include "common/servicelocator.hpp"
+#include "servicelocator.hpp"
 
 #include "document.hpp"
 #include <QImage>
@@ -42,15 +42,6 @@ void Document::initialize(InitEmptyOptions emptyOption)
 void Document::render(QRect area, QPaintDevice* device)
 {
     _initHelper.assertInitialized();
-
-    QPainter painter(device);
-    painter.fillRect(area, _backgroundColor);
-    painter.end();
-    
-    for (ILayer* layer : _layers)
-    {
-        layer->render(area, device);
-    }
 
 }
 

@@ -1,9 +1,9 @@
 #ifndef IDOCUMENTVIEW_HPP
 #define IDOCUMENTVIEW_HPP
 
-#include "common/interfaces/presenters/idocumentpresenter.hpp"
+#include "interfaces/presenters/idocumentpresenter.hpp"
 
-class IDocumentView
+class IDocumentView // todo: misleading name? rename
 {
 public:
     virtual ~IDocumentView() = default;

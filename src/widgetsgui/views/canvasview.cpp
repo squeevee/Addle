@@ -1,12 +1,18 @@
+#include "QtDebug"
+
+#include <QGraphicsView>
+#include "utilities/qt_extensions/qobject.hpp"
 #include "canvasview.hpp"
-#include "common/interfaces/presenters/tools/itoolpresenter.hpp"
+#include "interfaces/presenters/tools/itoolpresenter.hpp"
 #include <QGraphicsSceneMouseEvent>
 
-void CanvasView::initialize(ICanvasPresenter* presenter)
+void CanvasView::initialize(IDocumentPresenter* presenter)
 {
     _initHelper.initializeBegin();
 
     _presenter = presenter;
+
+    connect_interface(_presenter, SIGNAL(documentChanged(QSharedPointer<IDocument>)), this, SLOT(update()));
 
     _initHelper.initializeEnd();
 }
@@ -15,16 +21,19 @@ void CanvasView::update()
 {
     _initHelper.assertInitialized();
 
-    if (!_render)
+    _layers.clear(); //leak?
+    if (_layersContainer)
+        QGraphicsScene::destroyItemGroup(_layersContainer);
+    _layersContainer = new QGraphicsItemGroup();
+    for (ILayerPresenter* layerPresenter : _presenter->getLayerPresenters())
     {
-        _render = new QGraphicsPixmapItem(_presenter->getRender());
-        QGraphicsScene::addItem(_render);
-    }
-    else
-    {
-        _render->setPixmap(_presenter->getRender());
+        ILayerView* layerView = layerPresenter->getView();
+        _layers.append(layerView);
+        _layersContainer->addToGroup(dynamic_cast<QGraphicsItem*>(layerView));
     }
 
+    QGraphicsScene::addItem(_layersContainer);
+    _layersContainer->setPos(QPointF());
 }
 
 void CanvasView::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
@@ -35,27 +44,27 @@ void CanvasView::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
     if (mouseEvent->isAccepted())
         return;
 
-    IToolPresenter* tool = _presenter->getDocumentPresenter()->getCurrentTool();
+    IToolPresenter* tool = _presenter->getCurrentToolPresenter();
     if (tool)
     {
         mouseEvent->accept();
-        tool->pointerEngage(mouseEvent->screenPos());
+        tool->pointerEngage(mouseEvent->scenePos());
     }
 }
 
 void CanvasView::mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent)
 {
     _initHelper.assertInitialized();
-
+    
     QGraphicsScene::mouseMoveEvent(mouseEvent);
     if (mouseEvent->isAccepted())
         return;
 
-    IToolPresenter* tool = _presenter->getDocumentPresenter()->getCurrentTool();
+    IToolPresenter* tool = _presenter->getCurrentToolPresenter();
     if (tool)
     {
         mouseEvent->accept();
-        tool->pointerMove(mouseEvent->screenPos());
+        tool->pointerMove(mouseEvent->scenePos());
     }
 }
 
@@ -67,10 +76,10 @@ void CanvasView::mouseReleaseEvent(QGraphicsSceneMouseEvent* mouseEvent)
     if (mouseEvent->isAccepted())
         return;
 
-    IToolPresenter* tool = _presenter->getDocumentPresenter()->getCurrentTool();
+    IToolPresenter* tool = _presenter->getCurrentToolPresenter();
     if (tool)
     {
         mouseEvent->accept();
-        tool->pointerDisengage(mouseEvent->screenPos());
+        tool->pointerDisengage(mouseEvent->scenePos());
     }
 }

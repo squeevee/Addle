@@ -6,8 +6,8 @@
 #endif
 
 #include <QFlags>
-#include "common/globalconstants.hpp"
-#include "common/interfaces/traits/qobject_trait.hpp"
+#include "globalconstants.hpp"
+#include "interfaces/traits/qobject_trait.hpp"
 
 void debugMessageHandler(QtMsgType type, const QMessageLogContext& context, const QString& message);
 

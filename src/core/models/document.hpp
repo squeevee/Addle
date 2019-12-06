@@ -6,10 +6,10 @@
 #include <QString>
 #include <QPaintDevice>
 
-#include "common/interfaces/models/idocument.hpp"
-#include "common/interfaces/models/ilayer.hpp"
+#include "interfaces/models/idocument.hpp"
+#include "interfaces/models/ilayer.hpp"
 
-#include "common/utilities/initializehelper.hpp"
+#include "utilities/initializehelper.hpp"
 
 class Document : public QObject, public IDocument
 {

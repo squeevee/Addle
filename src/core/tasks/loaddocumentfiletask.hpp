@@ -3,10 +3,10 @@
 
 #include <QString>
 
-#include "common/interfaces/tasks/iloaddocumentfiletask.hpp"
+#include "interfaces/tasks/iloaddocumentfiletask.hpp"
 
 #include "taskbase.hpp"
-#include "common/utilities/initializehelper.hpp"
+#include "utilities/initializehelper.hpp"
 
 class LoadDocumentFileTask : public virtual TaskBase, public virtual ILoadDocumentFileTask
 {

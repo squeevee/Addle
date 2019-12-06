@@ -8,7 +8,7 @@
 #include <QString>
 #include <QByteArray>
 
-#include "common/interfaces/iaddleexception.hpp"
+#include "interfaces/iaddleexception.hpp"
 
 class BaseAddleException : public IAddleException
 {

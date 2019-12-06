@@ -3,7 +3,7 @@
 
 #include <QFileInfo>
 
-#include "common/exceptions/fileexceptions.hpp"
+#include "exceptions/fileexceptions.hpp"
 
 //throws verbose exceptions if a file is not readable
 //accesses the filesystem but not the file itself

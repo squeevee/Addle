@@ -3,8 +3,8 @@
 
 #include <type_traits>
 
-#include "common/interfaces/servicelocator/iservicelocator.hpp"
-#include "common/interfaces/servicelocator/ifactory.hpp"
+#include "interfaces/servicelocator/iservicelocator.hpp"
+#include "interfaces/servicelocator/ifactory.hpp"
 
 /**
  * A generic template-based object factory.

@@ -6,14 +6,14 @@
 #include <QImage>
 #include <QPaintDevice>
 
-#include "common/utilities/data/layerbuilder.hpp"
-#include "common/interfaces/servicelocator/imakeable.hpp"
+#include "data/layerbuilder.hpp"
+#include "interfaces/servicelocator/imakeable.hpp"
 
-#include "common/interfaces/traits/initialize_traits.hpp"
-#include "common/interfaces/traits/qobject_trait.hpp"
+#include "interfaces/traits/initialize_traits.hpp"
+#include "interfaces/traits/qobject_trait.hpp"
 
 class IDocument;
-
+class IRasterOperation;
 class ILayer: public virtual IMakeable
 {
 public:
@@ -24,11 +24,13 @@ public:
 
     virtual bool isEmpty() = 0;
 
-    virtual void render(QRect area, QPaintDevice* device) = 0;
+    virtual void render(QPainter& painter, QRect area) = 0;
 
     virtual QRect getBoundary() = 0;
     virtual QPoint getTopLeft() = 0;
     virtual void setTopLeft(QPoint) = 0;
+
+    virtual void applyRasterOperation(IRasterOperation* operation) = 0;
 };
 
 DECL_EXPECTS_INITIALIZE(ILayer)
