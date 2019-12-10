@@ -13,7 +13,7 @@ void Document::initialize(DocumentBuilder& builder)
     for (LayerBuilder& layerBuilder : builder.getLayers())
     {
         ILayer* layer = ServiceLocator::make<ILayer>(layerBuilder);
-        _layers.append(layer);
+        _layers.append(QSharedPointer<ILayer>(layer));
     }
 
     updateGeometry();
@@ -27,7 +27,7 @@ void Document::initialize(InitEmptyOptions emptyOption)
     if (emptyOption == InitEmptyOptions::useDefaults)
     {
         ILayer* layer = ServiceLocator::make<ILayer>();
-        _layers.append(layer);
+        _layers.append(QSharedPointer<ILayer>(layer));
 
         updateGeometry();
     }
@@ -58,105 +58,105 @@ void Document::addNewLayers(QList<LayerBuilder> builders, int insertBefore)
 
 }
 
-void Document::addNewEmptyLayer(int insertBefore)
-{
-    addNewEmptyLayers(1, insertBefore);
-}
+// void Document::addNewEmptyLayer(int insertBefore)
+// {
+//     addNewEmptyLayers(1, insertBefore);
+// }
 
-void Document::addNewEmptyLayers(int count, int insertBefore)
-{
-    _initHelper.assertInitialized();
-    emit layersAdding(count);
+// void Document::addNewEmptyLayers(int count, int insertBefore)
+// {
+//     _initHelper.assertInitialized();
+//     emit layersAdding(count);
 
-    QList<ILayer*> newLayers;
-    int startIndex = insertBefore;
+//     QList<ILayer*> newLayers;
+//     int startIndex = insertBefore;
 
-    for (int i = 0; i < count; i++)
-    {
-        ILayer* layer = ServiceLocator::make<ILayer>();
-        newLayers.append(layer);
-    }
+//     for (int i = 0; i < count; i++)
+//     {
+//         ILayer* layer = ServiceLocator::make<ILayer>();
+//         newLayers.append(layer);
+//     }
 
-    if (insertBefore == -1)
-    {
-        startIndex = _layers.count();
-        _layers.append(newLayers);
-    }
-    else
-    {
-        int insertAt = insertBefore - 1;
-        for (ILayer* layer : newLayers)
-        {
-            _layers.insert(insertAt, layer);
-            insertAt++;
-        }
-    }
+//     if (insertBefore == -1)
+//     {
+//         startIndex = _layers.count();
+//         _layers.append(newLayers);
+//     }
+//     else
+//     {
+//         int insertAt = insertBefore - 1;
+//         for (ILayer* layer : newLayers)
+//         {
+//             _layers.insert(insertAt, layer);
+//             insertAt++;
+//         }
+//     }
     
-    layersChanged(newLayers);
+//     layersChanged(newLayers);
 
-    emit layersAdded(startIndex, count);
-}
+//     emit layersAdded(startIndex, count);
+// }
 
-void Document::deleteLayer(int index)
-{
-    deleteLayers({index});
-}
+// void Document::deleteLayer(int index)
+// {
+//     deleteLayers({index});
+// }
 
-void Document::deleteLayers(QList<int> indices)
-{
-    _initHelper.assertInitialized();
+// void Document::deleteLayers(QList<int> indices)
+// {
+//     _initHelper.assertInitialized();
 
-    emit layersDeleting(indices);
+//     emit layersDeleting(indices);
 
-    QList<ILayer*> layersToDelete;
+//     QList<ILayer*> layersToDelete;
 
-    for (int index : indices)
-    {
-        ILayer* layer = _layers.at(index);
-        layersToDelete.append(layer);
-        _layers.removeAt(index);
-    }
+//     for (int index : indices)
+//     {
+//         ILayer* layer = _layers.at(index);
+//         layersToDelete.append(layer);
+//         _layers.removeAt(index);
+//     }
 
-    layersChanged(layersToDelete);
-    int count = layersToDelete.count();
+//     layersChanged(layersToDelete);
+//     int count = layersToDelete.count();
 
-    for (ILayer* layer : layersToDelete)
-    {
-        delete layer;
-    }
+//     for (ILayer* layer : layersToDelete)
+//     {
+//         delete layer;
+//     }
 
-    emit layersDeleted(count);
-}
+//     emit layersDeleted(count);
+// }
 
-void Document::reorderLayer(int from, int to)
-{
-    _initHelper.assertInitialized();
+// void Document::reorderLayer(int from, int to)
+// {
+//     _initHelper.assertInitialized();
 
-    emit layerReordering(from, to);
+//     emit layerReordering(from, to);
 
-    _layers.move(from, to);
+//     _layers.move(from, to);
 
-    emit layerReordered(from, to);
-}
+//     emit layerReordered(from, to);
+// }
 
 
-QList<ILayer*> Document::getLayers()
+QList<QSharedPointer<ILayer>> Document::getLayers()
 {
     _initHelper.assertInitialized();
     return _layers;
 }
 
-ILayer* Document::getLayer(int index)
-{
-    _initHelper.assertInitialized();
-    return _layers.at(index);
-}
+// ILayer* Document::getLayer(int index)
+// {
+//     _initHelper.assertInitialized();
+//     return _layers.at(index);
+// }
 
-int Document::indexOfLayer(ILayer* layer)
-{
-    _initHelper.assertInitialized();
-    return _layers.indexOf(layer);
-}
+// int Document::indexOfLayer(ILayer* layer)
+// {
+//     _initHelper.assertInitialized();
+//     return _layers.indexOf(layer);
+// }
 
 int Document::layerCount()
 {
@@ -168,7 +168,7 @@ void Document::layersChanged(QList<ILayer*> layers)
 {
     updateGeometry();
 
-    QRect changed = unitedBoundary(layers);
+    QRect changed = unitedBoundary();
     if (!changed.isNull())
     {
         emit renderChanged(changed);
@@ -178,7 +178,7 @@ void Document::layersChanged(QList<ILayer*> layers)
 void Document::updateGeometry()
 {
     _empty = true;
-    for (ILayer* layer : _layers)
+    for (QSharedPointer<ILayer> layer : _layers)
     {
         if (!layer->isEmpty())
         {
@@ -187,7 +187,7 @@ void Document::updateGeometry()
         }
     }
 
-    QRect newBoundary = unitedBoundary(_layers);
+    QRect newBoundary = unitedBoundary();
 
     if (newBoundary.isNull())
     {
@@ -208,7 +208,7 @@ void Document::updateGeometry()
 
     if (!newTopLeft.isNull())
     {
-        for (ILayer* layer : _layers)
+        for (QSharedPointer<ILayer> layer : _layers)
         {
             if (layer->isEmpty())
             {
@@ -226,11 +226,11 @@ void Document::updateGeometry()
     }
 }
 
-QRect Document::unitedBoundary(QList<ILayer*> layers)
+QRect Document::unitedBoundary()
 {
     QRect result;
 
-    for (ILayer* layer : layers)
+    for (QSharedPointer<ILayer> layer : _layers)
     {
         if (layer->isEmpty())
         {

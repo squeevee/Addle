@@ -9,11 +9,11 @@
 
 #include "interfaces/traits/initialize_traits.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
-#include "interfaces/servicelocator/imakeable.hpp"
+#include "interfaces/traits/makeable_trait.hpp"
 
 #include "interfaces/tasks/itaskcontroller.hpp"
 
-class ITaskService : public virtual IService,  public virtual IMakeable
+class ITaskService : public virtual IService
 {
 public:
     virtual ~ITaskService() = default;
@@ -21,6 +21,7 @@ public:
     virtual void queueTask(ITask* task) = 0;
 };
 
+DECL_MAKEABLE(ITaskService)
 DECL_IMPLEMENTED_AS_QOBJECT(ITaskService)
 
 #endif // ITASKSERVICE_HPP

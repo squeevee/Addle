@@ -1,6 +1,7 @@
 #ifndef COMMONBRUSHRENDERERS_HPP
 #define COMMONBRUSHRENDERERS_HPP
 
+#include <QtDebug>
 #include "interfaces/presenters/tools/ibrushliketoolpresenter.hpp"
 #include "basebrushrenderer.hpp"
 
@@ -10,10 +11,12 @@ class PixelBrushTipRenderer : public BasePixelBrushRenderer
     BrushTipId getId() { return IBrushLikeToolPresenter::CommonBrushTips::Pixel; }
     bool snapToPixels() { return true; }
     bool sizeInvariant()  { return true; }
-    QRect getBoundingRect(double, QPointF center) { return QRect(pointFloor(center), QSize(1, 1)); }
+    QRect getBoundingRect(double, QPointF center)
+    {
+        return QRect(pointFloor(center), QSize(1, 1));
+    }
     void render(double, QPointF center, QPainter& painter)
     {
-        painter.setBrush(Qt::black);
         painter.drawPoint(pointFloor(center));
     }
 };
@@ -23,10 +26,15 @@ class TwoSquareBrushTipRenderer : public BasePixelBrushRenderer
     virtual ~TwoSquareBrushTipRenderer() = default;
     BrushTipId getId() { return IBrushLikeToolPresenter::CommonBrushTips::TwoSquare; }
     bool sizeInvariant()  { return true; }
-    QRect getBoundingRect(double brushSize, QPointF center) { return QRect(pointFloor(center), QSize(2,2)); }
+    QRect getBoundingRect(double brushSize, QPointF center)
+    { 
+        return QRect(pointFloor(center), QSize(2,2));
+    }
     void render(double, QPointF center, QPainter& painter)
     {
-        painter.drawRect(QRect(pointFloor(center), QSize(2,2)));
+        QRect rect(pointFloor(center), QSize(2,2));
+
+        painter.drawRect(rect);
     }
 };
 
@@ -37,7 +45,7 @@ class SquareBrushTipRenderer : public BasePixelBrushRenderer
     void render(double brushSize, QPointF center, QPainter& painter)
     {
         int properSize = qRound(brushSize);
-        painter.drawRect( - properSize / 2, - properSize / 2, properSize, properSize );
+        painter.drawRect( center.x() - properSize / 2, center.y() - properSize / 2, properSize, properSize );
     }
 };
 

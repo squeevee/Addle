@@ -1,16 +1,16 @@
 #ifndef IJPEGFORMATDRIVER_HPP
 #define IJPEGFORMATDRIVER_HPP
 
-#include "interfaces/servicelocator/imakeable.hpp"
+#include "interfaces/traits/makeable_trait.hpp"
 
 #include "../iformatdriver.hpp"
 
 #include "data/formatid.hpp"
 
-class IJpegFormatDriver : public virtual IFormatDriver, public virtual IMakeable
+class IJPEGFormatDriver : public virtual IFormatDriver
 {
 public:
-    virtual ~IJpegFormatDriver() = default;
+    virtual ~IJPEGFormatDriver() = default;
 
 #define ADDLE_STRING__IJPEGFORMATDRIVER__JPEG_FILE_EXTENSION "jpg"
 #define ADDLE_STRING__IJPEGFORMATDRIVER__JPEG_ALT_FILE_EXTENSION_1 "jpeg"
@@ -28,5 +28,7 @@ public:
     static const FormatId JPEG_FORMAT_ID;
 
 };
+
+DECL_MAKEABLE(IJPEGFormatDriver)
 
 #endif // IJPEGFORMATDRIVER_HPP

@@ -57,7 +57,7 @@ void BaseDocumentPresenter::setDocument(QSharedPointer<IDocument> document)
     _document = document;
 
     _layerPresenters.clear(); //leak
-    for (ILayer* layer : _document->getLayers())
+    for (QSharedPointer<ILayer> layer : _document->getLayers())
     {
         _layerPresenters.append(ServiceLocator::make<ILayerPresenter>(this, layer));
     }

@@ -8,6 +8,7 @@
 #include <QCoreApplication>
 
 #include "servicelocator.hpp"
+#include "interfaces/traits/makeable_trait.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 #include "interfaces/traits/initialize_traits.hpp"
 
@@ -105,12 +106,8 @@ protected:
             "Impl must inherit Interface"
         );
         static_assert(
-            std::is_base_of<IMakeable, Interface>::value,
-            "Interface must inherit IMakeable"
-        );
-        static_assert(
-            !std::is_same<IMakeable, Interface>::value,
-            "IMakeable is an abstract base type, it cannot be made directly."
+            is_makeable<Interface>::value,
+            "Interface must be makeable"
         );
 
         ASSERT_IMPLEMENTATION_HINTS(Interface, Impl);

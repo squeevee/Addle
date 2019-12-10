@@ -1,7 +1,11 @@
 #include <QPainter>
 #include <QBrush>
 #include <QtDebug>
+
+#include <QBitmap>
+
 #include "rasteroperation.hpp"
+#include "servicelocator.hpp"
 
 void RasterOperation::initialize(
         const QWeakPointer<ILayer>& layer,
@@ -21,71 +25,110 @@ void RasterOperation::initialize(
         break;
     }
 
-    _buffer = QImage(QSize(BUFFER_CHUNK_SIZE, BUFFER_CHUNK_SIZE), _format);
-    _buffer.fill(Qt::transparent);
+    _workingBuffer.initialize(_format);
 }
 
-std::unique_ptr<QPainter> RasterOperation::getBufferPainter(QRect region)
+BufferPainter RasterOperation::getBufferPainter(QRect paintArea)
 {
-    if (_areaOfEffect.isNull())
-        _areaOfEffect = region;
-    else
-        _areaOfEffect = _areaOfEffect.united(region);
-
-    autoSizeBuffer(region);
-
-    QPainter* painter = new QPainter(&_buffer);
-    QPoint offset = _areaOfEffect.topLeft() - _bufferRegion.topLeft();
-    painter->translate(offset);
-
-    return std::unique_ptr<QPainter>(painter);
+    return _workingBuffer.createBufferPainter(paintArea, this);
 }
 
-void RasterOperation::render(QPainter& painter, QRect region)
+void RasterOperation::render(QPainter& painter, QRect paintRegion)
 {
-    QPoint offset = _areaOfEffect.topLeft() - _bufferRegion.topLeft();
-    QRect intersection = _areaOfEffect.intersected(region);
-
-    painter.drawImage(intersection, _buffer, intersection.translated(offset));
+    QRect intersection = _areaOfEffect.intersected(paintRegion);
+    if (!intersection.isEmpty())
+        _workingBuffer.render(painter, paintRegion);
 }
 
 void RasterOperation::doOperation()
 {
+    QImage forward;
+    QImage mask;
+    if (!_frozen)
+    {
+        // First time this operation is being done. Just gonna nick the forward
+        // image and mask while they're still uncompressed 
 
+        freeze(&forward, nullptr, &mask);
+    }
+
+    // assert _layer not null
+    QSharedPointer<ILayer> layer = _layer.toStrongRef();
+
+
+    if (forward.isNull())
+    {
+        forward = _forwardStored.blockingGetUncompressed();
+    }
+        
+    BufferPainter bufferPainter = layer->getBufferPainter(_areaOfEffect);
+    bufferPainter.getPainter().drawImage(_areaOfEffect, forward);
+    
+    emit layer->renderChanged(_areaOfEffect);
 }
 
 void RasterOperation::undoOperation()
 {
+    // assert _layer not null
+    QSharedPointer<ILayer> layer = _layer.toStrongRef();
 
+    QImage reverse = _reverseStored.blockingGetUncompressed();
+    QImage mask = _maskStored.blockingGetUncompressed();
+
+    BufferPainter bufferPainter = layer->getBufferPainter(_areaOfEffect);
+    bufferPainter.getPainter().drawImage(_areaOfEffect.topLeft(), reverse);
+
+    emit layer->renderChanged(_areaOfEffect);
 }
 
-void RasterOperation::autoSizeBuffer(QRect criticalArea)
+void RasterOperation::freeze(QImage* forwardPtr, QImage* reversePtr, QImage* maskPtr)
 {
-    if (_bufferRegion.isNull())
-    {
-        QPoint center = criticalArea.center();
-        _bufferRegion = QRect(center.x() - BUFFER_CHUNK_SIZE / 2, center.y() - BUFFER_CHUNK_SIZE / 2, BUFFER_CHUNK_SIZE, BUFFER_CHUNK_SIZE);
-    }
-    
-    if (_bufferRegion.contains(criticalArea))
-    {
-        return;
-    }
+    // assert not frozen
+    // assert workingbuffer is not null
+    // assert layer is not null
 
-    int left = _bufferRegion.left() < criticalArea.left() ? _bufferRegion.left() : criticalArea.left() - BUFFER_CHUNK_SIZE;
-    int right = _bufferRegion.right() > criticalArea.right() ? _bufferRegion.right() : criticalArea.right() - BUFFER_CHUNK_SIZE;
-    int top = _bufferRegion.top() < criticalArea.top() ? _bufferRegion.top() : criticalArea.top() - BUFFER_CHUNK_SIZE;
-    int bottom = _bufferRegion.bottom() > criticalArea.bottom() ? _bufferRegion.bottom() : criticalArea.bottom() - BUFFER_CHUNK_SIZE;
+    QSharedPointer<ILayer> layer = _layer.toStrongRef();
 
-    QPoint offset(_bufferRegion.left() - left, _bufferRegion.top() - top);
-    _bufferRegion = QRect(left, top, right - left, bottom - top);
+    QImage forward = _workingBuffer.image.copy(_workingBuffer.getOntoBufferTransform().mapRect(_areaOfEffect));
+    _workingBuffer.clear();
 
-    const QImage oldBuffer = _buffer;
-    _buffer = QImage(_bufferRegion.size(), _format);
-    _buffer.fill(Qt::transparent);
+    // apparently the threshold is fixed at 128 so I might need to make my own
+    // implementation
+    QImage mask = forward.createAlphaMask();
 
-    QPainter painter(&_buffer);
+    QTransform ontoFrozenBuffer = QTransform::fromTranslate(-_areaOfEffect.x(), -_areaOfEffect.y());
 
-    painter.setCompositionMode(QPainter::CompositionMode_Source);
-    painter.drawImage(offset, oldBuffer);
+    QImage reverse = QImage(_areaOfEffect.size(), _format);
+
+    QPainter reversePainter(&reverse);
+    reversePainter.setTransform(ontoFrozenBuffer);
+    layer->render(reversePainter, _areaOfEffect);
+
+    //reversePainter.setCompositionMode(QPainter::RasterOp_SourceAndDestination);
+    //reversePainter.drawImage(QPoint(), mask);
+    reversePainter.end();
+
+    _forwardStored.setImage(forward);
+    _forwardStored.compress();
+
+    _reverseStored.setImage(reverse);
+    _reverseStored.compress();
+
+    _maskStored.setImage(mask);
+    _maskStored.compress();
+
+    if (forwardPtr)
+        *forwardPtr = forward;
+    if (reversePtr)
+        *reversePtr = reverse;
+    if (maskPtr)
+        *maskPtr = mask;
+
+    _frozen = true;
+}
+
+void RasterOperation::beforeBufferPainted(QRect region)
+{ 
+    _areaOfEffect = _areaOfEffect.united(region);
+    _workingBuffer.grab(region);
 }

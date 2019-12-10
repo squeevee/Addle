@@ -4,6 +4,8 @@
 #include "interfaces/editing/irasteroperation.hpp"
 
 #include "utilities/initializehelper.hpp"
+#include "utilities/image/expandingbuffer.hpp"
+#include "utilities/image/imagecompressor.hpp"
 
 #include <QPen>
 #include <QBrush>
@@ -14,7 +16,7 @@ class RasterOperation : public QObject, public IRasterOperation
 {
     Q_OBJECT
 public:
-    RasterOperation() : _initHelper(this) { }
+    RasterOperation() : _initHelper(this), _workingBuffer(BUFFER_CHUNK_SIZE) { }
     virtual ~RasterOperation() = default;
 
     void initialize(
@@ -22,7 +24,7 @@ public:
         Mode mode = Mode::paint
     );
 
-    std::unique_ptr<QPainter> getBufferPainter(QRect region);
+    BufferPainter getBufferPainter(QRect paintArea);
     void render(QPainter& painter, QRect region);
 
     QRect getBoundingRect() { return _areaOfEffect; }
@@ -30,8 +32,13 @@ public:
     void doOperation();
     void undoOperation();
 
+protected:
+    void beforeBufferPainted(QRect region);
+
 private:
-    static const int BUFFER_CHUNK_SIZE = 10;
+    static const int BUFFER_CHUNK_SIZE = 512;
+
+    void freeze(QImage* forwardPtr = nullptr, QImage* reversePtr = nullptr, QImage* maskPtr = nullptr);
 
     QWeakPointer<ILayer> _layer;
     Mode _mode;
@@ -39,18 +46,15 @@ private:
 
     bool _frozen = false;
 
-    QRect _bufferRegion;
     QRect _areaOfEffect;
 
-    QImage _buffer;
+    ExpandingBuffer _workingBuffer;
 
-    void autoSizeBuffer(QRect criticalArea);
-
-    QByteArray _forwardData;
-    QByteArray _backwardData;
+    ImageCompressor _forwardStored;
+    ImageCompressor _reverseStored;
+    ImageCompressor _maskStored;
 
     InitializeHelper<RasterOperation> _initHelper;
-
 };
 
 #endif // RASTEROPERATION_HPP

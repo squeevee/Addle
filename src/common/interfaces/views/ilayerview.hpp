@@ -7,9 +7,9 @@
 #include "interfaces/traits/initialize_traits.hpp"
 
 #include "interfaces/presenters/ilayerpresenter.hpp"
-#include "interfaces/servicelocator/imakeable.hpp"
+#include "interfaces/traits/makeable_trait.hpp"
 
-class ILayerView: public IMakeable
+class ILayerView
 {
 public:
     virtual ~ILayerView() = default;
@@ -22,6 +22,7 @@ public slots:
     virtual void onRenderChanged(QRect area) = 0;
 };
 
+DECL_MAKEABLE(ILayerView)
 DECL_IMPLEMENTED_AS_QOBJECT(ILayerView)
 DECL_EXPECTS_INITIALIZE(ILayerView)
 

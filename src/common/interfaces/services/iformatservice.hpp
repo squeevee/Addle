@@ -18,7 +18,7 @@
 
 #include "interfaces/traits/initialize_traits.hpp"
 #include "data/importexportinfo.hpp"
-#include "interfaces/servicelocator/imakeable.hpp"
+#include "interfaces/traits/makeable_trait.hpp"
 
 /**
  * @class IFormatService
@@ -26,7 +26,7 @@
  * 
  * @ingroup interfaces
  */
-class IFormatService : public virtual IService, public virtual IMakeable
+class IFormatService : public virtual IService
 {
 public:
     //virtual IDocument* loadFile(QString filename) = 0;
@@ -45,5 +45,7 @@ public:
 protected:
     virtual IFormatModel* importModel_p(const std::type_info& modelType, QIODevice& device, const ImportExportInfo& info, ITaskStatusController* status = nullptr) = 0;
 };
+
+DECL_MAKEABLE(IFormatService)
 
 #endif // IFORMATSERVICE_HPP

@@ -8,10 +8,10 @@
 #include "itoolpresenter.hpp"
 #include "interfaces/traits/initialize_traits.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
-#include "interfaces/servicelocator/imakeable.hpp"
+#include "interfaces/traits/makeable_trait.hpp"
 #include "interfaces/presenters/iviewportpresenter.hpp"
 
-class INavigateToolPresenter : public virtual IToolPresenter, public virtual IMakeable
+class INavigateToolPresenter : public virtual IToolPresenter
 {
     Q_GADGET
 public:
@@ -40,6 +40,7 @@ signals:
     virtual void navigateOperationChanged(NavigateOperationOptions operation) = 0;
 };
 
+DECL_MAKEABLE(INavigateToolPresenter)
 DECL_EXPECTS_INITIALIZE(INavigateToolPresenter)
 DECL_INIT_DEPENDENCY(INavigateToolPresenter, IDocumentPresenter)
 DECL_INIT_DEPENDENCY(INavigateToolPresenter, IViewPortPresenter)

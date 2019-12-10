@@ -2,12 +2,24 @@
 #include "servicelocator.hpp"
 #include "interfaces/views/ilayerview.hpp"
 
-void LayerPresenter::initialize(IDocumentPresenter* documentPresenter, ILayer* layer)
+#include "utilities/qt_extensions/qobject.hpp"
+
+void LayerPresenter::initialize(IDocumentPresenter* documentPresenter, QWeakPointer<ILayer> model)
 {
     _initHelper.initializeBegin();
 
     _documentPresenter = documentPresenter;
-    _layer = layer;
+    _model = model;
+
+    auto s_model = _model.toStrongRef();
+
+    connect_interface(
+        s_model.data(),
+        SIGNAL(renderChanged(QRect)),
+        this,
+        SLOT(onModelRenderChanged(QRect)),
+        Qt::QueuedConnection
+    );
 
     _initHelper.initializeEnd();
 }
@@ -25,10 +37,19 @@ ILayerView* LayerPresenter::getView()
 
 void LayerPresenter::render(QPainter& painter, QRect area)
 {
-    _layer->render(painter, area);
+    if (_model.isNull())
+        return;
+
+    auto s_model = _model.toStrongRef();
+    s_model->render(painter, area);
 
     if (_rasterOperation)
     {
         _rasterOperation->render(painter, area);
     }
+}
+
+void LayerPresenter::onModelRenderChanged(QRect area)
+{
+    emit renderChanged(area);
 }

@@ -12,12 +12,12 @@ public:
     LayerPresenter() : _initHelper(this) { }
     virtual ~LayerPresenter() = default;
 
-    void initialize(IDocumentPresenter* documentPresenter, ILayer* layer);
+    void initialize(IDocumentPresenter* documentPresenter, QWeakPointer<ILayer> model);
     IDocumentPresenter* getDocumentPresenter() { _initHelper.assertInitialized(); return _documentPresenter; }
 
     ILayerView* getView();
 
-    ILayer* getModel() { _initHelper.assertInitialized(); return _layer; }
+    QWeakPointer<ILayer> getModel() { _initHelper.assertInitialized(); return _model; }
 
     void setRasterOperation(IRasterOperation* operation)  { _rasterOperation = operation; }
     void unsetRasterOperation() { _rasterOperation = nullptr; }
@@ -28,12 +28,15 @@ public:
 signals: 
     void renderChanged(QRect area);
 
+private slots:
+    void onModelRenderChanged(QRect area);
+
 private:
     IDocumentPresenter* _documentPresenter;
 
     ILayerView* _view = nullptr;
     
-    ILayer* _layer;
+    QWeakPointer<ILayer> _model;
 
     IRasterOperation* _rasterOperation = nullptr;
 

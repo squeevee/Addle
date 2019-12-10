@@ -1,6 +1,7 @@
 #include "editorview.hpp"
 #include <QLabel>
 
+#include "utilities/qt_extensions/qobject.hpp"
 #include "interfaces/presenters/tools/itoolpresenter.hpp"
 
 void EditorView::initialize(IEditorPresenter* presenter)
@@ -10,6 +11,8 @@ void EditorView::initialize(IEditorPresenter* presenter)
     _presenter = presenter;
     BaseDocumentView::initialize(presenter);
 
+    connect_interface(_presenter, SIGNAL(undoStateChanged()), this, SLOT(onUndoStateChanged()));
+
     _initHelper.initializeEnd();
 }
 
@@ -17,7 +20,20 @@ void EditorView::setupUi()
 {
     BaseDocumentView::setupUi();
 
+    _action_undo = new QAction(this);
+    _action_undo->setIcon(QIcon(":/icons/undo.png"));
+    _action_undo->setEnabled(_presenter->canUndo());
+    connect_interface(_action_undo, SIGNAL(triggered()), _presenter, SLOT(undo()));
+
+    _action_redo = new QAction(this);
+    _action_redo->setIcon(QIcon(":/icons/redo.png"));
+    _action_redo->setEnabled(_presenter->canRedo());
+    connect_interface(_action_redo, SIGNAL(triggered()), _presenter, SLOT(redo()));
+    
     _toolBar_documentActions->addAction(_action_open);
+    _toolBar_documentActions->addSeparator();
+    _toolBar_documentActions->addAction(_action_undo);
+    _toolBar_documentActions->addAction(_action_redo);
 
 
     // addTool(
@@ -30,7 +46,9 @@ void EditorView::setupUi()
     // {
     // }
 
-    // _toolBar_toolSelection->addSeparator();
+    _toolBar_toolSelection->addAction(new QAction(QIcon(":/icons/select.png"), "", this));
+
+    _toolBar_toolSelection->addSeparator();
 
     addTool(
         IEditorPresenter::DefaultTools::BRUSH,
@@ -49,6 +67,7 @@ void EditorView::setupUi()
     // {
     // }
 
+    _toolBar_toolSelection->addAction(new QAction(QIcon(":/icons/eraser.png"), "", this));
 
     // addTool(
     //     IEditorPresenter::DefaultTools::FILL,
@@ -60,6 +79,7 @@ void EditorView::setupUi()
     // {
     // }
     
+    _toolBar_toolSelection->addAction(new QAction(QIcon(":/icons/fill.png"), "", this));
 
     _toolBar_toolSelection->addSeparator();
 
@@ -74,6 +94,7 @@ void EditorView::setupUi()
     // {
     // }
 
+    _toolBar_toolSelection->addAction(new QAction(QIcon(":/icons/text_en.png"), "", this));
 
     // addTool(
     //     IEditorPresenter::DefaultTools::SHAPES,
@@ -85,6 +106,7 @@ void EditorView::setupUi()
     // {
     // }
 
+    _toolBar_toolSelection->addAction(new QAction(QIcon(":/icons/shapes.png"), "", this));
 
     // addTool(
     //     IEditorPresenter::DefaultTools::STICKERS,
@@ -96,8 +118,9 @@ void EditorView::setupUi()
     // {
     // }
 
+    _toolBar_toolSelection->addAction(new QAction(QIcon(":/icons/stickers.png"), "", this));
 
-    // _toolBar_toolSelection->addSeparator();
+    _toolBar_toolSelection->addSeparator();
 
 
     // addTool(
@@ -110,6 +133,7 @@ void EditorView::setupUi()
     // {
     // }
 
+    _toolBar_toolSelection->addAction(new QAction(QIcon(":/icons/eyedrop.png"), "", this));
 
     addTool(
         IEditorPresenter::DefaultTools::NAVIGATE,
@@ -128,4 +152,13 @@ void EditorView::setupUi()
     // {
     // }
 
+    _toolBar_toolSelection->addAction(new QAction(QIcon(":/icons/measure.png"), "", this));
+}
+
+void EditorView::onUndoStateChanged()
+{
+    _initHelper.assertInitialized();
+
+    _action_undo->setEnabled(_presenter->canUndo());
+    _action_redo->setEnabled(_presenter->canRedo());
 }

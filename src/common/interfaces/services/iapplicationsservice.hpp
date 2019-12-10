@@ -8,9 +8,9 @@
 #include "interfaces/presenters/idocumentpresenter.hpp"
 #include "interfaces/traits/initialize_traits.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
-#include "interfaces/servicelocator/imakeable.hpp"
+#include "interfaces/traits/makeable_trait.hpp"
 
-class IApplicationService : public virtual IService, public virtual IMakeable
+class IApplicationService : public virtual IService
 {
 public:
     enum StartupMode
@@ -42,6 +42,7 @@ public slots:
     virtual void quitting() = 0;
 };
 
+DECL_MAKEABLE(IApplicationService)
 DECL_IMPLEMENTED_AS_QOBJECT(IApplicationService)
 
 #endif // IAPPLICATIONSERVICE_HPP

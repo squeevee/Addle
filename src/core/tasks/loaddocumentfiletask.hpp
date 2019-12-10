@@ -5,10 +5,9 @@
 
 #include "interfaces/tasks/iloaddocumentfiletask.hpp"
 
-#include "taskbase.hpp"
 #include "utilities/initializehelper.hpp"
 
-class LoadDocumentFileTask : public virtual TaskBase, public virtual ILoadDocumentFileTask
+class LoadDocumentFileTask : public ILoadDocumentFileTask
 {
 public:
     LoadDocumentFileTask();
@@ -20,7 +19,11 @@ public:
 
     void run();
 
+    virtual QSharedPointer<ITaskController> getController() { return _controller; }
+
 private:
+    QSharedPointer<ITaskController> _controller;
+    
     QSharedPointer<IDocument> _document;
     QFileInfo _fileInfo;
 

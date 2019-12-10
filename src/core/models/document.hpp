@@ -35,7 +35,7 @@ public:
     QString getFilename() { _initHelper.assertInitialized(); return _filename; }
     void setFilename(QString filename) {}
 
-    QList<ILayer*> getLayers();
+    QList<QSharedPointer<ILayer>> getLayers();
     ILayer* getLayer(int index);
     void addNewLayer(LayerBuilder& builder, int insertBefore = -1);
     void addNewLayers(QList<LayerBuilder> builders, int insertBefore = -1);
@@ -69,7 +69,7 @@ signals:
 
 private:
 
-    QList<ILayer*> _layers;
+    QList<QSharedPointer<ILayer>> _layers;
     QSize _size;
 
     bool _empty = true;
@@ -82,7 +82,7 @@ private:
     void updateGeometry();
     void layersChanged(QList<ILayer*> layers);
 
-    static QRect unitedBoundary(QList<ILayer*> layers);
+    QRect unitedBoundary();
 
 protected:
     InitializeHelper<Document> _initHelper;

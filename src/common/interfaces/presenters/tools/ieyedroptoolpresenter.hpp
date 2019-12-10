@@ -5,8 +5,8 @@
 #include "interfaces/traits/initialize_traits.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 
-#include "interfaces/servicelocator/imakeable.hpp"
-class IEyedropToolPresenter : public virtual IToolPresenter, public virtual IMakeable
+#include "interfaces/traits/makeable_trait.hpp"
+class IEyedropToolPresenter : public virtual IToolPresenter
 {
 public:
     //NECESSARY?
@@ -28,6 +28,7 @@ signals:
 };
 Q_DECLARE_METATYPE(IEyedropToolPresenter::SampleOptions)
 
+DECL_MAKEABLE(IEyedropToolPresenter)
 DECL_IMPLEMENTED_AS_QOBJECT(IEyedropToolPresenter)
 
 #endif // IEYEDROPTOOLPRESENTER_HPP

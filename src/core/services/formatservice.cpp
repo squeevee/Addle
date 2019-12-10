@@ -18,7 +18,7 @@ FormatService::FormatService()
 {
     QList<IFormatDriver*> drivers = {
         ServiceLocator::make<IPNGFormatDriver>(),
-        ServiceLocator::make<IJpegFormatDriver>()
+        ServiceLocator::make<IJPEGFormatDriver>()
     };
 
     for (IFormatDriver* driver : drivers)

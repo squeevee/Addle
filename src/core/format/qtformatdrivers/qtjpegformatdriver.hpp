@@ -5,15 +5,15 @@
 
 #include "qtimageformatdriver.hpp"
 
-class QtJpegFormatDriver : public QtImageFormatDriver, public virtual IJpegFormatDriver
+class QtJPEGFormatDriver : public QtImageFormatDriver, public virtual IJPEGFormatDriver
 {
 public:
-    QtJpegFormatDriver()
+    QtJPEGFormatDriver()
         : QtImageFormatDriver("JPEG")
     {
     }
 
-    virtual ~QtJpegFormatDriver() = default;
+    virtual ~QtJPEGFormatDriver() = default;
 
     bool supportsImport() const { return true; }
     bool supportsExport() const { return false; }

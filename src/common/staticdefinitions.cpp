@@ -27,19 +27,19 @@ const FormatId IPNGFormatDriver::PNG_FORMAT_ID = FormatId(
 );
 
 #include "interfaces/format/drivers/ijpegformatdriver.hpp"
-const QString IJpegFormatDriver::JPEG_FILE_EXTENSION = QStringLiteral(ADDLE_STRING__IJPEGFORMATDRIVER__JPEG_FILE_EXTENSION);
-const QStringList IJpegFormatDriver::JPEG_FILE_EXTENSIONS = {
+const QString IJPEGFormatDriver::JPEG_FILE_EXTENSION = QStringLiteral(ADDLE_STRING__IJPEGFORMATDRIVER__JPEG_FILE_EXTENSION);
+const QStringList IJPEGFormatDriver::JPEG_FILE_EXTENSIONS = {
     QStringLiteral(ADDLE_STRING__IJPEGFORMATDRIVER__JPEG_FILE_EXTENSION),
     QStringLiteral(ADDLE_STRING__IJPEGFORMATDRIVER__JPEG_ALT_FILE_EXTENSION_1),
     QStringLiteral(ADDLE_STRING__IJPEGFORMATDRIVER__JPEG_ALT_FILE_EXTENSION_2),
     QStringLiteral(ADDLE_STRING__IJPEGFORMATDRIVER__JPEG_ALT_FILE_EXTENSION_3),
     QStringLiteral(ADDLE_STRING__IJPEGFORMATDRIVER__JPEG_ALT_FILE_EXTENSION_4)
 };
-const QString IJpegFormatDriver::JPEG_MIME_TYPE = QStringLiteral(ADDLE_STRING__IJPEGFORMATDRIVER__JPEG_MIME_TYPE);
-const QByteArray IJpegFormatDriver::JPEG_FILE_SIGNATURE = QByteArrayLiteral(ADDLE_STRING__IJPEGFORMATDRIVER__JPEG_FILE_SIGNATURE);
-const FormatId IJpegFormatDriver::JPEG_FORMAT_ID = FormatId(
+const QString IJPEGFormatDriver::JPEG_MIME_TYPE = QStringLiteral(ADDLE_STRING__IJPEGFORMATDRIVER__JPEG_MIME_TYPE);
+const QByteArray IJPEGFormatDriver::JPEG_FILE_SIGNATURE = QByteArrayLiteral(ADDLE_STRING__IJPEGFORMATDRIVER__JPEG_FILE_SIGNATURE);
+const FormatId IJPEGFormatDriver::JPEG_FORMAT_ID = FormatId(
     "jpeg-format-id",
-    IJpegFormatDriver::JPEG_MIME_TYPE,
+    IJPEGFormatDriver::JPEG_MIME_TYPE,
     typeid(IDocument)
 );
 
@@ -127,4 +127,4 @@ const BrushTipId IBrushLikeToolPresenter::CommonBrushTips::HardCircle = BrushTip
 const BrushTipId IBrushLikeToolPresenter::CommonBrushTips::SoftCircle = BrushTipId("SoftCircle");
 
 #include "interfaces/presenters/tools/ibrushtoolpresenter.hpp"
-const BrushTipId IBrushToolPresenter::DEFAULT_BRUSH_TIP = IBrushLikeToolPresenter::CommonBrushTips::HardCircle;
+const BrushTipId IBrushToolPresenter::DEFAULT_BRUSH_TIP = IBrushLikeToolPresenter::CommonBrushTips::TwoSquare;

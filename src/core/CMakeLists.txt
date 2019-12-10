@@ -21,7 +21,6 @@ set (
     format/qtformatdrivers/qtimageformatdriver.cpp
     tasks/loaddocumentfiletask.cpp
     tasks/taskcontroller.cpp
-    tasks/taskbase.cpp
 )
 
 add_library(core SHARED ${SOURCES})

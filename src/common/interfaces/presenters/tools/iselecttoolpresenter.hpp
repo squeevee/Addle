@@ -4,9 +4,9 @@
 #include "isimilarregiontoolpresenter.hpp"
 #include "interfaces/traits/initialize_traits.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
-#include "interfaces/servicelocator/imakeable.hpp"
+#include "interfaces/traits/makeable_trait.hpp"
 
-class ISelectToolPresenter : public virtual ISimilarRegionToolPresenter, public virtual IMakeable
+class ISelectToolPresenter : public virtual ISimilarRegionToolPresenter
 {
 public:
     enum SelectStyleOptions {
@@ -54,6 +54,7 @@ signals:
 Q_DECLARE_METATYPE(ISelectToolPresenter::SelectStyleOptions)
 Q_DECLARE_METATYPE(ISelectToolPresenter::SelectionOperationOptions)
 
+DECL_MAKEABLE(ISelectToolPresenter)
 DECL_IMPLEMENTED_AS_QOBJECT(ISelectToolPresenter)
 
 #endif // ISELECTTOOLPRESENTER_HPP

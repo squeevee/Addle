@@ -1,13 +1,13 @@
 #ifndef IPNGFORMATDRIVER_HPP
 #define IPNGFORMATDRIVER_HPP
 
-#include "interfaces/servicelocator/imakeable.hpp"
+#include "interfaces/traits/makeable_trait.hpp"
 
 #include "../iformatdriver.hpp"
 
 #include "data/formatid.hpp"
 
-class IPNGFormatDriver : public virtual IFormatDriver, public virtual IMakeable
+class IPNGFormatDriver : public virtual IFormatDriver
 {
 public:
     virtual ~IPNGFormatDriver() = default;
@@ -23,5 +23,7 @@ public:
     static const FormatId PNG_FORMAT_ID;
 
 };
+
+DECL_MAKEABLE(IPNGFormatDriver)
 
 #endif // IPNGFORMATDRIVER_HPP

@@ -1,5 +1,54 @@
-if I non-virtually inherit IMakeable and IService does that mean I can use
-static_cast in service locator? Probably a few cases that'd work like that.
+Brushes probably need to be expanded a lot: I was picturing them as like a
+helper class for the brush tool, but it's getting too complex.
+
+There's a bug at least in the 2x2 brush and maybe others that causes
+"notches" to appear in a diagonal line. this has to do with the brush's
+raster operation buffer being resized while the line is being drawn
+
+I expect that it will be easier to pin down this issue if the brushes are
+made more robust
+
+proper new document
+
+
+Discovery implementations for:
+- Multi-layer documents
+- Eraser tool
+- Undo stack
+
+Also, the tool presenter options are feeling a bit cumbersome, could be
+better to try a "has, not is" strategy for overlapping sets of options
+
+Color selection (exposed as a tool option, though it'd probably be owned
+by the document presenter)
+
+Color palette
+
+maybe add the feature where the viewport can be temporarily locked relative
+to the absolute global screen position -- so toolbars and dock widgets can
+be added arbitrarily without disrupting the viewport
+
+
+
+I'll want to proof-of-concept the Selection and Shapes tools. And document
+exporting (i.e., saving). Then build and test for Windows
+
+If that goes well, I'll consider the design to be basically sound and do
+some cleanup, refactoring, style work, and documentation. And this is where
+I will begin to write up unit and integration tests. If I'm still missing
+icons, mouse cursors, and English user text, this will be a good time to
+add them.
+
+I'll want to get Google Breakpad going before much longer and also make sure
+to test it on Windows.
+
+
+Around this point, I should also start using GitHub task lists instead of
+this file. This will be time to decide the feature set that will comprise
+the Alpha version. And go from there.
+
+
+misc:
 
 when porting to Windows, make sure to specify cmake version 3.4 and add the
 property WINDOWS_EXPORT_ALL_SYMBOLS to the shared object modules.
@@ -15,8 +64,6 @@ redo icon looks like it's disabled
 
 tool mouse inputs
 
-tighten up default editor tools
-
 take user text translation keys out of FormatId and ToolId, and make the
 presenters responsible for that instead (?). Opt instead for programmer-readable
 names
@@ -25,5 +72,19 @@ clean up the preset helper API with initializier lists or something, even if
 heaven forbid it makes lookups operate on logarithmic time instead of constant
 time.
 
-Canvas presenter and document presenter feel redundant, and document view feels
-mis-named. I need to work on this structure.
+rework the structure/names of Canvas View, Document View, Document Presenter
+
+clean up dynamic casting (and virtual inheritance) where possible
+
+Make a generalized fallback format driver based on Qt rather than a bunch of
+individual ones (dynamic negotiation based on QImageReader::supportedMimeTypes()
+for example)
+
+General-purpose assert function that translates into a thrown IAddleException
+which returns true for isLogicError() -- save some unneeded micro exception
+classes 
+
+move get buffer painter into buffer helper
+
+error-wrap, but also combine some functionality between the 
+unhandledexceptionrouter and the debug message handler

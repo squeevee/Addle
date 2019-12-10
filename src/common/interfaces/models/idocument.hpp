@@ -10,13 +10,13 @@
 
 #include "ilayer.hpp"
 #include "interfaces/format/iformatmodel.hpp"
-#include "interfaces/servicelocator/imakeable.hpp"
+#include "interfaces/traits/makeable_trait.hpp"
 
 #include "data/documentbuilder.hpp"
 #include "interfaces/traits/initialize_traits.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 
-class IDocument : public virtual IFormatModel, public virtual IMakeable
+class IDocument : public virtual IFormatModel
 {
 public:
 
@@ -42,7 +42,7 @@ public:
     virtual QString getFilename() = 0;
     virtual void setFilename(QString filename) = 0;
 
-    virtual QList<ILayer*> getLayers() = 0;
+    virtual QList<QSharedPointer<ILayer>> getLayers() = 0;
 
 signals:
     void renderChanged(QRect area);
@@ -52,7 +52,7 @@ signals:
     //void appliedDrawingOperation(const IDrawingOperation& operation);
 };
 
-
+DECL_MAKEABLE(IDocument)
 DECL_EXPECTS_INITIALIZE(IDocument)
 DECL_IMPLEMENTED_AS_QOBJECT(IDocument)
 //DECL_INIT_DEPENDENCY(IDocument, ILayer)

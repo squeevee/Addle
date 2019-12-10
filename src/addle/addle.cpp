@@ -23,6 +23,7 @@
 #include "utilities/debugging.hpp"
 #endif //ADDLE_DEBUG
 
+#include "utilities/unhandledexceptionrouter.hpp"
 #include "core/presenters/tools/navigatetoolpresenter.hpp"
 
 int main(int argc, char *argv[])
@@ -52,6 +53,8 @@ int main(int argc, char *argv[])
         )) << DebugBehavior::get();
     }
 #endif
+
+    UnhandledExceptionRouter::initialize();
 
     ServiceConfiguration serviceConfiguration;
     serviceConfiguration.initialize();

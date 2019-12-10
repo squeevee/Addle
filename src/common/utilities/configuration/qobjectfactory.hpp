@@ -46,7 +46,7 @@ public:
 public:
     virtual ~QObjectFactory() = default;
 
-    IMakeable* make()
+    void* make()
     {
         if (_threading == ThreadingOptions::main_thread_only
             && QThread::currentThread() != QApplication::instance()->thread())

@@ -6,14 +6,15 @@
 #include <QBrush>
 #include <QWeakPointer>
 
-#include <memory>
-
 #include "interfaces/models/ilayer.hpp"
-#include "interfaces/servicelocator/imakeable.hpp"
+#include "interfaces/traits/makeable_trait.hpp"
 #include "interfaces/traits/initialize_traits.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 
-class IRasterOperation : public IMakeable
+#include "ihavebufferpainter.hpp"
+#include "iundoableoperation.hpp"
+
+class IRasterOperation : public IUndoableOperation, public IHaveBufferPainter
 {
 public:
 
@@ -37,15 +38,13 @@ public:
         Mode mode = Mode::paint
     ) = 0;
 
-    virtual std::unique_ptr<QPainter> getBufferPainter(QRect region) = 0;
+    virtual BufferPainter getBufferPainter(QRect region) = 0;
     virtual void render(QPainter& painter, QRect region) = 0;
 
     virtual QRect getBoundingRect() = 0;
-
-    virtual void doOperation() = 0;
-    virtual void undoOperation() = 0;
 };
 
+DECL_MAKEABLE(IRasterOperation)
 DECL_EXPECTS_INITIALIZE(IRasterOperation)
 DECL_IMPLEMENTED_AS_QOBJECT(IRasterOperation)
 

@@ -7,9 +7,9 @@
 #include "itoolwithassetspresenter.hpp"
 #include "interfaces/traits/initialize_traits.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
-#include "interfaces/servicelocator/imakeable.hpp"
+#include "interfaces/traits/makeable_trait.hpp"
 
-class IStickersToolPresenter : public virtual IToolWithAssetsPresenter, public virtual IMakeable
+class IStickersToolPresenter : public virtual IToolWithAssetsPresenter
 {
 public:
     static const ToolId STICKERS_TOOL_ID;
@@ -17,6 +17,7 @@ public:
     virtual ~IStickersToolPresenter() = default;
 };
 
+DECL_MAKEABLE(IStickersToolPresenter)
 DECL_IMPLEMENTED_AS_QOBJECT(IStickersToolPresenter)
 
 #endif // ISTICKERSTOOLPRESENTER_HPP

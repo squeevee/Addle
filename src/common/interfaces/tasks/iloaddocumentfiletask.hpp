@@ -9,9 +9,9 @@
 
 #include "interfaces/models/idocument.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
-#include "interfaces/servicelocator/imakeable.hpp"
+#include "interfaces/traits/makeable_trait.hpp"
 
-class ILoadDocumentFileTask : public virtual ITask, public virtual IMakeable
+class ILoadDocumentFileTask : public ITask
 {
 public:
     virtual ~ILoadDocumentFileTask() = default;
@@ -21,6 +21,7 @@ public:
     virtual QSharedPointer<IDocument> getDocument() = 0;
 };
 
+DECL_MAKEABLE(ILoadDocumentFileTask)
 DECL_EXPECTS_INITIALIZE(ILoadDocumentFileTask)
 
 #endif // ILOADDOCUMENTFILETASK_HPP

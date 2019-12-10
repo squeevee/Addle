@@ -4,9 +4,9 @@
 #include "itoolpresenter.hpp"
 #include "interfaces/traits/initialize_traits.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
-#include "interfaces/servicelocator/imakeable.hpp"
+#include "interfaces/traits/makeable_trait.hpp"
 
-class IMeasureToolPresenter : public virtual IToolPresenter, public virtual IMakeable
+class IMeasureToolPresenter : public virtual IToolPresenter
 {
 public:
     enum MeasureOperationOptions {
@@ -29,6 +29,7 @@ signals:
 
 Q_DECLARE_METATYPE(IMeasureToolPresenter::MeasureOperationOptions)
 
+DECL_MAKEABLE(IMeasureToolPresenter)
 DECL_IMPLEMENTED_AS_QOBJECT(IMeasureToolPresenter)
 
 #endif // IMEASURETOOLPRESENTER_HPP

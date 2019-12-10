@@ -22,8 +22,9 @@
 
 #include "exceptions/servicelocatorexceptions.hpp"
 
-#include "./interfaces/traits/initialize_traits.hpp"
-#include "./utilities/qt_extensions/qhash.hpp"
+#include "interfaces/traits/makeable_trait.hpp"
+#include "interfaces/traits/initialize_traits.hpp"
+#include "utilities/qt_extensions/qhash.hpp"
 
 /**
  * @class ServiceLocator
@@ -296,12 +297,8 @@ private:
     Interface* make_p()
     {
         static_assert(
-            std::is_base_of<IMakeable, Interface>::value,
-            "Interface must inherit type IMakeable"
-        );
-        static_assert(
-            !std::is_same<IMakeable, Interface>::value,
-            "IMakeable is an abstract base type: it cannot be made directly."
+            is_makeable<Interface>::value,
+            "Interface must be makeable"
         );
 
         std::type_index interfaceIndex(typeid(Interface));
@@ -320,25 +317,23 @@ private:
         }
         
         IFactory* factory = _factoryregistry[interfaceIndex];
-        IMakeable* product = factory->make();
+        Interface* product = reinterpret_cast<Interface*>(factory->make());
 
-        Interface* result = dynamic_cast<Interface*>(product);
+//         if (!result)
+//         {
+// #ifdef ADDLE_DEBUG
+//             InvalidFactoryProductException ex(
+//                     typeid(Interface).name(),
+//                     factory->getProductTypeName(),
+//                     factory->getFactoryTypeName()
+//             );
+// #else
+//             InvalidFactoryProductException ex;
+// #endif
+//             ADDLE_THROW(ex);
+//         }
 
-        if (!result)
-        {
-#ifdef ADDLE_DEBUG
-            InvalidFactoryProductException ex(
-                    typeid(Interface).name(),
-                    factory->getProductTypeName(),
-                    factory->getFactoryTypeName()
-            );
-#else
-            InvalidFactoryProductException ex;
-#endif
-            ADDLE_THROW(ex);
-        }
-
-        return result;
+        return product;
     }
 
 #ifndef SERVICELOCATOR_NO_AUTOINITIALIZE

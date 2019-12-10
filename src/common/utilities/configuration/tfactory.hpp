@@ -3,6 +3,7 @@
 
 #include <type_traits>
 
+#include "interfaces/traits/makeable_trait.hpp"
 #include "interfaces/servicelocator/iservicelocator.hpp"
 #include "interfaces/servicelocator/ifactory.hpp"
 
@@ -10,17 +11,20 @@
  * A generic template-based object factory.
  */
 template<class Interface, class Impl>
-class TFactory : public virtual IFactory
+class TFactory : public IFactory
 {
     static_assert(
-        std::is_base_of<IMakeable, Interface>::value,
-        "Interface must implement IMakeable"
+        is_makeable<Interface>::value,
+        "Interface must be makeable"
     );
 
 public:
     virtual ~TFactory() = default;
 
-    IMakeable* make() { return static_cast<IMakeable*>(new Impl); }
+    void* make() { return reinterpret_cast<void*>(static_cast<Interface*>(new Impl)); }
+
+    const std::type_info& getInterfaceType() { return typeid(Interface); }
+    const std::type_info& getImplementationType() { return typeid(Impl); }
 
 #ifdef ADDLE_DEBUG
     const char* getFactoryTypeName()

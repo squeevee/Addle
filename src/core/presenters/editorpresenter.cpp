@@ -4,6 +4,7 @@
 #include "servicelocator.hpp"
 
 EditorPresenter::EditorPresenter()
+    : _undoStackHelper(*this)
 {
     _tools = {
         DefaultTools::SELECT,
@@ -54,8 +55,10 @@ void EditorPresenter::onActionLoadDocument(QString filename)
 
 void EditorPresenter::setDocument(QSharedPointer<IDocument> document)
 {
+    if (!_document)
+        setCurrentTool(DefaultTools::BRUSH);
+
     BaseDocumentPresenter::setDocument(document);
 
-    setCurrentTool(DefaultTools::NAVIGATE);
     setSelectedLayer(0);
 }

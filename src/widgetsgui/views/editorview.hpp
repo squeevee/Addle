@@ -38,10 +38,16 @@ public:
 protected:
     void setupUi();
 
+private slots: 
+    void onUndoStateChanged();
+
 private:
     IEditorPresenter* _presenter;
 
-    SelectToolAction* _action_selectSelectTool;
+    QAction* _action_undo;
+    QAction* _action_redo;
+
+    //SelectToolAction* _action_selectSelectTool;
     ISelectToolPresenter* _toolPresenter_select;
     QToolBar* _optionsToolBar_select;
 
@@ -49,27 +55,27 @@ private:
     IBrushToolPresenter* _toolPresenter_brush;
     BrushToolOptionsBar* _optionsToolBar_brush;
 
-    SelectToolAction* _action_selectEraserTool;
+    //SelectToolAction* _action_selectEraserTool;
     IEraserToolPresenter* _toolPresenter_eraser;
     QToolBar* _optionsToolBar_eraser;
 
-    SelectToolAction* _action_selectFillTool;
+    //SelectToolAction* _action_selectFillTool;
     IFillToolPresenter* _toolPresenter_fill;
     QToolBar* _optionsToolBar_fill;
 
-    SelectToolAction* _action_selectTextTool;
+    //SelectToolAction* _action_selectTextTool;
     ITextToolPresenter* _toolPresenter_text;
     QToolBar* _optionsToolBar_text;
 
-    SelectToolAction* _action_selectShapesTool;
+    //SelectToolAction* _action_selectShapesTool;
     IShapesToolPresenter* _toolPresenter_shapes;
     QToolBar* _optionsToolBar_shapes;
 
-    SelectToolAction* _action_selectStickersTool;
+    //SelectToolAction* _action_selectStickersTool;
     IStickersToolPresenter* _toolPresenter_stickers;
     QToolBar* _optionsToolBar_stickers;
 
-    SelectToolAction* _action_selectEyedropTool;
+    //SelectToolAction* _action_selectEyedropTool;
     IEyedropToolPresenter* _toolPresenter_eyedrop;
     QToolBar* _optionsToolBar_eyedrop;
 
@@ -77,7 +83,7 @@ private:
     INavigateToolPresenter* _toolPresenter_navigate;
     NavigateToolOptionsBar* _optionsToolBar_navigate;
 
-    SelectToolAction* _action_selectMeasureTool;
+    //SelectToolAction* _action_selectMeasureTool;
     IMeasureToolPresenter* _toolPresenter_measure;
     QToolBar* _optionsToolBar_measure;
 

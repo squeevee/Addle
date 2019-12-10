@@ -9,13 +9,14 @@
 
 #include "interfaces/traits/initialize_traits.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
-#include "interfaces/servicelocator/imakeable.hpp"
+#include "interfaces/traits/makeable_trait.hpp"
 #include "ierrorpresenter.hpp"
+#include "ihaveundostackpresenter.hpp"
 
 class IEditorView;
 //class IToolOptionsPresenter;
 
-class IEditorPresenter : public virtual IDocumentPresenter, public virtual IMakeable
+class IEditorPresenter : public virtual IDocumentPresenter, public IHaveUndoStackPresenter
 {
 public:
     virtual ~IEditorPresenter() {}
@@ -53,6 +54,7 @@ public:
     };
 };
 
+DECL_MAKEABLE(IEditorPresenter)
 DECL_IMPLEMENTED_AS_QOBJECT(IEditorPresenter)
 
 #endif // IEDITORPRESENTER_HPP

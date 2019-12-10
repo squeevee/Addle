@@ -6,6 +6,7 @@
 LoadDocumentFileTask::LoadDocumentFileTask()
     : _initHelper(this)
 {
+    _controller = QSharedPointer<ITaskController>(ServiceLocator::make<ITaskController>(this));
 }
 
 void LoadDocumentFileTask::initialize(QFileInfo fileInfo)

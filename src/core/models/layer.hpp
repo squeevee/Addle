@@ -11,13 +11,15 @@
 #include "interfaces/models/ilayer.hpp"
 #include "interfaces/models/idocument.hpp"
 
+#include "utilities/image/expandingbuffer.hpp"
+
 #include "utilities/initializehelper.hpp"
 
 class Layer : public QObject, public ILayer
 {
     Q_OBJECT
 public:
-    Layer() : _initHelper(this) {}
+    Layer() : _initHelper(this), _buffer(DEFAULT_BUFFER_MARGIN) { }
     virtual ~Layer() = default;
     
     void initialize();
@@ -34,27 +36,26 @@ public:
 
     QColor getSkirtColor() { _initHelper.assertInitialized(); return Qt::GlobalColor::transparent; }
 
-    void applyRasterOperation(IRasterOperation* operation);
+    BufferPainter getBufferPainter(QRect area);
+
+signals: 
+    void renderChanged(QRect area);
+
+protected:
+    void beforeBufferPainted(QRect region) { }
+    void afterBufferPainted(QRect region) { emit renderChanged(region); }
 
 private:
     const int DEFAULT_BUFFER_MARGIN = 1024;
 
-    //Contains the raster data of the layer as well as extra space to optimize
-    //boundary resizing.
-    QImage _buffer;
-
-    //Relative to the Document
     QRect _boundary;
 
-    //Transforms between the Document coordinates and the buffer coordinates.
-    QTransform _ontoBuffer;
-    QTransform _fromBuffer;
+    ExpandingBuffer _buffer;
 
     bool _empty;
 
     IDocument* _document;
 
-protected:
     InitializeHelper<Layer> _initHelper;
 
 };

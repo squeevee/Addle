@@ -2,6 +2,9 @@
 #define EDITORPRESENTER_HPP
 
 #include "basedocumentpresenter.hpp"
+
+#include "helpers/undostackhelper.hpp"
+
 #include "interfaces/views/ieditorview.hpp"
 #include "interfaces/presenters/ieditorpresenter.hpp"
 
@@ -16,6 +19,8 @@
 #include "interfaces/presenters/tools/inavigatetoolpresenter.hpp"
 #include "interfaces/presenters/tools/imeasuretoolpresenter.hpp"
 
+#include "interfaces/presenters/ilayerpresenter.hpp"
+
 class EditorPresenter : public BaseDocumentPresenter, public virtual IEditorPresenter
 {
     Q_OBJECT
@@ -29,8 +34,19 @@ public:
     ILayerPresenter* getSelectedLayer() { return _selectedLayer; }
     void setSelectedLayer(int index) { _selectedLayer = _layerPresenters[index]; }
 
+    bool canUndo() { return _undoStackHelper.canUndo(); }
+    bool canRedo() { return _undoStackHelper.canRedo(); }
+
+    void doOperation(QSharedPointer<IUndoableOperation> undoable) { _undoStackHelper.doOperation(undoable); }
+
 public slots: 
     void onActionLoadDocument(QString filename);
+
+    void undo() { _undoStackHelper.undo(); }
+    void redo() { _undoStackHelper.redo(); }
+
+signals: 
+    void undoStateChanged();
 
 protected:
     QList<IToolPresenter*> initializeTools();
@@ -51,6 +67,8 @@ private:
     IEditorView* _view = nullptr;
 
     ILayerPresenter* _selectedLayer = nullptr;
+
+    UndoStackHelper _undoStackHelper;
 };
 
 #endif // EDITORPRESENTER_HPP

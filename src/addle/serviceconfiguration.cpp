@@ -67,7 +67,7 @@ void ServiceConfiguration::configure()
 
     // # Formats
     REGISTER_TFACTORY(IPNGFormatDriver, QtPNGFormatDriver);
-    REGISTER_TFACTORY(IJpegFormatDriver, QtJpegFormatDriver);
+    REGISTER_TFACTORY(IJPEGFormatDriver, QtJPEGFormatDriver);
 
     // # Views
     REGISTER_QOBJECT_FACTORY(IEditorView, EditorView);

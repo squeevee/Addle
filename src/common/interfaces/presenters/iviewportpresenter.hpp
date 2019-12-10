@@ -7,12 +7,12 @@
 
 #include "idocumentpresenter.hpp"
 
-#include "interfaces/servicelocator/imakeable.hpp"
+#include "interfaces/traits/makeable_trait.hpp"
 #include "interfaces/traits/initialize_traits.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 
 class IViewPort;
-class IViewPortPresenter: public virtual IMakeable
+class IViewPortPresenter
 {
 public:
 
@@ -139,6 +139,7 @@ signals:
     virtual void transformsChanged() = 0;
 };
 
+DECL_MAKEABLE(IViewPortPresenter)
 DECL_EXPECTS_INITIALIZE(IViewPortPresenter)
 DECL_INIT_DEPENDENCY(IViewPortPresenter, IDocumentPresenter)
 DECL_IMPLEMENTED_AS_QOBJECT(IViewPortPresenter)

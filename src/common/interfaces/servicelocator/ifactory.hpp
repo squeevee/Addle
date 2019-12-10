@@ -1,17 +1,19 @@
 #ifndef IFACTORY_HPP
 #define IFACTORY_HPP
  
+#include <typeinfo>
+
 #include "iservicelocator.hpp"
 
-#include "imakeable.hpp"
-
-//class IFactoryProduct;
 class IFactory
 {
 public:
     virtual ~IFactory() = default;
-    virtual IMakeable* make() = 0;
+    virtual void* make() = 0;
     
+    virtual const std::type_info& getInterfaceType() = 0;
+    virtual const std::type_info& getImplementationType() = 0;
+
     virtual void setServiceLocator(IServiceLocator* serviceLocator) = 0;
     
 #ifdef ADDLE_DEBUG

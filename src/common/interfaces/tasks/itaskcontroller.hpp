@@ -4,9 +4,9 @@
 #include "interfaces/iaddleexception.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 #include "itask.hpp"
-#include "interfaces/servicelocator/imakeable.hpp"
+#include "interfaces/traits/makeable_trait.hpp"
 
-class ITaskController : public IMakeable
+class ITaskController 
 {
 public:
     virtual ~ITaskController() = default;
@@ -25,7 +25,8 @@ public slots:
     virtual void run() = 0;
 };
 
-DECL_EXPECTS_INITIALIZE(ITaskController);
-DECL_IMPLEMENTED_AS_QOBJECT(ITaskController);
+DECL_MAKEABLE(ITaskController)
+DECL_EXPECTS_INITIALIZE(ITaskController)
+DECL_IMPLEMENTED_AS_QOBJECT(ITaskController)
 
 #endif // ITASKCONTROLLER_HPP

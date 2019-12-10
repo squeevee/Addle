@@ -14,12 +14,14 @@ void CanvasView::initialize(IDocumentPresenter* presenter)
 
     connect_interface(_presenter, SIGNAL(documentChanged(QSharedPointer<IDocument>)), this, SLOT(update()));
 
+    update();
+
     _initHelper.initializeEnd();
 }
 
 void CanvasView::update()
 {
-    _initHelper.assertInitialized();
+    //_initHelper.assertInitialized();
 
     _layers.clear(); //leak?
     if (_layersContainer)

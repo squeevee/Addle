@@ -4,9 +4,9 @@
 #include <QString>
 
 #include "interfaces/traits/initialize_traits.hpp"
-#include "interfaces/servicelocator/imakeable.hpp"
+#include "interfaces/traits/makeable_trait.hpp"
 
-class IErrorPresenter : public virtual IMakeable
+class IErrorPresenter 
 {
 public:
 
@@ -28,6 +28,7 @@ public:
     virtual void setMessage(QString message) = 0;
 };
 
+DECL_MAKEABLE(IErrorPresenter)
 DECL_EXPECTS_INITIALIZE(IErrorPresenter)
 
 #endif // IERRORPRESENTER_HPP

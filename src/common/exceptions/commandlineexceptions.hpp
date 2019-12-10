@@ -6,6 +6,8 @@
 #include <QObject>
 #include <QStringBuilder>
 
+#include "utilities/qt_extensions/translation.hpp"
+
 #include "baseaddleexception.hpp"
 
 DECL_RUNTIME_ERROR(CommandLineException)
@@ -39,9 +41,10 @@ public:
     CommandLineParserException(const QString errorText)
         : CommandLineException(
 #ifdef ADDLE_DEBUG
-            QCoreApplication::translate(
+            fallback_translate(
                 "CommandLineParserException",
-                "The command-line parser encountered an error: \"%1\""
+                "what",
+                QStringLiteral("The command-line parser encountered an error: \"%1\"")
                 ).arg(errorText)
 #else
             errorText

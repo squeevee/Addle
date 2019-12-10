@@ -5,10 +5,10 @@
 
 #include "interfaces/traits/initialize_traits.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
-#include "interfaces/servicelocator/imakeable.hpp"
+#include "interfaces/traits/makeable_trait.hpp"
 #include "interfaces/presenters/ieditorpresenter.hpp"
 
-class IEditorView: public virtual IDocumentView, public virtual IMakeable
+class IEditorView: public virtual IDocumentView
 {
 public:
     virtual ~IEditorView() = default;
@@ -18,6 +18,7 @@ public:
     virtual IEditorPresenter* getEditorPresenter() = 0;
 };
 
+DECL_MAKEABLE(IEditorView)
 DECL_EXPECTS_INITIALIZE(IEditorView)
 DECL_INIT_DEPENDENCY(IEditorView, IEditorPresenter)
 DECL_IMPLEMENTED_AS_QOBJECT(IEditorView)

@@ -18,24 +18,20 @@ void Layer::initialize(LayerBuilder& builder)
     _boundary = builder.getBoundary();
     _empty = true;
 
-    int bufferWidth = 2 * DEFAULT_BUFFER_MARGIN + _boundary.width();
-    int bufferHeight = 2 * DEFAULT_BUFFER_MARGIN + _boundary.height();
-
-    _buffer = QImage(QSize(bufferWidth, bufferHeight), QImage::Format::Format_ARGB32_Premultiplied);
-    _buffer.fill(Qt::transparent);
-
-    _ontoBuffer = QTransform();
-    _ontoBuffer.translate(DEFAULT_BUFFER_MARGIN, DEFAULT_BUFFER_MARGIN);
-    _fromBuffer = _ontoBuffer.inverted();
-
+    _buffer.initialize(
+        QImage::Format_ARGB32_Premultiplied,
+        _boundary
+    );
+    
     QImage image = builder.getImage();
     if (!image.isNull())
     {
         _empty = false;
 
-        QPainter painter(&_buffer);
-        painter.drawImage(_ontoBuffer.map(_boundary.topLeft()), image);
-        painter.end();
+        QPainter painter(&_buffer.image);
+        painter.setTransform(_buffer.getOntoBufferTransform());
+        painter.setCompositionMode(QPainter::CompositionMode_Source);
+        painter.drawImage(QPoint(), image);
     }
 
     _initHelper.initializeEnd();
@@ -46,13 +42,10 @@ void Layer::render(QPainter& painter, QRect area)
     _initHelper.assertInitialized();
 
     QRect intersection = _boundary.intersected(area);
-    painter.drawImage(intersection, _buffer, _ontoBuffer.mapRect(intersection));
+    painter.drawImage(intersection, _buffer.image, _buffer.getOntoBufferTransform().mapRect(intersection));
 }
 
-
-void Layer::applyRasterOperation(IRasterOperation* operation)
+BufferPainter Layer::getBufferPainter(QRect area)
 {
-    QPainter painter(&_buffer);
-
-    operation->render(painter, _boundary);
+    return _buffer.createBufferPainter(area, this);
 }
