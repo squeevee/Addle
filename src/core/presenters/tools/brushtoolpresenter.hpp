@@ -6,27 +6,21 @@
 
 #include "interfaces/editing/irasteroperation.hpp"
 
-#include "helpers/brushliketoolhelper.hpp"
+#include "helpers/toolwithassetshelper.hpp"
 
 class BrushToolPresenter : public ToolPresenterBase, public virtual IBrushToolPresenter
 {
     Q_OBJECT
     Q_PROPERTY(
-        BrushTipId brushTip
-        READ getBrushTip
-        WRITE setBrushTip
-        NOTIFY brushTipChanged
-    )
-    Q_PROPERTY(
-        SizeOption size
-        READ getSize
-        WRITE setSize
-        NOTIFY sizeChanged
+        PersistentId selectedAsset 
+        READ getSelectedAsset
+        WRITE selectAsset 
+        NOTIFY selectedAssetChanged
     )
 public:
     BrushToolPresenter()
-        : ToolPresenterBase(ToolPathHelper::TrackingOptions::endpoints),
-        _brushHelper(*this, DEFAULT_BRUSH_TIP, DEFAULT_BRUSH_SIZE),
+        : ToolPresenterBase(ToolPathHelper::TrackingOptions::path),
+        _assetsHelper(*this, DEFAULT_BRUSH),
         _initHelper(this)
     {
         _icon = QIcon(":/icons/brush.png");
@@ -36,26 +30,22 @@ public:
     void initialize(IEditorPresenter* owner);
 
     ToolId getId() { return BRUSH_TOOL_ID; }
-  
-    BrushTipId getBrushTip() { _initHelper.assertInitialized(); return _brushHelper.getBrushTip(); }
-    QSet<BrushTipId> getBrushTips() { _initHelper.assertInitialized(); return _brushHelper.getBrushTips(); }
 
-    SizeOption getSize() { _initHelper.assertInitialized(); return _brushHelper.getSize(); }
-    double getCustomPixelSize() { _initHelper.assertInitialized(); return _brushHelper.getCustomPixelSize(); }
-    double getCustomPercentSize() { _initHelper.assertInitialized(); return _brushHelper.getCustomPercentSize(); }
+    QList<QSharedPointer<IAssetPresenter>> getAllAssets() { _initHelper.assertInitialized(); return _assetsHelper.getAllAssets(); }
+    QSharedPointer<IAssetPresenter> getAssetPresenter(PersistentId id) { _initHelper.assertInitialized(); return _assetsHelper.getAssetPresenter(id); }
 
-public slots:
-    void setBrushTip(BrushTipId tip) { _initHelper.assertInitialized(); _brushHelper.setBrushTip(tip); }
-    void setSize(SizeOption size)  { _initHelper.assertInitialized(); _brushHelper.setSize(size); }
-    void setCustomPixelSize(double customPixels) { _initHelper.assertInitialized(); _brushHelper.setCustomPixelSize(customPixels); }
-    void setCustomPercentSize(double customPercentage) { _initHelper.assertInitialized(); _brushHelper.setCustomPercentSize(customPercentage); }
+    PersistentId getSelectedAsset() { _initHelper.assertInitialized(); return _assetsHelper.getSelectedAsset(); }
+    void selectAsset(PersistentId id) {_initHelper.assertInitialized(); _assetsHelper.selectAsset(id); }
+    QSharedPointer<IAssetPresenter> getSelectedAssetPresenter() { _initHelper.assertInitialized(); return _assetsHelper.getSelectedAssetPresenter(); }
 
+    BrushId getSelectedBrush() { _initHelper.assertInitialized(); return _assetsHelper.getSelectedAsset(); }
+    QSharedPointer<IBrushPresenter> getSelectedBrushPresenter() { _initHelper.assertInitialized(); return _assetsHelper.getSelectedAssetPresenter(); }
+    
 signals:
-    void brushTipChanged(BrushTipId tip);
-    void sizeChanged(SizeOption size);
+    void brushChanged(BrushId tip);
+    void selectedAssetChanged(PersistentId id);
 
 protected:
-
     void onPointerEngage();
     void onPointerMove();
     void onPointerDisengage();
@@ -65,7 +55,7 @@ private:
 
     IRasterOperation* _operation = nullptr;
 
-    BrushLikeToolHelper _brushHelper;
+    ToolWithAssetsHelper<IBrushPresenter, BrushId> _assetsHelper;
     InitializeHelper<BrushToolPresenter> _initHelper;
 };
 

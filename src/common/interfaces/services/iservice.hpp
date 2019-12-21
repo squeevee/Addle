@@ -14,7 +14,7 @@ public:
     
     virtual ~IService() {}
 
-    virtual void setServiceLocator(IServiceLocator* serviceLocator) = 0;
+    //virtual void setServiceLocator(IServiceLocator* serviceLocator) = 0;
 
 };
 

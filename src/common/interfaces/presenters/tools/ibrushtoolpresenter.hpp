@@ -12,8 +12,14 @@ class IBrushToolPresenter : public virtual IBrushLikeToolPresenter
 public:
     static const ToolId BRUSH_TOOL_ID;
 
-    static const BrushTipId DEFAULT_BRUSH_TIP; // CommonBrushTips::HardCircle
-    static const SizeOption DEFAULT_BRUSH_SIZE = SizeOption::_25px;
+    struct DefaultBrushes
+    {
+        static const BrushId SmoothCircle;  //CoreBrushes::ISmoothCircleBrush::Id
+        //static const BrushId AliasedCircle; //CoreBrushes::IAliasedCircleBrush::Id
+        //static const BrushId Square;        //CoreBrushes::ISquareBrush::Id
+    };
+
+    static const BrushId DEFAULT_BRUSH; // DefaultBrushes::SmoothCircle
     
     virtual ~IBrushToolPresenter() = default;
 

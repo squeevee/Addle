@@ -4,7 +4,6 @@ set ( CMAKE_AUTOMOC ON)
 
 add_library( common SHARED 
     ${INTERFACES}
-    servicelocator.cpp
     staticdefinitions.cpp
     exceptions/baseaddleexception.cpp
     utilities/debugging.cpp
@@ -15,5 +14,6 @@ add_library( common SHARED
     utilities/qt_extensions/qhash.cpp
     utilities/qt_extensions/translation.cpp
     utilities/qt_extensions/propertyobserver.cpp
+    utilities/qt_extensions/typeinforef.cpp
 )
 target_link_libraries(common Qt5::Core Qt5::Gui)

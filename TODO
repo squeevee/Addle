@@ -74,7 +74,8 @@ time.
 
 rework the structure/names of Canvas View, Document View, Document Presenter
 
-clean up dynamic casting (and virtual inheritance) where possible
+clean up dynamic casting (and virtual inheritance) where possible -- see also 
+IFormatModel
 
 Make a generalized fallback format driver based on Qt rather than a bunch of
 individual ones (dynamic negotiation based on QImageReader::supportedMimeTypes()
@@ -84,7 +85,9 @@ General-purpose assert function that translates into a thrown IAddleException
 which returns true for isLogicError() -- save some unneeded micro exception
 classes 
 
-move get buffer painter into buffer helper
-
 error-wrap, but also combine some functionality between the 
 unhandledexceptionrouter and the debug message handler
+
+Icons need some kind of configurable interface
+
+style: namespaces???

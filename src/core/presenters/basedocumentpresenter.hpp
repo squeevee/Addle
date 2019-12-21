@@ -33,8 +33,8 @@ public:
 
 
     bool isEmpty() { return !_document; }
-    QSize getCanvasSize() { return _document->getSize(); }
-    QColor getBackgroundColor() { return Qt::GlobalColor::white; } // todo
+    QSize getCanvasSize() { return _document ? _document->getSize() : QSize(); }
+    QColor getBackgroundColor() { return _document ? _document->getBackgroundColor() : IDocument::DEFAULT_BACKGROUND_COLOR; }
 
     QList<ILayerPresenter*> getLayerPresenters() { return _layerPresenters; }
 

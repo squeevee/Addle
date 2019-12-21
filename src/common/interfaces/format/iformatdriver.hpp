@@ -11,6 +11,8 @@
 #include "interfaces/tasks/itaskstatuscontroller.hpp"
 #include "interfaces/tasks/itaskcontroller.hpp"
 
+#include "data/formatid.hpp"
+
 #include "iformatmodel.hpp"
 
 class IFormatDriver

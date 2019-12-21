@@ -26,6 +26,8 @@ public:
         useDefaults
     };
 
+    static const QColor DEFAULT_BACKGROUND_COLOR;
+
     virtual ~IDocument() {}
 
     virtual void initialize(InitEmptyOptions emptyOption = InitEmptyOptions::useDefaults) = 0;

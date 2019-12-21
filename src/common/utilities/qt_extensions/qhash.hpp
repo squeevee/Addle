@@ -15,17 +15,13 @@
 #include <typeindex>
 #include <QHash>
 
-#include "data/formatid.hpp"
-#include "data/toolid.hpp"
-#include "data/brushtipid.hpp"
+#include "data/persistentid.hpp"
 
 namespace std
 {
     uint qHash(const std::type_index& key);
 }
 
-uint qHash(const FormatId& format);
-uint qHash(const ToolId& tool);
-uint qHash(const BrushTipId& brush);
+uint qHash(const PersistentId& id);
 
 #endif //QT_EXTENSIONS__QHASH_HPP

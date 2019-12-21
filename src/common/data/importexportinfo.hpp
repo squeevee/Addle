@@ -51,9 +51,8 @@ public:
     QUrl getUrl() const { return _data->url; }
 
 private:
-    class ImportExportInfoData : public QSharedData
+    struct ImportExportInfoData : QSharedData
     {
-    public:
         Direction direction = Direction::unassigned;
         FormatId format;
         const std::type_info* modelType = nullptr;

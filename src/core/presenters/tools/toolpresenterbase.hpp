@@ -183,10 +183,10 @@ protected:
         {
             textByValue[value] = QStringLiteral("%1-%2")
                 .arg(q_propertyName)
-                .arg(QString::fromLatin1(value.getName()));
+                .arg(value.getKey());
             toolTipByValue[value] = QStringLiteral("%1-%2-tooltip")
                 .arg(q_propertyName)
-                .arg(QString::fromLatin1(value.getName()));
+                .arg(value.getKey());
         }
     }
 

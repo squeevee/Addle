@@ -6,6 +6,9 @@
 #include <QString>
 #include <QByteArray>
 
+#include "servicelocator.hpp"
+ServiceLocator* ServiceLocator::_instance = nullptr;
+
 #include "interfaces/services/iservice.hpp"
 const QString IService::SERVICE_THREAD_NAME_TEMPLATE = QStringLiteral(ADDLE_STRING__ISERVICE__SERVICE_THREAD_NAME_TEMPLATE);
 
@@ -16,12 +19,14 @@ const QString IApplicationService::CMD_BROWSER_OPTION = QStringLiteral(ADDLE_STR
 const QString IApplicationService::CMD_BROWSER_SHORT_OPTION = QStringLiteral(ADDLE_STRING__IAPPLICATIONSERVICE__CMD_BROWSER_SHORT_OPTION);
 
 #include "interfaces/models/idocument.hpp"
+const QColor IDocument::DEFAULT_BACKGROUND_COLOR = Qt::white;
+
 #include "interfaces/format/drivers/ipngformatdriver.hpp"
 const QString IPNGFormatDriver::PNG_FILE_EXTENSION = QStringLiteral(ADDLE_STRING__IPNGFORMATDRIVER__PNG_FILE_EXTENSION);
 const QString IPNGFormatDriver::PNG_MIME_TYPE = QStringLiteral(ADDLE_STRING__IPNGFORMATDRIVER__PNG_MIME_TYPE);
 const QByteArray IPNGFormatDriver::PNG_FILE_SIGNATURE = QByteArrayLiteral(ADDLE_STRING__IPNGFORMATDRIVER__PNG_FILE_SIGNATURE);
 const FormatId IPNGFormatDriver::PNG_FORMAT_ID = FormatId(
-    "jpeg-format-id",
+    "png-format-id",
     IPNGFormatDriver::PNG_MIME_TYPE,
     typeid(IDocument)
 );
@@ -45,55 +50,53 @@ const FormatId IJPEGFormatDriver::JPEG_FORMAT_ID = FormatId(
 
 #include "interfaces/presenters/tools/iselecttoolpresenter.hpp"
 const ToolId ISelectToolPresenter::SELECT_TOOL_ID = ToolId(
-    "Select Tool" //""
+    "select-tool"
 );
 
-#include "interfaces/presenters/tools/moc_ibrushliketoolpresenter.cpp"
 #include "interfaces/presenters/tools/ibrushtoolpresenter.hpp"
 const ToolId IBrushToolPresenter::BRUSH_TOOL_ID = ToolId(
-    "Brush Tool" //""
+    "brush-tool"
 );
 
 #include "interfaces/presenters/tools/ierasertoolpresenter.hpp"
 const ToolId IEraserToolPresenter::ERASER_TOOL_ID = ToolId(
-    "Eraser Tool" //""
+    "eraser-tool"
 );
 
 #include "interfaces/presenters/tools/ifilltoolpresenter.hpp"
 const ToolId IFillToolPresenter::FILL_TOOL_ID = ToolId(
-    "Fill Tool" //""
+    "fill-tool"
 );
 
 #include "interfaces/presenters/tools/itexttoolpresenter.hpp"
 const ToolId ITextToolPresenter::TEXT_TOOL_ID = ToolId(
-    "Text Tool" //""
+    "text-tool"
 );
 
 #include "interfaces/presenters/tools/ishapestoolpresenter.hpp"
 const ToolId IShapesToolPresenter::SHAPES_TOOL_ID = ToolId(
-    "Shapes Tool" //""
+    "shapes-tool"
 );
 
 #include "interfaces/presenters/tools/istickerstoolpresenter.hpp"
 const ToolId IStickersToolPresenter::STICKERS_TOOL_ID = ToolId(
-    "Stickers Tool" //""
+    "stickers-tool"
 );
 
 #include "interfaces/presenters/tools/ieyedroptoolpresenter.hpp"
 const ToolId IEyedropToolPresenter::EYEDROP_TOOL_ID = ToolId(
-    "Eyedrop Tool" //""
+    "eyedrop-tool"
 );
 
 #include "interfaces/presenters/tools/inavigatetoolpresenter.hpp"
 #include "interfaces/presenters/tools/moc_inavigatetoolpresenter.cpp"
 const ToolId INavigateToolPresenter::NAVIGATE_TOOL_ID = ToolId(
-    "Navigate Tool", //""
-    "Pan, rotate, and zoom the canvas" //""
+    "navigate-tool"
 );
 
 #include "interfaces/presenters/tools/imeasuretoolpresenter.hpp"
 const ToolId IMeasureToolPresenter::MEASURE_TOOL_ID = ToolId(
-    "Measure Tool" //""
+    "measure-tool"
 );
 
 #include "interfaces/presenters/ieditorpresenter.hpp"
@@ -119,12 +122,18 @@ const RotatePresetHelper RotatePresetHelper::_instance = RotatePresetHelper();
 const BrushSizePresetHelper::PxPresetHelper BrushSizePresetHelper::_instance_px = PxPresetHelper();
 const BrushSizePresetHelper::PercentPresetHelper BrushSizePresetHelper::_instance_percent = PercentPresetHelper();
 
-#include "interfaces/presenters/tools/ibrushliketoolpresenter.hpp"
-const BrushTipId IBrushLikeToolPresenter::CommonBrushTips::Pixel      = BrushTipId("Pixel");
-const BrushTipId IBrushLikeToolPresenter::CommonBrushTips::TwoSquare  = BrushTipId("TwoSquare");
-const BrushTipId IBrushLikeToolPresenter::CommonBrushTips::Square     = BrushTipId("Square");
-const BrushTipId IBrushLikeToolPresenter::CommonBrushTips::HardCircle = BrushTipId("HardCircle");
-const BrushTipId IBrushLikeToolPresenter::CommonBrushTips::SoftCircle = BrushTipId("SoftCircle");
+#include "interfaces/models/brushes/corebrushes.hpp"
+
+const BrushId CoreBrushes::ISmoothCircleBrush::Id  = BrushId("smooth-circle-brush");
+//const BrushId CoreBrushes::IAliasedCircleBrush::Id = BrushId("aliased-circle-brush");
+//const BrushId CoreBrushes::ISquareBrush::Id        = BrushId("square-brush");
 
 #include "interfaces/presenters/tools/ibrushtoolpresenter.hpp"
-const BrushTipId IBrushToolPresenter::DEFAULT_BRUSH_TIP = IBrushLikeToolPresenter::CommonBrushTips::TwoSquare;
+const BrushId IBrushToolPresenter::DefaultBrushes::SmoothCircle  = CoreBrushes::ISmoothCircleBrush::Id;
+//const BrushId IBrushToolPresenter::DefaultBrushes::AliasedCircle = CoreBrushes::IAliasedCircleBrush::Id;
+//const BrushId IBrushToolPresenter::DefaultBrushes::Square        = CoreBrushes::ISquareBrush::Id;
+
+const BrushId IBrushToolPresenter::DEFAULT_BRUSH = DefaultBrushes::SmoothCircle;
+
+#include "interfaces/presenters/assets/ibrushpresenter.hpp"
+#include "interfaces/presenters/assets/moc_ibrushpresenter.cpp"

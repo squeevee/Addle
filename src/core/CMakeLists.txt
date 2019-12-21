@@ -12,12 +12,14 @@ set (
     presenters/errorpresenter.cpp
     presenters/layerpresenter.cpp
     presenters/viewportpresenter.cpp
+    presenters/assets/brushpresenter.cpp
     presenters/tools/toolpresenterbase.cpp
     presenters/tools/navigatetoolpresenter.cpp
     presenters/tools/brushtoolpresenter.cpp
     services/applicationservice.cpp
     services/formatservice.cpp
     services/taskservice.cpp
+    services/brushrepository.cpp
     format/qtformatdrivers/qtimageformatdriver.cpp
     tasks/loaddocumentfiletask.cpp
     tasks/taskcontroller.cpp

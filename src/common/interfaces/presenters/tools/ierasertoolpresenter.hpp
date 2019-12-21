@@ -11,7 +11,14 @@ class IEraserToolPresenter : public virtual IBrushLikeToolPresenter
 {
 public:
     static const ToolId ERASER_TOOL_ID;
-    
+        
+    struct DefaultBrushes
+    {
+        static const BrushId SmoothCircle;
+        static const BrushId AliasedCircle;
+        static const BrushId Square;
+    };
+
     virtual ~IEraserToolPresenter() = default;
 };
 

@@ -12,6 +12,8 @@
 #include "interfaces/traits/qobject_trait.hpp"
 #include "interfaces/traits/initialize_traits.hpp"
 
+#include "data/persistentid.hpp"
+
 #define ASSERT_IMPLEMENTATION_HINTS(Interface, Impl) \
 static_assert( !implemented_as_QObject<Interface>::value || std::is_base_of<QObject, Impl>::value, "This implementation was expected to be QObject, but was not." );
 
@@ -87,14 +89,14 @@ protected:
      * `Factory` must inherit IFactory, and must expose a constructor
      * requiring no arguments.
      */
-    template<class Interface, class Factory, class Impl, typename... ArgsType>
+    template<class Interface, class Impl, class Factory, typename... ArgsType>
     void registerFactory(ArgsType... args)
     {
         Factory* factory = new Factory(args...);
-        registerFactory<Interface, Factory, Impl>(factory);
+        registerFactory<Interface, Impl, Factory>(factory);
     }
 
-    template<class Interface, class Factory, class Impl>
+    template<class Interface, class Impl, class Factory>
     void registerFactory(Factory* factory)
     {
         static_assert(
@@ -115,7 +117,7 @@ protected:
         std::type_index interfaceIndex(typeid(Interface));
 
         factory->setServiceLocator(ServiceLocator::_instance);
-        ServiceLocator::_instance->_factoryregistry[interfaceIndex] = factory;
+        ServiceLocator::_instance->_factoryRegistry[interfaceIndex] = factory;
     }
 };
 

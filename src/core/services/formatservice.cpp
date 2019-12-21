@@ -12,7 +12,7 @@
 #include "exceptions/formatexceptions.hpp"
 
 #include "utilities/fileassertions.hpp"
-#include "data/taskmessages/formatmismatchmessage.hpp"
+//#include "data/taskmessages/formatmismatchmessage.hpp"
 
 FormatService::FormatService()
 {
@@ -92,14 +92,14 @@ IFormatModel* FormatService::importModel_p(const std::type_info& modelType, QIOD
 
         IFormatModel* result = driver->importModel(device, info);
 
-        if (status && format != impliedBySuffix)
-        {
-            QSharedPointer<ITaskMessage> mismatch(new FormatMismatchMessage(
-                impliedBySuffix,
-                format
-            ));
-            status->postMessage(mismatch);
-        }
+        // if (status && format != impliedBySuffix)
+        // {
+        //     QSharedPointer<ITaskMessage> mismatch(new FormatMismatchMessage(
+        //         impliedBySuffix,
+        //         format
+        //     ));
+        //     status->postMessage(mismatch);
+        // }
 
         return result;
     }

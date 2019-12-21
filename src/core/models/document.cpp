@@ -26,18 +26,12 @@ void Document::initialize(InitEmptyOptions emptyOption)
     
     if (emptyOption == InitEmptyOptions::useDefaults)
     {
-        ILayer* layer = ServiceLocator::make<ILayer>();
-        _layers.append(QSharedPointer<ILayer>(layer));
+        _layers.append(ServiceLocator::makeShared<ILayer>());
 
         updateGeometry();
     }
     _initHelper.initializeEnd();
 }
-
-/*void Document::applyOperation(IDrawingOperation& operation)
-{
-    
-}*/
 
 void Document::render(QRect area, QPaintDevice* device)
 {

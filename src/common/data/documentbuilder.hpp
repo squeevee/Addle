@@ -8,7 +8,7 @@
 
 class DocumentBuilder
 {
-    struct DocumentBuilderData : public QSharedData
+    struct DocumentBuilderData : QSharedData
     {
         QString filename;
         QList<LayerBuilder> layers;

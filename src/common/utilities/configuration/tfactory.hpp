@@ -86,6 +86,6 @@ protected:
 // BaseServiceConfiguration::configure() to register a TFactory
 // to the given interface.
 #define REGISTER_TFACTORY(Interface, Impl) \
-    BaseServiceConfiguration::registerFactory<Interface, TFactory<Interface, Impl>, Impl>();
+    BaseServiceConfiguration::registerFactory<Interface, Impl, TFactory<Interface, Impl>>();
 
 #endif // TFACTORY_HPP

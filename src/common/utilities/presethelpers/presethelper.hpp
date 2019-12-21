@@ -3,33 +3,75 @@
 
 #include "interfaces/presenters/iviewportpresenter.hpp"
 
+#include <initializer_list>
+#include <utility>
 #include <map>
 #include <set>
 //We're using STL for this helper class because Qt does not provide a direct
-//equivalent to std::set , and I don't want to use two slightly-different API's
-//all throughout the same class.
+//equivalent to std::set
 
-template<typename PresetType>
+template<typename PresetType, typename ValueType>
 class PresetHelper
 {
+private:
+
+    inline static std::set<PresetType> initPresets(const std::initializer_list<std::pair<PresetType, ValueType>>& presets)
+    {
+        std::set<PresetType> result;
+        for (auto entry : presets)
+        {
+            result.insert(entry.first);
+        }
+        return result;
+    }
+
+    inline static std::map<ValueType, PresetType> initPresetsByValue(const std::initializer_list<std::pair<PresetType, ValueType>>& presets)
+    {
+        std::map<ValueType, PresetType> result;
+        for (auto entry : presets)
+        {
+            result[entry.second] = entry.first;
+        }
+        return result;
+    }
+
+    inline static std::map<PresetType, ValueType> initValuesByPreset(const std::initializer_list<std::pair<PresetType, ValueType>>& presets)
+    {
+        std::map<PresetType, ValueType> result;
+        for (auto entry : presets)
+        {
+            result[entry.first] = entry.second;
+        }
+        return result;
+    }
+
+    inline static PresetType initLowestPreset(const std::set<PresetType>& presets)
+    {
+        return *(presets.begin());
+    }
+
+    inline static PresetType initHighestPreset(const std::set<PresetType>& presets)
+    {
+        return *(presets.rbegin());
+    }
+
 protected:
     PresetHelper(
         bool cyclic,
         const PresetType nullPreset,
-        const PresetType lowestPreset,
-        const PresetType highestPreset,
-        const std::set<PresetType>&& presets,
-        const std::map<double, PresetType>&& presetsByValue
+        std::initializer_list<std::pair<PresetType, ValueType>> presetsAndValues
     ) : _cyclic(cyclic),
         _nullPreset(nullPreset),
-        _highestPreset(highestPreset),
-        _lowestPreset(lowestPreset),
-        _presets(presets),
-        _presets_byValue(presetsByValue)
+        _presets(initPresets(presetsAndValues)),
+        _presets_byValue(initPresetsByValue(presetsAndValues)),
+        _values_byPreset(initValuesByPreset(presetsAndValues)),
+        _lowestPreset(initLowestPreset(_presets)),
+        _highestPreset(initHighestPreset(_presets))
+
     {
     }
 
-    PresetType nearest_p(double value, double threshold) const
+    PresetType nearest_p(ValueType value, ValueType threshold) const
     {
         auto iter = _presets_byValue.upper_bound(value);
         auto upper = *iter;
@@ -68,8 +110,8 @@ protected:
 
             auto nearer = _nullPreset;
 
-            double upperDiff = upper.first - value;
-            double lowerDiff = value - lower.first;
+            ValueType upperDiff = upper.first - value;
+            ValueType lowerDiff = value - lower.first;
             if (upperDiff >= lowerDiff)
                 nearer = upper.second;
             else
@@ -89,7 +131,7 @@ protected:
         }
     }
 
-    PresetType nextUp_p(double value) const
+    PresetType nextUp_p(ValueType value) const
     {
         auto iter = _presets_byValue.upper_bound(value);
         if (iter == _presets_byValue.end())
@@ -114,7 +156,7 @@ protected:
             return *iter;
     }
 
-    PresetType nextDown_p(double value) const
+    PresetType nextDown_p(ValueType value) const
     {
         auto iter = _presets_byValue.lower_bound(value);
         if (iter == _presets_byValue.begin())
@@ -138,13 +180,20 @@ protected:
             return *(--iter);
     }
 
+    ValueType valueOf_p(PresetType preset) const
+    {
+        return _values_byPreset.at(preset);
+    }
+
 private:
+    const std::set<PresetType> _presets;
+    const std::map<ValueType, PresetType> _presets_byValue;
+    const std::map<PresetType, ValueType> _values_byPreset;
+
     const bool _cyclic;
     const PresetType _nullPreset;
     const PresetType _highestPreset;
     const PresetType _lowestPreset;
-    const std::set<PresetType> _presets;
-    const std::map<double, PresetType> _presets_byValue;
 };
 
 #endif // PRESETHELPERS_HPP

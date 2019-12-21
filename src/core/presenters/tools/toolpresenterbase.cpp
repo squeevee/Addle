@@ -1,12 +1,12 @@
 #include "toolpresenterbase.hpp"
 
-#include "data/brushtipid.hpp"
+#include "data/brushid.hpp"
 
 uint qHash( const QVariant& var)
 {
-    if (var.canConvert<BrushTipId>())
+    if (var.canConvert<BrushId>())
     {
-        return qHash(var.value<BrushTipId>());
+        return qHash(var.value<BrushId>());
     }
     else if (var.canConvert<int>())
     {

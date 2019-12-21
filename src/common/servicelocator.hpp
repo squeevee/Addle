@@ -13,6 +13,7 @@
 #include <typeinfo>
 #include <type_traits>
 #include <QHash>
+#include <QMultiHash>
 #include <QMutex>
 #include <QSharedPointer>
 
@@ -91,10 +92,6 @@ public:
      * 
      * @note
      * The caller is responsible to delete this object.
-     *   
-     * @note
-     * If `SERVICELOCATOR_NO_AUTOINITIALIZE` is defined, then the object will
-     * not be initialized.
      * 
      * @sa
      * expects_initialize, is_makeable
@@ -109,14 +106,11 @@ public:
 
         Interface* result = _instance->make_p<Interface>();
 
-#ifndef SERVICELOCATOR_NO_AUTOINITIALIZE
         noParameterInitializeHelper(result, expects_initialize<Interface>());
-#endif //SERVICELOCATOR_NO_AUTOINITIALIZE
 
         return result;
     }
 
-#ifndef SERVICELOCATOR_NO_AUTOINITIALIZE
     /**
      * @brief Make an object.
      * 
@@ -140,10 +134,6 @@ public:
      * 
      * @note
      * The caller is responsible to delete this object.
-     * 
-     * @note
-     * If `SERVICELOCATOR_NO_AUTOINITIALIZE` is defined, this method will not
-     * be declared.
      * 
      * @sa
      * expects_initialize, is_makeable
@@ -190,10 +180,6 @@ public:
      * @note
      * The caller is responsible to delete this object.
      * 
-     * @note
-     * If `SERVICELOCATOR_NO_AUTOINITIALIZE` is defined, this method will not
-     * be declared.
-     * 
      * @sa
      * expects_initialize, is_makeable
      */
@@ -212,17 +198,32 @@ public:
 
         return _instance->make_p<Interface>();;
     }
-#endif // SERVICELOCATOR_NO_AUTOINITIALIZE 
+
+    template<class Interface>
+    static QSharedPointer<Interface> makeShared()
+    {
+        return QSharedPointer<Interface>(make<Interface>());
+    }
+
+    template<class Interface, typename... ArgTypes>
+    static QSharedPointer<Interface> makeShared(ArgTypes... args)
+    {
+        return QSharedPointer<Interface>(make<Interface>(args...));
+    }
 
 private:
 
     ServiceLocator() = default;
-    virtual ~ServiceLocator();
+    virtual ~ServiceLocator()
+    {
+        for (IFactory* factory : _factoryRegistry) delete factory;
+        for (IService* service : _serviceRegistry) delete service;
+    }
 
     static ServiceLocator* _instance;
     
-    QHash<std::type_index, IFactory*> _factoryregistry;
-    QHash<std::type_index, IService*> _serviceregistry;
+    QHash<std::type_index, IFactory*> _factoryRegistry;
+    QHash<std::type_index, IService*> _serviceRegistry;
     QHash<std::type_index, QSharedPointer<QMutex>> _serviceInitMutexes;
     
     // Private internals of getting a service
@@ -252,24 +253,24 @@ private:
             mutex->unlock();
         }
 
-        if (_serviceregistry.contains(interfaceIndex))
+        if (_serviceRegistry.contains(interfaceIndex))
         {   
             // This service has already been made. Return the locator's instance.
 
-            IService* service = _serviceregistry[interfaceIndex];
+            IService* service = _serviceRegistry[interfaceIndex];
             return dynamic_cast<Interface*>(service);
         }
         else
         {
             // This service has not yet been made. We must make it now.
 
-            if (!_factoryregistry.contains(interfaceIndex))
+            if (!_factoryRegistry.contains(interfaceIndex))
             {
 #ifdef ADDLE_DEBUG
                 ServiceNotFoundException ex(
                         typeid(Interface).name(),
-                        _serviceregistry.size(),
-                        _factoryregistry.size()
+                        _serviceRegistry.size(),
+                        _factoryRegistry.size()
                 );
 #else
                 ServiceNotFoundException ex;
@@ -282,8 +283,8 @@ private:
             mutex->lock();
 
             Interface* service = make_p<Interface>();
-            service->setServiceLocator(this);
-            _serviceregistry[interfaceIndex] = service;
+            //service->setServiceLocator(this);
+            _serviceRegistry[interfaceIndex] = service;
 
             _serviceInitMutexes.remove(interfaceIndex);
             mutex->unlock();
@@ -303,12 +304,12 @@ private:
 
         std::type_index interfaceIndex(typeid(Interface));
         
-        if (!_factoryregistry.contains(interfaceIndex))
+        if (!_factoryRegistry.contains(interfaceIndex))
         {
 #ifdef ADDLE_DEBUG
             FactoryNotFoundException ex(
                     typeid(Interface).name(),
-                    _factoryregistry.size()
+                    _factoryRegistry.size()
             );
 #else
             FactoryNotFoundException ex;
@@ -316,27 +317,12 @@ private:
             ADDLE_THROW(ex);
         }
         
-        IFactory* factory = _factoryregistry[interfaceIndex];
+        IFactory* factory = _factoryRegistry[interfaceIndex];
         Interface* product = reinterpret_cast<Interface*>(factory->make());
-
-//         if (!result)
-//         {
-// #ifdef ADDLE_DEBUG
-//             InvalidFactoryProductException ex(
-//                     typeid(Interface).name(),
-//                     factory->getProductTypeName(),
-//                     factory->getFactoryTypeName()
-//             );
-// #else
-//             InvalidFactoryProductException ex;
-// #endif
-//             ADDLE_THROW(ex);
-//         }
 
         return product;
     }
 
-#ifndef SERVICELOCATOR_NO_AUTOINITIALIZE
     // Helper functions to conditionally call no-parameter initialize() on
     // interfaces than expect it.
 
@@ -356,10 +342,8 @@ private:
     {
         Q_UNUSED(object)
     }
-#endif // SERVICELOCATOR_NO_AUTOINITIALIZE
 
     friend class BaseServiceConfiguration;
-
 };
 
 #endif // SERVICELOCATOR_HPP

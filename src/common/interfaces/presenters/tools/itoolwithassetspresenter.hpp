@@ -3,9 +3,9 @@
 
 #include <QObject>
 #include <QList>
+#include <QSharedPointer>
 
 #include "itoolpresenter.hpp"
-#include "../assets/iassetsetpresenter.hpp"
 #include "../assets/iassetpresenter.hpp"
 
 #include "interfaces/traits/initialize_traits.hpp"
@@ -16,18 +16,15 @@ class IToolWithAssetsPresenter : public virtual IToolPresenter
 public:
     virtual ~IToolWithAssetsPresenter() = default;
 
-    virtual IAssetSetPresenter* getAssetSet() = 0;
+    virtual QList<QSharedPointer<IAssetPresenter>> getAllAssets() = 0;
+    virtual QSharedPointer<IAssetPresenter> getAssetPresenter(PersistentId id) = 0;
 
-    virtual QList<IAssetPresenter*> getAllAssets() = 0;
-    virtual QList<IAssetPresenter*> getSelectedAssets() = 0;
-    virtual IAssetPresenter* getSelectedAsset() = 0;
-    virtual void setSelectedAssets(QList<IAssetPresenter*> assets) = 0;
-    virtual void setSelectedAsset(IAssetPresenter* asset) = 0;
-
-    virtual bool canMultiSelect() = 0;
+    virtual PersistentId getSelectedAsset() = 0;
+    virtual void selectAsset(PersistentId id) = 0;
+    virtual QSharedPointer<IAssetPresenter> getSelectedAssetPresenter() = 0;
 
 signals:
-    virtual void selectedAssetsChanged(QList<IAssetPresenter*> assets) = 0;
+    virtual void selectedAssetChanged(PersistentId id) = 0;
 };
 
 DECL_IMPLEMENTED_AS_QOBJECT(IToolWithAssetsPresenter)

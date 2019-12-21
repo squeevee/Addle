@@ -30,20 +30,11 @@ class QObjectFactory : public TFactory<Interface, Impl>
     );
     typedef QObjectFactory_options::ThreadingOptions ThreadingOptions;
 
-#ifdef ADDLE_DEBUG
 public:
     QObjectFactory(ThreadingOptions threading = ThreadingOptions::permissive)
         : _threading(threading)
     {
     }
-#else
-public:
-    QObjectFactory(ThreadingOptions threading = ThreadingOptions::permissive)
-        : _threading(threading)
-    {
-    }
-#endif
-public:
     virtual ~QObjectFactory() = default;
 
     void* make()
@@ -84,6 +75,6 @@ private:
 };
 
 #define REGISTER_QOBJECT_FACTORY(Interface, Impl, ...) \
-    BaseServiceConfiguration::registerFactory<Interface, QObjectFactory<Interface, Impl>, Impl>(__VA_ARGS__);
+    BaseServiceConfiguration::registerFactory<Interface, Impl, QObjectFactory<Interface, Impl>>(__VA_ARGS__);
 
 #endif // QOBJECTFACTORY_HPP
