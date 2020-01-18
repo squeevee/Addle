@@ -30,7 +30,7 @@ public:
     virtual QRect getCanvasBounds() = 0;
     virtual void render(QPainter& painter, QRect area) = 0;
 
-    virtual void setRasterOperation(IRasterOperation* operation) = 0;
+    virtual void setRasterOperation(IRasterOperation* operation) = 0; //TODO: rename something like "pending"
     virtual void unsetRasterOperation() = 0;
 
 signals: 

@@ -13,9 +13,9 @@ class BrushToolOptionsBar : public ToolOptionBarBase
 public: 
     BrushToolOptionsBar(IBrushToolPresenter& presenter, QMainWindow* parent);
 
-    QAction* _action_brush_smoothCircle;
-    QAction* _action_brush_aliasedCircle;
-    QAction* _action_brush_square;
+    QAction* _action_brush_basic;
+    //QAction* _action_brush_aliasedCircle;
+    //QAction* _action_brush_square;
     OptionActionGroup* _actionGroup_brush;
 
     QAction* _brush_size;

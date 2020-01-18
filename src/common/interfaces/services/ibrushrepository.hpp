@@ -5,7 +5,7 @@
 #include "iservice.hpp"
 
 #include "data/brushid.hpp"
-#include "interfaces/models/brushes/ibrush.hpp"
+#include "interfaces/models/ibrush.hpp"
 
 #include "interfaces/traits/qobject_trait.hpp"
 #include "interfaces/traits/makeable_trait.hpp"

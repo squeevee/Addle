@@ -5,11 +5,11 @@ BrushToolOptionsBar::BrushToolOptionsBar(IBrushToolPresenter& presenter, QMainWi
     _presenter(presenter)
 {
     _actionGroup_brush = new OptionActionGroup(this, _presenter, "brush");
-    _action_brush_smoothCircle = _actionGroup_brush->createAction(IBrushToolPresenter::DefaultBrushes::SmoothCircle);
+    _action_brush_basic = _actionGroup_brush->createAction(IBrushToolPresenter::DefaultBrushes::Basic);
     //_action_brush_aliasedCircle = _actionGroup_brush->createAction(IBrushToolPresenter::DefaultBrushes::AliasedCircle);
     //_action_brush_square = _actionGroup_brush->createAction(IBrushToolPresenter::DefaultBrushes::Square);
 
-    QToolBar::addAction(_action_brush_smoothCircle);
+    QToolBar::addAction(_action_brush_basic);
     //QToolBar::addAction(_action_brush_aliasedCircle);
     //QToolBar::addAction(_action_brush_square);
 

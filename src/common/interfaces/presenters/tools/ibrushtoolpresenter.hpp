@@ -14,9 +14,7 @@ public:
 
     struct DefaultBrushes
     {
-        static const BrushId SmoothCircle;  //CoreBrushes::ISmoothCircleBrush::Id
-        //static const BrushId AliasedCircle; //CoreBrushes::IAliasedCircleBrush::Id
-        //static const BrushId Square;        //CoreBrushes::ISquareBrush::Id
+        static const BrushId Basic;
     };
 
     static const BrushId DEFAULT_BRUSH; // DefaultBrushes::SmoothCircle

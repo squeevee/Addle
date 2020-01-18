@@ -4,11 +4,12 @@
 
 #include <QBitmap>
 
-#include "rasteroperation.hpp"
+#include "brushoperation.hpp"
 #include "servicelocator.hpp"
 
-void RasterOperation::initialize(
-        const QWeakPointer<ILayer>& layer,
+void BrushOperation::initialize(
+        QWeakPointer<ILayer>& layer,
+        QSharedPointer<IBrushRenderer> brushRenderer,
         Mode mode
     )
 {
@@ -17,10 +18,10 @@ void RasterOperation::initialize(
 
     switch (_mode)
     {
-    case IRasterOperation::Mode::paint:
+    case IBrushOperation::Mode::paint:
         _format = QImage::Format::Format_ARGB32_Premultiplied;
         break;
-    case IRasterOperation::Mode::erase:
+    case IBrushOperation::Mode::erase:
         _format = QImage::Format::Format_Alpha8;
         break;
     }
@@ -28,19 +29,19 @@ void RasterOperation::initialize(
     _workingBuffer.initialize(_format);
 }
 
-BufferPainter RasterOperation::getBufferPainter(QRect paintArea)
+void BrushOperation::addPathSegment(const BrushPathSegment& pathSegment)
 {
-    return _workingBuffer.createBufferPainter(paintArea, this);
+
 }
 
-void RasterOperation::render(QPainter& painter, QRect paintRegion)
+void BrushOperation::render(QPainter& painter, QRect paintRegion)
 {
     QRect intersection = _areaOfEffect.intersected(paintRegion);
     if (!intersection.isEmpty())
         _workingBuffer.render(painter, paintRegion);
 }
 
-void RasterOperation::doOperation()
+void BrushOperation::doOperation()
 {
     QImage forward;
     QImage mask;
@@ -67,7 +68,7 @@ void RasterOperation::doOperation()
     emit layer->renderChanged(_areaOfEffect);
 }
 
-void RasterOperation::undoOperation()
+void BrushOperation::undoOperation()
 {
     // assert _layer not null
     QSharedPointer<ILayer> layer = _layer.toStrongRef();
@@ -81,7 +82,7 @@ void RasterOperation::undoOperation()
     emit layer->renderChanged(_areaOfEffect);
 }
 
-void RasterOperation::freeze(QImage* forwardPtr, QImage* reversePtr, QImage* maskPtr)
+void BrushOperation::freeze(QImage* forwardPtr, QImage* reversePtr, QImage* maskPtr)
 {
     // assert not frozen
     // assert workingbuffer is not null
@@ -127,7 +128,7 @@ void RasterOperation::freeze(QImage* forwardPtr, QImage* reversePtr, QImage* mas
     _frozen = true;
 }
 
-void RasterOperation::beforeBufferPainted(QRect region)
+void BrushOperation::beforeBufferPainted(QRect region)
 { 
     _areaOfEffect = _areaOfEffect.united(region);
     _workingBuffer.grab(region);

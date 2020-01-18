@@ -1,7 +1,7 @@
-#ifndef RASTEROPERATION_HPP
-#define RASTEROPERATION_HPP
+#ifndef BRUSHOPERATION_HPP
+#define BRUSHOPERATION_HPP
 
-#include "interfaces/editing/irasteroperation.hpp"
+#include "interfaces/editing/ibrushoperation.hpp"
 
 #include "utilities/initializehelper.hpp"
 #include "utilities/image/expandingbuffer.hpp"
@@ -12,19 +12,21 @@
 #include <QLineF>
 #include <QPainterPath>
 
-class RasterOperation : public QObject, public IRasterOperation
+class BrushOperation : public QObject, public IBrushOperation
 {
     Q_OBJECT
 public:
-    RasterOperation() : _initHelper(this), _workingBuffer(BUFFER_CHUNK_SIZE) { }
-    virtual ~RasterOperation() = default;
+    BrushOperation() : _initHelper(this), _workingBuffer(BUFFER_CHUNK_SIZE) { }
+    virtual ~BrushOperation() = default;
 
     void initialize(
-        const QWeakPointer<ILayer>& layer,
+        QWeakPointer<ILayer>& layer,
+        QSharedPointer<IBrushRenderer> brushRenderer,
         Mode mode = Mode::paint
     );
 
-    BufferPainter getBufferPainter(QRect paintArea);
+    void addPathSegment(const BrushPathSegment& pathSegment);
+
     void render(QPainter& painter, QRect region);
 
     QRect getBoundingRect() { return _areaOfEffect; }
@@ -54,7 +56,7 @@ private:
     ImageCompressor _reverseStored;
     ImageCompressor _maskStored;
 
-    InitializeHelper<RasterOperation> _initHelper;
+    InitializeHelper<BrushOperation> _initHelper;
 };
 
-#endif // RASTEROPERATION_HPP
+#endif // BRUSHOPERATION_HPP

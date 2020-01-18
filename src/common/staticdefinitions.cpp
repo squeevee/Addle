@@ -122,18 +122,14 @@ const RotatePresetHelper RotatePresetHelper::_instance = RotatePresetHelper();
 const BrushSizePresetHelper::PxPresetHelper BrushSizePresetHelper::_instance_px = PxPresetHelper();
 const BrushSizePresetHelper::PercentPresetHelper BrushSizePresetHelper::_instance_percent = PercentPresetHelper();
 
-#include "interfaces/models/brushes/corebrushes.hpp"
+#include "interfaces/editing/brushrenderers/ibasicbrushrenderer.hpp"
 
-const BrushId CoreBrushes::ISmoothCircleBrush::Id  = BrushId("smooth-circle-brush");
-//const BrushId CoreBrushes::IAliasedCircleBrush::Id = BrushId("aliased-circle-brush");
-//const BrushId CoreBrushes::ISquareBrush::Id        = BrushId("square-brush");
+const BrushId IBasicBrushRenderer::Id = BrushId("basic-brush");
 
 #include "interfaces/presenters/tools/ibrushtoolpresenter.hpp"
-const BrushId IBrushToolPresenter::DefaultBrushes::SmoothCircle  = CoreBrushes::ISmoothCircleBrush::Id;
-//const BrushId IBrushToolPresenter::DefaultBrushes::AliasedCircle = CoreBrushes::IAliasedCircleBrush::Id;
-//const BrushId IBrushToolPresenter::DefaultBrushes::Square        = CoreBrushes::ISquareBrush::Id;
+const BrushId IBrushToolPresenter::DefaultBrushes::Basic  = IBasicBrushRenderer::Id;
 
-const BrushId IBrushToolPresenter::DEFAULT_BRUSH = DefaultBrushes::SmoothCircle;
+const BrushId IBrushToolPresenter::DEFAULT_BRUSH = DefaultBrushes::Basic;
 
 #include "interfaces/presenters/assets/ibrushpresenter.hpp"
 #include "interfaces/presenters/assets/moc_ibrushpresenter.cpp"

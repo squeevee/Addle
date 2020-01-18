@@ -10,11 +10,12 @@
 #include "utilities/configuration/tfactory.hpp"
 #include "utilities/configuration/qobjectfactory.hpp"
 
-#include "core/editing/rasteroperation.hpp"
+#include "core/editing/brushoperation.hpp"
+#include "core/editing/brushrenderers/basicbrushrenderer.hpp"
 
 #include "core/models/layer.hpp"
 #include "core/models/document.hpp"
-#include "core/models/brushes/smoothcirclebrush.hpp"
+#include "core/models/brush.hpp"
 
 #include "core/presenters/editorpresenter.hpp"
 #include "core/presenters/viewportpresenter.hpp"
@@ -43,14 +44,16 @@
 void ServiceConfiguration::configure()
 {
     // # Editing
-    REGISTER_QOBJECT_FACTORY(IRasterOperation, RasterOperation);
+    REGISTER_QOBJECT_FACTORY(IBrushOperation, BrushOperation);
+
+    // ## Brush renderers
+
+    REGISTER_TFACTORY(IBasicBrushRenderer, BasicBrushRenderer);
 
     // # Models
     REGISTER_TFACTORY(ILayer, Layer);
     REGISTER_TFACTORY(IDocument, Document);
-
-    // ## Core brushes
-    REGISTER_TFACTORY(CoreBrushes::ISmoothCircleBrush, SmoothCircleBrush);
+    REGISTER_TFACTORY(IBrush, Brush);
 
     // # Presenters
     REGISTER_TFACTORY(IEditorPresenter, EditorPresenter);

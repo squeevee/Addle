@@ -3,8 +3,6 @@
 
 #include <QObject>
 
-
-#include "interfaces/editing/irasteroperation.hpp"
 #include "idocumentpresenter.hpp"
 
 #include "interfaces/traits/initialize_traits.hpp"

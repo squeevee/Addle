@@ -16,7 +16,7 @@ void BrushToolPresenter::initialize(IEditorPresenter* owner)
     ToolPresenterBase::initialize_p(owner);
 
     _assetsHelper.setAssetList({
-        ServiceLocator::makeShared<IBrushPresenter>(DefaultBrushes::SmoothCircle)
+        ServiceLocator::makeShared<IBrushPresenter>(DefaultBrushes::Basic)
         //ServiceLocator::makeShared<IBrushPresenter>(DefaultBrushes::AliasedCircle),
         //ServiceLocator::makeShared<IBrushPresenter>(DefaultBrushes::Square)
     });

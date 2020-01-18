@@ -6,7 +6,7 @@
 
 #include "iassetpresenter.hpp"
 
-#include "interfaces/models/brushes/ibrush.hpp"
+#include "interfaces/models/ibrush.hpp"
 
 #include "interfaces/traits/initialize_traits.hpp"
 #include "interfaces/traits/makeable_trait.hpp"
