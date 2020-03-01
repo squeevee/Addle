@@ -10,7 +10,7 @@
 #include <QAction>
 #include <QActionGroup>
 
-#include "widgetsgui/widgets/selecttoolaction.hpp"
+#include "widgetsgui/widgets/propertyactiongroup.hpp"
 
 #include "interfaces/presenters/idocumentpresenter.hpp"
 #include "interfaces/presenters/iviewportpresenter.hpp"
@@ -53,18 +53,17 @@ protected:
     QAction* _action_open;
     QAction* _action_close;
 
-    QActionGroup* _actionGroup_toolSelection;
+    PropertyActionGroup* _actionGroup_toolSelection;
 
     template<class ToolBarType, class PresenterType>
-    void addTool(ToolId tool, SelectToolAction** actionptr, ToolBarType** optionsptr, PresenterType** presenterptr)
+    void addTool(ToolId tool, QAction** actionptr, ToolBarType** optionsptr, PresenterType** presenterptr)
     {
         PresenterType* toolPresenter = dynamic_cast<PresenterType*>(_presenter->getToolPresenter(tool));
         *presenterptr = toolPresenter;
 
-        SelectToolAction* action = new SelectToolAction(*toolPresenter, this);
+        QAction* action = _actionGroup_toolSelection->createAction(QVariant::fromValue(tool));
         *actionptr = action;
 
-        action->setCheckable(true);
         _toolBar_toolSelection->addAction(action);
         _actionGroup_toolSelection->addAction(action);
 

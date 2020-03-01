@@ -7,6 +7,45 @@
 #include <QLineF>
 #include <QPainter>
 
+const PresetHelper<ViewPortPresenter::RotatePreset, double> ViewPortPresenter::_rotatePresetHelper
+    = PresetHelper<RotatePreset, double>(
+            true,
+            RotatePreset::nullrotation,
+            {
+                { RotatePreset::_0deg,   0.0 },
+                { RotatePreset::_45deg,  45.0 },
+                { RotatePreset::_90deg,  90.0 },
+                { RotatePreset::_135deg, 135.0 },
+                { RotatePreset::_180deg, 180.0 },
+                { RotatePreset::_225deg, 225.0 },
+                { RotatePreset::_270deg, 270.0 },
+                { RotatePreset::_315deg, 315.0 }
+            }
+        );
+
+const PresetHelper<ViewPortPresenter::ZoomPreset, double> ViewPortPresenter::_zoomPresetHelper
+    = PresetHelper<ZoomPreset, double>(
+            false,
+            ZoomPreset::nullzoom,
+            {
+                { ZoomPreset::_5percent,      0.05 },
+                { ZoomPreset::_10percent,     0.10 },
+                { ZoomPreset::onesixth,  (1.0 / 6) },
+                { ZoomPreset::_25percent,     0.25 },
+                { ZoomPreset::onethird,  (1.0 / 3) },
+                { ZoomPreset::_50percent,     0.50 },
+                { ZoomPreset::twothirds, (2.0 / 3) },
+                { ZoomPreset::_100percent,    1.00 },
+                { ZoomPreset::_150percent,    1.50 },
+                { ZoomPreset::_200percent,    2.00 },
+                { ZoomPreset::_300percent,    3.00 },
+                { ZoomPreset::_400percent,    4.00 },
+                { ZoomPreset::_600percent,    6.00 },
+                { ZoomPreset::_800percent,    8.00 },
+                { ZoomPreset::_1600percent,  16.00 }
+            }
+        );
+
 void ViewPortPresenter::initialize(IDocumentPresenter* documentPresenter)
 {
     _initHelper.initializeBegin();
@@ -135,6 +174,7 @@ void ViewPortPresenter::setZoom(double zoom)
 {
     _initHelper.assertInitialized();
     _zoom = zoom;
+    _zoomPreset = ZoomPreset::nullzoom;
     calculateTransforms();
     emit zoomChanged(_zoom);
     emit scrollStateChanged();
@@ -142,13 +182,13 @@ void ViewPortPresenter::setZoom(double zoom)
 
 double ViewPortPresenter::constrainZoom(double zoom)
 {
-    if (zoom > ZoomPresetHelper::zoomValueOf(MAX_ZOOM_PRESET))
+    if (zoom > _zoomPresetHelper.valueOf(MAX_ZOOM_PRESET))
     {
-        return ZoomPresetHelper::zoomValueOf(MAX_ZOOM_PRESET);
+        return _zoomPresetHelper.valueOf(MAX_ZOOM_PRESET);
     }
-    else if ( zoom < ZoomPresetHelper::zoomValueOf(MIN_ZOOM_PRESET))
+    else if ( zoom < _zoomPresetHelper.valueOf(MIN_ZOOM_PRESET))
     {
-        return ZoomPresetHelper::zoomValueOf(MIN_ZOOM_PRESET);
+        return _zoomPresetHelper.valueOf(MIN_ZOOM_PRESET);
     }
     else
     {
@@ -188,7 +228,7 @@ void ViewPortPresenter::setZoomPreset(ZoomPreset preset)
 {
     _initHelper.assertInitialized();
     _zoomPreset = preset;
-    setZoom(ZoomPresetHelper::zoomValueOf(preset));
+    setZoom(_zoomPresetHelper.valueOf(preset));
     //emit needsUpdate();
 }
 
@@ -198,7 +238,7 @@ IViewPortPresenter::ZoomPreset ViewPortPresenter::zoomIn(bool* zoomed)
     bool p_zoomed = false;
 
     if (_zoomPreset != ZoomPreset::nullzoom) {
-        ZoomPreset newPreset = ZoomPresetHelper::nextUp(_zoomPreset);
+        ZoomPreset newPreset = _zoomPresetHelper.nextUp(_zoomPreset);
 
         if (newPreset != ZoomPreset::nullzoom)
         {
@@ -209,7 +249,7 @@ IViewPortPresenter::ZoomPreset ViewPortPresenter::zoomIn(bool* zoomed)
     else
     {
         double zoom = getZoom();
-        ZoomPreset newPreset = ZoomPresetHelper::nextUp(zoom);
+        ZoomPreset newPreset = _zoomPresetHelper.nextUp(zoom);
 
         if (newPreset != _zoomPreset)
         {
@@ -230,7 +270,7 @@ IViewPortPresenter::ZoomPreset ViewPortPresenter::zoomOut(bool* zoomed)
     bool p_zoomed = false;
 
     if (_zoomPreset != ZoomPreset::nullzoom) {
-        ZoomPreset newPreset = ZoomPresetHelper::nextDown(_zoomPreset);
+        ZoomPreset newPreset = _zoomPresetHelper.nextDown(_zoomPreset);
 
         if (newPreset != ZoomPreset::nullzoom)
         {
@@ -241,7 +281,7 @@ IViewPortPresenter::ZoomPreset ViewPortPresenter::zoomOut(bool* zoomed)
     else
     {
         double zoom = getZoom();
-        ZoomPreset newPreset = ZoomPresetHelper::nextDown(zoom);
+        ZoomPreset newPreset = _zoomPresetHelper.nextDown(zoom);
 
         if (newPreset != _zoomPreset)
         {
@@ -262,7 +302,7 @@ IViewPortPresenter::ZoomPreset ViewPortPresenter::zoomTo(double zoom, bool snapT
     ZoomPreset newPreset = ZoomPreset::nullzoom;
     
     if (snapToPreset)
-        newPreset = ZoomPresetHelper::nearest(zoom, ZOOM_SNAP_THRESHOLD);
+        newPreset = _zoomPresetHelper.nearest(zoom, ZOOM_SNAP_THRESHOLD);
 
     if (newPreset != ZoomPreset::nullzoom)
     {
@@ -284,7 +324,7 @@ void ViewPortPresenter::setRotatePreset(RotatePreset preset)
 {
     _initHelper.assertInitialized();
     _rotatePreset = preset;
-    setRotation(RotatePresetHelper::rotateValueOf(preset));
+    setRotation(_rotatePresetHelper.valueOf(preset));
 }
 
 IViewPortPresenter::RotatePreset ViewPortPresenter::turntableCcw(bool* rotated)
@@ -294,7 +334,7 @@ IViewPortPresenter::RotatePreset ViewPortPresenter::turntableCcw(bool* rotated)
     bool p_rotated = false;
 
     if (_rotatePreset != RotatePreset::nullrotation) {
-        RotatePreset newPreset = RotatePresetHelper::nextDown(_rotatePreset);
+        RotatePreset newPreset = _rotatePresetHelper.nextDown(_rotatePreset);
 
         if (newPreset != RotatePreset::nullrotation)
         {
@@ -305,7 +345,7 @@ IViewPortPresenter::RotatePreset ViewPortPresenter::turntableCcw(bool* rotated)
     else
     {
         double rotation = getRotation();
-        RotatePreset newPreset = RotatePresetHelper::nextDown(rotation);
+        RotatePreset newPreset = _rotatePresetHelper.nextDown(rotation);
 
         if (newPreset != _rotatePreset)
         {
@@ -327,7 +367,7 @@ IViewPortPresenter::RotatePreset ViewPortPresenter::turntableCw(bool* rotated)
     bool p_rotated = false;
 
     if (_rotatePreset != RotatePreset::nullrotation) {
-        RotatePreset newPreset = RotatePresetHelper::nextUp(_rotatePreset);
+        RotatePreset newPreset = _rotatePresetHelper.nextUp(_rotatePreset);
 
         if (newPreset != RotatePreset::nullrotation)
         {
@@ -338,7 +378,7 @@ IViewPortPresenter::RotatePreset ViewPortPresenter::turntableCw(bool* rotated)
     else
     {
         double rotation = getRotation();
-        RotatePreset newPreset = RotatePresetHelper::nextUp(rotation);
+        RotatePreset newPreset = _rotatePresetHelper.nextUp(rotation);
 
         if (newPreset != _rotatePreset)
         {

@@ -6,8 +6,9 @@
 
 #include <QColor>
 #include <QPointF>
+#include <QPainterPath>
 
-#include "brushid.hpp"
+#include "idtypes/brushid.hpp"
 
 // TODO: at some point, if dynamic brushes are supported this will also include
 // things like velocity, pressure, angle, random seed, and possibly an abstract

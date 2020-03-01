@@ -15,9 +15,9 @@ set (
     presenters/layerpresenter.cpp
     presenters/viewportpresenter.cpp
     presenters/assets/brushpresenter.cpp
-    presenters/tools/toolpresenterbase.cpp
-    presenters/tools/navigatetoolpresenter.cpp
-    presenters/tools/brushtoolpresenter.cpp
+    presenters/toolpresenters/toolpresenterbase.cpp
+    presenters/toolpresenters/navigatetoolpresenter.cpp
+    presenters/toolpresenters/brushtoolpresenter.cpp
     services/applicationservice.cpp
     services/formatservice.cpp
     services/taskservice.cpp

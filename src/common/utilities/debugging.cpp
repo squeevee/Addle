@@ -17,6 +17,7 @@ void debugMessageHandler(QtMsgType type, const QMessageLogContext& context, cons
 
     // Place a breakpoint in this switch block to break on a particular message
     // type.
+    // TODO: do this with a meta enum instead of a switch block
     switch(type)
     {
         case QtMsgType::QtCriticalMsg:

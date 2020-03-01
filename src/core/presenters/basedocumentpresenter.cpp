@@ -16,7 +16,7 @@
 
 #include "exceptions/fileexceptions.hpp"
 
-#include "interfaces/presenters/tools/itoolpresenter.hpp"
+#include "interfaces/presenters/toolpresenters/itoolpresenter.hpp"
 
 #include <QFile>
 #include <QImage>

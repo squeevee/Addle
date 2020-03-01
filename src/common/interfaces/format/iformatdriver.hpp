@@ -7,11 +7,11 @@
 #include <QIODevice>
 #include <type_traits>
 
-#include "data/importexportinfo.hpp"
+#include "utilities/importexportinfo.hpp"
 #include "interfaces/tasks/itaskstatuscontroller.hpp"
 #include "interfaces/tasks/itaskcontroller.hpp"
 
-#include "data/formatid.hpp"
+#include "idtypes/formatid.hpp"
 
 #include "iformatmodel.hpp"
 

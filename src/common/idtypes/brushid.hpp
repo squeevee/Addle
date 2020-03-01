@@ -5,14 +5,10 @@
 
 class BrushId : public PersistentId
 {
-public: 
-    BrushId() = default;
+    PERSISTENT_ID_BOILERPLATE(BrushId)
+public:
     BrushId(const char* key)
-        : PersistentId(key)
-    {
-    }
-    BrushId(const PersistentId& other)
-        : PersistentId(other)
+        : BrushId(key, QHash<QString, QVariant>())
     {
     }
 };

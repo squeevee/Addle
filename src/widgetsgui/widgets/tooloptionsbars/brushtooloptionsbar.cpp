@@ -4,8 +4,8 @@ BrushToolOptionsBar::BrushToolOptionsBar(IBrushToolPresenter& presenter, QMainWi
     : ToolOptionBarBase(presenter, parent),
     _presenter(presenter)
 {
-    _actionGroup_brush = new OptionActionGroup(this, _presenter, "brush");
-    _action_brush_basic = _actionGroup_brush->createAction(IBrushToolPresenter::DefaultBrushes::Basic);
+    _actionGroup_brush = new PropertyActionGroup(this, _presenter, "brush");
+    _action_brush_basic = _actionGroup_brush->createAction(QVariant::fromValue(IBrushToolPresenter::DefaultBrushes::Basic));
     //_action_brush_aliasedCircle = _actionGroup_brush->createAction(IBrushToolPresenter::DefaultBrushes::AliasedCircle);
     //_action_brush_square = _actionGroup_brush->createAction(IBrushToolPresenter::DefaultBrushes::Square);
 

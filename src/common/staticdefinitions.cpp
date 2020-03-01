@@ -9,6 +9,15 @@
 #include "servicelocator.hpp"
 ServiceLocator* ServiceLocator::_instance = nullptr;
 
+#include "idtypes/brushid.hpp"
+STATIC_PERSISTENT_ID_BOILERPLATE(BrushId)
+
+#include "idtypes/formatid.hpp"
+STATIC_PERSISTENT_ID_BOILERPLATE(FormatId)
+
+#include "idtypes/toolid.hpp"
+STATIC_PERSISTENT_ID_BOILERPLATE(ToolId)
+
 #include "interfaces/services/iservice.hpp"
 const QString IService::SERVICE_THREAD_NAME_TEMPLATE = QStringLiteral(ADDLE_STRING__ISERVICE__SERVICE_THREAD_NAME_TEMPLATE);
 
@@ -48,53 +57,53 @@ const FormatId IJPEGFormatDriver::JPEG_FORMAT_ID = FormatId(
     typeid(IDocument)
 );
 
-#include "interfaces/presenters/tools/iselecttoolpresenter.hpp"
+#include "interfaces/presenters/toolpresenters/iselecttoolpresenter.hpp"
 const ToolId ISelectToolPresenter::SELECT_TOOL_ID = ToolId(
     "select-tool"
 );
 
-#include "interfaces/presenters/tools/ibrushtoolpresenter.hpp"
+#include "interfaces/presenters/toolpresenters/ibrushtoolpresenter.hpp"
 const ToolId IBrushToolPresenter::BRUSH_TOOL_ID = ToolId(
     "brush-tool"
 );
 
-#include "interfaces/presenters/tools/ierasertoolpresenter.hpp"
+#include "interfaces/presenters/toolpresenters/ierasertoolpresenter.hpp"
 const ToolId IEraserToolPresenter::ERASER_TOOL_ID = ToolId(
     "eraser-tool"
 );
 
-#include "interfaces/presenters/tools/ifilltoolpresenter.hpp"
+#include "interfaces/presenters/toolpresenters/ifilltoolpresenter.hpp"
 const ToolId IFillToolPresenter::FILL_TOOL_ID = ToolId(
     "fill-tool"
 );
 
-#include "interfaces/presenters/tools/itexttoolpresenter.hpp"
+#include "interfaces/presenters/toolpresenters/itexttoolpresenter.hpp"
 const ToolId ITextToolPresenter::TEXT_TOOL_ID = ToolId(
     "text-tool"
 );
 
-#include "interfaces/presenters/tools/ishapestoolpresenter.hpp"
+#include "interfaces/presenters/toolpresenters/ishapestoolpresenter.hpp"
 const ToolId IShapesToolPresenter::SHAPES_TOOL_ID = ToolId(
     "shapes-tool"
 );
 
-#include "interfaces/presenters/tools/istickerstoolpresenter.hpp"
+#include "interfaces/presenters/toolpresenters/istickerstoolpresenter.hpp"
 const ToolId IStickersToolPresenter::STICKERS_TOOL_ID = ToolId(
     "stickers-tool"
 );
 
-#include "interfaces/presenters/tools/ieyedroptoolpresenter.hpp"
+#include "interfaces/presenters/toolpresenters/ieyedroptoolpresenter.hpp"
 const ToolId IEyedropToolPresenter::EYEDROP_TOOL_ID = ToolId(
     "eyedrop-tool"
 );
 
-#include "interfaces/presenters/tools/inavigatetoolpresenter.hpp"
-#include "interfaces/presenters/tools/moc_inavigatetoolpresenter.cpp"
+#include "interfaces/presenters/toolpresenters/inavigatetoolpresenter.hpp"
+#include "interfaces/presenters/toolpresenters/moc_inavigatetoolpresenter.cpp"
 const ToolId INavigateToolPresenter::NAVIGATE_TOOL_ID = ToolId(
     "navigate-tool"
 );
 
-#include "interfaces/presenters/tools/imeasuretoolpresenter.hpp"
+#include "interfaces/presenters/toolpresenters/imeasuretoolpresenter.hpp"
 const ToolId IMeasureToolPresenter::MEASURE_TOOL_ID = ToolId(
     "measure-tool"
 );
@@ -111,22 +120,11 @@ const ToolId IEditorPresenter::DefaultTools::EYEDROP  = IEyedropToolPresenter::E
 const ToolId IEditorPresenter::DefaultTools::NAVIGATE = INavigateToolPresenter::NAVIGATE_TOOL_ID;
 const ToolId IEditorPresenter::DefaultTools::MEASURE  = IMeasureToolPresenter::MEASURE_TOOL_ID;
 
-
-#include "utilities/presethelpers/zoompresethelper.hpp"
-const ZoomPresetHelper ZoomPresetHelper::_instance = ZoomPresetHelper();
-
-#include "utilities/presethelpers/rotatepresethelper.hpp"
-const RotatePresetHelper RotatePresetHelper::_instance = RotatePresetHelper();
-
-#include "utilities/presethelpers/brushsizepresethelper.hpp"
-const BrushSizePresetHelper::PxPresetHelper BrushSizePresetHelper::_instance_px = PxPresetHelper();
-const BrushSizePresetHelper::PercentPresetHelper BrushSizePresetHelper::_instance_percent = PercentPresetHelper();
-
 #include "interfaces/editing/brushrenderers/ibasicbrushrenderer.hpp"
 
 const BrushId IBasicBrushRenderer::Id = BrushId("basic-brush");
 
-#include "interfaces/presenters/tools/ibrushtoolpresenter.hpp"
+#include "interfaces/presenters/toolpresenters/ibrushtoolpresenter.hpp"
 const BrushId IBrushToolPresenter::DefaultBrushes::Basic  = IBasicBrushRenderer::Id;
 
 const BrushId IBrushToolPresenter::DEFAULT_BRUSH = DefaultBrushes::Basic;

@@ -24,17 +24,15 @@ public:
         _25percent,
         onethird,
         _50percent,
-        _75percent,
+        twothirds,
         _100percent,
         _150percent,
         _200percent,
         _300percent,
         _400percent,
-        _500percent,
+        _600percent,
         _800percent,
-        _1000percent,
-        _1600percent,
-        _2000percent
+        _1600percent
     };
 
     enum RotatePreset {
@@ -50,7 +48,7 @@ public:
     };
 
     const ZoomPreset MIN_ZOOM_PRESET = ZoomPreset::_5percent;
-    const ZoomPreset MAX_ZOOM_PRESET = ZoomPreset::_2000percent;
+    const ZoomPreset MAX_ZOOM_PRESET = ZoomPreset::_1600percent;
     const ZoomPreset DEFAULT_ZOOM_PRESET = ZoomPreset::_100percent;
 
     const RotatePreset DEFAULT_ROTATE_PRESET = RotatePreset::_0deg;

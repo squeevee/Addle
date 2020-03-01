@@ -3,7 +3,7 @@
 
 #include <QString>
 #include <QSharedPointer>
-#include "data/persistentid.hpp"
+#include "idtypes/persistentid.hpp"
 
 class IToolWithAssetsPresenter;
 class IAssetPresenter

@@ -15,13 +15,14 @@
 #include <typeindex>
 #include <QHash>
 
-#include "data/persistentid.hpp"
+#include "../typeinforef.hpp"
+#include "../indexvariant.hpp"
+#include "idtypes/persistentid.hpp"
 
 namespace std
 {
-    uint qHash(const std::type_index& key);
+    uint qHash(const std::type_index& key, uint seed = 0);
 }
-
-uint qHash(const PersistentId& id);
+uint qHash(const PersistentId& id, uint seed = 0);
 
 #endif //QT_EXTENSIONS__QHASH_HPP

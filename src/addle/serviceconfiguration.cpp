@@ -22,8 +22,8 @@
 #include "core/presenters/errorpresenter.hpp"
 #include "core/presenters/layerpresenter.hpp"
 #include "core/presenters/assets/brushpresenter.hpp"
-#include "core/presenters/tools/navigatetoolpresenter.hpp"
-#include "core/presenters/tools/brushtoolpresenter.hpp"
+#include "core/presenters/toolpresenters/navigatetoolpresenter.hpp"
+#include "core/presenters/toolpresenters/brushtoolpresenter.hpp"
 
 #include "core/services/applicationservice.hpp"
 #include "core/services/formatservice.hpp"

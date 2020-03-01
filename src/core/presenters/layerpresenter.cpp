@@ -41,11 +41,13 @@ void LayerPresenter::render(QPainter& painter, QRect area)
         return;
 
     auto s_model = _model.toStrongRef();
+    auto s_rasterOperation = _rasterOperation.toStrongRef();
+
     s_model->render(painter, area);
 
     if (_rasterOperation)
     {
-        _rasterOperation->render(painter, area);
+        s_rasterOperation->render(painter, area);
     }
 }
 

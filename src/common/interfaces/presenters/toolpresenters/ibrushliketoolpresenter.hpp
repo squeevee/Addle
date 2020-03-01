@@ -14,7 +14,7 @@
 #include "itoolwithassetspresenter.hpp"
 
 #include "../assets/ibrushpresenter.hpp"
-#include "data/brushid.hpp"
+#include "idtypes/brushid.hpp"
 
 class IBrushLikeToolPresenter : public virtual IToolPresenter, public virtual IToolWithAssetsPresenter
 {

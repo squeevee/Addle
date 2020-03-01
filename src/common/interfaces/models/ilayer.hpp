@@ -8,7 +8,7 @@
 #include <QImage>
 #include <QPaintDevice>
 
-#include "data/layerbuilder.hpp"
+#include "utilities/layerbuilder.hpp"
 #include "interfaces/traits/makeable_trait.hpp"
 
 #include "interfaces/traits/initialize_traits.hpp"

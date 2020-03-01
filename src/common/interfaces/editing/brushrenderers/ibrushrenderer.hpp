@@ -4,8 +4,8 @@
 #include <QPainter>
 #include <QImage>
 
-#include "data/brushid.hpp"
-#include "data/brushpathsegment.hpp"
+#include "idtypes/brushid.hpp"
+#include "utilities/brushpathsegment.hpp"
 
 class IBrushRenderer
 {
@@ -24,7 +24,8 @@ public:
     virtual double getMinimumSize() const = 0;
     virtual double getMaximumSize() const = 0;
 
-    virtual void renderSegment(QImage& image, const BrushPathSegment& state) const = 0;
+    virtual QRect getSegmentBoundingRect(const BrushPathSegment& segment) const = 0;
+    virtual void renderSegment(QImage& image, BrushPathSegment& segment) const = 0;
 };
 
 #endif // IBRUSHRENDERER_HPP

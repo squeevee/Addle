@@ -3,7 +3,7 @@
 
 #include <typeinfo>
 
-#include "formatid.hpp"
+#include "idtypes/formatid.hpp"
 
 #include <QSharedData>
 #include <QSharedDataPointer>

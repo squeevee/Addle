@@ -8,7 +8,7 @@ NavigateToolOptionsBar::NavigateToolOptionsBar(INavigateToolPresenter& presenter
     : ToolOptionBarBase(presenter, parent),
     _presenter(presenter)
 {
-    _actionGroup_navigateOperation = new OptionActionGroup(this, _presenter, "navigateOperation");
+    _actionGroup_navigateOperation = new PropertyActionGroup(this, _presenter, "navigateOperation");
 
     _action_navigateOperation_gripPan = _actionGroup_navigateOperation->createAction(NavigateOperationOptions::gripPan);
     _action_navigateOperation_gripPivot = _actionGroup_navigateOperation->createAction(NavigateOperationOptions::gripPivot);

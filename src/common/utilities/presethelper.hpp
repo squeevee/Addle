@@ -55,7 +55,7 @@ private:
         return *(presets.rbegin());
     }
 
-protected:
+public:
     PresetHelper(
         bool cyclic,
         const PresetType nullPreset,
@@ -71,7 +71,7 @@ protected:
     {
     }
 
-    PresetType nearest_p(ValueType value, ValueType threshold) const
+    PresetType nearest(ValueType value, ValueType threshold) const
     {
         auto iter = _presets_byValue.upper_bound(value);
         auto upper = *iter;
@@ -131,7 +131,7 @@ protected:
         }
     }
 
-    PresetType nextUp_p(ValueType value) const
+    PresetType nextUp(ValueType value) const
     {
         auto iter = _presets_byValue.upper_bound(value);
         if (iter == _presets_byValue.end())
@@ -146,7 +146,7 @@ protected:
         }
     }
 
-    PresetType nextUp_p(PresetType preset) const
+    PresetType nextUp(PresetType preset) const
     {
         auto iter = _presets.find(preset);
         iter++;
@@ -156,7 +156,7 @@ protected:
             return *iter;
     }
 
-    PresetType nextDown_p(ValueType value) const
+    PresetType nextDown(ValueType value) const
     {
         auto iter = _presets_byValue.lower_bound(value);
         if (iter == _presets_byValue.begin())
@@ -171,7 +171,7 @@ protected:
         }
     }
 
-    PresetType nextDown_p(PresetType preset) const
+    PresetType nextDown(PresetType preset) const
     {
         auto iter = _presets.find(preset);
         if (iter == _presets.begin())
@@ -180,7 +180,7 @@ protected:
             return *(--iter);
     }
 
-    ValueType valueOf_p(PresetType preset) const
+    ValueType valueOf(PresetType preset) const
     {
         return _values_byPreset.at(preset);
     }

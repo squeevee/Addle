@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 #include <QToolBar>
-#include "interfaces/presenters/tools/itoolpresenter.hpp"
+#include "interfaces/presenters/toolpresenters/itoolpresenter.hpp"
 //#include "widgetsgui/utilities/actiongroupenumhelper.hpp"
 
 #include "utilities/qt_extensions/qobject.hpp"

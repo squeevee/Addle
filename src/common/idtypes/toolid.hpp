@@ -5,10 +5,10 @@
 
 class ToolId : public PersistentId
 {
+    PERSISTENT_ID_BOILERPLATE(ToolId)
 public:
-    ToolId() = default;
     ToolId(const char* key)
-        : PersistentId(key)
+        : ToolId(key, QHash<QString, QVariant>())
     {
     }
 };

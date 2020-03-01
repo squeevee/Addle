@@ -4,7 +4,7 @@
 #include "interfaces/traits/makeable_trait.hpp"
 #include "interfaces/traits/initialize_traits.hpp"
 
-#include "data/brushid.hpp"
+#include "idtypes/brushid.hpp"
 #include "interfaces/editing/brushrenderers/ibrushrenderer.hpp"
 
 #include <QSharedPointer>

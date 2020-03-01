@@ -8,9 +8,7 @@ void NavigateToolPresenter::initialize(IDocumentPresenter* owner)
 
     ToolPresenterBase::initialize_p(owner);
 
-    _translationContext = "NavigateToolPresenter";
-
-    initializeEnumOptionText<NavigateOperationOptions>("navigateOperation");
+    _propertyDecorationHelper.initializeEnumProperty<NavigateOperationOptions>("navigateOperation");
 
     _initHelper.initializeEnd();
 }

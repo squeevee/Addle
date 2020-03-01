@@ -12,7 +12,7 @@
 #include "interfaces/format/iformatmodel.hpp"
 #include "interfaces/traits/makeable_trait.hpp"
 
-#include "data/documentbuilder.hpp"
+#include "utilities/documentbuilder.hpp"
 #include "interfaces/traits/initialize_traits.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 

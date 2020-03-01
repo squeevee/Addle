@@ -4,7 +4,7 @@
 #include "ipersistentobjectrepository.hpp"
 #include "iservice.hpp"
 
-#include "data/brushid.hpp"
+#include "idtypes/brushid.hpp"
 #include "interfaces/models/ibrush.hpp"
 
 #include "interfaces/traits/qobject_trait.hpp"

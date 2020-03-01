@@ -4,11 +4,10 @@ set ( CMAKE_AUTOMOC ON )
 
 set (
     SOURCES
-    widgets/tooloptionsbars/helpers/enumactiongroup.cpp
+    widgets/propertyactiongroup.cpp
     widgets/tooloptionsbars/brushtooloptionsbar.cpp
     widgets/tooloptionsbars/navigatetooloptionsbar.cpp
     widgets/tooloptionsbars/tooloptionbarbase.cpp
-    widgets/selecttoolaction.cpp
     widgets/viewportwidget.cpp
     widgets/zoomrotatewidget.cpp
     widgets/zoomslider.cpp

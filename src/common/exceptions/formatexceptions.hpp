@@ -6,7 +6,7 @@
 
 #include "baseaddleexception.hpp"
 
-#include "data/importexportinfo.hpp"
+#include "utilities/importexportinfo.hpp"
 
 #include "utilities/qt_extensions/translation.hpp"
 

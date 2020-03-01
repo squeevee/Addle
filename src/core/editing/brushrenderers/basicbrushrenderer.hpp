@@ -17,7 +17,8 @@ public:
     double getMinimumSize() const { return DEFAULT_MINIMUM_SIZE; }
     double getMaximumSize() const { return DEFAULT_MAXIMUM_SIZE; }
 
-    void renderSegment(QImage& image, const BrushPathSegment& state) const;
+    QRect getSegmentBoundingRect(const BrushPathSegment& segment) const;
+    void renderSegment(QImage& image, BrushPathSegment& state) const;
 };
 
 #endif // BASICBRUSHRENDERER_HPP

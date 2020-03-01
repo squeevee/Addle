@@ -5,7 +5,7 @@
 
 #include "../iformatdriver.hpp"
 
-#include "data/formatid.hpp"
+#include "idtypes/formatid.hpp"
 
 class IPNGFormatDriver : public virtual IFormatDriver
 {

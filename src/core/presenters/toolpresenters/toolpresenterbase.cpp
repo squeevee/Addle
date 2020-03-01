@@ -1,19 +1,6 @@
 #include "toolpresenterbase.hpp"
 
-#include "data/brushid.hpp"
-
-uint qHash( const QVariant& var)
-{
-    if (var.canConvert<BrushId>())
-    {
-        return qHash(var.value<BrushId>());
-    }
-    else if (var.canConvert<int>())
-    {
-        return qHash(var.toInt());
-    }
-    // invalid?
-}
+#include "idtypes/brushid.hpp"
 
 void ToolPresenterBase::initialize_p(IDocumentPresenter* documentPresenter)
 {

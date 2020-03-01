@@ -1,9 +1,9 @@
 #ifndef BRUSHTOOLOPTIONSBAR_HPP
 #define BRUSHTOOLOPTIONSBAR_HPP
 
-#include "helpers/enumactiongroup.hpp"
+#include "../propertyactiongroup.hpp"
 #include "interfaces/presenters/assets/ibrushpresenter.hpp"
-#include "interfaces/presenters/tools/ibrushtoolpresenter.hpp"
+#include "interfaces/presenters/toolpresenters/ibrushtoolpresenter.hpp"
 #include "tooloptionbarbase.hpp"
 
 class BrushToolOptionsBar : public ToolOptionBarBase 
@@ -16,10 +16,10 @@ public:
     QAction* _action_brush_basic;
     //QAction* _action_brush_aliasedCircle;
     //QAction* _action_brush_square;
-    OptionActionGroup* _actionGroup_brush;
+    PropertyActionGroup* _actionGroup_brush;
 
     QAction* _brush_size;
-    OptionActionGroup* _actionGroup_size;
+    PropertyActionGroup* _actionGroup_size;
 
 private:
     IBrushToolPresenter& _presenter;

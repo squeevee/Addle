@@ -2,7 +2,7 @@
 #include <QLabel>
 
 #include "utilities/qt_extensions/qobject.hpp"
-#include "interfaces/presenters/tools/itoolpresenter.hpp"
+#include "interfaces/presenters/toolpresenters/itoolpresenter.hpp"
 
 void EditorView::initialize(IEditorPresenter* presenter)
 {

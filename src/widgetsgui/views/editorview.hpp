@@ -11,16 +11,16 @@
 
 #include "utilities/initializehelper.hpp"
 
-#include "interfaces/presenters/tools/iselecttoolpresenter.hpp"
-#include "interfaces/presenters/tools/ibrushtoolpresenter.hpp"
-#include "interfaces/presenters/tools/ierasertoolpresenter.hpp"
-#include "interfaces/presenters/tools/ifilltoolpresenter.hpp"
-#include "interfaces/presenters/tools/itexttoolpresenter.hpp"
-#include "interfaces/presenters/tools/ishapestoolpresenter.hpp"
-#include "interfaces/presenters/tools/istickerstoolpresenter.hpp"
-#include "interfaces/presenters/tools/ieyedroptoolpresenter.hpp"
-#include "interfaces/presenters/tools/inavigatetoolpresenter.hpp"
-#include "interfaces/presenters/tools/imeasuretoolpresenter.hpp"
+#include "interfaces/presenters/toolpresenters/iselecttoolpresenter.hpp"
+#include "interfaces/presenters/toolpresenters/ibrushtoolpresenter.hpp"
+#include "interfaces/presenters/toolpresenters/ierasertoolpresenter.hpp"
+#include "interfaces/presenters/toolpresenters/ifilltoolpresenter.hpp"
+#include "interfaces/presenters/toolpresenters/itexttoolpresenter.hpp"
+#include "interfaces/presenters/toolpresenters/ishapestoolpresenter.hpp"
+#include "interfaces/presenters/toolpresenters/istickerstoolpresenter.hpp"
+#include "interfaces/presenters/toolpresenters/ieyedroptoolpresenter.hpp"
+#include "interfaces/presenters/toolpresenters/inavigatetoolpresenter.hpp"
+#include "interfaces/presenters/toolpresenters/imeasuretoolpresenter.hpp"
 
 class EditorView : public BaseDocumentView, public virtual IEditorView
 {
@@ -51,7 +51,7 @@ private:
     ISelectToolPresenter* _toolPresenter_select;
     QToolBar* _optionsToolBar_select;
 
-    SelectToolAction* _action_selectBrushTool;
+    QAction* _action_selectBrushTool;
     IBrushToolPresenter* _toolPresenter_brush;
     BrushToolOptionsBar* _optionsToolBar_brush;
 
@@ -79,7 +79,7 @@ private:
     IEyedropToolPresenter* _toolPresenter_eyedrop;
     QToolBar* _optionsToolBar_eyedrop;
 
-    SelectToolAction* _action_selectNavigateTool;
+    QAction* _action_selectNavigateTool;
     INavigateToolPresenter* _toolPresenter_navigate;
     NavigateToolOptionsBar* _optionsToolBar_navigate;
 

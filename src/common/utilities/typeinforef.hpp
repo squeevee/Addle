@@ -24,6 +24,8 @@ private:
     const std::type_info* _typeinfo_ptr;
 };
 
+uint qHash(const TypeInfoRef& ref, uint seed = 0);
+
 Q_DECLARE_METATYPE(TypeInfoRef)
 
 #endif // TYPEINFOREF_HPP

@@ -4,7 +4,7 @@
 #include <type_traits>
 
 #include "utilities/qt_extensions/qlist.hpp"
-#include "interfaces/presenters/tools/itoolwithassetspresenter.hpp"
+#include "interfaces/presenters/toolpresenters/itoolwithassetspresenter.hpp"
 
 template<class PresenterType, class IdType>
 class ToolWithAssetsHelper

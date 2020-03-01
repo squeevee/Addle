@@ -101,7 +101,6 @@ of raster operations but also maintain some common interfacing and
 functionality.
 
 
-need some organization/reconciliation of common/data and common/utilities maybe
-formalize rules a bit about how they may be used in interfaces
-
 separate the concept of raster surface from Layer
+
+QWidget property bindings?

@@ -2,11 +2,11 @@
 #define BRUSHTOOLPRESENTER_HPP
 
 #include "toolpresenterbase.hpp"
-#include "interfaces/presenters/tools/ibrushtoolpresenter.hpp"
+#include "interfaces/presenters/toolpresenters/ibrushtoolpresenter.hpp"
 
 #include "interfaces/editing/irasteroperation.hpp"
 
-#include "helpers/toolwithassetshelper.hpp"
+#include "../helpers/toolwithassetshelper.hpp"
 
 class BrushToolPresenter : public ToolPresenterBase, public virtual IBrushToolPresenter
 {
@@ -16,6 +16,12 @@ class BrushToolPresenter : public ToolPresenterBase, public virtual IBrushToolPr
         READ getSelectedAsset
         WRITE selectAsset 
         NOTIFY selectedAssetChanged
+    )
+    Q_PROPERTY(
+        BrushId brush 
+        READ getSelectedBrush
+        WRITE selectAsset 
+        NOTIFY brushChanged
     )
 public:
     BrushToolPresenter()
@@ -53,7 +59,7 @@ protected:
 private:
     IEditorPresenter* _editorPresenter;
 
-    IRasterOperation* _operation = nullptr;
+    QSharedPointer<IBrushOperation> _operation;
 
     ToolWithAssetsHelper<IBrushPresenter, BrushId> _assetsHelper;
     InitializeHelper<BrushToolPresenter> _initHelper;

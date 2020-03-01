@@ -6,6 +6,7 @@
 
 #include "iraiseerrorpresenter.hpp"
 #include "ihavetoolspresenter.hpp"
+#include "ipropertydecoratedpresenter.hpp"
 
 #include "interfaces/models/idocument.hpp"
 
@@ -16,7 +17,10 @@
 class ILayerPresenter;
 class IViewPortPresenter;
 class IDocumentView;
-class IDocumentPresenter: public virtual IHaveToolsPresenter, public virtual IRaiseErrorPresenter
+class IDocumentPresenter 
+    : public virtual IHaveToolsPresenter,
+    public virtual IRaiseErrorPresenter,
+    public virtual IPropertyDecoratedPresenter
 {
 public:
     virtual ~IDocumentPresenter() = default;

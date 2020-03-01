@@ -6,13 +6,15 @@
 #include <QIcon>
 #include <QCursor>
 #include "../idocumentpresenter.hpp"
+#include "../ipropertydecoratedpresenter.hpp"
 
-#include "data/toolid.hpp"
+#include "idtypes/toolid.hpp"
 
 #include "interfaces/traits/initialize_traits.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 
 class IToolPresenter
+    : public virtual IPropertyDecoratedPresenter
 {
 public:
     virtual ~IToolPresenter() = default;
@@ -25,18 +27,6 @@ public:
     virtual void pointerEngage(QPointF canvasPos) = 0;
     virtual void pointerMove(QPointF canvasPos) = 0;
     virtual void pointerDisengage(QPointF canvasPos) = 0;
-
-    virtual QCursor getCursorHint() = 0;
-    virtual QIcon getIcon() = 0;
-    virtual QString getName() = 0;
-    virtual QString getToolTip() = 0;
-
-    virtual QIcon getOptionIcon(const char* name) = 0;
-    virtual QIcon getOptionIcon(const char* name, QVariant value) = 0;
-    virtual QString getOptionText(const char* name) = 0;
-    virtual QString getOptionText(const char* name, QVariant value) = 0;
-    virtual QString getOptionToolTip(const char* name) = 0;
-    virtual QString getOptionToolTip(const char* name, QVariant value) = 0;
 
     virtual bool isSelected() = 0;
 

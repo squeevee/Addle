@@ -4,7 +4,7 @@
 #include <QSharedPointer>
 #include <QHash>
 
-#include "data/persistentid.hpp"
+#include "idtypes/persistentid.hpp"
 
 #include <type_traits>
 #include "interfaces/traits/qobject_trait.hpp"

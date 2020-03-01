@@ -19,7 +19,7 @@ public:
 
     QWeakPointer<ILayer> getModel() { _initHelper.assertInitialized(); return _model; }
 
-    void setRasterOperation(IRasterOperation* operation)  { _rasterOperation = operation; }
+    void setRasterOperation(QWeakPointer<IRasterOperation> operation)  { _rasterOperation = operation; }
     void unsetRasterOperation() { _rasterOperation = nullptr; }
 
     QRect getCanvasBounds() { _initHelper.assertInitialized(); return QRect(QPoint(), _documentPresenter->getCanvasSize()); }
@@ -38,7 +38,7 @@ private:
     
     QWeakPointer<ILayer> _model;
 
-    IRasterOperation* _rasterOperation = nullptr;
+    QWeakPointer<IRasterOperation> _rasterOperation;
 
     InitializeHelper<LayerPresenter> _initHelper;
 };

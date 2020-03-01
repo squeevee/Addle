@@ -2,7 +2,7 @@
 #define NAVIGATETOOLPRESENTER_HPP
 
 #include "toolpresenterbase.hpp"
-#include "interfaces/presenters/tools/inavigatetoolpresenter.hpp"
+#include "interfaces/presenters/toolpresenters/inavigatetoolpresenter.hpp"
 #include "interfaces/presenters/iviewportpresenter.hpp"
 
 class NavigateToolPresenter : public ToolPresenterBase, public virtual INavigateToolPresenter

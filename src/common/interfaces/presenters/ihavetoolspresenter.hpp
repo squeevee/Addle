@@ -3,7 +3,7 @@
 
 #include <QList>
 #include "interfaces/traits/qobject_trait.hpp"
-#include "data/toolid.hpp"
+#include "idtypes/toolid.hpp"
 
 class IToolPresenter;
 class IHaveToolsPresenter

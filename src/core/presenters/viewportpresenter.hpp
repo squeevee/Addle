@@ -7,8 +7,7 @@
 #include "interfaces/presenters/ieditorpresenter.hpp"
 #include "interfaces/presenters/iviewportpresenter.hpp"
 #include "interfaces/views/iviewport.hpp"
-#include "utilities/presethelpers/zoompresethelper.hpp"
-#include "utilities/presethelpers/rotatepresethelper.hpp"
+#include "utilities/presethelper.hpp"
 
 #include "utilities/initializehelper.hpp"
 
@@ -62,8 +61,8 @@ public:
     
     ZoomPreset getZoomPreset() { _initHelper.assertInitialized(); return _zoomPreset; }
     void setZoomPreset(ZoomPreset preset);
-    double getMaxZoomPresetValue() { _initHelper.assertInitialized(); return ZoomPresetHelper::zoomValueOf(MAX_ZOOM_PRESET); }
-    double getMinZoomPresetValue() { _initHelper.assertInitialized(); return ZoomPresetHelper::zoomValueOf(MIN_ZOOM_PRESET); }
+    double getMaxZoomPresetValue() { _initHelper.assertInitialized(); return _zoomPresetHelper.valueOf(MAX_ZOOM_PRESET); }
+    double getMinZoomPresetValue() { _initHelper.assertInitialized(); return _zoomPresetHelper.valueOf(MIN_ZOOM_PRESET); }
 
     ZoomPreset zoomTo(double zoom, bool snapToPreset = true);
 
@@ -158,6 +157,9 @@ private:
     const int VIEW_MARGIN = 10;
 
     InitializeHelper<ViewPortPresenter> _initHelper;
+    
+    static const PresetHelper<RotatePreset, double> _rotatePresetHelper;
+    static const PresetHelper<ZoomPreset, double> _zoomPresetHelper;
 };
 
 #endif // VIEWPORTPRESENTER_HPP

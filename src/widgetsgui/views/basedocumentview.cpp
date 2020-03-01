@@ -14,7 +14,7 @@
 #include <QStandardPaths>
 #include <QMessageBox>
 
-#include "interfaces/presenters/tools/itoolpresenter.hpp"
+#include "interfaces/presenters/toolpresenters/itoolpresenter.hpp"
 #include "interfaces/views/iviewport.hpp"
 #include "interfaces/services/iapplicationsservice.hpp"
 #include "utilities/qt_extensions/qobject.hpp"
@@ -63,7 +63,7 @@ void BaseDocumentView::setupUi()
     _action_open->setIcon(QIcon(":/icons/open.png"));
     connect(_action_open, &QAction::triggered, this, &BaseDocumentView::onAction_open);
 
-    _actionGroup_toolSelection = new QActionGroup(this);
+    _actionGroup_toolSelection = new PropertyActionGroup(this, *_presenter, "currentTool");
 }
 
 void BaseDocumentView::start()

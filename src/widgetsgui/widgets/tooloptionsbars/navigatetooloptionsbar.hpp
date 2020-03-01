@@ -3,8 +3,8 @@
 
 #include <QActionGroup>
 
-#include "helpers/enumactiongroup.hpp"
-#include "interfaces/presenters/tools/inavigatetoolpresenter.hpp"
+#include "../propertyactiongroup.hpp"
+#include "interfaces/presenters/toolpresenters/inavigatetoolpresenter.hpp"
 #include "tooloptionbarbase.hpp"
 
 class NavigateToolOptionsBar : public ToolOptionBarBase 
@@ -18,7 +18,7 @@ public:
     QAction* _action_navigateOperation_gripPivot;
     QAction* _action_navigateOperation_rectangleZoomTo;
 
-    OptionActionGroup* _actionGroup_navigateOperation;
+    PropertyActionGroup* _actionGroup_navigateOperation;
 
 private:
     INavigateToolPresenter& _presenter;

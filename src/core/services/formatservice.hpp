@@ -10,7 +10,7 @@
 #include "interfaces/format/iformatdriver.hpp"
 #include "interfaces/services/iformatservice.hpp"
 
-#include "data/formatid.hpp"
+#include "idtypes/formatid.hpp"
 
 
 class FormatService : public virtual ServiceBase, public virtual IFormatService

@@ -1,6 +1,6 @@
 #include "editorpresenter.hpp"
 
-#include "interfaces/presenters/tools/inavigatetoolpresenter.hpp"
+#include "interfaces/presenters/toolpresenters/inavigatetoolpresenter.hpp"
 #include "servicelocator.hpp"
 
 EditorPresenter::EditorPresenter()
@@ -28,6 +28,19 @@ EditorPresenter::EditorPresenter()
             _navigateTool = ServiceLocator::make<INavigateToolPresenter>(this)
         }
     };
+
+    _propertyDecorationHelper.setIconPool({
+        { QVariant::fromValue(DefaultTools::BRUSH), QIcon(":/icons/brush.png") },
+        { QVariant::fromValue(DefaultTools::NAVIGATE), QIcon(":/icons/navigate.png") }
+    });
+
+    _propertyDecorationHelper.initializeIdProperty<ToolId>(
+        "currentTool",
+        {
+            DefaultTools::BRUSH,
+            DefaultTools::NAVIGATE
+        }
+    );
 }
 
 IEditorView* EditorPresenter::getEditorView()

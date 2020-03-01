@@ -3,7 +3,7 @@
 #include <QGraphicsView>
 #include "utilities/qt_extensions/qobject.hpp"
 #include "canvasview.hpp"
-#include "interfaces/presenters/tools/itoolpresenter.hpp"
+#include "interfaces/presenters/toolpresenters/itoolpresenter.hpp"
 #include <QGraphicsSceneMouseEvent>
 
 void CanvasView::initialize(IDocumentPresenter* presenter)

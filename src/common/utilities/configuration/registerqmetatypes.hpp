@@ -2,18 +2,20 @@
 #define REGISTERQMETATYPES_HPP
 
 #include <QSharedPointer>
+#include <QMetaType>
 #include "interfaces/models/idocument.hpp"
 #include "interfaces/presenters/iraiseerrorpresenter.hpp"
 
-#include "interfaces/presenters/tools/inavigatetoolpresenter.hpp"
-#include "interfaces/presenters/tools/ibrushliketoolpresenter.hpp"
+#include "interfaces/presenters/toolpresenters/inavigatetoolpresenter.hpp"
+#include "interfaces/presenters/toolpresenters/ibrushliketoolpresenter.hpp"
 #include "interfaces/presenters/assets/ibrushpresenter.hpp"
-#include "interfaces/presenters/tools/itoolwithassetspresenter.hpp"
+#include "interfaces/presenters/toolpresenters/itoolwithassetspresenter.hpp"
 
-#include "data/persistentid.hpp"
-#include "data/brushid.hpp"
-#include "data/toolid.hpp"
-#include "data/formatid.hpp"
+#include "utilities/indexvariant.hpp"
+#include "idtypes/persistentid.hpp"
+#include "idtypes/brushid.hpp"
+#include "idtypes/toolid.hpp"
+#include "idtypes/formatid.hpp"
 
 void registerQMetaTypes()
 {
@@ -25,9 +27,19 @@ void registerQMetaTypes()
     qRegisterMetaType<QSharedPointer<IAssetPresenter>>();
 
     qRegisterMetaType<PersistentId>();
+    IndexVariant::registerHasher<PersistentId>();
+
     qRegisterMetaType<BrushId>();
+    QMetaType::registerConverter<BrushId, PersistentId>();
+    IndexVariant::registerHasher<BrushId, PersistentId>();
+
     qRegisterMetaType<ToolId>();
+    QMetaType::registerConverter<ToolId, PersistentId>();
+    IndexVariant::registerHasher<ToolId, PersistentId>();
+
     qRegisterMetaType<FormatId>();
+    QMetaType::registerConverter<FormatId, PersistentId>();
+    IndexVariant::registerHasher<FormatId, PersistentId>();
 }
 
 #endif // REGISTERQMETATYPES_HPP
