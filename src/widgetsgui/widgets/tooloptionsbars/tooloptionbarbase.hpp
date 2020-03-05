@@ -4,9 +4,9 @@
 #include <QMainWindow>
 #include <QToolBar>
 #include "interfaces/presenters/toolpresenters/itoolpresenter.hpp"
-//#include "widgetsgui/utilities/actiongroupenumhelper.hpp"
 
 #include "utilities/qt_extensions/qobject.hpp"
+#include "widgetsgui/utilities/decorationhelper.hpp"
 
 class ToolOptionBarBase : public QToolBar 
 {
@@ -15,16 +15,6 @@ public:
     ~ToolOptionBarBase() = default;
 protected:
     ToolOptionBarBase(IToolPresenter& presenter, QMainWindow* parent);
-
-    // template<typename EnumType>
-    // void setupEnumAction(ActionGroupEnumHelper<EnumType>& enumHelper, QAction** actionptr, const char* property, EnumType value)
-    // {
-    //     QAction* action = enumHelper.createAction(value);
-    //     *actionptr = action;
-
-    //     action->setText(QString(property));
-    //     action->setToolTip(_presenter.getOptionToolTip(property, value));
-    // }
 
 private slots: 
     void onSelectedChanged(bool selected);

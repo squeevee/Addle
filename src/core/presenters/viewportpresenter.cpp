@@ -1,5 +1,6 @@
 #include "viewportpresenter.hpp"
 
+#include "utilities/qt_extensions/qobject.hpp"
 #include "servicelocator.hpp"
 
 #include <QtDebug>
@@ -51,7 +52,9 @@ void ViewPortPresenter::initialize(IDocumentPresenter* documentPresenter)
     _initHelper.initializeBegin();
     _documentPresenter = documentPresenter;
 
-    calculateTransforms();
+    connect_interface(_documentPresenter, SIGNAL(documentChanged(QSharedPointer<IDocument>)), this, SLOT(onDocumentChanged()));
+
+    _transformCache.recalculate();
 
     _initHelper.initializeEnd();
 }
@@ -72,100 +75,52 @@ IViewPort* ViewPortPresenter::getViewPort()
 void ViewPortPresenter::setPosition(QPointF position)
 {
     _initHelper.assertInitialized();
+
     _position = position;
-    calculateTransforms();
+    _transformCache.recalculate();
+
     emit positionChanged(_position);
-    emit scrollStateChanged();
 }
 
-bool ViewPortPresenter::canScroll()
-{
-    _initHelper.assertInitialized();
-    return !_documentPresenter->isEmpty();
-}
-
-QRect ViewPortPresenter::getScrollRect()
+ViewPortPresenter::ScrollState ViewPortPresenter::getScrollState_p()
 {
     _initHelper.assertInitialized();
 
-    if (!canScroll())
+    if (!canNavigate())
     {
-        return QRect();
+        return ScrollState();
     }
 
-    int x_margin = _size.width();
-    int y_margin = _size.height();
+    QTransform fromCanvas = getFromCanvasTransform();
 
-    QRectF canvasBoundingRect = _fromCanvas.mapRect(QRectF(QPointF(), _documentPresenter->getCanvasSize()));
-    QRect basicRect = QRect(
-        canvasBoundingRect.x() - x_margin,
-        canvasBoundingRect.y() - y_margin,
-
-        canvasBoundingRect.width() + x_margin + 1,
-        canvasBoundingRect.height() + y_margin + 1
-    );
-
-    return basicRect.united(QRect(0,0,1,1));
+    QRect canvasRect = fromCanvas.mapRect(QRect(QPoint(), _documentPresenter->getCanvasSize()));
+    
+    return ScrollState(canvasRect.size(), QRect(-canvasRect.topLeft(), _size));
 }
 
-void ViewPortPresenter::setScrollPosition(QPoint position)
+void ViewPortPresenter::scrollX(int x)
 {
-    _initHelper.assertInitialized();
+    QTransform ontoCanvas = getOntoCanvasTransform();
+    auto& scrollState = _scrollStateCache.getValue();
 
-    if (!canScroll())
-    {
-        return;
-    }
+    setPosition(ontoCanvas.map(QPointF(x - scrollState._x, 0) + _center));
+}
 
-    position = projectOntoScrollRect(position);
+void ViewPortPresenter::scrollY(int y)
+{
+    QTransform ontoCanvas = getOntoCanvasTransform();
+    auto& scrollState = _scrollStateCache.getValue();
 
-    setPosition(_ontoCanvas.map(QPointF(position) + _center));
+    setPosition(ontoCanvas.map(QPointF(0, y - scrollState._y) + _center));
 }
 
 void ViewPortPresenter::gripPan(QPointF start, QPointF end)
 {
     QPointF newPosition = _position + start - end;
     setPosition(newPosition);
-    //setScrollPosition(getScrollPosition(newPosition));
 }
 
-QPoint ViewPortPresenter::getScrollPosition(QPointF position)
-{
-    return (_fromCanvas.map(position) - _center).toPoint();
-}
-
-QPoint ViewPortPresenter::projectOntoScrollRect(QPoint scrollPosition)
-{
-    QRect scrollRect = getScrollRect();
-    QPoint result = scrollPosition;
-
-    if (scrollRect.contains(scrollPosition))
-    {
-        return result;
-    }
-
-    if (scrollPosition.x() < scrollRect.left())
-    {
-        result.setX(scrollRect.left());
-    }
-    else if (scrollPosition.x() > scrollRect.right())
-    {
-        result.setX(scrollRect.right());
-    }
-
-    if (scrollPosition.y() < scrollRect.top())
-    {
-        result.setY(scrollRect.top());
-    }
-    else if (scrollPosition.y() > scrollRect.bottom())
-    {
-        result.setY(scrollRect.bottom());
-    }
-
-    return result;
-}
-
-bool ViewPortPresenter::canZoom()
+bool ViewPortPresenter::canNavigate_p()
 {
     return !_documentPresenter->isEmpty();
 }
@@ -173,11 +128,40 @@ bool ViewPortPresenter::canZoom()
 void ViewPortPresenter::setZoom(double zoom)
 {
     _initHelper.assertInitialized();
-    _zoom = zoom;
-    _zoomPreset = ZoomPreset::nullzoom;
-    calculateTransforms();
-    emit zoomChanged(_zoom);
-    emit scrollStateChanged();
+
+    ZoomPreset nearestPreset = _zoomPresetHelper.nearest(zoom);
+    double nearest = _zoomPresetHelper.valueOf(nearestPreset);
+
+    if (qAbs(nearest - zoom) < 0.01)
+    {
+        zoom = nearest;
+        _zoomPreset = nearestPreset;
+    }
+    else 
+    {
+        _zoomPreset = ZoomPreset::nullzoom;
+    }
+    setZoom_p(zoom);
+}
+
+void ViewPortPresenter::setZoomPreset(ZoomPreset preset)
+{
+    _initHelper.assertInitialized();
+
+    _zoomPreset = preset;
+    setZoom_p(_zoomPresetHelper.valueOf(preset));
+}
+
+void ViewPortPresenter::setZoom_p(double zoom)
+{
+    if (zoom != _zoom)
+    {
+        _zoom = zoom;
+        _canZoomInCache.recalculate();
+        _canZoomOutCache.recalculate();
+        _transformCache.recalculate();
+        emit zoomChanged(_zoom);
+    }
 }
 
 double ViewPortPresenter::constrainZoom(double zoom)
@@ -201,9 +185,9 @@ void ViewPortPresenter::setRotation(double rotation)
     _initHelper.assertInitialized();
     _rotation = rotation;
     _rotatePreset = RotatePreset::nullrotation;
-    calculateTransforms();
+
+    _transformCache.recalculate();
     emit rotationChanged(_rotation);
-    emit scrollStateChanged();
 }
 
 
@@ -222,14 +206,6 @@ void ViewPortPresenter::fitWidth()
 void ViewPortPresenter::fitCanvas()
 {
 
-}
-
-void ViewPortPresenter::setZoomPreset(ZoomPreset preset)
-{
-    _initHelper.assertInitialized();
-    _zoomPreset = preset;
-    setZoom(_zoomPresetHelper.valueOf(preset));
-    //emit needsUpdate();
 }
 
 IViewPortPresenter::ZoomPreset ViewPortPresenter::zoomIn(bool* zoomed)
@@ -398,10 +374,12 @@ void ViewPortPresenter::gripPivot(QPointF gripStart, QPointF gripEnd)
     QLineF startLine(_position, gripStart);
     QLineF endLine(_position, gripEnd);
 
-    if (QLineF(_center, _fromCanvas.map(gripStart)).length() < 4)
+    QTransform fromCanvas = getFromCanvasTransform();
+
+    if (QLineF(_center, fromCanvas.map(gripStart)).length() < 4)
         return;
 
-    if (QLineF(_center, _fromCanvas.map(gripEnd)).length() < 4)
+    if (QLineF(_center, fromCanvas.map(gripEnd)).length() < 4)
         return;
 
     double zoom = _zoom * (endLine.length() / startLine.length());
@@ -418,22 +396,33 @@ void ViewPortPresenter::setViewPortSize(QSize size)
     _initHelper.assertInitialized();
     _size = size;
     _center = QPointF((double)(_size.width()) / 2.0, (double)(_size.height()) / 2.0);
-    calculateTransforms();
-    emit scrollStateChanged();
+    _transformCache.recalculate();
 }
 
-void ViewPortPresenter::calculateTransforms()
+void ViewPortPresenter::onDocumentChanged()
 {
-    _ontoCanvas = QTransform();
+    _canNavigateCache.recalculate();
+}
 
-    _ontoCanvas.translate(_position.x(), _position.y());
-    _ontoCanvas.rotate(-_rotation);
-    _ontoCanvas.scale(1 / _zoom, 1 / _zoom);
-    _ontoCanvas.translate(-_center.x(), -_center.y());
 
-    _fromCanvas = _ontoCanvas.inverted();
+void ViewPortPresenter::propagateCanNavigate()
+{
+    _canZoomInCache.recalculate();
+    _canZoomOutCache.recalculate();
+}
 
-    emit transformsChanged();
+ViewPortPresenter::TransformPair ViewPortPresenter::getTransforms_p()
+{
+    QTransform ontoCanvas;
+
+    ontoCanvas.translate(_position.x(), _position.y());
+    ontoCanvas.rotate(-_rotation);
+    ontoCanvas.scale(1 / _zoom, 1 / _zoom);
+    ontoCanvas.translate(-_center.x(), -_center.y());
+
+    QTransform fromCanvas = ontoCanvas.inverted();
+
+    return { ontoCanvas, fromCanvas };
 }
 
 void ViewPortPresenter::centerView()

@@ -10,7 +10,7 @@
 #include <QAction>
 #include <QActionGroup>
 
-#include "widgetsgui/widgets/propertyactiongroup.hpp"
+#include "widgetsgui/utilities/optiongroup.hpp"
 
 #include "interfaces/presenters/idocumentpresenter.hpp"
 #include "interfaces/presenters/iviewportpresenter.hpp"
@@ -19,7 +19,7 @@
 #include "utilities/initializehelper.hpp"
 #include "utilities/qt_extensions/qobject.hpp"
 
-class ViewPortWidget;
+class ViewPortScrollWidget;
 class ZoomRotateWidget;
 class BaseDocumentView : public QMainWindow, public virtual IDocumentView
 {
@@ -47,29 +47,15 @@ protected:
     QToolBar* _toolBar_toolOptions;
     QStatusBar* _statusBar;
 
-    ViewPortWidget* _viewPortWidget;
+    ViewPortScrollWidget* _viewPortScrollWidget;
     ZoomRotateWidget* _zoomRotateWidget;
 
     QAction* _action_open;
     QAction* _action_close;
 
-    PropertyActionGroup* _actionGroup_toolSelection;
+    OptionGroup* _optionGroup_toolSelection;
 
-    template<class ToolBarType, class PresenterType>
-    void addTool(ToolId tool, QAction** actionptr, ToolBarType** optionsptr, PresenterType** presenterptr)
-    {
-        PresenterType* toolPresenter = dynamic_cast<PresenterType*>(_presenter->getToolPresenter(tool));
-        *presenterptr = toolPresenter;
 
-        QAction* action = _actionGroup_toolSelection->createAction(QVariant::fromValue(tool));
-        *actionptr = action;
-
-        _toolBar_toolSelection->addAction(action);
-        _actionGroup_toolSelection->addAction(action);
-
-        ToolBarType* optionsToolBar = new ToolBarType(*toolPresenter, this);
-        *optionsptr = optionsToolBar;
-    }
 
 protected slots:
     virtual void onAction_open();
@@ -82,6 +68,8 @@ private:
     IViewPortPresenter* _viewPortPresenter;
 
     InitializeHelper<BaseDocumentView> _initHelper;
+
+    friend class SetupToolsHelper;
 };
 
 #endif // BASEDOCUMENTVIEW_HPP

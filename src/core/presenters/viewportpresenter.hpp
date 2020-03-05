@@ -11,17 +11,121 @@
 
 #include "utilities/initializehelper.hpp"
 
+#include "utilities/propertycache.hpp"
+
 //The ViewPort is the main presenter for the Canvas, representing a rectangular
 //region onscreen that transforms and displays the Canvas' contents. The
 //ViewPort can be zoomed, moved, and rotated relative to the Canvas.
 class ViewPortPresenter: public QObject, public virtual IViewPortPresenter
 {
     Q_OBJECT
-public:
+    Q_PROPERTY(
+        bool canNavigate
+        READ canNavigate
+        NOTIFY canNavigateChanged
+    )
+    Q_PROPERTY(
+        bool canZoomIn
+        READ canZoomIn
+        NOTIFY canZoomInChanged
+    )
+    Q_PROPERTY(
+        bool canZoomOut
+        READ canZoomOut
+        NOTIFY canZoomOutChanged
+    )
+    Q_PROPERTY(
+        double zoom
+        READ getZoom 
+        WRITE setZoom
+        NOTIFY zoomChanged
+    )
 
-    ViewPortPresenter()
-        : _initHelper(this)
+    struct TransformPair
     {
+        inline bool operator!=(const TransformPair& other)
+        {
+            return ontoCanvas != other.ontoCanvas
+                && fromCanvas != other.fromCanvas;
+        }
+        QTransform ontoCanvas;
+        QTransform fromCanvas;
+    };
+
+    class ScrollState : public IScrollState
+    {
+        int _rangeWidth = -1;
+        int _rangeHeight = -1;
+
+        int _width = -1;
+        int _height = -1;
+
+        int _x = 0;
+        int _y = 0;
+
+    public:
+        ScrollState() = default;
+
+        ScrollState(QSize canvasRect, QRect current)
+            : ScrollState()
+        {
+            _rangeWidth = canvasRect.width();
+            _rangeHeight = canvasRect.height();
+
+            _width = current.width();
+            _height = current.height();
+
+            _x = current.x();
+            _y = current.y();
+        }
+
+        virtual ~ScrollState() = default;
+
+        int getPageWidth() const { return _width; }
+        int getPageHeight() const { return _height; }
+
+        int getHorizontalValue() const { return _x; }
+        int getVerticalValue() const { return _y; }
+
+        int getHorizontalMinimum() const { return qMin(_x, -_width); }
+        int getVerticalMinimum() const { return qMin(_y, -_height); }
+
+        int getHorizontalMaximum() const { return qMax(_rangeWidth + 1, _x); }
+        int getVerticalMaximum() const { return qMax(_rangeHeight + 1, _y); }
+
+        inline bool operator!=(const ScrollState& other) const
+        {
+            return _rangeWidth != other._rangeWidth
+                || _rangeHeight != other._rangeHeight
+                || _width != other._width
+                || _height != other._height
+                || _x != other._x
+                || _y != other._y;
+        }
+
+        friend class ViewPortPresenter;
+    };
+
+public:
+    ViewPortPresenter()
+        : _canNavigateCache(*this, &ViewPortPresenter::canNavigate_p, &ViewPortPresenter::canNavigateChanged),
+        _canZoomInCache(*this, &ViewPortPresenter::canZoomIn_p, &ViewPortPresenter::canZoomInChanged),
+        _canZoomOutCache(*this, &ViewPortPresenter::canZoomOut_p, &ViewPortPresenter::canZoomOutChanged),
+        _transformCache(*this, &ViewPortPresenter::getTransforms_p),
+        _scrollStateCache(*this, &ViewPortPresenter::getScrollState_p),
+        _initHelper(this)
+    {
+        _canNavigateCache.onChange({
+            [this](){ _canZoomInCache.recalculate(); }, //_BIND(_canZoomInCache, recalculate),
+            [this](){ _canZoomOutCache.recalculate(); }//_BIND(_canZoomOutCache, recalculate)
+        });
+        _transformCache.onChange({
+            [this](){ _scrollStateCache.recalculate(); }, //_BIND(_scrollStateCache, recalculate),
+            [this](){ emit transformsChanged(); }
+        });
+        _scrollStateCache.onChange({
+            [this](){ emit scrollStateChanged(); }
+        });
     }
     virtual ~ViewPortPresenter() = default;
 
@@ -30,30 +134,37 @@ public:
     IViewPort* getViewPort();
     IDocumentPresenter* getDocumentPresenter() { _initHelper.assertInitialized(); return _documentPresenter; }
 
+public:
+    bool canNavigate() { _initHelper.assertInitialized(); return _canNavigateCache.getValue(); }
+
+signals:
+    void canNavigateChanged(bool);
+
+private:
+    bool canNavigate_p();
+
     // # Scrolling / positioning
 public:
     QPointF getPosition() { _initHelper.assertInitialized(); return _position; }
+    const IScrollState& getScrollState() { _initHelper.assertInitialized(); return _scrollStateCache.getValue(); }
+
+public slots:
     void setPosition(QPointF center);
-    
-    bool canScroll();
-    QRect getScrollRect();
-    void scrollX(int x) { setScrollPosition(QPoint(x, 0)); }
-    void scrollY(int y) { setScrollPosition(QPoint(0, y)); }
-    void setScrollPosition(QPoint position);
+    void scrollX(int x);
+    void scrollY(int y);
 
     void gripPan(QPointF start, QPointF end);
 
-private:
-    QPoint getScrollPosition(QPointF position);
-    QPoint projectOntoScrollRect(QPoint scrollPosition);
 signals:
     void positionChanged(QPointF position);
     void scrollStateChanged();
 
+private:
+    ScrollState getScrollState_p();
+
 public:
-    bool canZoom();
-    bool canZoomIn() { _initHelper.assertInitialized(); return canZoom() && _zoomPreset != MAX_ZOOM_PRESET; }
-    bool canZoomOut() { _initHelper.assertInitialized(); return canZoom() && _zoomPreset != MIN_ZOOM_PRESET; }
+    bool canZoomIn() { _initHelper.assertInitialized(); return _canZoomInCache.getValue(); }
+    bool canZoomOut() { _initHelper.assertInitialized(); return _canZoomOutCache.getValue(); }
 
     double getZoom() { _initHelper.assertInitialized(); return _zoom; }
     void setZoom(double zoom);
@@ -73,9 +184,17 @@ public slots:
 
 signals:
     void zoomChanged(double zoom);
+    void canZoomInChanged(bool canZoomIn);
+    void canZoomOutChanged(bool canZoomOut);
 
 private:
     double constrainZoom(double zoom);
+    void setZoom_p(double zoom);
+
+    bool canZoomIn_p() { return canNavigate() && _zoom <= getMaxZoomPresetValue() && _zoomPreset != MAX_ZOOM_PRESET; }
+    bool canZoomOut_p() { return canNavigate() && _zoom >= getMinZoomPresetValue() && _zoomPreset != MIN_ZOOM_PRESET; }
+
+    void propagateCanNavigate();
 
 public:
     double getRotation() { _initHelper.assertInitialized(); return _rotation; }
@@ -97,8 +216,8 @@ public:
 
     void gripPivot(QPointF gripStart, QPointF gripEnd);
 
-    QTransform getOntoCanvasTransform() { _initHelper.assertInitialized(); return _ontoCanvas; }
-    QTransform getFromCanvasTransform() { _initHelper.assertInitialized(); return _fromCanvas; }
+    QTransform getOntoCanvasTransform() { _initHelper.assertInitialized(); return _transformCache.getValue().ontoCanvas; }
+    QTransform getFromCanvasTransform() { _initHelper.assertInitialized(); return _transformCache.getValue().fromCanvas; }
 
 //    void gripMove(QPoint gripStart, QPoint gripEnd);
 //    void nudgeMove(int dx, int dy);
@@ -118,6 +237,9 @@ public slots:
 
 signals:
     void transformsChanged();
+
+private slots:
+    void onDocumentChanged();
     
 private:
     IViewPort* _viewPort = nullptr;
@@ -134,6 +256,10 @@ private:
 
     ZoomPreset _zoomPreset;
 
+    PropertyCache<ViewPortPresenter, bool> _canNavigateCache;
+    PropertyCache<ViewPortPresenter, bool> _canZoomInCache;
+    PropertyCache<ViewPortPresenter, bool> _canZoomOutCache;
+
     //The rotation of the viewport in degrees
     double _rotation = 0.0;
 
@@ -144,13 +270,11 @@ private:
     //The center of the viewport in the canvas' coordinates.
     QPointF _position;
 
-    //The transform that maps viewport coordinates onto the canvas' coordinates.
-    QTransform _ontoCanvas;
+    PropertyCache<ViewPortPresenter, TransformPair> _transformCache;
 
-    //The transform that maps canvas coordinates onto the viewport's coordinates.
-    QTransform _fromCanvas;
+    PropertyCache<ViewPortPresenter, ScrollState> _scrollStateCache;
 
-    void calculateTransforms();
+    TransformPair getTransforms_p();
 
     void centerView();
     const double ZOOM_SNAP_THRESHOLD = 0.10;

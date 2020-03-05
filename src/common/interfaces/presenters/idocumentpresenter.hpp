@@ -13,6 +13,7 @@
 #include "interfaces/views/icanvasview.hpp"
 
 #include "interfaces/traits/qobject_trait.hpp"
+#include "interfaces/traits/metaobjectinfo.hpp"
 
 class ILayerPresenter;
 class IViewPortPresenter;
@@ -23,6 +24,8 @@ class IDocumentPresenter
     public virtual IPropertyDecoratedPresenter
 {
 public:
+    INTERFACE_META(IDocumentPresenter)
+
     virtual ~IDocumentPresenter() = default;
 
 
@@ -46,8 +49,13 @@ public slots:
 
 signals:
     virtual void documentChanged(QSharedPointer<IDocument> document) = 0;
-
 };
+
+DECL_INTERFACE_META_PROPERTIES(
+    IDocumentPresenter,
+    DECL_INTERFACE_PROPERTY(currentTool)
+    DECL_INTERFACE_PROPERTY(empty)
+)
 
 DECL_IMPLEMENTED_AS_QOBJECT(IDocumentPresenter)
 

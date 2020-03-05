@@ -1,7 +1,8 @@
 #ifndef BRUSHTOOLOPTIONSBAR_HPP
 #define BRUSHTOOLOPTIONSBAR_HPP
 
-#include "../propertyactiongroup.hpp"
+#include "widgetsgui/utilities/optionaction.hpp"
+#include "widgetsgui/utilities/optiongroup.hpp"
 #include "interfaces/presenters/assets/ibrushpresenter.hpp"
 #include "interfaces/presenters/toolpresenters/ibrushtoolpresenter.hpp"
 #include "tooloptionbarbase.hpp"
@@ -13,13 +14,13 @@ class BrushToolOptionsBar : public ToolOptionBarBase
 public: 
     BrushToolOptionsBar(IBrushToolPresenter& presenter, QMainWindow* parent);
 
-    QAction* _action_brush_basic;
+    OptionAction* _action_brush_basic;
     //QAction* _action_brush_aliasedCircle;
     //QAction* _action_brush_square;
-    PropertyActionGroup* _actionGroup_brush;
+    OptionGroup* _optionGroup_brush;
 
-    QAction* _brush_size;
-    PropertyActionGroup* _actionGroup_size;
+    //QAction* _brush_size;
+    //OptionGroup* _optionGroup_size;
 
 private:
     IBrushToolPresenter& _presenter;

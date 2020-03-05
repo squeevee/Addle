@@ -1,5 +1,5 @@
-#ifndef VIEWPORTWIDGET_HPP
-#define VIEWPORTWIDGET_HPP
+#ifndef VIEWPORTSCROLLWIDGET_HPP
+#define VIEWPORTSCROLLWIDGET_HPP
 
 #include <QWidget>
 #include <QGridLayout>
@@ -9,20 +9,19 @@
 #include "interfaces/views/iviewport.hpp"
 #include "interfaces/presenters/iviewportpresenter.hpp"
 
-class ViewPortWidget : public QWidget
+class ViewPortScrollWidget : public QWidget
 {
     Q_OBJECT
 public:
-    ViewPortWidget(IViewPortPresenter& presenter, QWidget* parent = nullptr);
-    virtual ~ViewPortWidget() = default;
+    ViewPortScrollWidget(IViewPortPresenter& presenter, QWidget* parent = nullptr);
+    virtual ~ViewPortScrollWidget() = default;
 
     IViewPort* getViewPort() { return _presenter.getViewPort(); }
 
-public slots:
-    void updateScrollBars();
+    QSize sizeHint() const { return QSize(640, 480); }
 
 private slots: 
-    void onPresenterScrollStateChanged();
+    void onScrollStateChanged();
 
 private:
     IViewPortPresenter& _presenter;
@@ -33,4 +32,4 @@ private:
     QScrollBar* _scrollbar_vertical;
 };
 
-#endif // VIEWPORTWIDGET_HPP
+#endif // VIEWPORTSCROLLWIDGET_HPP

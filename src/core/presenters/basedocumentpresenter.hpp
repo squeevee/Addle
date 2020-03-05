@@ -11,22 +11,28 @@
 #include "interfaces/presenters/idocumentpresenter.hpp"
 //#include "interfaces/presenters/itoolpresenter.hpp"
 
+#include "utilities/propertycache.hpp"
+
 #include "helpers/propertydecorationhelper.hpp"
 
 class BaseDocumentPresenter : public QObject, public virtual IDocumentPresenter
 {
     Q_OBJECT
-
     Q_PROPERTY(
         ToolId currentTool 
         READ getCurrentTool 
         WRITE setCurrentTool
         NOTIFY currentToolChanged
     )
-
+    Q_PROPERTY(
+        bool empty
+        READ isEmpty
+        NOTIFY isEmptyChanged
+    )
 public:
     BaseDocumentPresenter()
-        : _propertyDecorationHelper(this)
+        : _isEmptyCache(*this, &BaseDocumentPresenter::isEmpty_p, &BaseDocumentPresenter::isEmptyChanged),
+        _propertyDecorationHelper(this)
     {
     }
     virtual ~BaseDocumentPresenter();
@@ -45,7 +51,7 @@ public:
     IToolPresenter* getCurrentToolPresenter() { return _currentToolPresenter; }
 
 
-    bool isEmpty() { return !_document; }
+    bool isEmpty() { return _isEmptyCache.getValue(); }
     QSize getCanvasSize() { return _document ? _document->getSize() : QSize(); }
     QColor getBackgroundColor() { return _document ? _document->getBackgroundColor() : IDocument::DEFAULT_BACKGROUND_COLOR; }
 
@@ -60,6 +66,8 @@ signals:
     void raiseError(QSharedPointer<IErrorPresenter> error);
     void documentChanged(QSharedPointer<IDocument> document);
     void currentToolChanged(ToolId tool);
+
+    void isEmptyChanged(bool);
 
 public slots:
     void loadDocument(QFileInfo fileInfo);
@@ -86,6 +94,10 @@ protected:
     PropertyDecorationHelper _propertyDecorationHelper;
 
 private:
+    bool isEmpty_p();
+
+    PropertyCache<BaseDocumentPresenter, bool> _isEmptyCache;
+
     IViewPortPresenter* _viewPortPresenter = nullptr;
     ICanvasView* _canvasView = nullptr;
 };

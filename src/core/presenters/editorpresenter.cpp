@@ -30,8 +30,8 @@ EditorPresenter::EditorPresenter()
     };
 
     _propertyDecorationHelper.setIconPool({
-        { QVariant::fromValue(DefaultTools::BRUSH), QIcon(":/icons/brush.png") },
-        { QVariant::fromValue(DefaultTools::NAVIGATE), QIcon(":/icons/navigate.png") }
+        { DefaultTools::BRUSH, QIcon(":/icons/brush.png") },
+        { DefaultTools::NAVIGATE, QIcon(":/icons/navigate.png") }
     });
 
     _propertyDecorationHelper.initializeIdProperty<ToolId>(

@@ -3,7 +3,8 @@
 
 #include <QActionGroup>
 
-#include "../propertyactiongroup.hpp"
+#include "widgetsgui/utilities/optionaction.hpp"
+#include "widgetsgui/utilities/optiongroup.hpp"
 #include "interfaces/presenters/toolpresenters/inavigatetoolpresenter.hpp"
 #include "tooloptionbarbase.hpp"
 
@@ -14,11 +15,11 @@ class NavigateToolOptionsBar : public ToolOptionBarBase
 public: 
     NavigateToolOptionsBar(INavigateToolPresenter& presenter, QMainWindow* parent);
 
-    QAction* _action_navigateOperation_gripPan;
-    QAction* _action_navigateOperation_gripPivot;
-    QAction* _action_navigateOperation_rectangleZoomTo;
+    OptionAction* _action_navigateOperation_gripPan;
+    OptionAction* _action_navigateOperation_gripPivot;
+    OptionAction* _action_navigateOperation_rectangleZoomTo;
 
-    PropertyActionGroup* _actionGroup_navigateOperation;
+    OptionGroup* _optionGroup_navigateOperation;
 
 private:
     INavigateToolPresenter& _presenter;

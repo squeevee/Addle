@@ -4,6 +4,9 @@
 #include "utilities/qt_extensions/qobject.hpp"
 #include "interfaces/presenters/toolpresenters/itoolpresenter.hpp"
 
+#include "widgetsgui/utilities/decorationhelper.hpp"
+#include "helpers/setuptoolshelper.hpp"
+
 void EditorView::initialize(IEditorPresenter* presenter)
 {
     _initHelper.initializeBegin();
@@ -35,6 +38,7 @@ void EditorView::setupUi()
     _toolBar_documentActions->addAction(_action_undo);
     _toolBar_documentActions->addAction(_action_redo);
 
+    SetupToolsHelper setupToolsHelper(*this, *_presenter);
 
     // addTool(
     //     IEditorPresenter::DefaultTools::SELECT,
@@ -50,7 +54,7 @@ void EditorView::setupUi()
 
     _toolBar_toolSelection->addSeparator();
 
-    addTool(
+    setupToolsHelper.addTool(
         IEditorPresenter::DefaultTools::BRUSH,
         &_action_selectBrushTool,
         &_optionsToolBar_brush,
@@ -135,7 +139,7 @@ void EditorView::setupUi()
 
     _toolBar_toolSelection->addAction(new QAction(QIcon(":/icons/eyedrop.png"), "", this));
 
-    addTool(
+    setupToolsHelper.addTool(
         IEditorPresenter::DefaultTools::NAVIGATE,
         &_action_selectNavigateTool,
         &_optionsToolBar_navigate,

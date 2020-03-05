@@ -6,11 +6,13 @@
 #include <QToolButton>
 #include <QDoubleSpinBox>
 
+#include <QToolBar>
+
 #include "interfaces/presenters/iviewportpresenter.hpp"
 #include "zoomslider.hpp"
 
 class ViewPortWidget;
-class ZoomRotateWidget : public QWidget 
+class ZoomRotateWidget : public QToolBar //QWidget 
 {
     Q_OBJECT
 public:
@@ -24,15 +26,6 @@ public:
     QAction* getAction_turntableCW() { return _action_turntableCW; }
     QAction* getAction_turntableCCW() { return _action_turntableCCW; }
     QAction* getAction_reset() { return _action_reset; }
-
-public slots:
-    void updateZoom();
-    void updateRotate();
-    void updateChildren() { updateZoom(); updateRotate(); }
-
-private slots: 
-    void onPresenterZoomChanged();
-    void onPresenterRotationChanged();
 
 private:
     IViewPortPresenter& _presenter;

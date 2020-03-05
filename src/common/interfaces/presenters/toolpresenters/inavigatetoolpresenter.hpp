@@ -11,10 +11,13 @@
 #include "interfaces/traits/makeable_trait.hpp"
 #include "interfaces/presenters/iviewportpresenter.hpp"
 
+#include "interfaces/traits/metaobjectinfo.hpp"
+
 class INavigateToolPresenter : public virtual IToolPresenter
 {
     Q_GADGET
 public:
+    INTERFACE_META(INavigateToolPresenter)
 
     static const ToolId NAVIGATE_TOOL_ID;
 
@@ -39,6 +42,11 @@ public slots:
 signals:
     virtual void navigateOperationChanged(NavigateOperationOptions operation) = 0;
 };
+
+DECL_INTERFACE_META_PROPERTIES(
+    INavigateToolPresenter,
+    DECL_INTERFACE_PROPERTY(navigateOperation)
+)
 
 DECL_MAKEABLE(INavigateToolPresenter)
 DECL_EXPECTS_INITIALIZE(INavigateToolPresenter)

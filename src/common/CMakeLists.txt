@@ -8,6 +8,7 @@ add_library( common SHARED
     exceptions/baseaddleexception.cpp
     utilities/debugging.cpp
     utilities/indexvariant.cpp
+    utilities/propertybinding.cpp
     utilities/propertyobserver.cpp
     utilities/typeinforef.cpp
     utilities/unhandledexceptionrouter.cpp

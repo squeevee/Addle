@@ -30,13 +30,7 @@ public:
     NavigateOperationOptions getNavigateOperation() { _initHelper.assertInitialized(); return _operation; }
 
 public slots:
-    void setNavigateOperation(NavigateOperationOptions operation)
-    {
-        _initHelper.assertInitialized();
-        _operation = operation;
-        emit navigateOperationChanged(_operation);
-    }
-
+    void setNavigateOperation(NavigateOperationOptions operation);
 signals:
     void navigateOperationChanged(NavigateOperationOptions operation);
 

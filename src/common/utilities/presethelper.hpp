@@ -71,7 +71,7 @@ public:
     {
     }
 
-    PresetType nearest(ValueType value, ValueType threshold) const
+    PresetType nearest(ValueType value, ValueType threshold = 0) const
     {
         auto iter = _presets_byValue.upper_bound(value);
         auto upper = *iter;

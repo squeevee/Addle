@@ -1,5 +1,8 @@
 #include "zoomslider.hpp"
 
+#include <QStyle>
+#include <QPainter>
+
 #include <cmath>
 
 ZoomSlider::ZoomSlider(QWidget* parent)
@@ -7,6 +10,8 @@ ZoomSlider::ZoomSlider(QWidget* parent)
 {
     setMinimum(0);
     setMaximum(ZOOM_SLIDER_VALUE_SPAN);
+
+    connect(this, &QAbstractSlider::valueChanged, this, [this](int value) { emit zoomChanged(getZoom()); });
 }
 
 ZoomSlider::~ZoomSlider()
@@ -24,7 +29,6 @@ void ZoomSlider::setMinZoom(double min)
     _minZoom = min;
     update();
 }
-
 
 int ZoomSlider::mapZoomToValue(double zoom)
 {

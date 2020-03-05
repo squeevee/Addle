@@ -4,18 +4,18 @@ set ( CMAKE_AUTOMOC ON )
 
 set (
     SOURCES
-    widgets/propertyactiongroup.cpp
-    widgets/tooloptionsbars/brushtooloptionsbar.cpp
-    widgets/tooloptionsbars/navigatetooloptionsbar.cpp
-    widgets/tooloptionsbars/tooloptionbarbase.cpp
-    widgets/viewportwidget.cpp
-    widgets/zoomrotatewidget.cpp
-    widgets/zoomslider.cpp
+    utilities/optiongroup.cpp
     views/canvasview.cpp
     views/basedocumentview.cpp
     views/editorview.cpp
     views/layerview.cpp
     views/viewport.cpp
+    widgets/tooloptionsbars/brushtooloptionsbar.cpp
+    widgets/tooloptionsbars/navigatetooloptionsbar.cpp
+    widgets/tooloptionsbars/tooloptionbarbase.cpp
+    widgets/viewportscrollwidget.cpp
+    widgets/zoomrotatewidget.cpp
+    widgets/zoomslider.cpp
 )
 
 add_library(widgetsgui SHARED ${SOURCES})

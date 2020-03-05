@@ -11,10 +11,15 @@
 #include "interfaces/traits/initialize_traits.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 
+#include "interfaces/traits/metaobjectinfo.hpp"
+
+#include "iscrollstate.hpp"
+
 class IViewPort;
 class IViewPortPresenter
 {
 public:
+    INTERFACE_META(IViewPortPresenter)
 
     enum ZoomPreset {
         nullzoom,
@@ -60,16 +65,21 @@ public:
     virtual IViewPort* getViewPort() = 0;
     virtual IDocumentPresenter* getDocumentPresenter() = 0;
 
+public:
+    virtual bool canNavigate() = 0;
+
+signals:
+    virtual void canNavigateChanged(bool) = 0;
+
     // # Scrolling / positioning
 public:
     virtual QPointF getPosition() = 0;
-    virtual void setPosition(QPointF center) = 0;
+    virtual const IScrollState& getScrollState() = 0;
 
-    virtual bool canScroll() = 0;
-    virtual QRect getScrollRect() = 0;
+public slots:
+    virtual void setPosition(QPointF center) = 0;
     virtual void scrollX(int x) = 0;
     virtual void scrollY(int y) = 0;
-    virtual void setScrollPosition(QPoint position) = 0;
 
     virtual void gripPan(QPointF start, QPointF end) = 0;
 
@@ -79,7 +89,6 @@ signals:
 
     // # Zooming
 public:
-    virtual bool canZoom() = 0;
     virtual bool canZoomIn() = 0;
     virtual bool canZoomOut() = 0;
 
@@ -99,12 +108,12 @@ public slots:
     virtual ZoomPreset zoomOut(bool* zoomed = nullptr) = 0;
 
 signals:
-    virtual void zoomChanged(double zoom) = 0;
+    virtual void zoomChanged(double) = 0;
 
     // # Rotation
 public:
     virtual double getRotation() = 0;
-    virtual void setRotation(double rotation) = 0;
+    virtual void setRotation(double) = 0;
 
 
 public slots:
@@ -112,7 +121,7 @@ public slots:
     virtual RotatePreset turntableCw(bool* rotated = nullptr) = 0;
 
 signals:
-    virtual void rotationChanged(double rotation) = 0;
+    virtual void rotationChanged(double) = 0;
 
     // # General transforming
 public:
@@ -136,6 +145,14 @@ public slots:
 signals:
     virtual void transformsChanged() = 0;
 };
+
+DECL_INTERFACE_META_PROPERTIES(
+    IViewPortPresenter,
+    DECL_INTERFACE_PROPERTY(canNavigate)
+    DECL_INTERFACE_PROPERTY(canZoomIn)
+    DECL_INTERFACE_PROPERTY(canZoomOut)
+    DECL_INTERFACE_PROPERTY(zoom)
+);
 
 DECL_MAKEABLE(IViewPortPresenter)
 DECL_EXPECTS_INITIALIZE(IViewPortPresenter)

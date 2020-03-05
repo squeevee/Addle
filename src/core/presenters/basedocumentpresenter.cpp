@@ -62,6 +62,8 @@ void BaseDocumentPresenter::setDocument(QSharedPointer<IDocument> document)
         _layerPresenters.append(ServiceLocator::make<ILayerPresenter>(this, layer));
     }
 
+    _isEmptyCache.recalculate();
+
     emit documentChanged(_document);
     getViewPortPresenter()->resetView();
 }
@@ -142,4 +144,9 @@ void BaseDocumentPresenter::setCurrentTool(ToolId tool)
     emit _currentToolPresenter->selectionChanged(true);
     if (previousTool)
         emit previousTool->selectionChanged(false);
+}
+
+bool BaseDocumentPresenter::isEmpty_p()
+{
+    return !_document;
 }

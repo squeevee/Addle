@@ -51,7 +51,7 @@ private:
     ISelectToolPresenter* _toolPresenter_select;
     QToolBar* _optionsToolBar_select;
 
-    QAction* _action_selectBrushTool;
+    OptionAction* _action_selectBrushTool;
     IBrushToolPresenter* _toolPresenter_brush;
     BrushToolOptionsBar* _optionsToolBar_brush;
 
@@ -79,7 +79,7 @@ private:
     IEyedropToolPresenter* _toolPresenter_eyedrop;
     QToolBar* _optionsToolBar_eyedrop;
 
-    QAction* _action_selectNavigateTool;
+    OptionAction* _action_selectNavigateTool;
     INavigateToolPresenter* _toolPresenter_navigate;
     NavigateToolOptionsBar* _optionsToolBar_navigate;
 

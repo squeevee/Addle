@@ -5,22 +5,45 @@
 #include <cmath>
 
 #include "utilities/qt_extensions/qobject.hpp"
+#include "utilities/propertybinding.hpp"
+#include "widgetsgui/utilities/widgetproperties.hpp"
 
 ZoomRotateWidget::ZoomRotateWidget(IViewPortPresenter& presenter, QWidget* parent)
-    : QWidget(parent),
+    : QToolBar(parent),
     _presenter(presenter)
 {
+    new PropertyBinding(
+        this,
+        WidgetProperties::enabled,
+        qobject_interface_cast(&_presenter),
+        IViewPortPresenter::Meta::Properties::canNavigate
+    );
+
     _button_zoomIn = new QToolButton(this);
     _action_zoomIn = new QAction(this);
     _action_zoomIn->setIcon(QIcon(":/icons/zoom_in.png"));
     _button_zoomIn->setDefaultAction(_action_zoomIn);
     connect_interface(_action_zoomIn, SIGNAL(triggered()), &_presenter, SLOT(zoomIn()));
+    new PropertyBinding(
+        _action_zoomIn,
+        WidgetProperties::enabled,
+        qobject_interface_cast(&_presenter), 
+        IViewPortPresenter::Meta::Properties::canZoomIn,
+        PropertyBinding::ReadOnly
+    );
 
     _button_zoomOut = new QToolButton(this);
     _action_zoomOut = new QAction(this);
     _action_zoomOut->setIcon(QIcon(":/icons/zoom_out.png"));
     _button_zoomOut->setDefaultAction(_action_zoomOut);
     connect_interface(_action_zoomOut, SIGNAL(triggered()), &_presenter, SLOT(zoomOut()));
+    new PropertyBinding(
+        _action_zoomOut,
+        WidgetProperties::enabled,
+        qobject_interface_cast(&_presenter), 
+        IViewPortPresenter::Meta::Properties::canZoomOut,
+        PropertyBinding::ReadOnly
+    );
 
     _button_turntableCW = new QToolButton(this);
     _action_turntableCW = new QAction(this);
@@ -47,83 +70,43 @@ ZoomRotateWidget::ZoomRotateWidget(IViewPortPresenter& presenter, QWidget* paren
     _slider_zoom->setMinimumSize(QSize(150, 0));
     _slider_zoom->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
+    new PropertyBinding(
+        _slider_zoom,
+        IViewPortPresenter::Meta::Properties::zoom,
+        qobject_interface_cast(&_presenter),
+        ZoomSlider::ZOOM_PROPERTY_NAME
+    );
+
     _spinBox_zoomPercent = new QDoubleSpinBox(this);
     _spinBox_zoomPercent->setMinimum(_presenter.getMinZoomPresetValue() * 100);
     _spinBox_zoomPercent->setMaximum(_presenter.getMaxZoomPresetValue() * 100);
+    _spinBox_zoomPercent->setSingleStep(5.0);
 
-    QHBoxLayout* layout = new QHBoxLayout(this);
-    QWidget::setLayout(layout);
-
-    layout->addWidget(_button_turntableCCW);
-    layout->addWidget(_button_zoomOut);
-    layout->addWidget(_slider_zoom);
-    layout->addWidget(_spinBox_zoomPercent);
-    layout->addWidget(_button_zoomIn);
-    layout->addWidget(_button_turntableCW);
-    layout->addWidget(_button_reset);
-
-    connect_interface(&_presenter, SIGNAL(zoomChanged(double)), this, SLOT(onPresenterZoomChanged()));
-    connect_interface(&_presenter, SIGNAL(rotationChanged(double)), this, SLOT(onPresenterRotationChanged()));
-    connect(
+    new PropertyBinding(
         _spinBox_zoomPercent,
-        static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
-        [&](double value) {
-            double zoom = value / 100;
-            _presenter.zoomTo(zoom, false);
-        }
-    );
-    connect(
-        _slider_zoom,
-        &QSlider::valueChanged,
-        [&](int value)
-        {
-            double zoom = _slider_zoom->getZoomLevel();
-            _presenter.zoomTo(zoom);
-        }
+        WidgetProperties::value,
+        qobject_interface_cast(&_presenter),
+        IViewPortPresenter::Meta::Properties::zoom,
+        PropertyBinding::ReadWrite,
+        BindingConverter::scale(100)
     );
 
-    updateChildren();
-}
+    // QHBoxLayout* layout = new QHBoxLayout(this);
+    // QWidget::setLayout(layout);
 
-void ZoomRotateWidget::updateZoom()
-{    
-    const QSignalBlocker block_slider_zoom(_slider_zoom);
-    const QSignalBlocker block_zoom_percent(_spinBox_zoomPercent);
+    // layout->addWidget(_button_turntableCCW);
+    // layout->addWidget(_button_zoomOut);
+    // layout->addWidget(_slider_zoom);
+    // layout->addWidget(_spinBox_zoomPercent);
+    // layout->addWidget(_button_zoomIn);
+    // layout->addWidget(_button_turntableCW);
+    // layout->addWidget(_button_reset);
 
-    if (_presenter.canZoom())
-    {
-        double zoom = _presenter.getZoom();
-
-        _slider_zoom->setEnabled(true);
-        _slider_zoom->setZoomLevel(zoom);
-        _spinBox_zoomPercent->setEnabled(true);
-        _spinBox_zoomPercent->setValue(zoom * 100);
-
-        _button_zoomIn->setEnabled(_presenter.canZoomIn());
-        _button_zoomOut->setEnabled(_presenter.canZoomOut());
-    }
-    else
-    {
-        _slider_zoom->setEnabled(false);
-        _slider_zoom->setZoomLevel(1);
-        _spinBox_zoomPercent->setEnabled(false);
-        _spinBox_zoomPercent->setValue(100);
-        _button_zoomIn->setEnabled(false);
-        _button_zoomOut->setEnabled(false);
-    }
-}
-
-void ZoomRotateWidget::updateRotate()
-{
-
-}
-
-void ZoomRotateWidget::onPresenterZoomChanged()
-{
-    updateZoom();
-}
-
-void ZoomRotateWidget::onPresenterRotationChanged()
-{
-    updateRotate();
+    addWidget(_button_turntableCCW);
+    addWidget(_button_zoomOut);
+    addWidget(_slider_zoom);
+    addWidget(_spinBox_zoomPercent);
+    addWidget(_button_zoomIn);
+    addWidget(_button_turntableCW);
+    addWidget(_button_reset);
 }

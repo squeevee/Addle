@@ -16,14 +16,23 @@
 #include "../assets/ibrushpresenter.hpp"
 #include "idtypes/brushid.hpp"
 
+#include "interfaces/traits/metaobjectinfo.hpp"
+
 class IBrushLikeToolPresenter : public virtual IToolPresenter, public virtual IToolWithAssetsPresenter
 {
 public:
+    INTERFACE_META(IBrushLikeToolPresenter)
+
     virtual ~IBrushLikeToolPresenter() = default;
 
     virtual BrushId getSelectedBrush() = 0;
     virtual QSharedPointer<IBrushPresenter> getSelectedBrushPresenter() = 0;
 };
+
+DECL_INTERFACE_META_PROPERTIES(
+    IBrushLikeToolPresenter,
+    DECL_INTERFACE_PROPERTY(brush)
+)
 
 DECL_IMPLEMENTED_AS_QOBJECT(IBrushLikeToolPresenter)
 

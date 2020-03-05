@@ -13,6 +13,13 @@ void NavigateToolPresenter::initialize(IDocumentPresenter* owner)
     _initHelper.initializeEnd();
 }
 
+void NavigateToolPresenter::setNavigateOperation(NavigateToolPresenter::NavigateOperationOptions operation)
+{
+    _initHelper.assertInitialized();
+    _operation = operation;
+    emit navigateOperationChanged(_operation);
+}
+
 
 void NavigateToolPresenter::onPointerEngage()
 {

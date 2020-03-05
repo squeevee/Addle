@@ -91,8 +91,13 @@ public:
                 .arg(QString::fromLatin1(q_propertyName))
                 .arg(value.getKey());
 
-            IndexVariant v_index(QVariant::fromValue(value));
-            optionDecorations.append(v_index, OptionDecoration(_iconPool.value(v_index), optionText, optionToolTip));
+            IndexVariant v_index = IndexVariant::fromValue(value);
+            optionDecorations.append(
+                v_index,
+                OptionDecoration(
+                    _iconPool.value(v_index),
+                    optionText, optionToolTip
+                ));
         }
 
         if (text.isNull())

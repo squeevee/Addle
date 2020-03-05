@@ -1,9 +1,7 @@
 #ifndef DEBUGGING_HPP
 #define DEBUGGING_HPP
 
-#ifndef ADDLE_DEBUG
-#error "You should only include this file for debug builds."
-#endif
+#ifdef ADDLE_DEBUG
 
 #include <QFlags>
 #include "globalconstants.hpp"
@@ -11,17 +9,9 @@
 
 void debugMessageHandler(QtMsgType type, const QMessageLogContext& context, const QString& message);
 
-// By default, Addle should contain and handle exceptions quietly, recovering
-// where possible, using the UI to notify the user of errors, and not allowing
-// exceptions to propagate to Qt or the system.
-//
-// This can, however, make debugging more of a challenge, especially when
-// threading and asynchronous events are involved. The environment variable
-// ADDLE_DEBUG_BEHAVIOR can be set to an (base 10) int representing a
-// combination of these flags, which will cause an abort() signal at critical
-// moments, presumably to be caught by the debugger with the stack intact. 
-//
-// It should go without saying, this does nothing to production builds.
+// Modify various error handling and other debug-related behaviors
+// The environment variable `ADDLE_DEBUG_BEHAVIOR` can be set to an (base 10)
+// int representing a combination of these flags
 class DebugBehavior
 {
 public:
@@ -39,7 +29,7 @@ public:
 
         //Abort whenever an "error-ish" Qt message is logged.
         //not advisable due to QXcbConnection errors
-        //maybe see some other way to break on invalid QObject::connect calls
+        //TODO: maybe see some other way to break on invalid QObject::connect calls
         abort_on_errorish_qtlog = 0x40,
 
         //Abort any time a logic error is thrown
@@ -82,4 +72,5 @@ const char* getQObjectClassName(Interface* object)
     }
 }
 
+#endif // ADDLE_DEBUG
 #endif // DEBUGGING_HPP
