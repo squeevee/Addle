@@ -1,6 +1,6 @@
 #include "layerpresenter.hpp"
 #include "servicelocator.hpp"
-#include "interfaces/views/ilayerview.hpp"
+#include "interfaces/editing/surfaces/irastersurface.hpp"
 
 #include "utilities/qt_extensions/qobject.hpp"
 
@@ -14,25 +14,14 @@ void LayerPresenter::initialize(IDocumentPresenter* documentPresenter, QWeakPoin
     auto s_model = _model.toStrongRef();
 
     connect_interface(
-        s_model.data(),
-        SIGNAL(renderChanged(QRect)),
+        s_model->getRasterSurface(),
+        SIGNAL(changed(QRect)),
         this,
-        SLOT(onModelRenderChanged(QRect)),
+        SLOT(onRasterChanged(QRect)),
         Qt::QueuedConnection
     );
 
     _initHelper.initializeEnd();
-}
-
-
-ILayerView* LayerPresenter::getView()
-{
-    _initHelper.assertInitialized();
-    if (!_view)
-    {
-        _view = ServiceLocator::make<ILayerView>(this);
-    }
-    return _view;
 }
 
 void LayerPresenter::render(QPainter& painter, QRect area)
@@ -41,17 +30,12 @@ void LayerPresenter::render(QPainter& painter, QRect area)
         return;
 
     auto s_model = _model.toStrongRef();
-    auto s_rasterOperation = _rasterOperation.toStrongRef();
+    //assert s_model
 
-    s_model->render(painter, area);
-
-    if (_rasterOperation)
-    {
-        s_rasterOperation->render(painter, area);
-    }
+    s_model->getRasterSurface()->render(painter, area);
 }
 
-void LayerPresenter::onModelRenderChanged(QRect area)
+void LayerPresenter::onRasterChanged(QRect area)
 {
     emit renderChanged(area);
 }

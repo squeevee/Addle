@@ -76,7 +76,7 @@ void ExpandingBuffer::clear()
 }
 
 
-BufferPainter ExpandingBuffer::createBufferPainter(QRect paintArea, IHaveBufferPainter* owner)
+BufferPainter ExpandingBuffer::makeBufferPainter(QRect paintArea)
 {
-    return BufferPainter(image, owner, paintArea, _region.topLeft());
+    return BufferPainter(image, paintArea, _region.topLeft());
 }

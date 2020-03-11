@@ -9,13 +9,13 @@
 
 #include "interfaces/models/ilayer.hpp"
 
-#include "interfaces/editing/irasteroperation.hpp"
+#include "interfaces/editing/operations/irasteroperation.hpp"
 
 #include <QWeakPointer>
 #include <QPainter>
 #include <QRectF>
 
-class ILayerView;
+class IRasterSurface;
 class ILayerPresenter
 {
 public:
@@ -24,15 +24,10 @@ public:
     virtual void initialize(IDocumentPresenter* documentPresenter, QWeakPointer<ILayer> layer) = 0;
     virtual IDocumentPresenter* getDocumentPresenter() = 0;
 
-    virtual ILayerView* getView() = 0;
-
     virtual QWeakPointer<ILayer> getModel() = 0;
 
-    virtual QRect getCanvasBounds() = 0;
+    //virtual QRect getCanvasBounds() = 0;
     virtual void render(QPainter& painter, QRect area) = 0;
-
-    virtual void setRasterOperation(QWeakPointer<IRasterOperation> operation) = 0; //TODO: rename something like "pending"
-    virtual void unsetRasterOperation() = 0;
 
 signals: 
     virtual void renderChanged(QRect area) = 0;

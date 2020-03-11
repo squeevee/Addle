@@ -265,7 +265,7 @@ void ApplicationService::startGraphicalApplication()
 
     if (!_startingFilename.isNull())
     {
-        presenter->loadDocument(QFileInfo(_startingFilename));
+        presenter->loadDocument(QUrl::fromLocalFile(_startingFilename));
     }
     else if (!_startingUrl.isEmpty())
     {

@@ -19,7 +19,7 @@ class Layer : public QObject, public ILayer
 {
     Q_OBJECT
 public:
-    Layer() : _initHelper(this), _buffer(DEFAULT_BUFFER_MARGIN) { }
+    Layer() : _initHelper(this) { }
     virtual ~Layer() = default;
     
     void initialize();
@@ -27,37 +27,24 @@ public:
 
     bool isEmpty() { _initHelper.assertInitialized(); return _empty; }
 
-    //Area is relative to the Document
-    void render(QPainter& painter, QRect area);
-
     QRect getBoundary() { _initHelper.assertInitialized(); return _boundary; }
     QPoint getTopLeft() { _initHelper.assertInitialized(); return _boundary.topLeft(); }
     void setTopLeft(QPoint) { _initHelper.assertInitialized(); }
 
     QColor getSkirtColor() { _initHelper.assertInitialized(); return Qt::GlobalColor::transparent; }
 
-    BufferPainter getBufferPainter(QRect area);
-
-signals: 
-    void renderChanged(QRect area);
-
-protected:
-    void beforeBufferPainted(QRect region) { }
-    void afterBufferPainted(QRect region) { emit renderChanged(region); }
+    IRasterSurface* getRasterSurface() { return _rasterSurface; }
 
 private:
-    const int DEFAULT_BUFFER_MARGIN = 1024;
-
     QRect _boundary;
-
-    ExpandingBuffer _buffer;
 
     bool _empty;
 
     IDocument* _document;
 
-    InitializeHelper<Layer> _initHelper;
+    IRasterSurface* _rasterSurface;
 
+    InitializeHelper<Layer> _initHelper;
 };
 
 #endif // LAYER_HPP

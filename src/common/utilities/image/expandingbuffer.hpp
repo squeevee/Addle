@@ -5,7 +5,7 @@
 #include <QRect>
 #include <QTransform>
 
-#include "interfaces/editing/ihavebufferpainter.hpp"
+#include "interfaces/editing/icanpaintbuffer.hpp"
 #include "bufferpainter.hpp"
 
 class ExpandingBuffer
@@ -27,7 +27,7 @@ public:
 
     void clear();
 
-    BufferPainter createBufferPainter(QRect paintArea, IHaveBufferPainter* owner = nullptr);
+    BufferPainter makeBufferPainter(QRect paintArea);
 
     QImage image;
 

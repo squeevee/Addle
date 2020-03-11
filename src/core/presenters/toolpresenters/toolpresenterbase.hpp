@@ -7,7 +7,7 @@
 #include <QMetaEnum>
 #include <QStringBuilder>
 
-#include "../helpers/toolpathhelper.hpp"
+#include "../helpers/mousehelper.hpp"
 #include "../helpers/propertydecorationhelper.hpp"
 
 #include "interfaces/presenters/toolpresenters/itoolpresenter.hpp"
@@ -21,8 +21,8 @@ class ToolPresenterBase : public QObject, public virtual IToolPresenter
 {
     Q_OBJECT
 public:
-    ToolPresenterBase(ToolPathHelper::TrackingOptions pathTracking)
-        : _toolPathHelper(pathTracking), _propertyDecorationHelper(this)
+    ToolPresenterBase()
+        : _propertyDecorationHelper(this)
     {
     }
     virtual ~ToolPresenterBase() = default;
@@ -75,7 +75,6 @@ protected:
     virtual void onPointerDisengage() { }
 
     PropertyDecorationHelper _propertyDecorationHelper;
-    ToolPathHelper _toolPathHelper;
 
 private:
     InitializeHelper<ToolPresenterBase> _initHelper;

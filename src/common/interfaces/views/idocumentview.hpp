@@ -3,7 +3,7 @@
 
 #include "interfaces/presenters/idocumentpresenter.hpp"
 
-class IDocumentView // todo: misleading name? rename
+class IDocumentView
 {
 public:
     virtual ~IDocumentView() = default;

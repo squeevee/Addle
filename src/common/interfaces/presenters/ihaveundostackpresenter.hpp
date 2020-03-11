@@ -3,7 +3,7 @@
 
 #include <QSharedPointer>
 
-#include "interfaces/editing/iundoableoperation.hpp"
+#include "interfaces/editing/operations/iundoableoperation.hpp"
 
 #include "interfaces/traits/qobject_trait.hpp"
 

@@ -1,20 +1,22 @@
-#ifndef IVIEWPORTVIEW_HPP
-#define IVIEWPORTVIEW_HPP
+#ifndef IVIEWPORT_HPP
+#define IVIEWPORT_HPP
 
 #include "interfaces/traits/makeable_trait.hpp"
 #include "interfaces/traits/initialize_traits.hpp"
+
 #include "interfaces/presenters/iviewportpresenter.hpp"
+
+#include <QWeakPointer>
 
 class IViewPort
 {
-public:
+public: 
     virtual ~IViewPort() = default;
 
-    virtual void initialize(IViewPortPresenter* presenter) = 0;
+    virtual void initialize(IViewPortPresenter* presenter, ICanvasPresenter* canvasPresenter) = 0;
 };
 
-DECL_MAKEABLE(IViewPort)
-DECL_EXPECTS_INITIALIZE(IViewPort)
-DECL_INIT_DEPENDENCY(IViewPort, IViewPortPresenter)
+DECL_MAKEABLE(IViewPort);
+DECL_EXPECTS_INITIALIZE(IViewPort);
 
-#endif // IVIEWPORTVIEW_HPP
+#endif // IVIEWPORT_HPP
