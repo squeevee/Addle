@@ -59,19 +59,6 @@ void ViewPortPresenter::initialize(IDocumentPresenter* documentPresenter)
     _initHelper.initializeEnd();
 }
 
-IViewPort* ViewPortPresenter::getViewPort()
-{
-    _initHelper.assertInitialized();
-
-    if (!_viewPort)
-    {
-        _viewPort = ServiceLocator::make<IViewPort>(this);
-    }
-
-    return _viewPort;
-}
-
-
 void ViewPortPresenter::setPosition(QPointF position)
 {
     _initHelper.assertInitialized();
@@ -391,7 +378,7 @@ void ViewPortPresenter::gripPivot(QPointF gripStart, QPointF gripEnd)
     setRotation(rotation);
 }
 
-void ViewPortPresenter::setViewPortSize(QSize size)
+void ViewPortPresenter::setSize(QSize size)
 {
     _initHelper.assertInitialized();
     _size = size;

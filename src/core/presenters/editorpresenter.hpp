@@ -40,7 +40,9 @@ public:
     void doOperation(QSharedPointer<IUndoableOperation> undoable) { _undoStackHelper.doOperation(undoable); }
 
 public slots: 
-    void onActionLoadDocument(QString filename);
+    void loadDocument(QUrl url);
+
+    void newDocument();
 
     void undo() { _undoStackHelper.undo(); }
     void redo() { _undoStackHelper.redo(); }

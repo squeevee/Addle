@@ -1,34 +1,15 @@
-Brushes probably need to be expanded a lot: I was picturing them as like a
-helper class for the brush tool, but it's getting too complex.
-
-There's a bug at least in the 2x2 brush and maybe others that causes
-"notches" to appear in a diagonal line. this has to do with the brush's
-raster operation buffer being resized while the line is being drawn
-
-I expect that it will be easier to pin down this issue if the brushes are
-made more robust
-
-proper new document
-
+proper new documentation
 
 Discovery implementations for:
 - Multi-layer documents
 - Eraser tool
 - Undo stack
 
-Also, the tool presenter options are feeling a bit cumbersome, could be
-better to try a "has, not is" strategy for overlapping sets of options
-
-Color selection (exposed as a tool option, though it'd probably be owned
-by the document presenter)
-
 Color palette
 
 maybe add the feature where the viewport can be temporarily locked relative
 to the absolute global screen position -- so toolbars and dock widgets can
 be added arbitrarily without disrupting the viewport
-
-
 
 I'll want to proof-of-concept the Selection and Shapes tools. And document
 exporting (i.e., saving). Then build and test for Windows
@@ -42,11 +23,9 @@ add them.
 I'll want to get Google Breakpad going before much longer and also make sure
 to test it on Windows.
 
-
 Around this point, I should also start using GitHub task lists instead of
 this file. This will be time to decide the feature set that will comprise
 the Alpha version. And go from there.
-
 
 misc:
 
@@ -63,18 +42,6 @@ destroy document views and presenters
 
 cut icon
 redo icon looks like it's disabled
-
-tool mouse inputs
-
-take user text translation keys out of FormatId and ToolId, and make the
-presenters responsible for that instead (?). Opt instead for programmer-readable
-names
-
-clean up the preset helper API with initializier lists or something, even if
-heaven forbid it makes lookups operate on logarithmic time instead of constant
-time.
-
-rework the structure/names of Canvas View, Document View, Document Presenter
 
 clean up dynamic casting (and virtual inheritance) where possible -- see also 
 IFormatModel
@@ -101,11 +68,33 @@ a brush operation should probably be separate from (derived from?) other kinds
 of raster operations but also maintain some common interfacing and
 functionality.
 
-separate the concept of raster surface from Layer
-
-Really though, do I *have* to have my properties be getXXX and isXXX when 
-it's just XXX in Qt ? Do I actually think that's better practice?
-
 Tool options bars will need some more work.
 
 The whole UI needs work, lots and lots of work
+
+cut down on #include networks in interface classes with more forward-
+declarations to reduce compile times at least a little
+
+Is there some way to make qobject_interface_cast work via qobject_cast instead 
+of dynamic_cast ? Maybe interfaces implemented as qobject can be required to 
+expose a asQObject() method? Is it actually all that bad as is?
+
+Look back into ServiceLocator and see if we can't leverage the static linker
+more with it. The performance is probably fine as-is, but it'd very much be to
+our advantage to get linker errors instead of runtime ones for a bad
+configuration. And overall it'd be more C++-esque.
+Potential complications might involve unit tests and dynamically loaded code
+(i.e., plugins), but I think we can adapt.
+
+Qt Quick will probably be a much nicer tool for the canvas than the Graphics
+Framework, but I'm reluctant to require the JavaScript engine. I'll test both
+maybe on some different platforms to get a feel for their weight, but it will
+likely be practical to use Quick (if not exclusively then at least for fancy
+stuff).
+Mind, a Quick canvas/gui will be if not necessary, at least preferable for any
+mobile ports anyway.
+
+Pass presenters with shared or weak pointers? At least make init function and 
+constructor signatures consistent
+
+organize common/utilities to be less of a junk drawer

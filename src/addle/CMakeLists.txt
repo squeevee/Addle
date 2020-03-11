@@ -11,4 +11,4 @@ set (
 )
 
 add_executable(addle ${SOURCES})
-target_link_libraries(addle Qt5::Core core common widgetsgui )
+target_link_libraries(addle Qt5::Core canvas core common widgetsgui )

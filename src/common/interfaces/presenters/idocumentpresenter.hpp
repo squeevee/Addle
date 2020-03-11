@@ -10,13 +10,12 @@
 
 #include "interfaces/models/idocument.hpp"
 
-#include "interfaces/views/icanvasview.hpp"
-
 #include "interfaces/traits/qobject_trait.hpp"
 #include "interfaces/traits/metaobjectinfo.hpp"
 
 class ILayerPresenter;
 class IViewPortPresenter;
+class ICanvasPresenter;
 class IDocumentView;
 class IDocumentPresenter 
     : public virtual IHaveToolsPresenter,
@@ -33,18 +32,15 @@ public:
 
     virtual IViewPortPresenter* getViewPortPresenter() = 0;
 
-    virtual ICanvasView* getCanvasView() = 0;
+    virtual ICanvasPresenter* getCanvasPresenter() = 0;
 
     virtual bool isEmpty() = 0;
     virtual QSize getCanvasSize() = 0;
     virtual QColor getBackgroundColor() = 0;
 
-    virtual QList<ILayerPresenter*> getLayerPresenters() = 0;
+    virtual QList<ILayerPresenter*> getLayers() = 0;
 
-public slots: 
-    virtual void onActionLoadDocument(QString filename) = 0;
-
-    virtual void loadDocument(QFileInfo fileInfo) = 0;
+public slots:
     virtual void loadDocument(QUrl url) = 0;
 
 signals:

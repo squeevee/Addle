@@ -1,7 +1,7 @@
 #ifndef BRUSHOPERATION_HPP
 #define BRUSHOPERATION_HPP
 
-#include "interfaces/editing/ibrushoperation.hpp"
+#include "interfaces/editing/operations/ibrushoperation.hpp"
 
 #include "utilities/initializehelper.hpp"
 #include "utilities/image/expandingbuffer.hpp"

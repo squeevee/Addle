@@ -1,0 +1,7 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+
+<qresource prefix="/qml/canvas">
+    <file>viewport.qml</file>
+</qresource>
+</RCC>

@@ -23,6 +23,10 @@ void EditorView::setupUi()
 {
     BaseDocumentView::setupUi();
 
+    _action_new = new QAction(this);
+    _action_new->setIcon(QIcon(":/icons/new.png"));
+    connect_interface(_action_new, SIGNAL(triggered()), _presenter, SLOT(newDocument()));
+
     _action_undo = new QAction(this);
     _action_undo->setIcon(QIcon(":/icons/undo.png"));
     _action_undo->setEnabled(_presenter->canUndo());
@@ -33,6 +37,7 @@ void EditorView::setupUi()
     _action_redo->setEnabled(_presenter->canRedo());
     connect_interface(_action_redo, SIGNAL(triggered()), _presenter, SLOT(redo()));
     
+    _toolBar_documentActions->addAction(_action_new);
     _toolBar_documentActions->addAction(_action_open);
     _toolBar_documentActions->addSeparator();
     _toolBar_documentActions->addAction(_action_undo);

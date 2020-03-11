@@ -6,7 +6,6 @@
 
 #include "interfaces/presenters/ieditorpresenter.hpp"
 #include "interfaces/presenters/iviewportpresenter.hpp"
-#include "interfaces/views/iviewport.hpp"
 #include "utilities/presethelper.hpp"
 
 #include "utilities/initializehelper.hpp"
@@ -131,7 +130,6 @@ public:
 
     void initialize(IDocumentPresenter* documentPresenter);
 
-    IViewPort* getViewPort();
     IDocumentPresenter* getDocumentPresenter() { _initHelper.assertInitialized(); return _documentPresenter; }
 
 public:
@@ -211,7 +209,7 @@ signals:
 
 public:
 
-    QSize getViewPortSize() { _initHelper.assertInitialized(); return _size; }
+    QSize getSize() { _initHelper.assertInitialized(); return _size; }
     virtual QPointF getCenter() { _initHelper.assertInitialized(); return _center; }
 
     void gripPivot(QPointF gripStart, QPointF gripEnd);
@@ -231,7 +229,7 @@ public slots:
     void fitWidth();
     void fitCanvas();
 
-    void setViewPortSize(QSize size);
+    void setSize(QSize size);
 
     void setGlobalOffset(QPoint offset) { _initHelper.assertInitialized(); _globalOffset = offset; }
 
@@ -242,7 +240,6 @@ private slots:
     void onDocumentChanged();
     
 private:
-    IViewPort* _viewPort = nullptr;
     IDocumentPresenter* _documentPresenter;
 
     //The actual size of the viewport on the screen.

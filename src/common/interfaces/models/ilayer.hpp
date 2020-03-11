@@ -14,10 +14,9 @@
 #include "interfaces/traits/initialize_traits.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 
-#include "interfaces/editing/ihavebufferpainter.hpp"
-
+class IRasterSurface;
 class IDocument;
-class ILayer: public IHaveBufferPainter
+class ILayer
 {
 public:
     virtual ~ILayer() {}
@@ -26,18 +25,12 @@ public:
     virtual void initialize(LayerBuilder& builder) = 0;
 
     virtual bool isEmpty() = 0;
-
-    virtual void render(QPainter& painter, QRect area) = 0;
-
+    
     virtual QRect getBoundary() = 0;
     virtual QPoint getTopLeft() = 0;
     virtual void setTopLeft(QPoint) = 0;
 
-    virtual BufferPainter getBufferPainter(QRect area) = 0;
-
-signals: 
-    virtual void renderChanged(QRect area) = 0;
-
+    virtual IRasterSurface* getRasterSurface() = 0;
 };
 
 DECL_MAKEABLE(ILayer)

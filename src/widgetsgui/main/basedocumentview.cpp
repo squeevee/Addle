@@ -1,7 +1,7 @@
 #include "basedocumentview.hpp"
 
-#include "widgetsgui/widgets/viewportscrollwidget.hpp"
-#include "widgetsgui/widgets/zoomrotatewidget.hpp"
+#include "viewportscrollwidget.hpp"
+#include "zoomrotatewidget.hpp"
 
 #include "servicelocator.hpp"
 
@@ -14,8 +14,8 @@
 #include <QStandardPaths>
 #include <QMessageBox>
 
-#include "interfaces/presenters/toolpresenters/itoolpresenter.hpp"
 #include "interfaces/views/iviewport.hpp"
+#include "interfaces/presenters/toolpresenters/itoolpresenter.hpp"
 #include "interfaces/services/iapplicationsservice.hpp"
 #include "utilities/qt_extensions/qobject.hpp"
 
@@ -65,6 +65,9 @@ void BaseDocumentView::setupUi()
     _viewPortScrollWidget = new ViewPortScrollWidget(*_viewPortPresenter, this);
     QMainWindow::setCentralWidget(_viewPortScrollWidget);
 
+    _viewPort = ServiceLocator::make<IViewPort>(_viewPortPresenter, _presenter->getCanvasPresenter());
+    _viewPortScrollWidget->setViewPort(_viewPort);
+
     _statusBar = new QStatusBar(this);
     QMainWindow::setStatusBar(_statusBar);
 
@@ -95,14 +98,14 @@ void BaseDocumentView::start()
 
 void BaseDocumentView::onAction_open()
 {
-    QString filename = QFileDialog::getOpenFileName(
+    QUrl file = QFileDialog::getOpenFileUrl(
         this, 
         "Open image",
-        QStandardPaths::writableLocation(QStandardPaths::PicturesLocation)
+        QUrl::fromLocalFile(QStandardPaths::writableLocation(QStandardPaths::PicturesLocation))
     );
 
-    if (!filename.isEmpty())
-        _presenter->onActionLoadDocument(filename);
+    if (!file.isEmpty())
+        _presenter->loadDocument(file);
 }
 
 void BaseDocumentView::onDocumentChanged()

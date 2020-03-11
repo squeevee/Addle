@@ -4,12 +4,14 @@ set ( CMAKE_AUTOMOC ON)
 
 set (
     SOURCES
-    editing/brushoperation.cpp
     editing/brushrenderers/basicbrushrenderer.cpp
+    editing/operations/brushoperation.cpp
+    editing/surfaces/rastersurface.cpp
     models/document.cpp
     models/layer.cpp
     models/brush.cpp
     presenters/basedocumentpresenter.cpp
+    presenters/canvaspresenter.cpp
     presenters/editorpresenter.cpp
     presenters/errorpresenter.cpp
     presenters/layerpresenter.cpp

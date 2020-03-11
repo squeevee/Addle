@@ -4,7 +4,7 @@
 #include "toolpresenterbase.hpp"
 #include "interfaces/presenters/toolpresenters/ibrushtoolpresenter.hpp"
 
-#include "interfaces/editing/irasteroperation.hpp"
+#include "interfaces/editing/operations/irasteroperation.hpp"
 
 #include "../helpers/toolwithassetshelper.hpp"
 
@@ -25,8 +25,7 @@ class BrushToolPresenter : public ToolPresenterBase, public virtual IBrushToolPr
     )
 public:
     BrushToolPresenter()
-        : ToolPresenterBase(ToolPathHelper::TrackingOptions::path),
-        _assetsHelper(*this, DEFAULT_BRUSH),
+        : _assetsHelper(*this, DEFAULT_BRUSH),
         _initHelper(this)
     {
         _icon = QIcon(":/icons/brush.png");

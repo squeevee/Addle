@@ -19,6 +19,7 @@
 #include "utilities/initializehelper.hpp"
 #include "utilities/qt_extensions/qobject.hpp"
 
+class IViewPort;
 class ViewPortScrollWidget;
 class ZoomRotateWidget;
 class BaseDocumentView : public QMainWindow, public virtual IDocumentView
@@ -48,14 +49,13 @@ protected:
     QStatusBar* _statusBar;
 
     ViewPortScrollWidget* _viewPortScrollWidget;
+    IViewPort* _viewPort;
     ZoomRotateWidget* _zoomRotateWidget;
 
     QAction* _action_open;
     QAction* _action_close;
 
     OptionGroup* _optionGroup_toolSelection;
-
-
 
 protected slots:
     virtual void onAction_open();

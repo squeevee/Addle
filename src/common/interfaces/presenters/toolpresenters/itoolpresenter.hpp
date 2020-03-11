@@ -23,11 +23,6 @@ public:
     virtual IDocumentPresenter* getOwner() = 0;
 
     virtual ToolId getId() = 0;
-
-    virtual void pointerEngage(QPointF canvasPos) = 0;
-    virtual void pointerMove(QPointF canvasPos) = 0;
-    virtual void pointerDisengage(QPointF canvasPos) = 0;
-
     virtual bool isSelected() = 0;
 
 public slots:
@@ -36,9 +31,6 @@ public slots:
 signals:
     virtual void selectionChanging(bool willBeSelected) = 0;
     virtual void selectionChanged(bool selected) = 0;
-
-    virtual void cursorHintChanging() = 0;
-    virtual void cursorHintChanged() = 0;
 };
 
 DECL_IMPLEMENTED_AS_QOBJECT(IToolPresenter)

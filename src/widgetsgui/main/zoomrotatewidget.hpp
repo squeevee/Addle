@@ -9,7 +9,7 @@
 #include <QToolBar>
 
 #include "interfaces/presenters/iviewportpresenter.hpp"
-#include "zoomslider.hpp"
+#include "widgetsgui/utilities/zoomslider.hpp"
 
 class ViewPortWidget;
 class ZoomRotateWidget : public QToolBar //QWidget 

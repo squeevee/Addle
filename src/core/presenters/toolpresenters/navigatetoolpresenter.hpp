@@ -16,8 +16,7 @@ class NavigateToolPresenter : public ToolPresenterBase, public virtual INavigate
     )
 public:
     NavigateToolPresenter()
-        : ToolPresenterBase(ToolPathHelper::TrackingOptions::endpoints),
-        _initHelper(this)
+        : _initHelper(this)
     {
         _icon = QIcon(":/icons/navigate.png");
     }

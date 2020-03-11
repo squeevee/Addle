@@ -23,7 +23,6 @@ ViewPortScrollWidget::ViewPortScrollWidget(IViewPortPresenter& presenter, QWidge
     _layout = new QGridLayout(this);
     QWidget::setLayout(_layout);
 
-    _layout->addWidget(dynamic_cast<QWidget*>(presenter.getViewPort()), 0, 0);
 
     _scrollbar_horizontal = new QScrollBar(Qt::Orientation::Horizontal, this);
     _scrollbar_horizontal->setSingleStep(100);
@@ -41,6 +40,17 @@ ViewPortScrollWidget::ViewPortScrollWidget(IViewPortPresenter& presenter, QWidge
 
     connect(_scrollbar_horizontal, SIGNAL(valueChanged(int)), qobject_interface_cast(&_presenter), SLOT(scrollX(int)));
     connect(_scrollbar_vertical, SIGNAL(valueChanged(int)), qobject_interface_cast(&_presenter), SLOT(scrollY(int)));
+}
+
+void ViewPortScrollWidget::setViewPort(IViewPort* viewPort)
+{
+    _viewPort = viewPort;
+
+    QWidget* viewPortWidget = dynamic_cast<QWidget*>(viewPort);
+    //assert
+
+    viewPortWidget->setParent(this);
+    _layout->addWidget(viewPortWidget, 0, 0);
 }
 
 void ViewPortScrollWidget::onScrollStateChanged()

@@ -6,8 +6,8 @@
 #include "interfaces/views/ieditorview.hpp"
 #include "basedocumentview.hpp"
 
-#include "widgetsgui/widgets/tooloptionsbars/navigatetooloptionsbar.hpp"
-#include "widgetsgui/widgets/tooloptionsbars/brushtooloptionsbar.hpp"
+#include "tooloptionsbars/navigatetooloptionsbar.hpp"
+#include "tooloptionsbars/brushtooloptionsbar.hpp"
 
 #include "utilities/initializehelper.hpp"
 
@@ -44,6 +44,7 @@ private slots:
 private:
     IEditorPresenter* _presenter;
 
+    QAction* _action_new;
     QAction* _action_undo;
     QAction* _action_redo;
 

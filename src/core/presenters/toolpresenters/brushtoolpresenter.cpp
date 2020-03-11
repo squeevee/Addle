@@ -2,7 +2,7 @@
 
 #include "interfaces/presenters/ilayerpresenter.hpp"
 
-#include "interfaces/editing/ibrushoperation.hpp"
+#include "interfaces/editing/operations/ibrushoperation.hpp"
 
 #include "utilities/unhandledexceptionrouter.hpp"
 
@@ -41,23 +41,23 @@ void BrushToolPresenter::onPointerEngage()
     // try
     // {
             
-    ILayerPresenter* layer = _editorPresenter->getSelectedLayer();
-    QSharedPointer<IBrushPresenter> brush = getSelectedBrushPresenter();
-    QSharedPointer<IBrushRenderer> renderer = brush->getModel()->getRenderer();
+    // ILayerPresenter* layer = _editorPresenter->getSelectedLayer();
+    // QSharedPointer<IBrushPresenter> brush = getSelectedBrushPresenter();
+    // QSharedPointer<IBrushRenderer> renderer = brush->getModel()->getRenderer();
 
-    _operation = ServiceLocator::makeShared<IBrushOperation>(
-        layer->getModel(),
-        renderer
-    );
+    // _operation = ServiceLocator::makeShared<IBrushOperation>(
+    //     layer->getModel(),
+    //     renderer
+    // );
 
-    layer->setRasterOperation(_operation.staticCast<IRasterOperation>());
+    // //layer->setRasterOperation(_operation.staticCast<IRasterOperation>());
 
-    BrushPathSegment segment( Qt::black, 10, _toolPathHelper.getLastCanvasPosition() );
-    _operation->addPathSegment(segment);
+    // BrushPathSegment segment( Qt::black, 10, _toolPathHelper.getLastCanvasPosition() );
+    // _operation->addPathSegment(segment);
 
-    QRect bound = renderer->getSegmentBoundingRect(segment);
+    // QRect bound = renderer->getSegmentBoundingRect(segment);
 
-    layer->renderChanged(bound);
+    // layer->renderChanged(bound);
 
     // }
     // ADDLE_FALLBACK_CATCH
@@ -68,16 +68,16 @@ void BrushToolPresenter::onPointerMove()
     // try
     // {
 
-    ILayerPresenter* layer = _editorPresenter->getSelectedLayer();
-    QSharedPointer<IBrushPresenter> brush = getSelectedBrushPresenter();
-    QSharedPointer<IBrushRenderer> renderer = brush->getModel()->getRenderer();
+    // ILayerPresenter* layer = _editorPresenter->getSelectedLayer();
+    // QSharedPointer<IBrushPresenter> brush = getSelectedBrushPresenter();
+    // QSharedPointer<IBrushRenderer> renderer = brush->getModel()->getRenderer();
 
-    BrushPathSegment segment( Qt::black, 10, _toolPathHelper.getPreviousCanvasPosition(), _toolPathHelper.getLastCanvasPosition() );
-    _operation->addPathSegment(segment);
+    // BrushPathSegment segment( Qt::black, 10, _toolPathHelper.getPreviousCanvasPosition(), _toolPathHelper.getLastCanvasPosition() );
+    // _operation->addPathSegment(segment);
 
-    QRect bound = renderer->getSegmentBoundingRect(segment);
+    // QRect bound = renderer->getSegmentBoundingRect(segment);
 
-    layer->renderChanged(bound);
+    // layer->renderChanged(bound);
     
     // }
     // ADDLE_FALLBACK_CATCH
@@ -88,8 +88,8 @@ void BrushToolPresenter::onPointerDisengage()
     // try
     // {
 
-    _editorPresenter->doOperation(_operation.staticCast<IUndoableOperation>());
-    _operation.clear();
+    // _editorPresenter->doOperation(_operation.staticCast<IUndoableOperation>());
+    // _operation.clear();
 
     // }
     // ADDLE_FALLBACK_CATCH

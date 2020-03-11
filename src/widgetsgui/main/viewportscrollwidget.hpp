@@ -16,7 +16,8 @@ public:
     ViewPortScrollWidget(IViewPortPresenter& presenter, QWidget* parent = nullptr);
     virtual ~ViewPortScrollWidget() = default;
 
-    IViewPort* getViewPort() { return _presenter.getViewPort(); }
+    IViewPort* getViewPort() { return _viewPort; }
+    void setViewPort(IViewPort* viewPort);
 
     QSize sizeHint() const { return QSize(640, 480); }
 
@@ -25,6 +26,8 @@ private slots:
 
 private:
     IViewPortPresenter& _presenter;
+
+    IViewPort* _viewPort = nullptr;
 
     QGridLayout* _layout;
 

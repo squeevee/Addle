@@ -4,6 +4,8 @@
 
 #include <QBitmap>
 
+#include "interfaces/editing/surfaces/irastersurface.hpp"
+
 #include "brushoperation.hpp"
 #include "servicelocator.hpp"
 
@@ -55,31 +57,30 @@ void BrushOperation::doOperation()
 
     // assert _layer not null
     QSharedPointer<ILayer> layer = _layer.toStrongRef();
-
+    // assert layer has surface
+    IRasterSurface* surface = layer->getRasterSurface();
 
     if (forward.isNull())
     {
         forward = _forwardStored.blockingGetUncompressed();
     }
         
-    BufferPainter bufferPainter = layer->getBufferPainter(_areaOfEffect);
+    BufferPainter bufferPainter = surface->makeBufferPainter(_areaOfEffect);
     bufferPainter.getPainter().drawImage(_areaOfEffect, forward);
-    
-    emit layer->renderChanged(_areaOfEffect);
 }
 
 void BrushOperation::undoOperation()
 {
     // assert _layer not null
     QSharedPointer<ILayer> layer = _layer.toStrongRef();
+    // assert layer has surface
+    IRasterSurface* surface = layer->getRasterSurface();
 
     QImage reverse = _reverseStored.blockingGetUncompressed();
     QImage mask = _maskStored.blockingGetUncompressed();
 
-    BufferPainter bufferPainter = layer->getBufferPainter(_areaOfEffect);
+    BufferPainter bufferPainter = surface->makeBufferPainter(_areaOfEffect);
     bufferPainter.getPainter().drawImage(_areaOfEffect.topLeft(), reverse);
-
-    emit layer->renderChanged(_areaOfEffect);
 }
 
 void BrushOperation::freeze(QImage* forwardPtr, QImage* reversePtr, QImage* maskPtr)
@@ -103,7 +104,7 @@ void BrushOperation::freeze(QImage* forwardPtr, QImage* reversePtr, QImage* mask
 
     QPainter reversePainter(&reverse);
     reversePainter.setTransform(ontoFrozenBuffer);
-    layer->render(reversePainter, _areaOfEffect);
+    //layer->render(reversePainter, _areaOfEffect);
 
     //reversePainter.setCompositionMode(QPainter::RasterOp_SourceAndDestination);
     //reversePainter.drawImage(QPoint(), mask);

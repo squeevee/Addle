@@ -3,6 +3,8 @@
 #include "interfaces/presenters/toolpresenters/inavigatetoolpresenter.hpp"
 #include "servicelocator.hpp"
 
+#include "utilities/documentbuilder.hpp"
+
 EditorPresenter::EditorPresenter()
     : _undoStackHelper(*this)
 {
@@ -52,17 +54,51 @@ IEditorView* EditorPresenter::getEditorView()
     return _view;
 }
 
-void EditorPresenter::onActionLoadDocument(QString filename)
+void EditorPresenter::newDocument()
 {
     if (_document)
     {
         IEditorPresenter* newPresenter = ServiceLocator::make<IEditorPresenter>();
-        newPresenter->loadDocument(QFileInfo(filename));
+        newPresenter->newDocument();
         newPresenter->getDocumentView()->start();
     }
     else
     {
-        loadDocument(QFileInfo(filename));
+        //TODO: not this
+
+        LayerBuilder blankLayer;
+        blankLayer.setBoundary(QRect(0,0, 800, 600));
+
+        QImage blank(QSize(800, 600), QImage::Format_ARGB32_Premultiplied);
+
+        blankLayer.setImage(blank);
+
+        LayerBuilder bglayer;
+        bglayer.setBoundary(QRect(0,0, 800, 600));
+
+        QImage whiteBg(QSize(800,600), QImage::Format_ARGB32_Premultiplied);
+        whiteBg.fill(Qt::white);
+
+        bglayer.setImage(whiteBg);
+
+        DocumentBuilder document;
+        document.addLayer(blankLayer);
+        document.addLayer(bglayer);
+        setDocument(ServiceLocator::makeShared<IDocument>(document));
+    }
+}
+
+void EditorPresenter::loadDocument(QUrl file)
+{
+    if (_document)
+    {
+        IEditorPresenter* newPresenter = ServiceLocator::make<IEditorPresenter>();
+        newPresenter->loadDocument(file);
+        newPresenter->getDocumentView()->start();
+    }
+    else
+    {
+        BaseDocumentPresenter::loadDocument(file);
     }
 }
 

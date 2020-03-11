@@ -10,14 +10,16 @@
 #include "utilities/configuration/tfactory.hpp"
 #include "utilities/configuration/qobjectfactory.hpp"
 
-#include "core/editing/brushoperation.hpp"
 #include "core/editing/brushrenderers/basicbrushrenderer.hpp"
+#include "core/editing/operations/brushoperation.hpp"
+#include "core/editing/surfaces/rastersurface.hpp"
 
 #include "core/models/layer.hpp"
 #include "core/models/document.hpp"
 #include "core/models/brush.hpp"
 
 #include "core/presenters/editorpresenter.hpp"
+#include "core/presenters/canvaspresenter.hpp"
 #include "core/presenters/viewportpresenter.hpp"
 #include "core/presenters/errorpresenter.hpp"
 #include "core/presenters/layerpresenter.hpp"
@@ -36,19 +38,21 @@
 #include "core/tasks/taskcontroller.hpp"
 #include "core/tasks/loaddocumentfiletask.hpp"
 
-#include "widgetsgui/views/editorview.hpp"
-#include "widgetsgui/views/viewport.hpp"
-#include "widgetsgui/views/canvasview.hpp"
-#include "widgetsgui/views/layerview.hpp"
+#include "widgetsgui/main/editorview.hpp"
+
+#include "canvas/viewport.hpp"
 
 void ServiceConfiguration::configure()
 {
     // # Editing
+    // ## Brush renderers
+    REGISTER_TFACTORY(IBasicBrushRenderer, BasicBrushRenderer);
+
+    // ## Operations
     REGISTER_QOBJECT_FACTORY(IBrushOperation, BrushOperation);
 
-    // ## Brush renderers
-
-    REGISTER_TFACTORY(IBasicBrushRenderer, BasicBrushRenderer);
+    // ## Surfaces
+    REGISTER_QOBJECT_FACTORY(IRasterSurface, RasterSurface);
 
     // # Models
     REGISTER_TFACTORY(ILayer, Layer);
@@ -57,6 +61,7 @@ void ServiceConfiguration::configure()
 
     // # Presenters
     REGISTER_TFACTORY(IEditorPresenter, EditorPresenter);
+    REGISTER_TFACTORY(ICanvasPresenter, CanvasPresenter);
     REGISTER_TFACTORY(IViewPortPresenter, ViewPortPresenter);
     REGISTER_TFACTORY(IErrorPresenter, ErrorPresenter);
     REGISTER_QOBJECT_FACTORY(ILayerPresenter, LayerPresenter);
@@ -84,7 +89,7 @@ void ServiceConfiguration::configure()
 
     // # Views
     REGISTER_QOBJECT_FACTORY(IEditorView, EditorView);
+
+    // # Canvas
     REGISTER_QOBJECT_FACTORY(IViewPort, ViewPort);
-    REGISTER_QOBJECT_FACTORY(ICanvasView, CanvasView);
-    REGISTER_QOBJECT_FACTORY(ILayerView, LayerView);
 }

@@ -1,20 +1,20 @@
 #include "bufferpainter.hpp"
 
-#include "interfaces/editing/ihavebufferpainter.hpp"
+#include "interfaces/editing/icanpaintbuffer.hpp"
 
-BufferPainter::BufferPainter(QImage& buffer, IHaveBufferPainter* owner, QRect paintArea, QPoint bufferOffset)
-    : _buffer(buffer), _owner(owner), _paintArea(paintArea), _bufferOffset(bufferOffset)
+BufferPainter::BufferPainter(QImage& buffer, QRect paintArea, QPoint bufferOffset)
+    : _buffer(buffer), _paintArea(paintArea), _bufferOffset(bufferOffset)
 {
-    if (_owner)
-        _owner->beforeBufferPainted(_paintArea);
-
     _painter = new QPainter(&_buffer);
+    _notifier = new BufferPainterNotifier();
+    emit _notifier->painting(_paintArea);
+
     _painter->translate(-_bufferOffset);
 }
 
 BufferPainter::BufferPainter(BufferPainter&& other)
     : _buffer(other._buffer),
-    _owner(other._owner),
+    _notifier(other._notifier),
     _paintArea(other._paintArea),
     _bufferOffset(other._bufferOffset),
     _painter(other._painter)
@@ -26,9 +26,9 @@ BufferPainter::~BufferPainter()
 {
     if (_final)
     {
+        emit _notifier->painted(_paintArea);
         delete _painter;
-        if (_owner)
-            _owner->afterBufferPainted(_paintArea);
+        delete _notifier;
     }
 }
 
@@ -37,3 +37,4 @@ QPainter& BufferPainter::getPainter()
     /*assert painter*/
     return *_painter; 
 }
+

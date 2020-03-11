@@ -17,6 +17,7 @@
 #include "exceptions/fileexceptions.hpp"
 
 #include "interfaces/presenters/toolpresenters/itoolpresenter.hpp"
+#include "interfaces/presenters/icanvaspresenter.hpp"
 
 #include <QFile>
 #include <QImage>
@@ -33,13 +34,13 @@ BaseDocumentPresenter::~BaseDocumentPresenter()
 }
 
 
-ICanvasView* BaseDocumentPresenter::getCanvasView()
+ICanvasPresenter* BaseDocumentPresenter::getCanvasPresenter()
 {
-    if (!_canvasView)
+    if (!_canvasPresenter)
     {
-        _canvasView = ServiceLocator::make<ICanvasView>(this);
+        _canvasPresenter = ServiceLocator::make<ICanvasPresenter>(this);
     }
-    return _canvasView;
+    return _canvasPresenter;
 }
 
 IViewPortPresenter* BaseDocumentPresenter::getViewPortPresenter()
@@ -68,21 +69,20 @@ void BaseDocumentPresenter::setDocument(QSharedPointer<IDocument> document)
     getViewPortPresenter()->resetView();
 }
 
-void BaseDocumentPresenter::loadDocument(QFileInfo file)
-{
-    auto task = ServiceLocator::make<ILoadDocumentFileTask>(file);
-    auto controller = task->getController().data();
-
-    connect_interface(controller, SIGNAL(done(ITask*)), this, SLOT(onLoadDocumentTaskDone(ITask*)), Qt::ConnectionType::BlockingQueuedConnection);
-
-    ServiceLocator::get<ITaskService>().queueTask(task);
-}
-
 void BaseDocumentPresenter::loadDocument(QUrl url)
 {
     if (url.isLocalFile())
     {
-        loadDocument(QFileInfo(url.toLocalFile()));
+        auto task = ServiceLocator::make<ILoadDocumentFileTask>(QFileInfo(url.toLocalFile()));
+        auto controller = task->getController().data();
+
+        connect_interface(
+            controller, SIGNAL(done(ITask*)),
+            this, SLOT(onLoadDocumentTaskDone(ITask*)),
+            Qt::ConnectionType::BlockingQueuedConnection
+        );
+
+        ServiceLocator::get<ITaskService>().queueTask(task);
     }
     else
     {

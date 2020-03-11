@@ -30,13 +30,13 @@ void NavigateToolPresenter::onPointerMove()
 {
     _initHelper.assertInitialized();
 
-    switch (_operation)
-    {
-    case NavigateOperationOptions::gripPan:
-        _viewPortPresenter->gripPan(_toolPathHelper.getFirstCanvasPosition(), _toolPathHelper.getLastCanvasPosition());
-        break;
-    case NavigateOperationOptions::gripPivot:
-        _viewPortPresenter->gripPivot(_toolPathHelper.getFirstCanvasPosition(), _toolPathHelper.getLastCanvasPosition());
-        break;
-    }
+    // switch (_operation)
+    // {
+    // case NavigateOperationOptions::gripPan:
+    //     _viewPortPresenter->gripPan(_toolPathHelper.getFirstCanvasPosition(), _toolPathHelper.getLastCanvasPosition());
+    //     break;
+    // case NavigateOperationOptions::gripPivot:
+    //     _viewPortPresenter->gripPivot(_toolPathHelper.getFirstCanvasPosition(), _toolPathHelper.getLastCanvasPosition());
+    //     break;
+    // }
 }

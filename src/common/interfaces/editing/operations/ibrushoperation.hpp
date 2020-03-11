@@ -12,7 +12,7 @@
 #include "interfaces/traits/qobject_trait.hpp"
 
 #include "utilities/brushpathsegment.hpp"
-#include "brushrenderers/ibrushrenderer.hpp"
+#include "../brushrenderers/ibrushrenderer.hpp"
 
 #include "irasteroperation.hpp"
 

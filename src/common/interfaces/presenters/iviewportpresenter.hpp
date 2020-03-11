@@ -15,7 +15,6 @@
 
 #include "iscrollstate.hpp"
 
-class IViewPort;
 class IViewPortPresenter
 {
 public:
@@ -62,7 +61,6 @@ public:
 
     virtual void initialize(IDocumentPresenter* documentPresenter) = 0;
 
-    virtual IViewPort* getViewPort() = 0;
     virtual IDocumentPresenter* getDocumentPresenter() = 0;
 
 public:
@@ -125,7 +123,7 @@ signals:
 
     // # General transforming
 public:
-    virtual QSize getViewPortSize() = 0;
+    virtual QSize getSize() = 0;
     virtual QPoint getGlobalOffset() = 0;
     virtual QPointF getCenter() = 0;
 
@@ -139,7 +137,7 @@ public slots:
     virtual void fitWidth() = 0;
     virtual void fitCanvas() = 0;
 
-    virtual void setViewPortSize(QSize size) = 0;
+    virtual void setSize(QSize size) = 0;
     virtual void setGlobalOffset(QPoint offset) = 0;
 
 signals:
