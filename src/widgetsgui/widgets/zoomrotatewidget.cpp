@@ -4,8 +4,8 @@
 
 #include <cmath>
 
-#include "utilities/qt_extensions/qobject.hpp"
-#include "utilities/propertybinding.hpp"
+#include "utilities/qtextensions/qobject.hpp"
+#include "utilities/presenter/propertybinding.hpp"
 #include "widgetsgui/utilities/widgetproperties.hpp"
 
 ZoomRotateWidget::ZoomRotateWidget(IViewPortPresenter& presenter, QWidget* parent)

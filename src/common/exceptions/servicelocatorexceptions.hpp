@@ -15,7 +15,7 @@
 
 #include "baseaddleexception.hpp"
 
-#include "utilities/qt_extensions/translation.hpp"
+#include "utilities/qtextensions/translation.hpp"
 
 DECL_LOGIC_ERROR(ServiceLocatorException)
 class ServiceLocatorException : public BaseAddleException

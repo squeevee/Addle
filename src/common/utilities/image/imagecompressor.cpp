@@ -1,7 +1,7 @@
 #include "interfaces/tasks/imagecompressiontasks.hpp"
 #include "interfaces/services/itaskservice.hpp"
 
-#include "utilities/qt_extensions/qobject.hpp"
+#include "utilities/qtextensions/qobject.hpp"
 
 #include "servicelocator.hpp"
 #include "imagecompressor.hpp"

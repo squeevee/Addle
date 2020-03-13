@@ -1,31 +1,8 @@
-proper new documentation
-
-Discovery implementations for:
-- Multi-layer documents
-- Eraser tool
-- Undo stack
-
 Color palette
 
 maybe add the feature where the viewport can be temporarily locked relative
 to the absolute global screen position -- so toolbars and dock widgets can
 be added arbitrarily without disrupting the viewport
-
-I'll want to proof-of-concept the Selection and Shapes tools. And document
-exporting (i.e., saving). Then build and test for Windows
-
-If that goes well, I'll consider the design to be basically sound and do
-some cleanup, refactoring, style work, and documentation. And this is where
-I will begin to write up unit and integration tests. If I'm still missing
-icons, mouse cursors, and English user text, this will be a good time to
-add them.
-
-I'll want to get Google Breakpad going before much longer and also make sure
-to test it on Windows.
-
-Around this point, I should also start using GitHub task lists instead of
-this file. This will be time to decide the feature set that will comprise
-the Alpha version. And go from there.
 
 misc:
 
@@ -38,7 +15,7 @@ Zoom slider: notches, and snapping to presets.
 
 Zoom presets will need some serious work before too long.
 
-destroy document views and presenters
+Lifetime of views and presenters
 
 cut icon
 redo icon looks like it's disabled
@@ -88,5 +65,3 @@ Potential complications might involve unit tests and dynamically loaded code
 
 Pass presenters with shared or weak pointers? At least make init function and 
 constructor signatures consistent
-
-organize common/utilities to be less of a junk drawer

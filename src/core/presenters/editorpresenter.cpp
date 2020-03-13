@@ -3,7 +3,7 @@
 #include "interfaces/presenters/toolpresenters/inavigatetoolpresenter.hpp"
 #include "servicelocator.hpp"
 
-#include "utilities/documentbuilder.hpp"
+#include "utilities/model/documentbuilder.hpp"
 
 EditorPresenter::EditorPresenter()
     : _undoStackHelper(*this)

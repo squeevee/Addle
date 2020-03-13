@@ -7,7 +7,7 @@
 #include <QIcon>
 
 #include <QHash>
-#include "utilities/qt_extensions/qlist.hpp"
+#include "utilities/qtextensions/qlist.hpp"
 #include "utilities/indexvariant.hpp"
 
 class OptionDecoration

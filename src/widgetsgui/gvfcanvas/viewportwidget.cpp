@@ -12,7 +12,7 @@
 #include <QResizeEvent>
 
 #include "servicelocator.hpp"
-#include "utilities/qt_extensions/qobject.hpp"
+#include "utilities/qtextensions/qobject.hpp"
 
 #include "interfaces/presenters/toolpresenters/itoolpresenter.hpp"
 #include "interfaces/presenters/iviewportpresenter.hpp"

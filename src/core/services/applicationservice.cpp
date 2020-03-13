@@ -9,7 +9,7 @@
 
 #include "servicelocator.hpp"
 
-#include "utilities/qt_extensions/qobject.hpp"
+#include "utilities/qtextensions/qobject.hpp"
 #include "globalconstants.hpp"
 #include "exceptions/commandlineexceptions.hpp"
 

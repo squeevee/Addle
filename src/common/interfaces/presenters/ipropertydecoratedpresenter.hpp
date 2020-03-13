@@ -2,7 +2,7 @@
 #define IPROPERTYDECORATEDPRESENTER_HPP
 
 #include "interfaces/traits/qobject_trait.hpp"
-#include "utilities/propertydecoration.hpp"
+#include "utilities/presenter/propertydecoration.hpp"
 
 class IPropertyDecoratedPresenter
 {

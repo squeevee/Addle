@@ -7,8 +7,8 @@
  * 
  * Specifies various general-purpose extensions to QObject functionality
  */
-#ifndef QT_EXTENSIONS__QOBJECT_HPP
-#define QT_EXTENSIONS__QOBJECT_HPP
+#ifndef qtextensions__QOBJECT_HPP
+#define qtextensions__QOBJECT_HPP
 
 #include <QObject>
 
@@ -131,4 +131,4 @@ inline QMetaObject::Connection connect_interface2(
     return QObject::connect(qsender, signal, qreceiver, slot);
 }
 
-#endif // QT_EXTENSIONS__QOBJECT_HPP
+#endif // qtextensions__QOBJECT_HPP

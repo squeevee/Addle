@@ -13,7 +13,7 @@
 
 #include "serviceconfiguration.hpp"
 #include "utilities/configuration/registerqmetatypes.hpp"
-#include "utilities/qt_extensions/qobject.hpp"
+#include "utilities/qtextensions/qobject.hpp"
 
 #include "interfaces/services/iapplicationsservice.hpp"
 

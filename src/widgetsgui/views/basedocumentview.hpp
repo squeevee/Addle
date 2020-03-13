@@ -17,7 +17,7 @@
 #include "interfaces/views/idocumentview.hpp"
 
 #include "utilities/initializehelper.hpp"
-#include "utilities/qt_extensions/qobject.hpp"
+#include "utilities/qtextensions/qobject.hpp"
 
 class ViewPortScrollWidget;
 class ZoomRotateWidget;

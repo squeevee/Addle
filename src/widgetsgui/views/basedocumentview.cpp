@@ -17,9 +17,9 @@
 #include "interfaces/presenters/toolpresenters/itoolpresenter.hpp"
 #include "interfaces/views/iviewport.hpp"
 #include "interfaces/services/iapplicationsservice.hpp"
-#include "utilities/qt_extensions/qobject.hpp"
+#include "utilities/qtextensions/qobject.hpp"
 
-#include "utilities/propertybinding.hpp"
+#include "utilities/presenter/propertybinding.hpp"
 
 #include "widgetsgui/utilities/widgetproperties.hpp"
 

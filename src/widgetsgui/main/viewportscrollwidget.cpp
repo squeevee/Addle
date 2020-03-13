@@ -4,9 +4,9 @@
 #include "viewportscrollwidget.hpp"
 #include "zoomrotatewidget.hpp"
 
-#include "utilities/qt_extensions/qobject.hpp"
+#include "utilities/qtextensions/qobject.hpp"
 
-#include "utilities/propertybinding.hpp"
+#include "utilities/presenter/propertybinding.hpp"
 #include "widgetsgui/utilities/widgetproperties.hpp"
 
 ViewPortScrollWidget::ViewPortScrollWidget(IViewPortPresenter& presenter, QWidget* parent)

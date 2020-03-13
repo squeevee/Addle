@@ -11,7 +11,7 @@
 #include "interfaces/traits/initialize_traits.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 
-#include "utilities/brushpathsegment.hpp"
+#include "utilities/canvas/brushpathsegment.hpp"
 #include "brushrenderers/ibrushrenderer.hpp"
 
 #include "irasteroperation.hpp"

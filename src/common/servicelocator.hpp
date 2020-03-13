@@ -25,7 +25,7 @@
 
 #include "interfaces/traits/makeable_trait.hpp"
 #include "interfaces/traits/initialize_traits.hpp"
-#include "utilities/qt_extensions/qhash.hpp"
+#include "utilities/qtextensions/qhash.hpp"
 
 /**
  * @class ServiceLocator

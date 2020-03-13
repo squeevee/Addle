@@ -4,9 +4,9 @@
 
 #include "widgetsgui/utilities/widgetproperties.hpp"
 #include "widgetsgui/utilities/decorationhelper.hpp"
-#include "utilities/qt_extensions/qobject.hpp"
+#include "utilities/qtextensions/qobject.hpp"
 
-#include "utilities/propertybinding.hpp"
+#include "utilities/presenter/propertybinding.hpp"
 
 NavigateToolOptionsBar::NavigateToolOptionsBar(INavigateToolPresenter& presenter, QMainWindow* parent)
     : ToolOptionBarBase(presenter, parent),

@@ -10,7 +10,7 @@
 
 #include "utilities/initializehelper.hpp"
 
-#include "utilities/propertycache.hpp"
+#include "utilities/presenter/propertycache.hpp"
 
 //The ViewPort is the main presenter for the Canvas, representing a rectangular
 //region onscreen that transforms and displays the Canvas' contents. The

@@ -1,7 +1,7 @@
 #include "editorview.hpp"
 #include <QLabel>
 
-#include "utilities/qt_extensions/qobject.hpp"
+#include "utilities/qtextensions/qobject.hpp"
 #include "interfaces/presenters/toolpresenters/itoolpresenter.hpp"
 
 #include "widgetsgui/utilities/decorationhelper.hpp"

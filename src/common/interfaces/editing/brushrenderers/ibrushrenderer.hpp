@@ -5,7 +5,7 @@
 #include <QImage>
 
 #include "idtypes/brushid.hpp"
-#include "utilities/brushpathsegment.hpp"
+#include "utilities/canvas/brushpathsegment.hpp"
 
 class IBrushRenderer
 {

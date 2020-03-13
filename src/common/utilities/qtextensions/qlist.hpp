@@ -1,5 +1,5 @@
-#ifndef QT_EXTENSIONS__QLIST_HPP
-#define QT_EXTENSIONS__QLIST_HPP
+#ifndef qtextensions__QLIST_HPP
+#define qtextensions__QLIST_HPP
 
 #include <initializer_list>
 #include <QList>
@@ -104,4 +104,4 @@ QList<QSharedPointer<OutType>> qSharedPointerListCast(const QList<QSharedPointer
 }
 */
 
-#endif // QT_EXTENSIONS__QLIST_HPP
+#endif // qtextensions__QLIST_HPP

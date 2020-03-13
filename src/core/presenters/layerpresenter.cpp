@@ -2,7 +2,7 @@
 #include "servicelocator.hpp"
 #include "interfaces/editing/surfaces/irastersurface.hpp"
 
-#include "utilities/qt_extensions/qobject.hpp"
+#include "utilities/qtextensions/qobject.hpp"
 
 void LayerPresenter::initialize(IDocumentPresenter* documentPresenter, QWeakPointer<ILayer> model)
 {

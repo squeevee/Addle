@@ -8,14 +8,14 @@ add_library( common SHARED
     exceptions/baseaddleexception.cpp
     utilities/debugging.cpp
     utilities/indexvariant.cpp
-    utilities/propertybinding.cpp
-    utilities/propertyobserver.cpp
     utilities/typeinforef.cpp
     utilities/unhandledexceptionrouter.cpp
     utilities/image/bufferpainter.cpp
     utilities/image/expandingbuffer.cpp
     utilities/image/imagecompressor.cpp
-    utilities/qt_extensions/qhash.cpp
-    utilities/qt_extensions/translation.cpp
+    utilities/presenter/propertybinding.cpp
+    utilities/presenter/propertyobserver.cpp
+    utilities/qtextensions/qhash.cpp
+    utilities/qtextensions/translation.cpp
 )
 target_link_libraries(common Qt5::Core Qt5::Gui)

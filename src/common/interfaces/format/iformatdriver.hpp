@@ -7,7 +7,7 @@
 #include <QIODevice>
 #include <type_traits>
 
-#include "utilities/importexportinfo.hpp"
+#include "utilities/model/importexportinfo.hpp"
 #include "interfaces/tasks/itaskstatuscontroller.hpp"
 #include "interfaces/tasks/itaskcontroller.hpp"
 

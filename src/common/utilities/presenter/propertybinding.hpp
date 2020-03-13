@@ -4,7 +4,7 @@
 #include <QObject>
 #include <functional>
 
-#include "qt_extensions/qobject.hpp"
+#include "utilities/qtextensions/qobject.hpp"
 #include "propertyobserver.hpp"
 
 class BindingConverter

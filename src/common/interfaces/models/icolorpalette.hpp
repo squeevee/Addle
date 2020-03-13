@@ -1,7 +1,7 @@
 #ifndef ICOLORPALETTE_HPP
 #define ICOLORPALETTE_HPP
 
-#include "utilities/qt_extensions/rectangulararray.hpp"
+#include "utilities/qtextensions/rectangulararray.hpp"
 #include <QColor>
 
 class IColorPalette

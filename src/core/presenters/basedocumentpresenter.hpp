@@ -11,7 +11,7 @@
 #include "interfaces/presenters/idocumentpresenter.hpp"
 //#include "interfaces/presenters/itoolpresenter.hpp"
 
-#include "utilities/propertycache.hpp"
+#include "utilities/presenter/propertycache.hpp"
 
 #include "helpers/propertydecorationhelper.hpp"
 

@@ -6,7 +6,7 @@
 #include <QSet>
 
 #include "servicebase.hpp"
-#include "utilities/qt_extensions/qhash.hpp"
+#include "utilities/qtextensions/qhash.hpp"
 #include "interfaces/format/iformatdriver.hpp"
 #include "interfaces/services/iformatservice.hpp"
 

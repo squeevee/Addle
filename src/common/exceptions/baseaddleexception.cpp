@@ -2,7 +2,7 @@
 #include "baseaddleexception.hpp"
 #include <QStringBuilder>
 
-#include "utilities/qt_extensions/translation.hpp"
+#include "utilities/qtextensions/translation.hpp"
 
 #ifdef ADDLE_DEBUG
 

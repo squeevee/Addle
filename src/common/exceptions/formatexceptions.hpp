@@ -6,9 +6,9 @@
 
 #include "baseaddleexception.hpp"
 
-#include "utilities/importexportinfo.hpp"
+#include "utilities/model/importexportinfo.hpp"
 
-#include "utilities/qt_extensions/translation.hpp"
+#include "utilities/qtextensions/translation.hpp"
 
 class FormatException : public BaseAddleException
 {

@@ -10,8 +10,8 @@
 
 #include <QCoreApplication>
 
-#include "utilities/propertydecoration.hpp"
-#include "utilities/qt_extensions/translation.hpp"
+#include "utilities/presenter/propertydecoration.hpp"
+#include "utilities/qtextensions/translation.hpp"
 #include "utilities/indexvariant.hpp"
 
 class PropertyDecorationHelper

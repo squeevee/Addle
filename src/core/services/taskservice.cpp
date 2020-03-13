@@ -2,8 +2,8 @@
 #include <QtDebug>
 #include <cstdlib>
 
-#include "utilities/qt_extensions/qobject.hpp"
-#include "utilities/qt_extensions/translation.hpp"
+#include "utilities/qtextensions/qobject.hpp"
+#include "utilities/qtextensions/translation.hpp"
 
 #include "servicelocator.hpp"
 

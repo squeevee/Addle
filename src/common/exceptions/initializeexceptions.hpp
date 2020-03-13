@@ -14,7 +14,7 @@
 #include <QStringBuilder>
 
 #include "globalconstants.hpp"
-#include "utilities/qt_extensions/translation.hpp"
+#include "utilities/qtextensions/translation.hpp"
 #include "baseaddleexception.hpp"
 
 DECL_LOGIC_ERROR(InitializeException)

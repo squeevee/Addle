@@ -6,7 +6,7 @@
 #include <QObject>
 #include <QStringBuilder>
 
-#include "utilities/qt_extensions/translation.hpp"
+#include "utilities/qtextensions/translation.hpp"
 
 #include "baseaddleexception.hpp"
 

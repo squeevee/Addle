@@ -4,7 +4,7 @@
 #include <QAction>
 
 #include "interfaces/presenters/ipropertydecoratedpresenter.hpp"
-#include "utilities/propertydecoration.hpp"
+#include "utilities/presenter/propertydecoration.hpp"
 
 #include "optionaction.hpp"
 

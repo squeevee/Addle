@@ -2,7 +2,7 @@
 #include "interfaces/editing/operations/irasteroperation.hpp"
 #include "interfaces/editing/surfaces/irastersurface.hpp"
 
-#include "utilities/qt_extensions/qobject.hpp"
+#include "utilities/qtextensions/qobject.hpp"
 
 #include "servicelocator.hpp"
 

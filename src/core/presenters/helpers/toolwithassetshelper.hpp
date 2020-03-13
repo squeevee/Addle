@@ -3,7 +3,7 @@
 
 #include <type_traits>
 
-#include "utilities/qt_extensions/qlist.hpp"
+#include "utilities/qtextensions/qlist.hpp"
 #include "interfaces/presenters/toolpresenters/itoolwithassetspresenter.hpp"
 
 template<class PresenterType, class IdType>

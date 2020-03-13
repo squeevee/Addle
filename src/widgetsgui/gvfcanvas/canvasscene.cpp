@@ -1,7 +1,7 @@
 #include "QtDebug"
 
 #include <QGraphicsView>
-#include "utilities/qt_extensions/qobject.hpp"
+#include "utilities/qtextensions/qobject.hpp"
 #include "canvasscene.hpp"
 #include "interfaces/presenters/toolpresenters/itoolpresenter.hpp"
 #include <QGraphicsSceneMouseEvent>

@@ -1,6 +1,6 @@
 #include "brushtooloptionsbar.hpp"
 
-#include "utilities/propertybinding.hpp"
+#include "utilities/presenter/propertybinding.hpp"
 #include "widgetsgui/utilities/decorationhelper.hpp"
 #include "widgetsgui/utilities/widgetproperties.hpp"
 

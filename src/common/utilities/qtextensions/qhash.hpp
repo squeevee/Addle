@@ -9,8 +9,8 @@
  * QHash and QSet
  */
 
-#ifndef QT_EXTENSIONS__QHASH_HPP
-#define QT_EXTENSIONS__QHASH_HPP
+#ifndef qtextensions__QHASH_HPP
+#define qtextensions__QHASH_HPP
 
 #include <typeindex>
 #include <QHash>
@@ -25,4 +25,4 @@ namespace std
 }
 uint qHash(const PersistentId& id, uint seed = 0);
 
-#endif //QT_EXTENSIONS__QHASH_HPP
+#endif //qtextensions__QHASH_HPP

@@ -1,5 +1,5 @@
-#ifndef QT_EXTENSIONS__TRANSLATION_H
-#define QT_EXTENSIONS__TRANSLATION_H
+#ifndef qtextensions__TRANSLATION_H
+#define qtextensions__TRANSLATION_H
 
 #include <QString>
 #include <QCoreApplication>
@@ -11,4 +11,4 @@
 
 QString fallback_translate(const char* context, const char* key, const QString fallback);
 
-#endif // QT_EXTENSIONS__TRANSLATION_H
+#endif // qtextensions__TRANSLATION_H

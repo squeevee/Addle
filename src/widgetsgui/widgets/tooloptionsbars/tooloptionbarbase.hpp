@@ -5,7 +5,7 @@
 #include <QToolBar>
 #include "interfaces/presenters/toolpresenters/itoolpresenter.hpp"
 
-#include "utilities/qt_extensions/qobject.hpp"
+#include "utilities/qtextensions/qobject.hpp"
 #include "widgetsgui/utilities/decorationhelper.hpp"
 
 class ToolOptionBarBase : public QToolBar 
