@@ -32,9 +32,9 @@ public:
 
     virtual void initialize(EmptyInitOptions option = initNoModel) = 0;
     virtual void initialize(QSize size, QColor backgroundColor) = 0;
-    virtual void initialize(QWeakPointer<IDocument> model) = 0;
+    virtual void initialize(QSharedPointer<IDocument> model) = 0;
 
-    virtual QWeakPointer<IDocument> getModel() = 0;
+    virtual QSharedPointer<IDocument> getModel() = 0;
 
     virtual bool isEmpty() = 0;
     

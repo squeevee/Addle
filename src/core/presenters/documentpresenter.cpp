@@ -15,7 +15,7 @@ void DocumentPresenter::initialize(EmptyInitOptions option)
         break;
 
     case initBlankDefaults:
-        initialize(QSize(800, 600), Qt::white); // TODO: not this
+        initialize(QSize(800, 600), QColor::fromRgb(255,255,255,128)); // TODO: not this
         break;
     }
 
@@ -38,7 +38,7 @@ void DocumentPresenter::initialize(QSize size, QColor backgroundColor)
     _initHelper.initializeEnd();
 }
 
-void DocumentPresenter::initialize(QWeakPointer<IDocument> model)
+void DocumentPresenter::initialize(QSharedPointer<IDocument> model)
 {
     _initHelper.initializeBegin();
 

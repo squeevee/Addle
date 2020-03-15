@@ -4,7 +4,7 @@ set ( CMAKE_AUTOMOC ON )
 
 set (
     SOURCES
-    canvas/canvasitem.cpp
+    canvas/docbackgrounditem.cpp
     canvas/canvasscene.cpp
     canvas/layeritem.cpp
     main/maineditorview.cpp

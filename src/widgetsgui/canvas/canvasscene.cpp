@@ -7,24 +7,23 @@
 #include <QGraphicsSceneMouseEvent>
 
 #include "interfaces/presenters/icanvaspresenter.hpp"
+#include "interfaces/presenters/imaineditorpresenter.hpp"
 
-#include "canvasitem.hpp"
+#include "docbackgrounditem.hpp"
 
 CanvasScene::CanvasScene(ICanvasPresenter& presenter, QObject* parent)
     : QGraphicsScene(parent), _presenter(presenter)
 {
     _presenter = presenter;
-    _canvasItem = new CanvasItem(presenter);
+    
+    IMainEditorPresenter& mainEditorPresenter = *_presenter.getMainEditorPresenter();
 
-    addItem(_canvasItem);
-    _canvasItem->setPos(QPoint(0,0));
+    IDocumentPresenter& documentPresenter = *mainEditorPresenter.getDocumentPresenter();
+    DocBackgroundItem* background = new DocBackgroundItem(documentPresenter);
 
-    update();
+    addItem(background);
 }
 
-void CanvasScene::update()
-{
-}
 
 void CanvasScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
 {

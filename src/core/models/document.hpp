@@ -72,9 +72,9 @@ private:
     QList<QSharedPointer<ILayer>> _layers;
     QSize _size;
 
-    bool _empty = true;
+    bool _empty = false; //true;
 
-    QColor _backgroundColor = Qt::GlobalColor::white;
+    QColor _backgroundColor = Qt::GlobalColor::transparent;
 
     QString _filename;
 

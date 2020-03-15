@@ -1,6 +1,7 @@
 #include "viewportpresenter.hpp"
 
 #include "interfaces/presenters/imaineditorpresenter.hpp"
+#include "interfaces/presenters/idocumentpresenter.hpp"
 
 #include "utilities/qtextensions/qobject.hpp"
 #include "servicelocator.hpp"
@@ -61,8 +62,6 @@ void ViewPortPresenter::initialize(IMainEditorPresenter* mainEditorPresenter)
         SLOT(onMainEditorPresenter_isEmptyChanged())
     );
 
-    _transformCache.recalculate();
-
     _initHelper.initializeEnd();
 }
 
@@ -87,7 +86,7 @@ ViewPortPresenter::ScrollState ViewPortPresenter::getScrollState_p()
 
     QTransform fromCanvas = getFromCanvasTransform();
 
-    QRect canvasRect;// = fromCanvas.mapRect(QRect(QPoint(), _mainEditorPresenter->getCanvasSize()));
+    QRect canvasRect = fromCanvas.mapRect(QRect(QPoint(), _mainEditorPresenter->getDocumentPresenter()->getSize()));
     
     return ScrollState(canvasRect.size(), QRect(-canvasRect.topLeft(), _size));
 }
@@ -396,6 +395,8 @@ void ViewPortPresenter::setSize(QSize size)
 void ViewPortPresenter::onMainEditorPresenter_isEmptyChanged()
 {
     _canNavigateCache.recalculate();
+    _scrollStateCache.recalculate();
+    resetTransforms();
 }
 
 void ViewPortPresenter::propagateCanNavigate()
@@ -420,6 +421,8 @@ ViewPortPresenter::TransformPair ViewPortPresenter::getTransforms_p()
 
 void ViewPortPresenter::centerView()
 {
-    //setPosition(QRectF(QPointF(), _mainEditorPresenter->getCanvasSize()).center());
-    //emit needsUpdate();
+    if (_mainEditorPresenter->isEmpty())
+        setPosition(QPointF());
+    else
+        setPosition(QRectF(QPointF(), _mainEditorPresenter->getDocumentPresenter()->getSize()).center());
 }

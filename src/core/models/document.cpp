@@ -17,7 +17,8 @@ void Document::initialize(DocumentBuilder& builder)
         _layers.append(QSharedPointer<ILayer>(layer));
     }
 
-    updateGeometry();
+    _size = unitedBoundary().size();
+    //updateGeometry();
     _initHelper.initializeEnd();
 }
 
@@ -165,53 +166,57 @@ void Document::layersChanged(QList<ILayer*> layers)
 
 void Document::updateGeometry()
 {
-    _empty = true;
-    for (QSharedPointer<ILayer> layer : _layers)
-    {
-        if (!layer->isEmpty())
-        {
-            _empty = false;
-            break;
-        }
-    }
+    //I'm honestly not sure what this function is trying to do. -E 3/2020
 
-    QRect newBoundary = unitedBoundary();
+    // maybe concern over the document being "empty" should be relegated to the
+    // presenter
+    // _empty = true;
+    // for (QSharedPointer<ILayer> layer : _layers)
+    // {
+    //     if (!layer->isEmpty())
+    //     {
+    //         _empty = false;
+    //         break;
+    //     }
+    // }
 
-    if (newBoundary.isNull())
-    {
-        return;
-    }
+    // QRect newBoundary = unitedBoundary();
 
-    QPoint newTopLeft = newBoundary.topLeft();
-    QSize newSize = newBoundary.size();
-    bool sizeChanging = newSize != _size;
+    // if (newBoundary.isNull())
+    // {
+    //     return;
+    // }
 
-    QRect boundaryChange(newTopLeft, newSize);
-    if (!newTopLeft.isNull() || sizeChanging)
-    {
-        emit boundaryChanging(boundaryChange);
-    }
+    // QPoint newTopLeft = newBoundary.topLeft();
+    // QSize newSize = newBoundary.size();
+    // bool sizeChanging = newSize != _size;
 
-    _size = newSize;
+    // QRect boundaryChange(newTopLeft, newSize);
+    // if (!newTopLeft.isNull() || sizeChanging)
+    // {
+    //     emit boundaryChanging(boundaryChange);
+    // }
 
-    if (!newTopLeft.isNull())
-    {
-        for (QSharedPointer<ILayer> layer : _layers)
-        {
-            if (layer->isEmpty())
-            {
-                continue;
-            }
+    // _size = newSize;
 
-            QPoint layerTL = layer->getTopLeft();
-            layer->setTopLeft(layerTL - newTopLeft);
-        }
-    }
+    // if (!newTopLeft.isNull())
+    // {
+    //     for (QSharedPointer<ILayer> layer : _layers)
+    //     {
+    //         if (layer->isEmpty())
+    //         {
+    //             continue;
+    //         }
 
-    if (!newTopLeft.isNull() || sizeChanging)
-    {
-        emit boundaryChanged(boundaryChange);
-    }
+    //         QPoint layerTL = layer->getTopLeft();
+    //         layer->setTopLeft(layerTL - newTopLeft);
+    //     }
+    // }
+
+    // if (!newTopLeft.isNull() || sizeChanging)
+    // {
+    //     emit boundaryChanged(boundaryChange);
+    // }
 }
 
 QRect Document::unitedBoundary()
@@ -220,11 +225,6 @@ QRect Document::unitedBoundary()
 
     for (QSharedPointer<ILayer> layer : _layers)
     {
-        if (layer->isEmpty())
-        {
-            continue;
-        }
-
         QRect bound = layer->getBoundary();
         if (!bound.isNull())
         {

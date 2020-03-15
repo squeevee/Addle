@@ -11,6 +11,7 @@
 
 class CanvasScene;
 class IViewPortPresenter;
+class IDocumentPresenter;
 class ViewPort : public QGraphicsView
 {
     Q_OBJECT
@@ -26,9 +27,8 @@ protected:
     void resizeEvent(QResizeEvent* event);
     void moveEvent(QMoveEvent *event);
 
-    void drawBackground(QPainter* painter, const QRectF& rect);
-
 private slots:
+    void onMainEditorPresenter_documentChanged(IDocumentPresenter* documentPresenter);
     void onTransformsChanged();
 
 private:
@@ -40,9 +40,8 @@ private:
 
     CanvasScene* _canvasScene;
 
-    QPixmap _backgroundTexture;
-
     IViewPortPresenter* _presenter;
+    IMainEditorPresenter* _mainEditorPresenter;
 };
 
 

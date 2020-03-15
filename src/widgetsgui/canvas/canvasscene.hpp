@@ -18,9 +18,6 @@ public:
     CanvasScene(ICanvasPresenter& presenter, QObject* parent = nullptr);
     virtual ~CanvasScene() = default;
 
-public slots:
-    void update();
-
 protected:
     void mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent);
     void mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent);

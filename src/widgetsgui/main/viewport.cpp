@@ -28,14 +28,12 @@
 ViewPort::ViewPort(IViewPortPresenter* presenter)
 {
     _presenter = presenter;
+    _mainEditorPresenter = _presenter->getMainEditorPresenter();
 
     QGraphicsView::setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     QGraphicsView::setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     
     QGraphicsView::setTransformationAnchor(ViewportAnchor::AnchorViewCenter);
-
-    //_canvasScene = new CanvasScene(*canvasPresenter, this);
-    //setScene(_canvasScene);
 
     verticalScrollBar()->disconnect(this);
     horizontalScrollBar()->disconnect(this);
@@ -55,14 +53,19 @@ ViewPort::ViewPort(IViewPortPresenter* presenter)
     new PropertyBinding(
         this,
         "_mainPresenterIsEmpty",
-        qobject_interface_cast(_presenter->getMainEditorPresenter()), 
+        qobject_interface_cast(_mainEditorPresenter), 
         IMainEditorPresenter::Meta::Properties::empty,
         PropertyBinding::ReadOnly
     );
 
-    QFrame::setFrameShape(QFrame::Shape::StyledPanel);
+    connect_interface(
+        _mainEditorPresenter,
+        SIGNAL(documentPresenterChanged(IDocumentPresenter*)),
+        this,
+        SLOT(onMainEditorPresenter_documentChanged(IDocumentPresenter*))
+    );
 
-    _backgroundTexture = checkerBoardTexture(35, Qt::gray, Qt::lightGray);
+    QFrame::setFrameShape(QFrame::Shape::StyledPanel);
 }
 
 void ViewPort::resizeEvent(QResizeEvent *event)
@@ -107,18 +110,13 @@ void ViewPort::onTransformsChanged()
     QGraphicsView::scene()->removeEventFilter(&blocker);
 }
 
-void ViewPort::drawBackground(QPainter* painter, const QRectF& rect)
+void ViewPort::onMainEditorPresenter_documentChanged(IDocumentPresenter* documentPresenter)
 {
-    if (_cache_mainPresenterIsEmpty) return;
+    if (!documentPresenter)
+        return;
 
-    painter->save();
+    ICanvasPresenter* canvasPresenter = _mainEditorPresenter->getCanvasPresenter();
 
-    painter->setTransform(painter->worldTransform());
-    painter->drawTiledPixmap(
-        _cache_fromCanvasTransform.mapRect(rect).intersected(_cache_viewPortRect),
-        _backgroundTexture,
-        _cache_viewPortRect.center()
-    );
-
-    painter->restore();
+    _canvasScene = new CanvasScene(*canvasPresenter, this);
+    setScene(_canvasScene);
 }

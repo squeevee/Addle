@@ -15,13 +15,13 @@ public:
 
     void initialize(EmptyInitOptions option);
     void initialize(QSize size, QColor backgroundColor);
-    void initialize(QWeakPointer<IDocument> model);
+    void initialize(QSharedPointer<IDocument> model);
 
-    QWeakPointer<IDocument> getModel() { _initHelper.check(); return _model; }
+    QSharedPointer<IDocument> getModel() { _initHelper.check(); return _model; }
     bool isEmpty() { _initHelper.check(); return !_model; }
 
-    QSize getSize() { _initHelper.check(); return _model ? _model.toStrongRef()->getSize() : QSize(); }
-    QColor getBackgroundColor() { _initHelper.check(); return _model ? _model.toStrongRef()->getBackgroundColor() : QColor(); }
+    QSize getSize() { _initHelper.check(); return _model ? _model->getSize() : QSize(); }
+    QColor getBackgroundColor() { _initHelper.check(); return _model ? _model->getBackgroundColor() : QColor(); }
 
     QList<ILayerPresenter*> getLayers() { _initHelper.check(); return _layers; }
 
@@ -31,7 +31,7 @@ private:
 
     QList<ILayerPresenter*> _layers;
 
-    QWeakPointer<IDocument> _model;
+    QSharedPointer<IDocument> _model;
 
     InitializeHelper<DocumentPresenter> _initHelper;
 };
