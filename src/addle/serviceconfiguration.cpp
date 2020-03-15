@@ -18,7 +18,8 @@
 #include "core/models/document.hpp"
 #include "core/models/brush.hpp"
 
-#include "core/presenters/editorpresenter.hpp"
+#include "core/presenters/maineditorpresenter.hpp"
+#include "core/presenters/documentpresenter.hpp"
 #include "core/presenters/canvaspresenter.hpp"
 #include "core/presenters/viewportpresenter.hpp"
 #include "core/presenters/errorpresenter.hpp"
@@ -38,8 +39,7 @@
 #include "core/tasks/taskcontroller.hpp"
 #include "core/tasks/loaddocumentfiletask.hpp"
 
-#include "widgetsgui/main/editorview.hpp"
-#include "widgetsgui/gvfcanvas/viewportwidget.hpp"
+#include "widgetsgui/main/maineditorview.hpp"
 
 void ServiceConfiguration::configure()
 {
@@ -59,11 +59,12 @@ void ServiceConfiguration::configure()
     REGISTER_TFACTORY(IBrush, Brush);
 
     // # Presenters
-    REGISTER_TFACTORY(IEditorPresenter, EditorPresenter);
+    REGISTER_TFACTORY(IMainEditorPresenter, MainEditorPresenter);
     REGISTER_TFACTORY(ICanvasPresenter, CanvasPresenter);
     REGISTER_TFACTORY(IViewPortPresenter, ViewPortPresenter);
     REGISTER_TFACTORY(IErrorPresenter, ErrorPresenter);
     REGISTER_QOBJECT_FACTORY(ILayerPresenter, LayerPresenter);
+    REGISTER_QOBJECT_FACTORY(IDocumentPresenter, DocumentPresenter);
 
     // ## Asset presenters
     REGISTER_QOBJECT_FACTORY(IBrushPresenter, BrushPresenter);
@@ -87,6 +88,5 @@ void ServiceConfiguration::configure()
     REGISTER_TFACTORY(IJPEGFormatDriver, QtJPEGFormatDriver);
 
     // # Views
-    REGISTER_QOBJECT_FACTORY(IEditorView, EditorView);
-    REGISTER_QOBJECT_FACTORY(IViewPort, GVFCanvas::ViewPortWidget);
+    REGISTER_QOBJECT_FACTORY(IMainEditorView, MainEditorView);
 }

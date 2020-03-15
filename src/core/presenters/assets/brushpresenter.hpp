@@ -14,8 +14,8 @@ public:
     void initialize(QSharedPointer<IBrush> model);
 
     PersistentId getId() { return getBrushId(); }
-    BrushId getBrushId() { _initHelper.assertInitialized(); return _model->getId(); }
-    QSharedPointer<IBrush> getModel() { _initHelper.assertInitialized(); return _model; }
+    BrushId getBrushId() { _initHelper.check(); return _model->getId(); }
+    QSharedPointer<IBrush> getModel() { _initHelper.check(); return _model; }
     
     SizeOption getSize() { return SizeOption::_25px; } //todo
     double getCustomPixelSize() { return 0; } //

@@ -1,10 +1,10 @@
 #include "canvaspresenter.hpp"
 
-void CanvasPresenter::initialize(IDocumentPresenter* documentPresenter)
+void CanvasPresenter::initialize(IMainEditorPresenter* mainEditorPresenter)
 {
     _initHelper.initializeBegin();
 
-    _documentPresenter = documentPresenter;
+    _mainEditorPresenter = mainEditorPresenter;
 
     _initHelper.initializeEnd();
 }

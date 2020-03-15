@@ -13,7 +13,7 @@ class NavigateToolOptionsBar : public ToolOptionBarBase
     typedef INavigateToolPresenter::NavigateOperationOptions NavigateOperationOptions;
     Q_OBJECT 
 public: 
-    NavigateToolOptionsBar(INavigateToolPresenter& presenter, QMainWindow* parent);
+    NavigateToolOptionsBar(INavigateToolPresenter& presenter, QWidget* parent);
 
     OptionAction* _action_navigateOperation_gripPan;
     OptionAction* _action_navigateOperation_gripPivot;

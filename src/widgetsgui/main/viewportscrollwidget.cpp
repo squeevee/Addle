@@ -9,6 +9,8 @@
 #include "utilities/presenter/propertybinding.hpp"
 #include "widgetsgui/utilities/widgetproperties.hpp"
 
+#include "viewport.hpp"
+
 ViewPortScrollWidget::ViewPortScrollWidget(IViewPortPresenter& presenter, QWidget* parent)
     : QWidget(parent), _presenter(presenter)
 {
@@ -22,7 +24,6 @@ ViewPortScrollWidget::ViewPortScrollWidget(IViewPortPresenter& presenter, QWidge
 
     _layout = new QGridLayout(this);
     QWidget::setLayout(_layout);
-
 
     _scrollbar_horizontal = new QScrollBar(Qt::Orientation::Horizontal, this);
     _scrollbar_horizontal->setSingleStep(100);
@@ -42,7 +43,7 @@ ViewPortScrollWidget::ViewPortScrollWidget(IViewPortPresenter& presenter, QWidge
     connect(_scrollbar_vertical, SIGNAL(valueChanged(int)), qobject_interface_cast(&_presenter), SLOT(scrollY(int)));
 }
 
-void ViewPortScrollWidget::setViewPort(IViewPort* viewPort)
+void ViewPortScrollWidget::setViewPort(ViewPort* viewPort)
 {
     _viewPort = viewPort;
 

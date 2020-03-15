@@ -12,7 +12,7 @@ public:
     virtual ~IHaveToolsPresenter() = default;
 
     virtual ToolId getCurrentTool() = 0;
-    virtual void setCurrentTool(ToolId tool) = 0;
+    virtual void selectTool(ToolId tool) = 0;
     virtual QList<ToolId> getTools() = 0;
 
     virtual IToolPresenter* getToolPresenter(ToolId id) = 0;

@@ -6,7 +6,7 @@
 #include <QIcon>
 
 #include "itoolpresenter.hpp"
-#include "interfaces/traits/initialize_traits.hpp"
+#include "interfaces/traits/initialize_trait.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 #include "interfaces/traits/makeable_trait.hpp"
 #include "interfaces/presenters/iviewportpresenter.hpp"
@@ -32,7 +32,7 @@ public:
 
     virtual ~INavigateToolPresenter() = default;
 
-    virtual void initialize(IDocumentPresenter* owner) = 0;
+    virtual void initialize(IMainEditorPresenter* owner) = 0;
     
     virtual NavigateOperationOptions getNavigateOperation() = 0;
 
@@ -50,8 +50,6 @@ DECL_INTERFACE_META_PROPERTIES(
 
 DECL_MAKEABLE(INavigateToolPresenter)
 DECL_EXPECTS_INITIALIZE(INavigateToolPresenter)
-DECL_INIT_DEPENDENCY(INavigateToolPresenter, IDocumentPresenter)
-DECL_INIT_DEPENDENCY(INavigateToolPresenter, IViewPortPresenter)
 DECL_IMPLEMENTED_AS_QOBJECT(INavigateToolPresenter)
 
 #endif // INAVIGATETOOLPRESENTER_HPP

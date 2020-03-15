@@ -16,6 +16,7 @@
 #include "idtypes/brushid.hpp"
 #include "idtypes/toolid.hpp"
 #include "idtypes/formatid.hpp"
+#include "utilities/canvas/canvasmouseevent.hpp"
 
 void registerQMetaTypes()
 {
@@ -40,6 +41,8 @@ void registerQMetaTypes()
     qRegisterMetaType<FormatId>();
     QMetaType::registerConverter<FormatId, PersistentId>();
     IndexVariant::registerHasher<FormatId, PersistentId>();
+
+    CanvasMouseEvent::_type = QEvent::registerEventType(CanvasMouseEvent::_type);
 }
 
 #endif // REGISTERQMETATYPES_HPP

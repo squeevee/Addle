@@ -11,15 +11,12 @@
 #include "interfaces/presenters/iviewportpresenter.hpp"
 #include "widgetsgui/utilities/zoomslider.hpp"
 
-class ViewPortWidget;
 class ZoomRotateWidget : public QToolBar //QWidget 
 {
     Q_OBJECT
 public:
     ZoomRotateWidget(IViewPortPresenter& presenter, QWidget* parent = nullptr);
     virtual ~ZoomRotateWidget() = default;
-
-    void connectViewPortActions(ViewPortWidget& viewPortWidget);
 
     QAction* getAction_zoomIn() { return _action_zoomIn; }
     QAction* getAction_zoomOut() { return _action_zoomOut; }

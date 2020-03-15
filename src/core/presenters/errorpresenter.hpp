@@ -13,11 +13,11 @@ public:
 
     void initialize(QString message = QString(), Severity severity = Severity::warning);
 
-    Severity getSeverity() { _initHelper.assertInitialized(); return _severity; }
-    void setSeverity(Severity severity) { _initHelper.assertInitialized(); _severity = severity; }
+    Severity getSeverity() { _initHelper.check(); return _severity; }
+    void setSeverity(Severity severity) { _initHelper.check(); _severity = severity; }
 
-    QString getMessage() { _initHelper.assertInitialized(); return _message; }
-    void setMessage(QString message) { _initHelper.assertInitialized(); _message = message; }
+    QString getMessage() { _initHelper.check(); return _message; }
+    void setMessage(QString message) { _initHelper.check(); _message = message; }
 
 private:
     Severity _severity;

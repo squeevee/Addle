@@ -3,6 +3,7 @@
 
 #include <QUrl>
 #include <QFileInfo>
+#include <QWeakPointer>
 
 #include "iraiseerrorpresenter.hpp"
 #include "ihavetoolspresenter.hpp"
@@ -11,48 +12,39 @@
 #include "interfaces/models/idocument.hpp"
 
 #include "interfaces/traits/qobject_trait.hpp"
+#include "interfaces/traits/initialize_trait.hpp"
+#include "interfaces/traits/makeable_trait.hpp"
 #include "interfaces/traits/metaobjectinfo.hpp"
 
-class ILayerPresenter;
-class IViewPortPresenter;
 class ICanvasPresenter;
-class IDocumentView;
-class IDocumentPresenter 
-    : public virtual IHaveToolsPresenter,
-    public virtual IRaiseErrorPresenter,
-    public virtual IPropertyDecoratedPresenter
+class ILayerPresenter;
+class IDocumentPresenter
 {
 public:
-    INTERFACE_META(IDocumentPresenter)
+    enum EmptyInitOptions
+    {
+        initNoModel,
+        initEmptyModel,
+        initBlankDefaults
+    };
 
     virtual ~IDocumentPresenter() = default;
 
+    virtual void initialize(EmptyInitOptions option = initNoModel) = 0;
+    virtual void initialize(QSize size, QColor backgroundColor) = 0;
+    virtual void initialize(QWeakPointer<IDocument> model) = 0;
 
-    virtual IDocumentView* getDocumentView() = 0;
-
-    virtual IViewPortPresenter* getViewPortPresenter() = 0;
-
-    virtual ICanvasPresenter* getCanvasPresenter() = 0;
+    virtual QWeakPointer<IDocument> getModel() = 0;
 
     virtual bool isEmpty() = 0;
-    virtual QSize getCanvasSize() = 0;
+    
+    virtual QSize getSize() = 0;
     virtual QColor getBackgroundColor() = 0;
 
     virtual QList<ILayerPresenter*> getLayers() = 0;
-
-public slots:
-    virtual void loadDocument(QUrl url) = 0;
-
-signals:
-    virtual void documentChanged(QSharedPointer<IDocument> document) = 0;
 };
-
-DECL_INTERFACE_META_PROPERTIES(
-    IDocumentPresenter,
-    DECL_INTERFACE_PROPERTY(currentTool)
-    DECL_INTERFACE_PROPERTY(empty)
-)
-
-DECL_IMPLEMENTED_AS_QOBJECT(IDocumentPresenter)
+DECL_MAKEABLE(IDocumentPresenter);
+DECL_EXPECTS_INITIALIZE(IDocumentPresenter);
+DECL_IMPLEMENTED_AS_QOBJECT(IDocumentPresenter);
 
 #endif // IDOCUMENTPRESENTER_HPP

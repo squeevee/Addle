@@ -63,5 +63,22 @@ configuration. And overall it'd be more C++-esque.
 Potential complications might involve unit tests and dynamically loaded code
 (i.e., plugins), but I think we can adapt.
 
-Pass presenters with shared or weak pointers? At least make init function and 
-constructor signatures consistent
+Pass presenters with shared or weak pointers? const references to shared/weak 
+pointers (might be easier on the include network)? At least make init function
+and constructor signatures consistent
+
+reusable (shared?) cache of viewport info for view items that draw themselves
+with respect to the viewport. Maybe with a QWidget pointer to the ViewPort as a 
+handle to check against, during the paint call.
+
+property decorations should be more metadata-ish and less interface-ish
+The thing about property decorations is that they're generally static, and often
+automatically generated string keys for reference against a translation table.
+But the trouble is not always.
+
+InitHelper:
+
+- Do less/nothing in release builds (optimization, low priority)
+- For init functions, make a scope-limited object whose constructor calls
+  initializeBegin() and whose destructor callse initializeEnd(), would simplify
+  some syntax

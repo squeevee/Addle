@@ -13,11 +13,11 @@ public:
     virtual ~LayerPresenter() = default;
 
     void initialize(IDocumentPresenter* documentPresenter, QWeakPointer<ILayer> model);
-    IDocumentPresenter* getDocumentPresenter() { _initHelper.assertInitialized(); return _documentPresenter; }
+    IDocumentPresenter* getDocumentPresenter() { _initHelper.check(); return _documentPresenter; }
 
-    QWeakPointer<ILayer> getModel() { _initHelper.assertInitialized(); return _model; }
+    QWeakPointer<ILayer> getModel() { _initHelper.check(); return _model; }
 
-    QRect getCanvasBounds() { _initHelper.assertInitialized(); return QRect(QPoint(), _documentPresenter->getCanvasSize()); }
+    QRect getCanvasBounds() { _initHelper.check(); return QRect(); }//QRect(QPoint(), _documentPresenter->getCanvasSize()); }
     void render(QPainter& painter, QRect area);
 
 signals: 

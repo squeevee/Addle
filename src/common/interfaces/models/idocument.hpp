@@ -13,24 +13,17 @@
 #include "interfaces/traits/makeable_trait.hpp"
 
 #include "utilities/model/documentbuilder.hpp"
-#include "interfaces/traits/initialize_traits.hpp"
+#include "interfaces/traits/initialize_trait.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 
 class IDocument : public virtual IFormatModel
 {
 public:
-
-    enum InitEmptyOptions
-    {
-        nothing,
-        useDefaults
-    };
-
     static const QColor DEFAULT_BACKGROUND_COLOR;
 
     virtual ~IDocument() {}
 
-    virtual void initialize(InitEmptyOptions emptyOption = InitEmptyOptions::useDefaults) = 0;
+    virtual void initialize() = 0;
     virtual void initialize(DocumentBuilder& builder) = 0;
 
     virtual void render(QRect area, QPaintDevice* device) = 0;
@@ -57,8 +50,7 @@ signals:
 DECL_MAKEABLE(IDocument)
 DECL_EXPECTS_INITIALIZE(IDocument)
 DECL_IMPLEMENTED_AS_QOBJECT(IDocument)
-//DECL_INIT_DEPENDENCY(IDocument, ILayer)
-
 Q_DECLARE_METATYPE(QSharedPointer<IDocument>)
+Q_DECLARE_METATYPE(QWeakPointer<IDocument>)
 
 #endif // IDOCUMENT_HPP

@@ -4,7 +4,6 @@
 #include <QObject>
 #include <QRect>
 
-#include "interfaces/presenters/ieditorpresenter.hpp"
 #include "interfaces/presenters/iviewportpresenter.hpp"
 #include "utilities/presethelper.hpp"
 
@@ -128,12 +127,12 @@ public:
     }
     virtual ~ViewPortPresenter() = default;
 
-    void initialize(IDocumentPresenter* documentPresenter);
+    void initialize(IMainEditorPresenter* mainEditorPresenter);
 
-    IDocumentPresenter* getDocumentPresenter() { _initHelper.assertInitialized(); return _documentPresenter; }
+    IMainEditorPresenter* getMainEditorPresenter() { _initHelper.check(); return _mainEditorPresenter; }
 
 public:
-    bool canNavigate() { _initHelper.assertInitialized(); return _canNavigateCache.getValue(); }
+    bool canNavigate() { _initHelper.check(); return _canNavigateCache.getValue(); }
 
 signals:
     void canNavigateChanged(bool);
@@ -143,8 +142,8 @@ private:
 
     // # Scrolling / positioning
 public:
-    QPointF getPosition() { _initHelper.assertInitialized(); return _position; }
-    const IScrollState& getScrollState() { _initHelper.assertInitialized(); return _scrollStateCache.getValue(); }
+    QPointF getPosition() { _initHelper.check(); return _position; }
+    const IScrollState& getScrollState() { _initHelper.check(); return _scrollStateCache.getValue(); }
 
 public slots:
     void setPosition(QPointF center);
@@ -161,17 +160,17 @@ private:
     ScrollState getScrollState_p();
 
 public:
-    bool canZoomIn() { _initHelper.assertInitialized(); return _canZoomInCache.getValue(); }
-    bool canZoomOut() { _initHelper.assertInitialized(); return _canZoomOutCache.getValue(); }
+    bool canZoomIn() { _initHelper.check(); return _canZoomInCache.getValue(); }
+    bool canZoomOut() { _initHelper.check(); return _canZoomOutCache.getValue(); }
 
-    double getZoom() { _initHelper.assertInitialized(); return _zoom; }
+    double getZoom() { _initHelper.check(); return _zoom; }
     void setZoom(double zoom);
     //void gripZoom(QPoint gripStart, QPoint gripEnd);
     
-    ZoomPreset getZoomPreset() { _initHelper.assertInitialized(); return _zoomPreset; }
+    ZoomPreset getZoomPreset() { _initHelper.check(); return _zoomPreset; }
     void setZoomPreset(ZoomPreset preset);
-    double getMaxZoomPresetValue() { _initHelper.assertInitialized(); return _zoomPresetHelper.valueOf(MAX_ZOOM_PRESET); }
-    double getMinZoomPresetValue() { _initHelper.assertInitialized(); return _zoomPresetHelper.valueOf(MIN_ZOOM_PRESET); }
+    double getMaxZoomPresetValue() { _initHelper.check(); return _zoomPresetHelper.valueOf(MAX_ZOOM_PRESET); }
+    double getMinZoomPresetValue() { _initHelper.check(); return _zoomPresetHelper.valueOf(MIN_ZOOM_PRESET); }
 
     ZoomPreset zoomTo(double zoom, bool snapToPreset = true);
 
@@ -195,9 +194,9 @@ private:
     void propagateCanNavigate();
 
 public:
-    double getRotation() { _initHelper.assertInitialized(); return _rotation; }
+    double getRotation() { _initHelper.check(); return _rotation; }
     void setRotation(double rotation);
-    RotatePreset getRotatePreset() { _initHelper.assertInitialized(); return _rotatePreset; }
+    RotatePreset getRotatePreset() { _initHelper.check(); return _rotatePreset; }
     void setRotatePreset(RotatePreset preset);
 
 public slots:
@@ -209,38 +208,40 @@ signals:
 
 public:
 
-    QSize getSize() { _initHelper.assertInitialized(); return _size; }
-    virtual QPointF getCenter() { _initHelper.assertInitialized(); return _center; }
+    QSize getSize() { _initHelper.check(); return _size; }
+    virtual QPointF getCenter() { _initHelper.check(); return _center; }
 
     void gripPivot(QPointF gripStart, QPointF gripEnd);
 
-    QTransform getOntoCanvasTransform() { _initHelper.assertInitialized(); return _transformCache.getValue().ontoCanvas; }
-    QTransform getFromCanvasTransform() { _initHelper.assertInitialized(); return _transformCache.getValue().fromCanvas; }
+    QTransform getOntoCanvasTransform() { _initHelper.check(); return _transformCache.getValue().ontoCanvas; }
+    QTransform getFromCanvasTransform() { _initHelper.check(); return _transformCache.getValue().fromCanvas; }
 
 //    void gripMove(QPoint gripStart, QPoint gripEnd);
 //    void nudgeMove(int dx, int dy);
 //    void gripRotate(QPoint gripStart, QPoint gripEnd);
 //    void twoGripTransform(QPoint grip1Start, QPoint grip1End, QPoint grip2Start, QPoint grip2End);
 
-    QPoint getGlobalOffset() { _initHelper.assertInitialized(); return _globalOffset; }
+    QPoint getGlobalOffset() { _initHelper.check(); return _globalOffset; }
 
 public slots:
-    void resetView();
+    void resetTransforms();
     void fitWidth();
     void fitCanvas();
 
     void setSize(QSize size);
 
-    void setGlobalOffset(QPoint offset) { _initHelper.assertInitialized(); _globalOffset = offset; }
+    void setGlobalOffset(QPoint offset) { _initHelper.check(); _globalOffset = offset; }
 
 signals:
     void transformsChanged();
+    void ontoCanvasTransformChanged(QTransform);
+    void fromCanvasTransformChanged(QTransform);
 
 private slots:
-    void onDocumentChanged();
+    void onMainEditorPresenter_isEmptyChanged();
     
 private:
-    IDocumentPresenter* _documentPresenter;
+    IMainEditorPresenter* _mainEditorPresenter;
 
     //The actual size of the viewport on the screen.
     QSize _size;

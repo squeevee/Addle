@@ -1,8 +1,5 @@
 // Definitions of Qt string and collection constants
 
-// These constants are compilation static, and therefore should not contain any
-// strings that need to be translated.
-
 #include <QString>
 #include <QByteArray>
 
@@ -17,6 +14,9 @@ STATIC_PERSISTENT_ID_BOILERPLATE(FormatId)
 
 #include "idtypes/toolid.hpp"
 STATIC_PERSISTENT_ID_BOILERPLATE(ToolId)
+
+#include "utilities/canvas/canvasmouseevent.hpp"
+int CanvasMouseEvent::_type = QEvent::User;
 
 #include "interfaces/services/iservice.hpp"
 const QString IService::SERVICE_THREAD_NAME_TEMPLATE = QStringLiteral(ADDLE_STRING__ISERVICE__SERVICE_THREAD_NAME_TEMPLATE);
@@ -108,17 +108,17 @@ const ToolId IMeasureToolPresenter::MEASURE_TOOL_ID = ToolId(
     "measure-tool"
 );
 
-#include "interfaces/presenters/ieditorpresenter.hpp"
-const ToolId IEditorPresenter::DefaultTools::SELECT   = ISelectToolPresenter::SELECT_TOOL_ID;
-const ToolId IEditorPresenter::DefaultTools::BRUSH    = IBrushToolPresenter::BRUSH_TOOL_ID;
-const ToolId IEditorPresenter::DefaultTools::ERASER   = IEraserToolPresenter::ERASER_TOOL_ID;
-const ToolId IEditorPresenter::DefaultTools::FILL     = IFillToolPresenter::FILL_TOOL_ID;
-const ToolId IEditorPresenter::DefaultTools::TEXT     = ITextToolPresenter::TEXT_TOOL_ID;
-const ToolId IEditorPresenter::DefaultTools::SHAPES   = IShapesToolPresenter::SHAPES_TOOL_ID;
-const ToolId IEditorPresenter::DefaultTools::STICKERS = IStickersToolPresenter::STICKERS_TOOL_ID;
-const ToolId IEditorPresenter::DefaultTools::EYEDROP  = IEyedropToolPresenter::EYEDROP_TOOL_ID;
-const ToolId IEditorPresenter::DefaultTools::NAVIGATE = INavigateToolPresenter::NAVIGATE_TOOL_ID;
-const ToolId IEditorPresenter::DefaultTools::MEASURE  = IMeasureToolPresenter::MEASURE_TOOL_ID;
+#include "interfaces/presenters/imaineditorpresenter.hpp"
+const ToolId IMainEditorPresenter::DefaultTools::SELECT   = ISelectToolPresenter::SELECT_TOOL_ID;
+const ToolId IMainEditorPresenter::DefaultTools::BRUSH    = IBrushToolPresenter::BRUSH_TOOL_ID;
+const ToolId IMainEditorPresenter::DefaultTools::ERASER   = IEraserToolPresenter::ERASER_TOOL_ID;
+const ToolId IMainEditorPresenter::DefaultTools::FILL     = IFillToolPresenter::FILL_TOOL_ID;
+const ToolId IMainEditorPresenter::DefaultTools::TEXT     = ITextToolPresenter::TEXT_TOOL_ID;
+const ToolId IMainEditorPresenter::DefaultTools::SHAPES   = IShapesToolPresenter::SHAPES_TOOL_ID;
+const ToolId IMainEditorPresenter::DefaultTools::STICKERS = IStickersToolPresenter::STICKERS_TOOL_ID;
+const ToolId IMainEditorPresenter::DefaultTools::EYEDROP  = IEyedropToolPresenter::EYEDROP_TOOL_ID;
+const ToolId IMainEditorPresenter::DefaultTools::NAVIGATE = INavigateToolPresenter::NAVIGATE_TOOL_ID;
+const ToolId IMainEditorPresenter::DefaultTools::MEASURE  = IMeasureToolPresenter::MEASURE_TOOL_ID;
 
 #include "interfaces/editing/brushrenderers/ibasicbrushrenderer.hpp"
 

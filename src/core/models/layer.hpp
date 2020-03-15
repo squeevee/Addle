@@ -25,13 +25,13 @@ public:
     void initialize();
     void initialize(LayerBuilder& builder);
 
-    bool isEmpty() { _initHelper.assertInitialized(); return _empty; }
+    bool isEmpty() { _initHelper.check(); return _empty; }
 
-    QRect getBoundary() { _initHelper.assertInitialized(); return _boundary; }
-    QPoint getTopLeft() { _initHelper.assertInitialized(); return _boundary.topLeft(); }
-    void setTopLeft(QPoint) { _initHelper.assertInitialized(); }
+    QRect getBoundary() { _initHelper.check(); return _boundary; }
+    QPoint getTopLeft() { _initHelper.check(); return _boundary.topLeft(); }
+    void setTopLeft(QPoint) { _initHelper.check(); }
 
-    QColor getSkirtColor() { _initHelper.assertInitialized(); return Qt::GlobalColor::transparent; }
+    QColor getSkirtColor() { _initHelper.check(); return Qt::GlobalColor::transparent; }
 
     IRasterSurface* getRasterSurface() { return _rasterSurface; }
 

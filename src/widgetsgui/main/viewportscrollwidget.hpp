@@ -6,9 +6,14 @@
 #include <QAction>
 #include <QScrollBar>
 
-#include "interfaces/views/iviewport.hpp"
 #include "interfaces/presenters/iviewportpresenter.hpp"
 
+class ViewPort;
+
+/**
+ * It's easier to just make new scroll bars than to get the ones that come 
+ * built into QGraphicsView to play nice with the presenter.
+ */
 class ViewPortScrollWidget : public QWidget
 {
     Q_OBJECT
@@ -16,8 +21,8 @@ public:
     ViewPortScrollWidget(IViewPortPresenter& presenter, QWidget* parent = nullptr);
     virtual ~ViewPortScrollWidget() = default;
 
-    IViewPort* getViewPort() { return _viewPort; }
-    void setViewPort(IViewPort* viewPort);
+    ViewPort* getViewPort() { return _viewPort; }
+    void setViewPort(ViewPort* viewPort);
 
     QSize sizeHint() const { return QSize(640, 480); }
 
@@ -27,7 +32,7 @@ private slots:
 private:
     IViewPortPresenter& _presenter;
 
-    IViewPort* _viewPort = nullptr;
+    ViewPort* _viewPort = nullptr;
 
     QGridLayout* _layout;
 

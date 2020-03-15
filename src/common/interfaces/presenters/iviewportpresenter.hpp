@@ -5,16 +5,15 @@
 #include <QPointF>
 #include <QTransform>
 
-#include "idocumentpresenter.hpp"
-
 #include "interfaces/traits/makeable_trait.hpp"
-#include "interfaces/traits/initialize_traits.hpp"
+#include "interfaces/traits/initialize_trait.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 
 #include "interfaces/traits/metaobjectinfo.hpp"
 
 #include "iscrollstate.hpp"
 
+class IMainEditorPresenter;
 class IViewPortPresenter
 {
 public:
@@ -59,9 +58,9 @@ public:
 
     virtual ~IViewPortPresenter() = default;
 
-    virtual void initialize(IDocumentPresenter* documentPresenter) = 0;
-
-    virtual IDocumentPresenter* getDocumentPresenter() = 0;
+    virtual void initialize(IMainEditorPresenter* mainEditorPresenter) = 0;
+    
+    virtual IMainEditorPresenter* getMainEditorPresenter() = 0;
 
 public:
     virtual bool canNavigate() = 0;
@@ -133,7 +132,7 @@ public:
     virtual QTransform getFromCanvasTransform() = 0;
 
 public slots:
-    virtual void resetView() = 0;
+    virtual void resetTransforms() = 0;
     virtual void fitWidth() = 0;
     virtual void fitCanvas() = 0;
 
@@ -154,7 +153,6 @@ DECL_INTERFACE_META_PROPERTIES(
 
 DECL_MAKEABLE(IViewPortPresenter)
 DECL_EXPECTS_INITIALIZE(IViewPortPresenter)
-DECL_INIT_DEPENDENCY(IViewPortPresenter, IDocumentPresenter)
 DECL_IMPLEMENTED_AS_QOBJECT(IViewPortPresenter)
 
 #endif // IVIEWPORTPRESENTER_HPP

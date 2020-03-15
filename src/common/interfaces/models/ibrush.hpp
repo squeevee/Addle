@@ -2,7 +2,7 @@
 #define IBRUSH_HPP
 
 #include "interfaces/traits/makeable_trait.hpp"
-#include "interfaces/traits/initialize_traits.hpp"
+#include "interfaces/traits/initialize_trait.hpp"
 
 #include "idtypes/brushid.hpp"
 #include "interfaces/editing/brushrenderers/ibrushrenderer.hpp"

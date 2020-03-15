@@ -1,5 +1,7 @@
 #include "viewportpresenter.hpp"
 
+#include "interfaces/presenters/imaineditorpresenter.hpp"
+
 #include "utilities/qtextensions/qobject.hpp"
 #include "servicelocator.hpp"
 
@@ -47,12 +49,17 @@ const PresetHelper<ViewPortPresenter::ZoomPreset, double> ViewPortPresenter::_zo
             }
         );
 
-void ViewPortPresenter::initialize(IDocumentPresenter* documentPresenter)
+void ViewPortPresenter::initialize(IMainEditorPresenter* mainEditorPresenter)
 {
     _initHelper.initializeBegin();
-    _documentPresenter = documentPresenter;
+    _mainEditorPresenter = mainEditorPresenter;
 
-    connect_interface(_documentPresenter, SIGNAL(documentChanged(QSharedPointer<IDocument>)), this, SLOT(onDocumentChanged()));
+    connect_interface(
+        _mainEditorPresenter,
+        SIGNAL(isEmptyChanged(bool)),
+        this,
+        SLOT(onMainEditorPresenter_isEmptyChanged())
+    );
 
     _transformCache.recalculate();
 
@@ -61,7 +68,7 @@ void ViewPortPresenter::initialize(IDocumentPresenter* documentPresenter)
 
 void ViewPortPresenter::setPosition(QPointF position)
 {
-    _initHelper.assertInitialized();
+    _initHelper.check();
 
     _position = position;
     _transformCache.recalculate();
@@ -71,7 +78,7 @@ void ViewPortPresenter::setPosition(QPointF position)
 
 ViewPortPresenter::ScrollState ViewPortPresenter::getScrollState_p()
 {
-    _initHelper.assertInitialized();
+    _initHelper.check();
 
     if (!canNavigate())
     {
@@ -80,7 +87,7 @@ ViewPortPresenter::ScrollState ViewPortPresenter::getScrollState_p()
 
     QTransform fromCanvas = getFromCanvasTransform();
 
-    QRect canvasRect = fromCanvas.mapRect(QRect(QPoint(), _documentPresenter->getCanvasSize()));
+    QRect canvasRect;// = fromCanvas.mapRect(QRect(QPoint(), _mainEditorPresenter->getCanvasSize()));
     
     return ScrollState(canvasRect.size(), QRect(-canvasRect.topLeft(), _size));
 }
@@ -109,12 +116,12 @@ void ViewPortPresenter::gripPan(QPointF start, QPointF end)
 
 bool ViewPortPresenter::canNavigate_p()
 {
-    return !_documentPresenter->isEmpty();
+    return !_mainEditorPresenter->isEmpty();
 }
 
 void ViewPortPresenter::setZoom(double zoom)
 {
-    _initHelper.assertInitialized();
+    _initHelper.check();
 
     ZoomPreset nearestPreset = _zoomPresetHelper.nearest(zoom);
     double nearest = _zoomPresetHelper.valueOf(nearestPreset);
@@ -133,7 +140,7 @@ void ViewPortPresenter::setZoom(double zoom)
 
 void ViewPortPresenter::setZoomPreset(ZoomPreset preset)
 {
-    _initHelper.assertInitialized();
+    _initHelper.check();
 
     _zoomPreset = preset;
     setZoom_p(_zoomPresetHelper.valueOf(preset));
@@ -169,7 +176,7 @@ double ViewPortPresenter::constrainZoom(double zoom)
 
 void ViewPortPresenter::setRotation(double rotation)
 {
-    _initHelper.assertInitialized();
+    _initHelper.check();
     _rotation = rotation;
     _rotatePreset = RotatePreset::nullrotation;
 
@@ -178,7 +185,7 @@ void ViewPortPresenter::setRotation(double rotation)
 }
 
 
-void ViewPortPresenter::resetView()
+void ViewPortPresenter::resetTransforms()
 {
     centerView();
     setZoomPreset(DEFAULT_ZOOM_PRESET);
@@ -197,7 +204,7 @@ void ViewPortPresenter::fitCanvas()
 
 IViewPortPresenter::ZoomPreset ViewPortPresenter::zoomIn(bool* zoomed)
 {
-    _initHelper.assertInitialized();
+    _initHelper.check();
     bool p_zoomed = false;
 
     if (_zoomPreset != ZoomPreset::nullzoom) {
@@ -229,7 +236,7 @@ IViewPortPresenter::ZoomPreset ViewPortPresenter::zoomIn(bool* zoomed)
 
 IViewPortPresenter::ZoomPreset ViewPortPresenter::zoomOut(bool* zoomed)
 {
-    _initHelper.assertInitialized();
+    _initHelper.check();
     bool p_zoomed = false;
 
     if (_zoomPreset != ZoomPreset::nullzoom) {
@@ -261,7 +268,7 @@ IViewPortPresenter::ZoomPreset ViewPortPresenter::zoomOut(bool* zoomed)
 
 IViewPortPresenter::ZoomPreset ViewPortPresenter::zoomTo(double zoom, bool snapToPreset)
 {
-    _initHelper.assertInitialized();
+    _initHelper.check();
     ZoomPreset newPreset = ZoomPreset::nullzoom;
     
     if (snapToPreset)
@@ -285,14 +292,14 @@ IViewPortPresenter::ZoomPreset ViewPortPresenter::zoomTo(double zoom, bool snapT
 
 void ViewPortPresenter::setRotatePreset(RotatePreset preset)
 {
-    _initHelper.assertInitialized();
+    _initHelper.check();
     _rotatePreset = preset;
     setRotation(_rotatePresetHelper.valueOf(preset));
 }
 
 IViewPortPresenter::RotatePreset ViewPortPresenter::turntableCcw(bool* rotated)
 {
-    _initHelper.assertInitialized();
+    _initHelper.check();
 
     bool p_rotated = false;
 
@@ -325,7 +332,7 @@ IViewPortPresenter::RotatePreset ViewPortPresenter::turntableCcw(bool* rotated)
 
 IViewPortPresenter::RotatePreset ViewPortPresenter::turntableCw(bool* rotated)
 {
-    _initHelper.assertInitialized();
+    _initHelper.check();
 
     bool p_rotated = false;
 
@@ -380,17 +387,16 @@ void ViewPortPresenter::gripPivot(QPointF gripStart, QPointF gripEnd)
 
 void ViewPortPresenter::setSize(QSize size)
 {
-    _initHelper.assertInitialized();
+    _initHelper.check();
     _size = size;
     _center = QPointF((double)(_size.width()) / 2.0, (double)(_size.height()) / 2.0);
     _transformCache.recalculate();
 }
 
-void ViewPortPresenter::onDocumentChanged()
+void ViewPortPresenter::onMainEditorPresenter_isEmptyChanged()
 {
     _canNavigateCache.recalculate();
 }
-
 
 void ViewPortPresenter::propagateCanNavigate()
 {
@@ -414,6 +420,6 @@ ViewPortPresenter::TransformPair ViewPortPresenter::getTransforms_p()
 
 void ViewPortPresenter::centerView()
 {
-    setPosition(QRectF(QPointF(), _documentPresenter->getCanvasSize()).center());
+    //setPosition(QRectF(QPointF(), _mainEditorPresenter->getCanvasSize()).center());
     //emit needsUpdate();
 }

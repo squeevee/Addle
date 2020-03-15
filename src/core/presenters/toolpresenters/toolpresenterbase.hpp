@@ -14,7 +14,7 @@
 
 #include "utilities/initializehelper.hpp"
 
-#include "interfaces/presenters/idocumentpresenter.hpp"
+#include "interfaces/presenters/imaineditorpresenter.hpp"
 #include "interfaces/presenters/iviewportpresenter.hpp"
 
 class ToolPresenterBase : public QObject, public virtual IToolPresenter
@@ -27,12 +27,12 @@ public:
     }
     virtual ~ToolPresenterBase() = default;
 
-    IDocumentPresenter* getOwner() { _initHelper.assertInitialized(); return _documentPresenter; }
+    IMainEditorPresenter* getOwner() { _initHelper.check(); return _mainEditorPresenter; }
 
     QCursor getCursorHint();
-    QIcon getIcon() { _initHelper.assertInitialized(); return _icon; }
-    QString getName() { _initHelper.assertInitialized(); return _name; }
-    QString getToolTip() { _initHelper.assertInitialized(); return _toolTip; }
+    QIcon getIcon() { _initHelper.check(); return _icon; }
+    QString getName() { _initHelper.check(); return _name; }
+    QString getToolTip() { _initHelper.check(); return _toolTip; }
 
     void pointerEngage(QPointF canvasPos);
     void pointerMove(QPointF canvasPos);
@@ -40,7 +40,7 @@ public:
 
     bool isSelected()
     {
-        return _documentPresenter->getCurrentToolPresenter() == this;
+        return _mainEditorPresenter->getCurrentToolPresenter() == this;
     }
 
     PropertyDecoration getPropertyDecoration(const char* propertyName) const
@@ -59,8 +59,8 @@ signals:
     void cursorHintChanged();
 
 protected:
-    void initialize_p(IDocumentPresenter* documentPresenter);
-    IDocumentPresenter* _documentPresenter;
+    void initialize_p(IMainEditorPresenter* mainEditorPresenter);
+    IMainEditorPresenter* _mainEditorPresenter;
     IViewPortPresenter* _viewPortPresenter;
 
     QIcon _icon;

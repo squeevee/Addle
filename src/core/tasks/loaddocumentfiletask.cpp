@@ -18,7 +18,7 @@ void LoadDocumentFileTask::initialize(QFileInfo fileInfo)
 
 void LoadDocumentFileTask::run()
 {
-    _initHelper.assertInitialized();
+    _initHelper.check();
     IFormatService& formatService = ServiceLocator::get<IFormatService>();
     
     QFile file(_fileInfo.filePath());

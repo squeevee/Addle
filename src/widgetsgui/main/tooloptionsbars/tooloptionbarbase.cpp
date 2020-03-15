@@ -2,10 +2,10 @@
 
 #include "tooloptionbarbase.hpp"
 
-ToolOptionBarBase::ToolOptionBarBase(IToolPresenter& presenter, QMainWindow* parent)
+ToolOptionBarBase::ToolOptionBarBase(IToolPresenter& presenter, QWidget* parent)
     : QToolBar(parent),
     _presenter(presenter),
-    _owner(*parent)
+    _owner(parent)
 {
     _q_presenter = qobject_interface_cast(&_presenter);
 
@@ -20,14 +20,14 @@ ToolOptionBarBase::ToolOptionBarBase(IToolPresenter& presenter, QMainWindow* par
 
 void ToolOptionBarBase::onSelectedChanged(bool selected)
 {
-    if (selected)
-    {
-        _owner.addToolBar(Qt::ToolBarArea::TopToolBarArea, this);
-        QToolBar::show();
-    }
-    else
-    {
-        _owner.removeToolBar(this);
-        QToolBar::hide();
-    }
+    // if (selected)
+    // {
+    //     _owner.addToolBar(Qt::ToolBarArea::TopToolBarArea, this);
+    //     QToolBar::show();
+    // }
+    // else
+    // {
+    //     _owner.removeToolBar(this);
+    //     QToolBar::hide();
+    // }
 }

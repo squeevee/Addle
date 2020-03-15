@@ -1,7 +1,7 @@
 #ifndef ITASK_HPP
 #define ITASK_HPP
 
-#include "interfaces/traits/initialize_traits.hpp"
+#include "interfaces/traits/initialize_trait.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 
 #include <QSharedPointer>

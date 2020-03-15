@@ -8,7 +8,7 @@
 #include <QSharedPointer>
 
 #include "itoolpresenter.hpp"
-#include "interfaces/traits/initialize_traits.hpp"
+#include "interfaces/traits/initialize_trait.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 
 #include "itoolwithassetspresenter.hpp"

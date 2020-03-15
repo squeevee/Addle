@@ -16,7 +16,7 @@
 
 #include "interfaces/tasks/itaskstatuscontroller.hpp"
 
-#include "interfaces/traits/initialize_traits.hpp"
+#include "interfaces/traits/initialize_trait.hpp"
 #include "utilities/model/importexportinfo.hpp"
 #include "interfaces/traits/makeable_trait.hpp"
 

@@ -4,7 +4,7 @@
 #include "widgetsgui/utilities/decorationhelper.hpp"
 #include "widgetsgui/utilities/widgetproperties.hpp"
 
-BrushToolOptionsBar::BrushToolOptionsBar(IBrushToolPresenter& presenter, QMainWindow* parent)
+BrushToolOptionsBar::BrushToolOptionsBar(IBrushToolPresenter& presenter, QWidget* parent)
     : ToolOptionBarBase(presenter, parent),
     _presenter(presenter)
 {

@@ -40,7 +40,7 @@ public:
     }
     inline bool isInitialized() { return _isInitialized; }
 
-    inline void assertInitialized()
+    inline void check()
     {
         //potential threading hazard
         if (_initializingLevel > 0)

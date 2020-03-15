@@ -2,19 +2,19 @@
 
 #include "idtypes/brushid.hpp"
 
-void ToolPresenterBase::initialize_p(IDocumentPresenter* documentPresenter)
+void ToolPresenterBase::initialize_p(IMainEditorPresenter* mainEditorPresenter)
 {
     _initHelper.initializeBegin();
 
-    _documentPresenter = documentPresenter;
-    _viewPortPresenter = _documentPresenter->getViewPortPresenter();
+    _mainEditorPresenter = mainEditorPresenter;
+    _viewPortPresenter = _mainEditorPresenter->getViewPortPresenter();
 
     _initHelper.initializeEnd();
 }
 
 void ToolPresenterBase::select()
 {
-    _documentPresenter->setCurrentTool(getId());
+    _mainEditorPresenter->selectTool(getId());
 }
 
 QCursor ToolPresenterBase::getCursorHint()

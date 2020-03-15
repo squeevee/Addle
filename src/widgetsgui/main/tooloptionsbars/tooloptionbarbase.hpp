@@ -14,7 +14,7 @@ class ToolOptionBarBase : public QToolBar
 public:
     ~ToolOptionBarBase() = default;
 protected:
-    ToolOptionBarBase(IToolPresenter& presenter, QMainWindow* parent);
+    ToolOptionBarBase(IToolPresenter& presenter, QWidget* parent = nullptr);
 
 private slots: 
     void onSelectedChanged(bool selected);
@@ -22,7 +22,7 @@ private slots:
 private:
     IToolPresenter& _presenter;
     QObject* _q_presenter;
-    QMainWindow& _owner;
+    QWidget* _owner;
 };
 
 #endif // TOOLOPTIONBAR_HPP

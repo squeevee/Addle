@@ -22,11 +22,11 @@ public:
     }
     virtual ~NavigateToolPresenter() = default;
 
-    void initialize(IDocumentPresenter* owner);
+    void initialize(IMainEditorPresenter* owner);
 
     ToolId getId() { return NAVIGATE_TOOL_ID; }
 
-    NavigateOperationOptions getNavigateOperation() { _initHelper.assertInitialized(); return _operation; }
+    NavigateOperationOptions getNavigateOperation() { _initHelper.check(); return _operation; }
 
 public slots:
     void setNavigateOperation(NavigateOperationOptions operation);

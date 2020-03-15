@@ -9,6 +9,9 @@
 
 #include "servicelocator.hpp"
 
+#include "interfaces/presenters/imaineditorpresenter.hpp"
+#include "interfaces/views/imaineditorview.hpp"
+
 #include "utilities/qtextensions/qobject.hpp"
 #include "globalconstants.hpp"
 #include "exceptions/commandlineexceptions.hpp"
@@ -256,10 +259,10 @@ void ApplicationService::parseCommandLine()
 
 void ApplicationService::startGraphicalApplication()
 {
-    IDocumentPresenter* presenter;
+    IMainEditorPresenter* presenter;
     //if (_startupMode == StartupMode::editor) always use editor view for now.
     //{
-    presenter = ServiceLocator::make<IEditorPresenter>();
+    presenter = ServiceLocator::make<IMainEditorPresenter>(IMainEditorPresenter::Editor);
 
     //}
 
@@ -272,7 +275,7 @@ void ApplicationService::startGraphicalApplication()
         presenter->loadDocument(_startingUrl);
     }
 
-    presenter->getDocumentView()->start();
+    presenter->getView()->start();
 }
 
 void ApplicationService::quitting()

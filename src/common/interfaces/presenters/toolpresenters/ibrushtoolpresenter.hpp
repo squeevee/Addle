@@ -2,10 +2,9 @@
 #define IBRUSHTOOLPRESENTER_HPP
 
 #include "ibrushliketoolpresenter.hpp"
-#include "interfaces/traits/initialize_traits.hpp"
+#include "interfaces/traits/initialize_trait.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 #include "interfaces/traits/makeable_trait.hpp"
-#include "interfaces/presenters/ieditorpresenter.hpp"
 
 class IBrushToolPresenter : public virtual IBrushLikeToolPresenter
 {
@@ -21,7 +20,7 @@ public:
     
     virtual ~IBrushToolPresenter() = default;
 
-    virtual void initialize(IEditorPresenter* owner) = 0;
+    virtual void initialize(IMainEditorPresenter* owner) = 0;
 };
 
 DECL_MAKEABLE(IBrushToolPresenter)

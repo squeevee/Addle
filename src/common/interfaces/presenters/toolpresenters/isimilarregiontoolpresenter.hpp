@@ -2,7 +2,7 @@
 #define ISIMILARREGIONTOOLPRESENTER_HPP
 
 #include "itoolpresenter.hpp"
-#include "interfaces/traits/initialize_traits.hpp"
+#include "interfaces/traits/initialize_trait.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 
 class ISimilarRegionToolPresenter : public virtual IToolPresenter

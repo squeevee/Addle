@@ -11,7 +11,7 @@ void TaskController::initialize(ITask* task)
 
 void TaskController::run()
 {
-    _initHelper.assertInitialized();
+    _initHelper.check();
 
     emit started(_task);
     try

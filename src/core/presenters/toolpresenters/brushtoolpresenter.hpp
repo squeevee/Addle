@@ -32,19 +32,19 @@ public:
     }
     virtual ~BrushToolPresenter() = default;
 
-    void initialize(IEditorPresenter* owner);
+    void initialize(IMainEditorPresenter* owner);
 
     ToolId getId() { return BRUSH_TOOL_ID; }
 
-    QList<QSharedPointer<IAssetPresenter>> getAllAssets() { _initHelper.assertInitialized(); return _assetsHelper.getAllAssets(); }
-    QSharedPointer<IAssetPresenter> getAssetPresenter(PersistentId id) { _initHelper.assertInitialized(); return _assetsHelper.getAssetPresenter(id); }
+    QList<QSharedPointer<IAssetPresenter>> getAllAssets() { _initHelper.check(); return _assetsHelper.getAllAssets(); }
+    QSharedPointer<IAssetPresenter> getAssetPresenter(PersistentId id) { _initHelper.check(); return _assetsHelper.getAssetPresenter(id); }
 
-    PersistentId getSelectedAsset() { _initHelper.assertInitialized(); return _assetsHelper.getSelectedAsset(); }
-    void selectAsset(PersistentId id) {_initHelper.assertInitialized(); _assetsHelper.selectAsset(id); }
-    QSharedPointer<IAssetPresenter> getSelectedAssetPresenter() { _initHelper.assertInitialized(); return _assetsHelper.getSelectedAssetPresenter(); }
+    PersistentId getSelectedAsset() { _initHelper.check(); return _assetsHelper.getSelectedAsset(); }
+    void selectAsset(PersistentId id) {_initHelper.check(); _assetsHelper.selectAsset(id); }
+    QSharedPointer<IAssetPresenter> getSelectedAssetPresenter() { _initHelper.check(); return _assetsHelper.getSelectedAssetPresenter(); }
 
-    BrushId getSelectedBrush() { _initHelper.assertInitialized(); return _assetsHelper.getSelectedAsset(); }
-    QSharedPointer<IBrushPresenter> getSelectedBrushPresenter() { _initHelper.assertInitialized(); return _assetsHelper.getSelectedAssetPresenter(); }
+    BrushId getSelectedBrush() { _initHelper.check(); return _assetsHelper.getSelectedAsset(); }
+    QSharedPointer<IBrushPresenter> getSelectedBrushPresenter() { _initHelper.check(); return _assetsHelper.getSelectedAssetPresenter(); }
     
 signals:
     void brushChanged(BrushId tip);
@@ -56,7 +56,7 @@ protected:
     void onPointerDisengage();
 
 private:
-    IEditorPresenter* _editorPresenter;
+    IMainEditorPresenter* _mainEditorPresenter;
 
     QSharedPointer<IBrushOperation> _operation;
 

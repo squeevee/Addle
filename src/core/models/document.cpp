@@ -9,6 +9,7 @@ void Document::initialize(DocumentBuilder& builder)
     _initHelper.initializeBegin();
 
     _filename = builder.getFilename();
+    _backgroundColor = builder.getBackgroundColor();
 
     for (LayerBuilder& layerBuilder : builder.getLayers())
     {
@@ -20,22 +21,15 @@ void Document::initialize(DocumentBuilder& builder)
     _initHelper.initializeEnd();
 }
 
-void Document::initialize(InitEmptyOptions emptyOption)
+void Document::initialize()
 {
-    _initHelper.initializeBegin();
-    
-    if (emptyOption == InitEmptyOptions::useDefaults)
-    {
-        _layers.append(ServiceLocator::makeShared<ILayer>());
-
-        updateGeometry();
-    }
+    _initHelper.initializeBegin(); //blank
     _initHelper.initializeEnd();
 }
 
 void Document::render(QRect area, QPaintDevice* device)
 {
-    _initHelper.assertInitialized();
+    _initHelper.check();
 
 }
 
@@ -46,7 +40,7 @@ void Document::addNewLayer(LayerBuilder& builder, int insertBefore)
 
 void Document::addNewLayers(QList<LayerBuilder> builders, int insertBefore)
 {
-    _initHelper.assertInitialized();
+    _initHelper.check();
 
     emit layersAdding(builders.count());
 
@@ -59,7 +53,7 @@ void Document::addNewLayers(QList<LayerBuilder> builders, int insertBefore)
 
 // void Document::addNewEmptyLayers(int count, int insertBefore)
 // {
-//     _initHelper.assertInitialized();
+//     _initHelper.check();
 //     emit layersAdding(count);
 
 //     QList<ILayer*> newLayers;
@@ -98,7 +92,7 @@ void Document::addNewLayers(QList<LayerBuilder> builders, int insertBefore)
 
 // void Document::deleteLayers(QList<int> indices)
 // {
-//     _initHelper.assertInitialized();
+//     _initHelper.check();
 
 //     emit layersDeleting(indices);
 
@@ -124,7 +118,7 @@ void Document::addNewLayers(QList<LayerBuilder> builders, int insertBefore)
 
 // void Document::reorderLayer(int from, int to)
 // {
-//     _initHelper.assertInitialized();
+//     _initHelper.check();
 
 //     emit layerReordering(from, to);
 
@@ -136,25 +130,25 @@ void Document::addNewLayers(QList<LayerBuilder> builders, int insertBefore)
 
 QList<QSharedPointer<ILayer>> Document::getLayers()
 {
-    _initHelper.assertInitialized();
+    _initHelper.check();
     return _layers;
 }
 
 // ILayer* Document::getLayer(int index)
 // {
-//     _initHelper.assertInitialized();
+//     _initHelper.check();
 //     return _layers.at(index);
 // }
 
 // int Document::indexOfLayer(ILayer* layer)
 // {
-//     _initHelper.assertInitialized();
+//     _initHelper.check();
 //     return _layers.indexOf(layer);
 // }
 
 int Document::layerCount()
 {
-    _initHelper.assertInitialized();
+    _initHelper.check();
     return _layers.count();
 }
 
@@ -250,7 +244,7 @@ QRect Document::unitedBoundary()
 
 QImage Document::exportImage()
 {
-    _initHelper.assertInitialized();
+    _initHelper.check();
     QImage result(getSize(), QImage::Format::Format_ARGB32);
     
     render(QRect(QPoint(), getSize()), &result);

@@ -19,20 +19,20 @@ public:
     Document() : _initHelper(this) {}
     virtual ~Document() = default;
 
-    void initialize(InitEmptyOptions emptyOption = InitEmptyOptions::useDefaults);
+    void initialize();
     void initialize(DocumentBuilder& builder);
 
     void render(QRect area, QPaintDevice* device);
 
-    bool isEmpty() { _initHelper.assertInitialized(); return _empty; }
+    bool isEmpty() { _initHelper.check(); return _empty; }
 
-    QSize getSize() { _initHelper.assertInitialized(); return _size; }
+    QSize getSize() { _initHelper.check(); return _size; }
 
     //void applyOperation(IDrawingOperation& operation);
 
-    QColor getBackgroundColor() { _initHelper.assertInitialized(); return _backgroundColor; }
+    QColor getBackgroundColor() { _initHelper.check(); return _backgroundColor; }
 
-    QString getFilename() { _initHelper.assertInitialized(); return _filename; }
+    QString getFilename() { _initHelper.check(); return _filename; }
     void setFilename(QString filename) {}
 
     QList<QSharedPointer<ILayer>> getLayers();

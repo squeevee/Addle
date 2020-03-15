@@ -15,7 +15,9 @@ public:
     CanvasPresenter() : _initHelper(this) { }
     virtual ~CanvasPresenter() = default;
 
-    void initialize(IDocumentPresenter* documentPresenter);
+    void initialize(IMainEditorPresenter* mainEditorPresenter);
+
+    IMainEditorPresenter* getMainEditorPresenter() { _initHelper.check(); return _mainEditorPresenter; }
 
     QCursor getCursor() { return QCursor(); }
     QString getStatusTip() { return QString(); }
@@ -26,7 +28,7 @@ signals:
 
 private:
 
-    IDocumentPresenter* _documentPresenter;
+    IMainEditorPresenter* _mainEditorPresenter;
     InitializeHelper<CanvasPresenter> _initHelper;
 };
 

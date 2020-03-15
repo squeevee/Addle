@@ -14,11 +14,11 @@
 // const BrushSizePresetHelper::PxPresetHelper BrushSizePresetHelper::_instance_px = PxPresetHelper();
 // const BrushSizePresetHelper::PercentPresetHelper BrushSizePresetHelper::_instance_percent = PercentPresetHelper();
 
-void BrushToolPresenter::initialize(IEditorPresenter* owner)
+void BrushToolPresenter::initialize(IMainEditorPresenter* owner)
 {
     _initHelper.initializeBegin();
 
-    _editorPresenter = owner;
+    _mainEditorPresenter = owner;
     ToolPresenterBase::initialize_p(owner);
 
     _assetsHelper.setAssetList({
@@ -41,7 +41,7 @@ void BrushToolPresenter::onPointerEngage()
     // try
     // {
             
-    // ILayerPresenter* layer = _editorPresenter->getSelectedLayer();
+    // ILayerPresenter* layer = _mainEditorPresenter->getSelectedLayer();
     // QSharedPointer<IBrushPresenter> brush = getSelectedBrushPresenter();
     // QSharedPointer<IBrushRenderer> renderer = brush->getModel()->getRenderer();
 
@@ -68,7 +68,7 @@ void BrushToolPresenter::onPointerMove()
     // try
     // {
 
-    // ILayerPresenter* layer = _editorPresenter->getSelectedLayer();
+    // ILayerPresenter* layer = _mainEditorPresenter->getSelectedLayer();
     // QSharedPointer<IBrushPresenter> brush = getSelectedBrushPresenter();
     // QSharedPointer<IBrushRenderer> renderer = brush->getModel()->getRenderer();
 
@@ -88,7 +88,7 @@ void BrushToolPresenter::onPointerDisengage()
     // try
     // {
 
-    // _editorPresenter->doOperation(_operation.staticCast<IUndoableOperation>());
+    // _mainEditorPresenter->doOperation(_operation.staticCast<IUndoableOperation>());
     // _operation.clear();
 
     // }

@@ -1,7 +1,7 @@
 #ifndef ILAYERPRESENTER_HPP
 #define ILAYERPRESENTER_HPP
 
-#include "interfaces/traits/initialize_traits.hpp"
+#include "interfaces/traits/initialize_trait.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 #include "interfaces/traits/makeable_trait.hpp"
 
@@ -36,7 +36,6 @@ signals:
 
 DECL_MAKEABLE(ILayerPresenter)
 DECL_EXPECTS_INITIALIZE(ILayerPresenter)
-DECL_INIT_DEPENDENCY(ILayerPresenter, IDocumentPresenter)
 DECL_IMPLEMENTED_AS_QOBJECT(ILayerPresenter)
 
 #endif // ILAYERPRESENTER_HPP

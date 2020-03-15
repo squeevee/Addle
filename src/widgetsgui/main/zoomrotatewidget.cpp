@@ -61,7 +61,7 @@ ZoomRotateWidget::ZoomRotateWidget(IViewPortPresenter& presenter, QWidget* paren
     _action_reset = new QAction(this);
     _action_reset->setIcon(QIcon(":/icons/reset_view.png"));
     _button_reset->setDefaultAction(_action_reset);
-    connect_interface(_action_reset, SIGNAL(triggered()), &_presenter, SLOT(resetView()));
+    connect_interface(_action_reset, SIGNAL(triggered()), &_presenter, SLOT(resetTransforms()));
 
     _slider_zoom = new ZoomSlider(this);
     _slider_zoom->setMinZoom(_presenter.getMinZoomPresetValue());

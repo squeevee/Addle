@@ -22,9 +22,9 @@ public:
 
     void initialize(ITask* task);
 
-    ITask* getTask() { _initHelper.assertInitialized(); return _task; }
+    ITask* getTask() { _initHelper.check(); return _task; }
 
-    QSharedPointer<IAddleException> getError() { _initHelper.assertInitialized(); return _error; }
+    QSharedPointer<IAddleException> getError() { _initHelper.check(); return _error; }
 
     double getProgress() { return _progress; }
     void setProgress(double progress) { _progress = progress; }

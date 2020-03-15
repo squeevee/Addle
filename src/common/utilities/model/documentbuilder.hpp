@@ -12,6 +12,7 @@ class DocumentBuilder
     {
         QString filename;
         QList<LayerBuilder> layers;
+        QColor backgroundColor;
     };
 public:
     DocumentBuilder() { _data = new DocumentBuilderData; }
@@ -19,6 +20,9 @@ public:
 
     QString getFilename() { return _data->filename; }
     void setFilename(QString filename) { _data->filename = filename; }
+
+    QColor getBackgroundColor() { return _data->backgroundColor; }
+    void setBackgroundColor(QColor backgroundColor) { _data->backgroundColor = backgroundColor; }
 
     void addLayer(LayerBuilder& layer) { _data->layers.append(layer); }
     QList<LayerBuilder> getLayers() { return _data->layers; }

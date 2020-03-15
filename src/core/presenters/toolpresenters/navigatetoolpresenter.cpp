@@ -2,7 +2,7 @@
 #include <QtDebug>
 #include <QMetaEnum>
 
-void NavigateToolPresenter::initialize(IDocumentPresenter* owner)
+void NavigateToolPresenter::initialize(IMainEditorPresenter* owner)
 {
     _initHelper.initializeBegin();
 
@@ -15,7 +15,7 @@ void NavigateToolPresenter::initialize(IDocumentPresenter* owner)
 
 void NavigateToolPresenter::setNavigateOperation(NavigateToolPresenter::NavigateOperationOptions operation)
 {
-    _initHelper.assertInitialized();
+    _initHelper.check();
     _operation = operation;
     emit navigateOperationChanged(_operation);
 }
@@ -23,12 +23,12 @@ void NavigateToolPresenter::setNavigateOperation(NavigateToolPresenter::Navigate
 
 void NavigateToolPresenter::onPointerEngage()
 {
-    _initHelper.assertInitialized();
+    _initHelper.check();
 }
 
 void NavigateToolPresenter::onPointerMove()
 {
-    _initHelper.assertInitialized();
+    _initHelper.check();
 
     // switch (_operation)
     // {

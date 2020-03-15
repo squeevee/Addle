@@ -10,11 +10,11 @@ set (
     models/document.cpp
     models/layer.cpp
     models/brush.cpp
-    presenters/basedocumentpresenter.cpp
     presenters/canvaspresenter.cpp
-    presenters/editorpresenter.cpp
+    presenters/documentpresenter.cpp
     presenters/errorpresenter.cpp
     presenters/layerpresenter.cpp
+    presenters/maineditorpresenter.cpp
     presenters/viewportpresenter.cpp
     presenters/assets/brushpresenter.cpp
     presenters/toolpresenters/toolpresenterbase.cpp

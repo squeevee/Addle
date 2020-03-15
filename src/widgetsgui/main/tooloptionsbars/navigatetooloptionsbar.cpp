@@ -8,7 +8,7 @@
 
 #include "utilities/presenter/propertybinding.hpp"
 
-NavigateToolOptionsBar::NavigateToolOptionsBar(INavigateToolPresenter& presenter, QMainWindow* parent)
+NavigateToolOptionsBar::NavigateToolOptionsBar(INavigateToolPresenter& presenter, QWidget* parent)
     : ToolOptionBarBase(presenter, parent),
     _presenter(presenter)
 {

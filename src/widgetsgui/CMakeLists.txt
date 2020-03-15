@@ -4,18 +4,21 @@ set ( CMAKE_AUTOMOC ON )
 
 set (
     SOURCES
-    gvfcanvas/canvasscene.cpp
-    gvfcanvas/layeritem.cpp 
-    gvfcanvas/viewportwidget.cpp
-    main/basedocumentview.cpp
-    main/editorview.cpp
+    canvas/canvasitem.cpp
+    canvas/canvasscene.cpp
+    canvas/layeritem.cpp
+    main/maineditorview.cpp
     main/viewportscrollwidget.cpp
+    main/viewport.cpp
+    main/zoomrotatewidget.cpp
+    main/helpers/editortoolshelper.cpp
     main/tooloptionsbars/brushtooloptionsbar.cpp
     main/tooloptionsbars/navigatetooloptionsbar.cpp
     main/tooloptionsbars/tooloptionbarbase.cpp
-    main/zoomrotatewidget.cpp
-    utilities/zoomslider.cpp
+    utilities/guiutils.cpp
+    utilities/graphicsmouseeventblocker.cpp
     utilities/optiongroup.cpp
+    utilities/zoomslider.cpp
 )
 
 add_library(widgetsgui SHARED ${SOURCES})

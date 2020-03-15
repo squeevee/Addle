@@ -10,17 +10,17 @@
 
 #include "idtypes/toolid.hpp"
 
-#include "interfaces/traits/initialize_traits.hpp"
+#include "interfaces/traits/initialize_trait.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 
+class IMainEditorPresenter;
 class IToolPresenter
     : public virtual IPropertyDecoratedPresenter
 {
 public:
     virtual ~IToolPresenter() = default;
     
-    //virtual void initialize(IDocumentPresenter* owner) = 0;
-    virtual IDocumentPresenter* getOwner() = 0;
+    virtual IMainEditorPresenter* getOwner() = 0;
 
     virtual ToolId getId() = 0;
     virtual bool isSelected() = 0;

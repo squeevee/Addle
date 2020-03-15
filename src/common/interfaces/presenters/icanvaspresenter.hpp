@@ -2,16 +2,18 @@
 #define ICANVASPRESENTER_HPP
 
 #include "interfaces/traits/makeable_trait.hpp"
-#include "interfaces/traits/initialize_traits.hpp"
+#include "interfaces/traits/initialize_trait.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 
-class IDocumentPresenter;
+class IMainEditorPresenter;
 class ICanvasPresenter
 {
 public:
     virtual ~ICanvasPresenter() = default; 
 
-    virtual void initialize(IDocumentPresenter* documentPresenter) = 0;
+    virtual void initialize(IMainEditorPresenter* mainEditorPresenter) = 0;
+
+    virtual IMainEditorPresenter* getMainEditorPresenter() = 0;
 
     virtual QCursor getCursor() = 0;
     virtual QString getStatusTip() = 0;

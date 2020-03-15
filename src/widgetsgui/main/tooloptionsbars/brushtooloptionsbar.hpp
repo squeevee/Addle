@@ -12,7 +12,7 @@ class BrushToolOptionsBar : public ToolOptionBarBase
     Q_OBJECT 
     typedef IBrushPresenter::SizeOption SizeOption;
 public: 
-    BrushToolOptionsBar(IBrushToolPresenter& presenter, QMainWindow* parent);
+    BrushToolOptionsBar(IBrushToolPresenter& presenter, QWidget* parent);
 
     OptionAction* _action_brush_basic;
     //QAction* _action_brush_aliasedCircle;

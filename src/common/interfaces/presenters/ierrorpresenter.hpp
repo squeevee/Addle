@@ -3,7 +3,7 @@
 
 #include <QString>
 
-#include "interfaces/traits/initialize_traits.hpp"
+#include "interfaces/traits/initialize_trait.hpp"
 #include "interfaces/traits/makeable_trait.hpp"
 
 class IErrorPresenter 
