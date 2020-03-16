@@ -2,6 +2,7 @@
 
 void RasterSurface::initialize(QImage image)
 {
+    image.convertTo(QImage::Format_ARGB32_Premultiplied);
     _buffer.initialize(image);
 }
 
