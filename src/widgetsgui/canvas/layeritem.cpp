@@ -5,13 +5,19 @@
 
 #include <QStyleOptionGraphicsItem>
 
-LayerItem::LayerItem(QWeakPointer<ILayerPresenter> presenter)
+#include "interfaces/presenters/ilayerpresenter.hpp"
+
+LayerItem::LayerItem(ILayerPresenter& presenter)
     : _presenter(presenter)
 {
-    auto s_presenter = _presenter.toStrongRef();
-
+    setFlags(
+        {
+            QGraphicsItem::ItemUsesExtendedStyleOption,
+            QGraphicsItem::ItemSendsGeometryChanges
+        }
+    );
     connect_interface(
-        s_presenter.data(),
+        &_presenter,
         SIGNAL(renderChanged(QRect)),
         this, SLOT(onRenderChanged(QRect))
     );
@@ -19,16 +25,12 @@ LayerItem::LayerItem(QWeakPointer<ILayerPresenter> presenter)
 
 QRectF LayerItem::boundingRect() const
 {
-    auto s_presenter = _presenter.toStrongRef();
-    //boo
-    return QRectF();//QRect(QPoint(), s_presenter->getDocumentPresenter()->getCanvasSize());
+    return _presenter.getDocumentPresenter()->getRect();
 }
 
 void LayerItem::paint(QPainter* painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    auto s_presenter = _presenter.toStrongRef();
-
-    s_presenter->render(*painter, coarseBoundRect(option->exposedRect));
+    _presenter.render(*painter, coarseBoundRect(option->exposedRect));
 }
 
 void LayerItem::onRenderChanged(QRect area)

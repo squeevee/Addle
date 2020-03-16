@@ -1,9 +1,13 @@
 #include "rastersurface.hpp"
 
+void RasterSurface::initialize(QImage image)
+{
+    _buffer.initialize(image);
+}
 
 void RasterSurface::render(QPainter& painter, QRect region)
 {
-    
+    _buffer.render(painter, region);
 }
 
 BufferPainter RasterSurface::makeBufferPainter(QRect region)

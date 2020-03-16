@@ -12,7 +12,7 @@ class DocumentBuilder
     {
         QString filename;
         QList<LayerBuilder> layers;
-        QColor backgroundColor;
+        QColor backgroundColor = Qt::transparent;
     };
 public:
     DocumentBuilder() { _data = new DocumentBuilderData; }

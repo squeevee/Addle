@@ -14,6 +14,7 @@ public:
 
     ExpandingBuffer(int chunkSize) : _chunkSize(chunkSize) { }
 
+    void initialize(QImage image);
     void initialize(QImage::Format format, QRect start = QRect());
 
     void grab(QRect area);

@@ -1,6 +1,8 @@
 #include "documentpresenter.hpp"
 #include "servicelocator.hpp"
 
+#include "interfaces/presenters/ilayerpresenter.hpp"
+
 void DocumentPresenter::initialize(EmptyInitOptions option)
 {
     _initHelper.initializeBegin();
@@ -11,11 +13,11 @@ void DocumentPresenter::initialize(EmptyInitOptions option)
         break;
 
     case initEmptyModel:
-        _model = ServiceLocator::makeShared<IDocument>();
+        initialize(ServiceLocator::makeShared<IDocument>());
         break;
 
     case initBlankDefaults:
-        initialize(QSize(800, 600), QColor::fromRgb(255,255,255,128)); // TODO: not this
+        initialize(QSize(800, 600), Qt::white); // TODO: not this
         break;
     }
 
@@ -33,7 +35,7 @@ void DocumentPresenter::initialize(QSize size, QColor backgroundColor)
     doc.addLayer(layer);
     doc.setBackgroundColor(backgroundColor);
 
-    _model = ServiceLocator::makeShared<IDocument>(doc);
+    initialize(ServiceLocator::makeShared<IDocument>(doc));
 
     _initHelper.initializeEnd();
 }
@@ -44,6 +46,12 @@ void DocumentPresenter::initialize(QSharedPointer<IDocument> model)
 
     //assert model
     _model = model;
+
+    for (auto layer : _model->getLayers())
+    {
+        ILayerPresenter* layerPresenter = ServiceLocator::make<ILayerPresenter>(this, layer);
+        _layers.append(layerPresenter);
+    }
     
     _initHelper.initializeEnd();
 }

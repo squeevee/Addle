@@ -13,6 +13,9 @@ public:
     RasterSurface() : _buffer(512) { }
     virtual ~RasterSurface() = default; 
 
+    void initialize() { }
+    void initialize(QImage image);
+
     void render(QPainter& painter, QRect region);
 
     BufferPainter makeBufferPainter(QRect region);

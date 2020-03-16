@@ -21,8 +21,6 @@ protected:
 
 private:
     QPixmap _texture;
-    QColor _backgroundColor;
-    QRectF _rect;
 
     IDocumentPresenter& _presenter;
 };

@@ -21,6 +21,7 @@ public:
     bool isEmpty() { _initHelper.check(); return !_model; }
 
     QSize getSize() { _initHelper.check(); return _model ? _model->getSize() : QSize(); }
+    QRect getRect() { return QRect(QPoint(), getSize()); }
     QColor getBackgroundColor() { _initHelper.check(); return _model ? _model->getBackgroundColor() : QColor(); }
 
     QList<ILayerPresenter*> getLayers() { _initHelper.check(); return _layers; }

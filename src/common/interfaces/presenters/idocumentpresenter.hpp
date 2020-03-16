@@ -39,6 +39,7 @@ public:
     virtual bool isEmpty() = 0;
     
     virtual QSize getSize() = 0;
+    virtual QRect getRect() = 0;
     virtual QColor getBackgroundColor() = 0;
 
     virtual QList<ILayerPresenter*> getLayers() = 0;

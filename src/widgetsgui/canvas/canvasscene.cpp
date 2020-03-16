@@ -10,6 +10,9 @@
 #include "interfaces/presenters/imaineditorpresenter.hpp"
 
 #include "docbackgrounditem.hpp"
+#include "layeritem.hpp"
+
+const double MINIMUM_LAYER_Z = 1;
 
 CanvasScene::CanvasScene(ICanvasPresenter& presenter, QObject* parent)
     : QGraphicsScene(parent), _presenter(presenter)
@@ -22,6 +25,16 @@ CanvasScene::CanvasScene(ICanvasPresenter& presenter, QObject* parent)
     DocBackgroundItem* background = new DocBackgroundItem(documentPresenter);
 
     addItem(background);
+
+    double layerZ = MINIMUM_LAYER_Z;
+    for (ILayerPresenter* layerPresenter : documentPresenter.getLayers())
+    {
+        LayerItem* layerItem = new LayerItem(*layerPresenter);
+        layerItem->setZValue(layerZ);
+        addItem(layerItem);
+
+        layerZ += 1.0;
+    }
 }
 
 

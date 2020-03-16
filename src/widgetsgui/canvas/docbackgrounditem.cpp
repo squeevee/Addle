@@ -4,37 +4,40 @@
 
 #include "widgetsgui/utilities/guiutils.hpp"
 
-#include <QGraphicsRectItem>
+#include <QStyleOptionGraphicsItem>
 
 DocBackgroundItem::DocBackgroundItem(IDocumentPresenter& presenter)
     : _presenter(presenter)
 {
+    setFlags(
+        {
+            QGraphicsItem::ItemUsesExtendedStyleOption,
+            QGraphicsItem::ItemSendsGeometryChanges
+        }
+    );
+
     _texture = checkerBoardTexture(35, Qt::lightGray, Qt::gray);
-    
-    _rect = QRectF(QPointF(), presenter.getSize());
-    _backgroundColor = presenter.getBackgroundColor();
 }
 
 QRectF DocBackgroundItem::boundingRect() const
 {
-    return _rect;
+    return _presenter.getRect();
 }
 
 void DocBackgroundItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    if (_backgroundColor.alpha() < 255)
-    {
-        QPainterPath path;
-        path.addRect(_rect);
-        path = painter->transform().map(path);
-        
-        painter->save();
+    QPainterPath path;
+    path.addRect(QRectF(_presenter.getRect()).intersected(option->exposedRect));
+    path = painter->transform().map(path);
 
-        painter->setTransform(QTransform());
+    QColor backgroundColor = _presenter.getBackgroundColor();
+    
+    painter->save();
+    painter->setTransform(QTransform());
+
+    if (backgroundColor.alpha() < 255)
         painter->fillPath(path, _texture);
 
-        painter->restore();
-    }
-
-    painter->fillRect(_rect, _backgroundColor);
+    painter->fillPath(path, backgroundColor);
+    painter->restore();
 }

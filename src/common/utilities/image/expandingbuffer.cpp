@@ -2,6 +2,13 @@
 
 #include <QPainter>
 
+void ExpandingBuffer::initialize(QImage imageArg)
+{
+    _format = imageArg.format();
+    _region = imageArg.rect();
+    image = imageArg;
+}
+
 void ExpandingBuffer::initialize(QImage::Format format, QRect start)
 {
     _format = format;
@@ -62,7 +69,12 @@ void ExpandingBuffer::grab(QRect area)
 void ExpandingBuffer::render(QPainter& painter, QRect paintRegion) const
 {
     QRect intersection = _region.intersected(paintRegion);
+    if (!intersection.isValid())
+        return;
+
     QRect source = _ontoBufferTransform.mapRect(intersection);
+    if (!source.isValid())
+        return;
 
     painter.drawImage(intersection, image, source);
 }
