@@ -20,7 +20,7 @@ protected:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
 private:
-    QPixmap _texture;
+    //QPixmap _texture;
 
     IDocumentPresenter& _presenter;
 };

@@ -8,6 +8,7 @@
 
 #include "interfaces/presenters/icanvaspresenter.hpp"
 #include "interfaces/presenters/imaineditorpresenter.hpp"
+#include "interfaces/presenters/iviewportpresenter.hpp"
 
 #include "docbackgrounditem.hpp"
 #include "layeritem.hpp"
@@ -78,4 +79,23 @@ void CanvasScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* mouseEvent)
     //     mouseEvent->accept();
     //     tool->pointerDisengage(mouseEvent->scenePos());
     // }
+}
+
+void CanvasScene::drawBackground(QPainter* painter, const QRectF& rect)
+{
+    QPainterPath darkenPath;
+    darkenPath.addRect(rect);
+
+    if (!_presenter.getMainEditorPresenter()->isEmpty())
+    {
+        IDocumentPresenter* documentPresenter = _presenter.getMainEditorPresenter()->getDocumentPresenter();
+
+        QPainterPath dontDarkenPath;
+        dontDarkenPath.addRect(documentPresenter->getRect());
+
+        darkenPath = darkenPath.subtracted(dontDarkenPath);
+    }
+
+    QColor backgroundColor = QColor::fromRgb(0,0,0,64);
+    painter->fillPath(darkenPath, backgroundColor);
 }

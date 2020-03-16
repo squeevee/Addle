@@ -23,6 +23,8 @@ protected:
     void mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent);
     void mouseReleaseEvent(QGraphicsSceneMouseEvent* mouseEvent);
 
+    void drawBackground(QPainter* painter, const QRectF& rect);
+
 private:
     CanvasItem* _canvasItem;
 

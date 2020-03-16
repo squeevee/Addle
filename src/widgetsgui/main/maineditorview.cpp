@@ -13,6 +13,7 @@
 #include <QFileDialog>
 #include <QStandardPaths>
 #include <QMessageBox>
+#include <QApplication>
 
 #include "viewport.hpp"
 
@@ -112,6 +113,15 @@ void MainEditorView::setupUi()
     _toolBar_documentActions->addAction(_action_undo);
     _toolBar_documentActions->addAction(_action_redo);
 
+    QPalette p = QApplication::palette();
+    // QColor backgroundColor = p.color(QPalette::Window);
+    // backgroundColor.setAlpha(172);
+    // p.setColor(QPalette::Base, backgroundColor);
+    // p.setColor(QPalette::Window, backgroundColor);
+    // p.setColor(QPalette::Base, Qt::transparent);
+    // p.setColor(QPalette::Window, Qt::transparent);
+    setPalette(p);
+
     updateTools();
 }
 
@@ -173,4 +183,21 @@ void MainEditorView::onPresenterErrorRaised(QSharedPointer<IErrorPresenter> erro
     }
 
     message.exec();
+}
+
+// void MainEditorView::resizeEvent(QResizeEvent* event)
+// {
+//     clearMask();
+//     QRect viewPortRect = _viewPort->rect();
+//     setMask(mask().subtracted(QRegion(viewPortRect)));
+// }
+
+void MainEditorView::paintEvent(QPaintEvent* event)
+{
+    QPainter p(this);
+    p.setClipRegion(QRegion(rect()).subtracted(QRect(_viewPort->pos() + _viewPortScrollWidget->pos(), _viewPort->size())));
+
+    QColor backgroundColor = palette().color(QPalette::Base);
+    backgroundColor.setAlpha(172);
+    p.fillRect(rect(), backgroundColor);
 }

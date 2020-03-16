@@ -23,10 +23,15 @@
 #include "widgetsgui/utilities/guiutils.hpp"
 #include "widgetsgui/canvas/canvasscene.hpp"
 
+#include <QApplication>
 #include <QScrollBar>
 
 ViewPort::ViewPort(IViewPortPresenter* presenter)
 {
+    QPalette p = QApplication::palette();
+    p.setColor(QPalette::Base, Qt::transparent);
+    setPalette(p);
+
     _presenter = presenter;
     _mainEditorPresenter = _presenter->getMainEditorPresenter();
 

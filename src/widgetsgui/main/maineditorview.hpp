@@ -32,6 +32,8 @@ class MainEditorView : public QMainWindow, public virtual IMainEditorView
 public:
     MainEditorView() : _initHelper(this)
     {
+        setAttribute(Qt::WA_TranslucentBackground);
+        //setAttribute(Qt::WA_NoSystemBackground, false);
     }
     virtual ~MainEditorView();
 
@@ -41,6 +43,10 @@ public:
 
 public slots:
     void start();
+
+protected:
+    //void resizeEvent(QResizeEvent* event);
+    void paintEvent(QPaintEvent* event);
 
 private slots:
     void onAction_open();

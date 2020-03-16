@@ -16,7 +16,7 @@ DocBackgroundItem::DocBackgroundItem(IDocumentPresenter& presenter)
         }
     );
 
-    _texture = checkerBoardTexture(35, Qt::lightGray, Qt::gray);
+    //_texture = checkerBoardTexture(35, Qt::lightGray, Qt::gray);
 }
 
 QRectF DocBackgroundItem::boundingRect() const
@@ -35,8 +35,8 @@ void DocBackgroundItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
     painter->save();
     painter->setTransform(QTransform());
 
-    if (backgroundColor.alpha() < 255)
-        painter->fillPath(path, _texture);
+    // if (backgroundColor.alpha() < 255)
+    //     painter->fillPath(path, _texture);
 
     painter->fillPath(path, backgroundColor);
     painter->restore();
