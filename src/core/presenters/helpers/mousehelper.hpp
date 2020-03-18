@@ -1,108 +1,85 @@
 #ifndef MOUSEHELPER_HPP
 #define MOUSEHELPER_HPP
 
+#include "interfaces/presenters/toolpresenters/itoolpresenter.hpp"
+
+#include "utilities/presenter/propertycache.hpp"
+
+#include <QPointF>
+#include <QLinkedList>
+
+/**
+ * Tracks mouse state for a tool presenter
+ */
 class MouseHelper
 {
 public:
 
-//     enum TrackingOptions
-//     {
-//         endpoints,
-//         path
-//     };
+    MouseHelper(IToolPresenter& presenter)
+        : _presenter(presenter)
+    {
+    }
 
-//     MouseHelper(ICanvasMousePresenter& presenter, TrackingOptions tracking = TrackingOptions::endpoints)
-//         : _presenter(presenter), _tracking(tracking)
-//     {
-//     }
+    inline bool engage(QPointF pos)
+    {
+        if (_engaged) return false;
 
-//     void engage(QPointF canvasPos)
-//     {
-//         if (_engagedCursor != QCursor())
-//         {
-//             emit cursorHintChanging();
-//         }
+        _engaged = true;
 
-//         _toolPathHelper.engage(viewPortPos, canvasPos);
-//         onPointerEngage();
+        _firstPosition = pos;
+        _previousPosition = pos;
+        _latestPosition = pos;
 
-//         if (_engagedCursor != QCursor())
-//         {
-//             emit cursorHintChanged();
-//         }
-//     }
-//     void move(QPointF canvasPos)
-//     {
-//         if (_toolPathHelper.isEngaged())
-//         {
-//             QPoint viewPortPos = _viewPortPresenter->getFromCanvasTransform().map(canvasPos).toPoint();
-//             _toolPathHelper.move(viewPortPos, canvasPos);
-//             onPointerMove();
-//         }
-//     }
-//     void disengage(QPointF canvasPos)
-//     {
-//         if (_toolPathHelper.isEngaged())
-//         {
-//             if (_engagedCursor != QCursor())
-//             {
-//             }
+        _positions.clear();
+        _positions.append(pos);
 
-//             onPointerDisengage();
+        return true;
+    }
 
-//             if (_engagedCursor != QCursor())
-//             {
-//                 emit cursorChanged();
-//             }
-//         }
-//     }
+    inline bool move(QPointF pos)
+    {
+        if (!_engaged) return false;
+        if (pos == _latestPosition) return false;
 
-//     inline bool isEngaged() { return _engaged; }
-//     inline QPointF getFirstCanvasPosition() { return _firstCanvasPosition; }
-//     inline QPointF getPreviousCanvasPosition() { return _previousCanvasPosition; }
-//     inline QPointF getLastCanvasPosition() { return _lastCanvasPosition; }
+        _previousPosition = _latestPosition;
+        _latestPosition = pos;
 
-//     inline void engage(QPoint viewPortPosition, QPointF canvasPosition)
-//     {
-//         _firstCanvasPosition = canvasPosition;
-//         _lastCanvasPosition = canvasPosition;
+        _positions.append(pos);
 
-//         _engaged = true;
-//     }
+        return true;
+    }
 
-//     inline void disengage(QPoint viewPortPosition, QPointF canvasPosition)
-//     { 
-//         _engaged = false;
-//     }
-    
-//     inline void move(QPoint viewPortPosition, QPointF canvasPosition)
-//     {
-//         _previousCanvasPosition = _lastCanvasPosition;
+    inline bool disengage()
+    {
+        if (!_engaged) return false;
 
-//         if (!_engaged)
-//         {
-//             engage(viewPortPosition, canvasPosition);
-//         }
+        _engaged = false;
 
-//         _lastViewPortPosition = viewPortPosition;
-//         _lastCanvasPosition = canvasPosition;
-//     }
+        return true;
+    }
 
-// private:
+    inline bool isEngaged() { return _engaged; }
 
-//     TrackingOptions _tracking;
+    inline QPointF getFirstPosition() { return _firstPosition; }
+    inline QPointF getPreviousPosition() { return _previousPosition; }
+    inline QPointF getLatestPosition() { return _latestPosition; }
 
-//     bool _engaged = false;
+    inline QLinkedList<QPointF> getPositions() { return _positions; }
 
-//     QPointF _firstCanvasPosition;
-//     QPointF _previousCanvasPosition;
-//     QPointF _lastCanvasPosition;
+private:
 
-//     ICanvasMousePresenter& _presenter;
+    bool _engaged = false;
 
-//     QCursor _cursor;
-//     QCursor _engagedCursor;
+    QLinkedList<QPointF> _positions;
 
+    QPointF _firstPosition;
+    QPointF _previousPosition;
+    QPointF _latestPosition;
+
+    IToolPresenter& _presenter;
+
+    QCursor _cursor;
+    QCursor _engagedCursor;
 };
 
 #endif // MOUSEHELPER_HPP

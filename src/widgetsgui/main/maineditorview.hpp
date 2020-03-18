@@ -16,10 +16,11 @@
 #include "interfaces/presenters/imaineditorpresenter.hpp"
 #include "interfaces/presenters/ierrorpresenter.hpp"
 
-#include "helpers/editortoolshelper.hpp"
-
 #include "utilities/initializehelper.hpp"
 #include "utilities/qtextensions/qobject.hpp"
+
+class BrushToolOptionsBar;
+class NavigateToolOptionsBar;
 
 class ViewPort;
 class ViewPortScrollWidget;
@@ -33,7 +34,7 @@ public:
     MainEditorView() : _initHelper(this)
     {
     }
-    virtual ~MainEditorView();
+    virtual ~MainEditorView() = default;
 
     void initialize(IMainEditorPresenter* presenter);
 
@@ -49,16 +50,18 @@ private slots:
 
     void onUndoStateChanged();
 
+    void onToolBarNeedsShown();
+    void onToolBarNeedsHidden();
+
 private:
     void setupUi();
-    void updateTools();
 
     IMainEditorPresenter* _presenter;
 
     QMenuBar* _menuBar;
     QToolBar* _toolBar_documentActions;
-    QToolBar* _toolBar_toolSelection;
-    QToolBar* _toolBar_toolOptions;
+    QToolBar* _toolBar_editorToolSelection;
+    //QToolBar* _toolBar_viewerToolSelection;
     QStatusBar* _statusBar;
 
     ViewPort* _viewPort;
@@ -74,11 +77,39 @@ private:
 
     OptionGroup* _optionGroup_toolSelection;
 
-    EditorToolsHelper* _editorTools = nullptr;
+    //SelectToolAction* action_selectSelectTool;
+    QToolBar* _optionsToolBar_select;
+
+    OptionAction* _action_selectBrushTool;
+    BrushToolOptionsBar* _optionsToolBar_brush;
+
+    //SelectToolAction* action_selectEraserTool;
+    QToolBar* _optionsToolBar_eraser;
+
+    //SelectToolAction* action_selectFillTool;
+    QToolBar* _optionsToolBar_fill;
+
+    //SelectToolAction* action_selectTextTool;
+    QToolBar* _optionsToolBar_text;
+
+    //SelectToolAction* action_selectShapesTool;
+    QToolBar* _optionsToolBar_shapes;
+
+    //SelectToolAction* action_selectStickersTool;
+    QToolBar* _optionsToolBar_stickers;
+
+    //SelectToolAction* action_selectEyedropTool;
+    QToolBar* _optionsToolBar_eyedrop;
+
+    OptionAction* _action_selectNavigateTool;
+    NavigateToolOptionsBar* _optionsToolBar_navigate;
+
+    //SelectToolAction* action_selectMeasureTool;
+    QToolBar* _optionsToolBar_measure;
+
+    QToolBar* _optionsToolBar_currentTool = nullptr;
 
     InitializeHelper<MainEditorView> _initHelper;
-
-    friend class EditorToolsHelper;
 };
 
 #endif // BASEDOCUMENTVIEW_HPP

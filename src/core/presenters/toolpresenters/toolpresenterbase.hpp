@@ -22,7 +22,7 @@ class ToolPresenterBase : public QObject, public virtual IToolPresenter
     Q_OBJECT
 public:
     ToolPresenterBase()
-        : _propertyDecorationHelper(this)
+        : _mouseHelper(*this), _propertyDecorationHelper(this)
     {
     }
     virtual ~ToolPresenterBase() = default;
@@ -34,10 +34,6 @@ public:
     QString getName() { _initHelper.check(); return _name; }
     QString getToolTip() { _initHelper.check(); return _toolTip; }
 
-    void pointerEngage(QPointF canvasPos);
-    void pointerMove(QPointF canvasPos);
-    void pointerDisengage(QPointF canvasPos);
-
     bool isSelected()
     {
         return _mainEditorPresenter->getCurrentToolPresenter() == this;
@@ -47,6 +43,8 @@ public:
     { 
         return _propertyDecorationHelper.getPropertyDecoration(propertyName);
     }
+
+    virtual bool event(QEvent* e);
 
 public slots: 
     void select();
@@ -60,6 +58,11 @@ signals:
 
 protected:
     void initialize_p(IMainEditorPresenter* mainEditorPresenter);
+
+    virtual void onEngage() { }
+    virtual void onMove() { }
+    virtual void onDisengage() { }
+
     IMainEditorPresenter* _mainEditorPresenter;
     IViewPortPresenter* _viewPortPresenter;
 
@@ -70,9 +73,7 @@ protected:
     QString _toolTip;
     QString _name;
 
-    virtual void onPointerEngage() { }
-    virtual void onPointerMove() { }
-    virtual void onPointerDisengage() { }
+    MouseHelper _mouseHelper;
 
     PropertyDecorationHelper _propertyDecorationHelper;
 

@@ -7,51 +7,61 @@
 #include "widgetsgui/utilities/optionaction.hpp"
 #include "widgetsgui/utilities/optiongroup.hpp"
 
+#include "../maineditorview.hpp"
 #include "interfaces/presenters/imaineditorpresenter.hpp"
 
 class ToolSetupHelper
 {
 public: 
     ToolSetupHelper(
-            QWidget* owner,
+            MainEditorView* owner,
             IMainEditorPresenter& mainEditorPresenter,
-            QToolBar* selectToolBar, 
             OptionGroup* selectGroup
         )
         : _owner(owner),
-         _selectToolBar(selectToolBar),
         _selectGroup(selectGroup),
         _mainEditorPresenter(mainEditorPresenter),
         _select_decorHelper("currentTool", mainEditorPresenter)
     {
     }
 
-    template<class ToolBarType, class PresenterType>
+    template<class ToolBarType>
     void addTool(
             ToolId tool,
             OptionAction** selectActionptr,
-            ToolBarType** optionsptr,
-            PresenterType** presenterptr
+            ToolBarType** toolbarptr
         )
     {
-        PresenterType* toolPresenter = dynamic_cast<PresenterType*>(_mainEditorPresenter.getToolPresenter(tool));
-        *presenterptr = toolPresenter;
+        typedef typename ToolBarType::PresenterType PresenterType;
+        PresenterType* presenter = dynamic_cast<PresenterType*>(_mainEditorPresenter.getToolPresenter(tool));
 
         OptionAction* selectAction = new OptionAction(tool, _owner);
         _select_decorHelper.decorateOption(selectAction);
         *selectActionptr = selectAction;
 
-        _selectToolBar->addAction(selectAction);
         _selectGroup->addOption(selectAction);
 
-        ToolBarType* optionsToolBar = new ToolBarType(*toolPresenter, _owner);
-        *optionsptr = optionsToolBar;
+        ToolBarType* optionsToolBar = new ToolBarType(*presenter, _owner);
+        *toolbarptr = optionsToolBar;
+
+        QObject::connect(
+            optionsToolBar, 
+            &ToolBarType::needsShown,
+            _owner, 
+            &MainEditorView::onToolBarNeedsShown
+        );
+        QObject::connect(
+            optionsToolBar, 
+            &ToolBarType::needsHidden,
+            _owner, 
+            &MainEditorView::onToolBarNeedsHidden
+        );
     }
 
 private:
     DecorationHelper _select_decorHelper;
 
-    QWidget* _owner;
+    MainEditorView* _owner;
     QToolBar* _selectToolBar;
     OptionGroup* _selectGroup;
 

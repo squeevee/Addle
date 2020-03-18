@@ -16,12 +16,15 @@ public:
 protected:
     ToolOptionBarBase(IToolPresenter& presenter, QWidget* parent = nullptr);
 
+signals:
+    void needsShown();
+    void needsHidden();
+
 private slots: 
     void onSelectedChanged(bool selected);
 
 private:
     IToolPresenter& _presenter;
-    QObject* _q_presenter;
     QWidget* _owner;
 };
 

@@ -2,6 +2,8 @@
 #include <QtDebug>
 #include <QMetaEnum>
 
+#include "utilities/canvas/canvasmouseevent.hpp"
+
 void NavigateToolPresenter::initialize(IMainEditorPresenter* owner)
 {
     _initHelper.initializeBegin();
@@ -20,23 +22,15 @@ void NavigateToolPresenter::setNavigateOperation(NavigateToolPresenter::Navigate
     emit navigateOperationChanged(_operation);
 }
 
-
-void NavigateToolPresenter::onPointerEngage()
+void NavigateToolPresenter::onMove()
 {
-    _initHelper.check();
-}
-
-void NavigateToolPresenter::onPointerMove()
-{
-    _initHelper.check();
-
-    // switch (_operation)
-    // {
-    // case NavigateOperationOptions::gripPan:
-    //     _viewPortPresenter->gripPan(_toolPathHelper.getFirstCanvasPosition(), _toolPathHelper.getLastCanvasPosition());
-    //     break;
-    // case NavigateOperationOptions::gripPivot:
-    //     _viewPortPresenter->gripPivot(_toolPathHelper.getFirstCanvasPosition(), _toolPathHelper.getLastCanvasPosition());
-    //     break;
-    // }
+    switch (_operation)
+    {
+    case gripPan:
+        _viewPortPresenter->gripPan(_mouseHelper.getFirstPosition(), _mouseHelper.getLatestPosition());
+        break;
+    case gripPivot:
+        _viewPortPresenter->gripPivot(_mouseHelper.getFirstPosition(), _mouseHelper.getLatestPosition());
+        break;
+    }
 }

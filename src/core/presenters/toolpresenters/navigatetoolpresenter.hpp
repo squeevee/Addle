@@ -34,8 +34,7 @@ signals:
     void navigateOperationChanged(NavigateOperationOptions operation);
 
 protected:
-    void onPointerEngage();
-    void onPointerMove();
+    void onMove();
 
 private:
 

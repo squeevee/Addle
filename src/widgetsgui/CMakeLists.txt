@@ -11,7 +11,6 @@ set (
     main/viewportscrollwidget.cpp
     main/viewport.cpp
     main/zoomrotatewidget.cpp
-    main/helpers/editortoolshelper.cpp
     main/tooloptionsbars/brushtooloptionsbar.cpp
     main/tooloptionsbars/navigatetooloptionsbar.cpp
     main/tooloptionsbars/tooloptionbarbase.cpp

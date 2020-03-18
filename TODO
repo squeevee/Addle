@@ -66,6 +66,9 @@ Potential complications might involve unit tests and dynamically loaded code
 Pass presenters with shared or weak pointers? const references to shared/weak 
 pointers (might be easier on the include network)? At least make init function
 and constructor signatures consistent
+Okay but no really what am I doing with this situation because I've got a
+hodgepodge of pointers and references and smart pointers scattered amongst all
+supporting and related classes.
 
 reusable (shared?) cache of viewport info for view items that draw themselves
 with respect to the viewport. Maybe with a QWidget pointer to the ViewPort as a 
@@ -82,3 +85,6 @@ InitHelper:
 - For init functions, make a scope-limited object whose constructor calls
   initializeBegin() and whose destructor callse initializeEnd(), would simplify
   some syntax
+
+see if PropertyCache can't be made more flexible with std::function and
+std::bind

@@ -9,6 +9,10 @@
 #include "interfaces/presenters/icanvaspresenter.hpp"
 #include "interfaces/presenters/imaineditorpresenter.hpp"
 
+#include "utilities/canvas/canvasmouseevent.hpp"
+
+#include "widgetsgui/utilities/guiutils.hpp"
+
 #include "docbackgrounditem.hpp"
 #include "layeritem.hpp"
 
@@ -37,19 +41,16 @@ CanvasScene::CanvasScene(ICanvasPresenter& presenter, QObject* parent)
     }
 }
 
-
 void CanvasScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
 {
     QGraphicsScene::mouseMoveEvent(mouseEvent);
     if (mouseEvent->isAccepted())
         return;
 
-    // IToolPresenter* tool = _presenter->getCurrentToolPresenter();
-    // if (tool)
-    // {
-    //     mouseEvent->accept();
-    //     tool->pointerEngage(mouseEvent->scenePos());
-    // }
+    CanvasMouseEvent canvasMouseEvent = graphicsMouseToCanvasMouseEvent(mouseEvent);
+    mouseEvent->setAccepted(
+        qobject_interface_cast(&_presenter)->event(&canvasMouseEvent) && canvasMouseEvent.isAccepted()
+    );
 }
 
 void CanvasScene::mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent)
@@ -58,12 +59,10 @@ void CanvasScene::mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent)
     if (mouseEvent->isAccepted())
         return;
 
-    // IToolPresenter* tool = _presenter->getCurrentToolPresenter();
-    // if (tool)
-    // {
-    //     mouseEvent->accept();
-    //     tool->pointerMove(mouseEvent->scenePos());
-    // }
+    CanvasMouseEvent canvasMouseEvent = graphicsMouseToCanvasMouseEvent(mouseEvent);
+    mouseEvent->setAccepted(
+        qobject_interface_cast(&_presenter)->event(&canvasMouseEvent) && canvasMouseEvent.isAccepted()
+    );
 }
 
 void CanvasScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* mouseEvent)
@@ -72,10 +71,8 @@ void CanvasScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* mouseEvent)
     if (mouseEvent->isAccepted())
         return;
 
-    // IToolPresenter* tool = _presenter->getCurrentToolPresenter();
-    // if (tool)
-    // {
-    //     mouseEvent->accept();
-    //     tool->pointerDisengage(mouseEvent->scenePos());
-    // }
+    CanvasMouseEvent canvasMouseEvent = graphicsMouseToCanvasMouseEvent(mouseEvent);
+    mouseEvent->setAccepted(
+        qobject_interface_cast(&_presenter)->event(&canvasMouseEvent) && canvasMouseEvent.isAccepted()
+    );
 }

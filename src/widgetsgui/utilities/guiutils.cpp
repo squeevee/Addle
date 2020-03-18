@@ -15,3 +15,30 @@ QPixmap checkerBoardTexture(int width, QColor color1, QColor color2)
 
     return texture;
 }
+
+CanvasMouseEvent graphicsMouseToCanvasMouseEvent(const QGraphicsSceneMouseEvent* event)
+{
+    CanvasMouseEvent::Action action = (CanvasMouseEvent::Action)NULL;
+    switch (event->type())
+    {
+    case QEvent::GraphicsSceneMousePress:
+        action = CanvasMouseEvent::down;
+        break;
+    case QEvent::GraphicsSceneMouseRelease:
+        action = CanvasMouseEvent::up;
+        break;
+    case QEvent::GraphicsSceneMouseMove:
+        action = CanvasMouseEvent::move;
+        break;
+    };
+
+    return CanvasMouseEvent(
+        action,
+        event->scenePos(),
+        event->button(),
+        event->buttons(),
+        event->flags(),
+        event->source(),
+        event
+    );
+}

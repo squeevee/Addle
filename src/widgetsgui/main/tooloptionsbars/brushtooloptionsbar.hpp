@@ -11,7 +11,10 @@ class BrushToolOptionsBar : public ToolOptionBarBase
 {
     Q_OBJECT 
     typedef IBrushPresenter::SizeOption SizeOption;
-public: 
+
+public:
+    typedef IBrushToolPresenter PresenterType;
+
     BrushToolOptionsBar(IBrushToolPresenter& presenter, QWidget* parent);
 
     OptionAction* _action_brush_basic;

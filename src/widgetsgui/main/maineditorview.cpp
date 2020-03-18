@@ -24,12 +24,10 @@
 
 #include "widgetsgui/utilities/widgetproperties.hpp"
 
-#include "helpers/editortoolshelper.hpp"
+#include "helpers/toolsetuphelper.hpp"
 
-MainEditorView::~MainEditorView()
-{
-    if (_editorTools) delete _editorTools;
-}
+#include "tooloptionsbars/brushtooloptionsbar.hpp"
+#include "tooloptionsbars/navigatetooloptionsbar.hpp"
 
 void MainEditorView::initialize(IMainEditorPresenter* presenter)
 {
@@ -53,12 +51,12 @@ void MainEditorView::setupUi()
     _toolBar_documentActions->setWindowTitle(tr("document-actions"));
     QMainWindow::addToolBar(Qt::ToolBarArea::TopToolBarArea, _toolBar_documentActions);
 
-    _toolBar_toolSelection = new QToolBar(this);
-    _toolBar_toolSelection->setWindowTitle(tr("tool-selection"));
-    QMainWindow::addToolBar(Qt::ToolBarArea::LeftToolBarArea, _toolBar_toolSelection);
+    _toolBar_editorToolSelection = new QToolBar(this);
+    _toolBar_editorToolSelection->setWindowTitle(tr("tool-selection"));
+    QMainWindow::addToolBar(Qt::ToolBarArea::LeftToolBarArea, _toolBar_editorToolSelection);
 
     new PropertyBinding(
-        _toolBar_toolSelection,
+        _toolBar_editorToolSelection,
         WidgetProperties::enabled,
         qobject_interface_cast(_presenter),
         IMainEditorPresenter::Meta::Properties::empty,
@@ -85,12 +83,12 @@ void MainEditorView::setupUi()
     connect(_action_open, &QAction::triggered, this, &MainEditorView::onAction_open);
 
     _optionGroup_toolSelection = new OptionGroup(this);
-    // new PropertyBinding(
-    //     _optionGroup_toolSelection,
-    //     WidgetProperties::value,
-    //     qobject_interface_cast(_presenter),
-    //     IDocumentPresenter::Meta::Properties::currentTool
-    // );
+    new PropertyBinding(
+        _optionGroup_toolSelection,
+        WidgetProperties::value,
+        qobject_interface_cast(_presenter),
+        IMainEditorPresenter::Meta::Properties::currentTool
+    );
 
     _action_new = new QAction(this);
     _action_new->setIcon(QIcon(":/icons/new.png"));
@@ -112,25 +110,45 @@ void MainEditorView::setupUi()
     _toolBar_documentActions->addAction(_action_undo);
     _toolBar_documentActions->addAction(_action_redo);
 
-    updateTools();
-}
+    ToolSetupHelper setupHelper(
+        this,
+        *_presenter,
+        _optionGroup_toolSelection
+    );
 
-void MainEditorView::updateTools()
-{
-    switch(_presenter->getMode())
-    {
-        case IMainEditorPresenter::Editor:
-        {
-            _editorTools = new EditorToolsHelper(*this);
-            // if (_viewerTools)
-            // {
-            //     delete _viewerTools;
-            //     _viewerTools = nullptr;
-            // }
-            break;
-        }
-        //TODO
-    }
+
+    setupHelper.addTool(
+        IMainEditorPresenter::DefaultTools::BRUSH,
+        &_action_selectBrushTool,
+        &_optionsToolBar_brush
+    );
+
+    setupHelper.addTool(
+        IMainEditorPresenter::DefaultTools::NAVIGATE,
+        &_action_selectNavigateTool,
+        &_optionsToolBar_navigate
+    );
+
+    _toolBar_editorToolSelection->addAction(new QAction(QIcon(":/icons/select.png"), "", this));
+
+    _toolBar_editorToolSelection->addSeparator();
+
+
+    _toolBar_editorToolSelection->addAction(_action_selectBrushTool);
+    _toolBar_editorToolSelection->addAction(new QAction(QIcon(":/icons/eraser.png"), "", this));
+    _toolBar_editorToolSelection->addAction(new QAction(QIcon(":/icons/fill.png"), "", this));
+
+    _toolBar_editorToolSelection->addSeparator();
+
+    _toolBar_editorToolSelection->addAction(new QAction(QIcon(":/icons/text_en.png"), "", this));
+    _toolBar_editorToolSelection->addAction(new QAction(QIcon(":/icons/shapes.png"), "", this));
+    _toolBar_editorToolSelection->addAction(new QAction(QIcon(":/icons/stickers.png"), "", this));
+
+    _toolBar_editorToolSelection->addSeparator();
+
+    _toolBar_editorToolSelection->addAction(_action_selectNavigateTool);
+    _toolBar_editorToolSelection->addAction(new QAction(QIcon(":/icons/eyedrop.png"), "", this));
+    _toolBar_editorToolSelection->addAction(new QAction(QIcon(":/icons/measure.png"), "", this));
 }
 
 void MainEditorView::onUndoStateChanged()
@@ -173,4 +191,20 @@ void MainEditorView::onPresenterErrorRaised(QSharedPointer<IErrorPresenter> erro
     }
 
     message.exec();
+}
+
+void MainEditorView::onToolBarNeedsShown()
+{
+    QToolBar* toolBar = qobject_cast<QToolBar*>(sender());
+
+    toolBar->show();
+    addToolBar(toolBar);
+}
+
+void MainEditorView::onToolBarNeedsHidden()
+{
+    QToolBar* toolBar = qobject_cast<QToolBar*>(sender());
+
+    toolBar->hide();
+    removeToolBar(toolBar);
 }

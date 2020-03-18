@@ -22,6 +22,8 @@ public:
     QCursor getCursor() { return QCursor(); }
     QString getStatusTip() { return QString(); }
 
+    bool event(QEvent* e);
+
 signals:
     void cursorChanged(QCursor cursor);
     void statusTipChanged(QString statusTip);

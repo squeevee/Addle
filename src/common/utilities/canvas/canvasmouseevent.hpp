@@ -23,7 +23,7 @@ public:
         Qt::MouseButtons buttons,
         Qt::MouseEventFlags flags,
         Qt::MouseEventSource source,
-        QEvent* underlying = nullptr)
+        const QEvent* underlying = nullptr)
         : QEvent((QEvent::Type)_type),
         _action(action),
         _pos(pos),
@@ -31,6 +31,17 @@ public:
         _buttons(buttons),
         _flags(flags),
         _source(source)
+    {
+    }
+
+    CanvasMouseEvent(const CanvasMouseEvent& other)
+        : QEvent((QEvent::Type)_type),
+        _action(other._action),
+        _pos(other._pos),
+        _button(other._button),
+        _buttons(other._buttons),
+        _flags(other._flags),
+        _source(other._source)
     {
     }
 
@@ -42,7 +53,7 @@ public:
     Qt::MouseButtons buttons() const { return _buttons; }
     Qt::MouseEventFlags flags() const { return _flags; }
     Qt::MouseEventSource source() const { return _source; }
-    QEvent* underlying() const { return _underlying; }
+    const QEvent* underlying() const { return _underlying; }
 
     static inline int getType()
     {
@@ -59,7 +70,7 @@ private:
     Qt::MouseEventFlags _flags;
     Qt::MouseEventSource _source;
 
-    QEvent* _underlying;
+    const QEvent* _underlying;
 
     static int _type;
     friend void registerQMetaTypes();
