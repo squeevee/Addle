@@ -10,7 +10,7 @@
 #include "utilities/configuration/tfactory.hpp"
 #include "utilities/configuration/qobjectfactory.hpp"
 
-#include "core/editing/brushrenderers/basicbrushrenderer.hpp"
+#include "core/editing/brushpainters/basicbrushpainter.hpp"
 #include "core/editing/operations/brushoperation.hpp"
 #include "core/editing/surfaces/rastersurface.hpp"
 
@@ -45,7 +45,7 @@ void ServiceConfiguration::configure()
 {
     // # Editing
     // ## Brush renderers
-    REGISTER_TFACTORY(IBasicBrushRenderer, BasicBrushRenderer);
+    REGISTER_TFACTORY(IBasicBrushPainter, BasicBrushPainter);
 
     // ## Operations
     REGISTER_QOBJECT_FACTORY(IBrushOperation, BrushOperation);

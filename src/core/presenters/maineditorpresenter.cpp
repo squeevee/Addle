@@ -114,6 +114,7 @@ void MainEditorPresenter::setDocumentPresenter(IDocumentPresenter* documentPrese
 {
     _documentPresenter = documentPresenter;
 
+    _selectedLayer = _documentPresenter->getLayers().first();
     _isEmptyCache.recalculate();
     emit documentPresenterChanged(_documentPresenter);
 }
@@ -231,4 +232,14 @@ void MainEditorPresenter::selectTool(ToolId tool)
     emit _currentToolPresenter->selectionChanged(true);
     if (previousTool)
         emit previousTool->selectionChanged(false);
+}
+
+void MainEditorPresenter::selectLayer(ILayerPresenter* layer)
+{
+
+}
+
+void MainEditorPresenter::selectLayerAt(int index)
+{
+    
 }

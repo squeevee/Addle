@@ -1,16 +1,16 @@
-#ifndef IBRUSHRENDERER_HPP
-#define IBRUSHRENDERER_HPP
+#ifndef IBRUSHPAINTER_HPP
+#define IBRUSHPAINTER_HPP
 
 #include <QPainter>
 #include <QImage>
 
 #include "idtypes/brushid.hpp"
-#include "utilities/canvas/brushpathsegment.hpp"
+#include "utilities/canvas/brushpainterdata.hpp"
 
-class IBrushRenderer
+class IBrushPainter
 {
 public: 
-    virtual ~IBrushRenderer() = default;
+    virtual ~IBrushPainter() = default;
 
     virtual BrushId getId() const = 0;
 
@@ -24,8 +24,8 @@ public:
     virtual double getMinimumSize() const = 0;
     virtual double getMaximumSize() const = 0;
 
-    virtual QRect getSegmentBoundingRect(const BrushPathSegment& segment) const = 0;
-    virtual void renderSegment(QImage& image, BrushPathSegment& segment) const = 0;
+    virtual QRect boundingRect(const BrushPainterData& segment) const = 0;
+    virtual void paint(BrushPainterData& segment, QPainter& painter) const = 0;
 };
 
-#endif // IBRUSHRENDERER_HPP
+#endif // IBRUSHPAINTER_HPP

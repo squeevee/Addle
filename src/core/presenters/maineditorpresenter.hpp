@@ -61,8 +61,8 @@ public:
     IViewPortPresenter* getViewPortPresenter();
 
     ILayerPresenter* getSelectedLayer() { return _selectedLayer; }
-    void selectLayer(ILayerPresenter* layer) { }
-    void selectLayerAt(int index) { }
+    void selectLayer(ILayerPresenter* layer);
+    void selectLayerAt(int index);
 
     void setMode(Mode mode);
     Mode getMode() { return _mode; }
@@ -123,6 +123,7 @@ private slots:
 private:
     void setDocumentPresenter(IDocumentPresenter* document);
     bool isEmpty_p() { return !_documentPresenter; }
+    QList<ILayerPresenter*> getLayers_p();
 
     Mode _mode = (Mode)NULL;
 
@@ -148,7 +149,6 @@ private:
     QHash<ToolId, IToolPresenter*> _toolPresenters;
     ToolId _currentTool;
     IToolPresenter* _currentToolPresenter = nullptr;
-
 
     ILayerPresenter* _selectedLayer = nullptr;
 

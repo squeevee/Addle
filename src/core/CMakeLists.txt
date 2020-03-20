@@ -4,7 +4,7 @@ set ( CMAKE_AUTOMOC ON)
 
 set (
     SOURCES
-    editing/brushrenderers/basicbrushrenderer.cpp
+    editing/brushpainters/basicbrushpainter.cpp
     editing/operations/brushoperation.cpp
     editing/surfaces/rastersurface.cpp
     models/document.cpp

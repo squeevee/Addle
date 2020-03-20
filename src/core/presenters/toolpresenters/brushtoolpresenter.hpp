@@ -51,9 +51,9 @@ signals:
     void selectedAssetChanged(PersistentId id);
 
 protected:
-    void onPointerEngage();
-    void onPointerMove();
-    void onPointerDisengage();
+    void onEngage();
+    void onMove();
+    void onDisengage();
 
 private:
     IMainEditorPresenter* _mainEditorPresenter;

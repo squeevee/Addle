@@ -11,7 +11,7 @@
 #include "interfaces/models/ilayer.hpp"
 #include "interfaces/models/idocument.hpp"
 
-#include "utilities/image/expandingbuffer.hpp"
+#include "interfaces/editing/surfaces/irastersurface.hpp"
 
 #include "utilities/initializehelper.hpp"
 

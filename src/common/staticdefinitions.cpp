@@ -120,12 +120,12 @@ const ToolId IMainEditorPresenter::DefaultTools::EYEDROP  = IEyedropToolPresente
 const ToolId IMainEditorPresenter::DefaultTools::NAVIGATE = INavigateToolPresenter::NAVIGATE_TOOL_ID;
 const ToolId IMainEditorPresenter::DefaultTools::MEASURE  = IMeasureToolPresenter::MEASURE_TOOL_ID;
 
-#include "interfaces/editing/brushrenderers/ibasicbrushrenderer.hpp"
+#include "interfaces/editing/brushpainters/ibasicbrushpainter.hpp"
 
-const BrushId IBasicBrushRenderer::Id = BrushId("basic-brush");
+const BrushId IBasicBrushPainter::Id = BrushId("basic-brush");
 
 #include "interfaces/presenters/toolpresenters/ibrushtoolpresenter.hpp"
-const BrushId IBrushToolPresenter::DefaultBrushes::Basic  = IBasicBrushRenderer::Id;
+const BrushId IBrushToolPresenter::DefaultBrushes::Basic  = IBasicBrushPainter::Id;
 
 const BrushId IBrushToolPresenter::DEFAULT_BRUSH = DefaultBrushes::Basic;
 

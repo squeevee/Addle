@@ -11,8 +11,8 @@
 #include "interfaces/traits/initialize_trait.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 
-#include "utilities/canvas/brushpathsegment.hpp"
-#include "../brushrenderers/ibrushrenderer.hpp"
+#include "utilities/canvas/brushpainterdata.hpp"
+#include "../brushpainters/ibrushpainter.hpp"
 
 #include "irasteroperation.hpp"
 
@@ -37,11 +37,11 @@ public:
 
     virtual void initialize(
         QWeakPointer<ILayer>& layer,
-        QSharedPointer<IBrushRenderer> brushRenderer,
+        QSharedPointer<IBrushPainter> brushPainter,
         Mode mode = Mode::paint
     ) = 0;
 
-    virtual void addPathSegment(const BrushPathSegment& pathSegment) = 0;
+    virtual void addPainterData(BrushPainterData& painterData) = 0;
 };
 
 DECL_MAKEABLE(IBrushOperation)

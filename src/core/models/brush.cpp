@@ -1,7 +1,7 @@
 #include "brush.hpp"
 
-void Brush::initialize(BrushId id, QSharedPointer<IBrushRenderer> renderer)
+void Brush::initialize(BrushId id, QSharedPointer<IBrushPainter> painter)
 {
     _id = id;
-    _renderer = renderer;
+    _painter = painter;
 }

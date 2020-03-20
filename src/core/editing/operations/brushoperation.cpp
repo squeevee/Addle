@@ -11,12 +11,13 @@
 
 void BrushOperation::initialize(
         QWeakPointer<ILayer>& layer,
-        QSharedPointer<IBrushRenderer> brushRenderer,
+        QSharedPointer<IBrushPainter> brushPainter,
         Mode mode
     )
 {
     _layer = layer;
     _mode = mode;
+    _brushPainter = brushPainter;
 
     switch (_mode)
     {
@@ -28,19 +29,24 @@ void BrushOperation::initialize(
         break;
     }
 
-    _workingBuffer.initialize(_format);
+    _workingSurface = ServiceLocator::makeShared<IRasterSurface>();
 }
 
-void BrushOperation::addPathSegment(const BrushPathSegment& pathSegment)
+void BrushOperation::addPainterData(BrushPainterData& painterData)
 {
+    QRect bound = _brushPainter->boundingRect(painterData);
 
+    RasterPaintHandle paintHandle = _workingSurface->getPaintHandle(bound);
+    _brushPainter->paint(painterData, paintHandle.getPainter());
+
+    _areaOfEffect = _areaOfEffect.united(bound);
 }
 
 void BrushOperation::render(QPainter& painter, QRect paintRegion)
 {
     QRect intersection = _areaOfEffect.intersected(paintRegion);
     if (!intersection.isEmpty())
-        _workingBuffer.render(painter, paintRegion);
+        _workingSurface->render(painter, paintRegion);
 }
 
 void BrushOperation::doOperation()
@@ -64,9 +70,9 @@ void BrushOperation::doOperation()
     {
         forward = _forwardStored.blockingGetUncompressed();
     }
-        
-    BufferPainter bufferPainter = surface->makeBufferPainter(_areaOfEffect);
-    bufferPainter.getPainter().drawImage(_areaOfEffect, forward);
+    
+    RasterPaintHandle paintHandle = surface->getPaintHandle(_areaOfEffect);
+    paintHandle.getPainter().drawImage(_areaOfEffect, forward);
 }
 
 void BrushOperation::undoOperation()
@@ -79,8 +85,8 @@ void BrushOperation::undoOperation()
     QImage reverse = _reverseStored.blockingGetUncompressed();
     QImage mask = _maskStored.blockingGetUncompressed();
 
-    BufferPainter bufferPainter = surface->makeBufferPainter(_areaOfEffect);
-    bufferPainter.getPainter().drawImage(_areaOfEffect.topLeft(), reverse);
+    RasterPaintHandle paintHandle = surface->getPaintHandle(_areaOfEffect);
+    paintHandle.getPainter().drawImage(_areaOfEffect.topLeft(), reverse);
 }
 
 void BrushOperation::freeze(QImage* forwardPtr, QImage* reversePtr, QImage* maskPtr)
@@ -91,8 +97,8 @@ void BrushOperation::freeze(QImage* forwardPtr, QImage* reversePtr, QImage* mask
 
     QSharedPointer<ILayer> layer = _layer.toStrongRef();
 
-    QImage forward = _workingBuffer.image.copy(_workingBuffer.getOntoBufferTransform().mapRect(_areaOfEffect));
-    _workingBuffer.clear();
+    QImage forward = _workingSurface->copy(_areaOfEffect);
+    _workingSurface.clear();
 
     // apparently the threshold is fixed at 128 so I might need to make my own
     // implementation
@@ -127,10 +133,4 @@ void BrushOperation::freeze(QImage* forwardPtr, QImage* reversePtr, QImage* mask
         *maskPtr = mask;
 
     _frozen = true;
-}
-
-void BrushOperation::beforeBufferPainted(QRect region)
-{ 
-    _areaOfEffect = _areaOfEffect.united(region);
-    _workingBuffer.grab(region);
 }

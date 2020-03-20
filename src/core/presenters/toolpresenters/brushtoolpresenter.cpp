@@ -36,61 +36,33 @@ void BrushToolPresenter::initialize(IMainEditorPresenter* owner)
     _initHelper.initializeEnd();
 }
 
-void BrushToolPresenter::onPointerEngage()
+void BrushToolPresenter::onEngage()
 {
-    // try
-    // {
-            
-    // ILayerPresenter* layer = _mainEditorPresenter->getSelectedLayer();
-    // QSharedPointer<IBrushPresenter> brush = getSelectedBrushPresenter();
-    // QSharedPointer<IBrushRenderer> renderer = brush->getModel()->getRenderer();
+    auto layer = _mainEditorPresenter->getSelectedLayer()->getModel();
+    auto painter = _assetsHelper.getSelectedAssetPresenter()->getModel()->getPainter();
 
-    // _operation = ServiceLocator::makeShared<IBrushOperation>(
-    //     layer->getModel(),
-    //     renderer
-    // );
-
-    // //layer->setRasterOperation(_operation.staticCast<IRasterOperation>());
-
-    // BrushPathSegment segment( Qt::black, 10, _toolPathHelper.getLastCanvasPosition() );
-    // _operation->addPathSegment(segment);
-
-    // QRect bound = renderer->getSegmentBoundingRect(segment);
-
-    // layer->renderChanged(bound);
-
-    // }
-    // ADDLE_FALLBACK_CATCH
+    _operation = ServiceLocator::makeShared<IBrushOperation>(
+        layer,
+        painter,
+        IBrushOperation::paint
+    );
+    BrushPainterData painterData(
+        Qt::blue, 25, _mouseHelper.getLatestPosition()
+    );
+    _operation->addPainterData(painterData);
 }
 
-void BrushToolPresenter::onPointerMove()
+void BrushToolPresenter::onMove()
 {
-    // try
-    // {
-
-    // ILayerPresenter* layer = _mainEditorPresenter->getSelectedLayer();
-    // QSharedPointer<IBrushPresenter> brush = getSelectedBrushPresenter();
-    // QSharedPointer<IBrushRenderer> renderer = brush->getModel()->getRenderer();
-
-    // BrushPathSegment segment( Qt::black, 10, _toolPathHelper.getPreviousCanvasPosition(), _toolPathHelper.getLastCanvasPosition() );
-    // _operation->addPathSegment(segment);
-
-    // QRect bound = renderer->getSegmentBoundingRect(segment);
-
-    // layer->renderChanged(bound);
-    
-    // }
-    // ADDLE_FALLBACK_CATCH
+    BrushPainterData painterData(
+        Qt::blue, 25,
+        _mouseHelper.getPreviousPosition(),
+        _mouseHelper.getLatestPosition()
+    );
+    _operation->addPainterData(painterData);
 }
 
-void BrushToolPresenter::onPointerDisengage()
+void BrushToolPresenter::onDisengage()
 {
-    // try
-    // {
-
-    // _mainEditorPresenter->doOperation(_operation.staticCast<IUndoableOperation>());
-    // _operation.clear();
-
-    // }
-    // ADDLE_FALLBACK_CATCH
+    _mainEditorPresenter->doOperation(_operation.staticCast<IUndoableOperation>());
 }

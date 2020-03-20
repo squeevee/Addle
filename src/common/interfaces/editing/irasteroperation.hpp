@@ -8,8 +8,7 @@ class IRasterOperation : public IUndoableOperation
 public:
     virtual ~IRasterOperation() = default;
 
-    virtual void render(QPainter& painter, QRect region) = 0;
-    virtual QRect getBoundingRect() = 0;
+    virtual const IRasterSurface& getSurface() = 0;
 };
 
 #endif // IRASTEROPERATION_HPP

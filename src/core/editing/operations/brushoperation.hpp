@@ -2,9 +2,9 @@
 #define BRUSHOPERATION_HPP
 
 #include "interfaces/editing/operations/ibrushoperation.hpp"
+#include "interfaces/editing/surfaces/irastersurface.hpp"
 
 #include "utilities/initializehelper.hpp"
-#include "utilities/image/expandingbuffer.hpp"
 #include "utilities/image/imagecompressor.hpp"
 
 #include <QPen>
@@ -16,16 +16,16 @@ class BrushOperation : public QObject, public IBrushOperation
 {
     Q_OBJECT
 public:
-    BrushOperation() : _initHelper(this), _workingBuffer(BUFFER_CHUNK_SIZE) { }
+    BrushOperation() : _initHelper(this) { }
     virtual ~BrushOperation() = default;
 
     void initialize(
         QWeakPointer<ILayer>& layer,
-        QSharedPointer<IBrushRenderer> brushRenderer,
+        QSharedPointer<IBrushPainter> brushPainter,
         Mode mode = Mode::paint
     );
 
-    void addPathSegment(const BrushPathSegment& pathSegment);
+    void addPainterData(BrushPainterData& painterData);
 
     void render(QPainter& painter, QRect region);
 
@@ -34,11 +34,7 @@ public:
     void doOperation();
     void undoOperation();
 
-protected:
-    void beforeBufferPainted(QRect region);
-
 private:
-    static const int BUFFER_CHUNK_SIZE = 512;
 
     void freeze(QImage* forwardPtr = nullptr, QImage* reversePtr = nullptr, QImage* maskPtr = nullptr);
 
@@ -49,8 +45,9 @@ private:
     bool _frozen = false;
 
     QRect _areaOfEffect;
+    QSharedPointer<IBrushPainter> _brushPainter;
 
-    ExpandingBuffer _workingBuffer;
+    QSharedPointer<IRasterSurface> _workingSurface;
 
     ImageCompressor _forwardStored;
     ImageCompressor _reverseStored;

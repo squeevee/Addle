@@ -8,14 +8,14 @@ class Brush : public IBrush
 public:
     virtual ~Brush() = default;
 
-    void initialize(BrushId id, QSharedPointer<IBrushRenderer> renderer);
+    void initialize(BrushId id, QSharedPointer<IBrushPainter> painter);
 
     BrushId getId() { return _id; }
-    QSharedPointer<IBrushRenderer> getRenderer() { return _renderer; }
+    QSharedPointer<IBrushPainter> getPainter() { return _painter; }
 
 private:
     BrushId _id;
-    QSharedPointer<IBrushRenderer> _renderer;
+    QSharedPointer<IBrushPainter> _painter;
 };
 
 #endif // BRUSH_HPP

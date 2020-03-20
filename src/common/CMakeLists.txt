@@ -10,8 +10,7 @@ add_library( common SHARED
     utilities/indexvariant.cpp
     utilities/typeinforef.cpp
     utilities/unhandledexceptionrouter.cpp
-    utilities/image/bufferpainter.cpp
-    utilities/image/expandingbuffer.cpp
+    utilities/image/rasterpainthandle.cpp
     utilities/image/imagecompressor.cpp
     utilities/presenter/propertybinding.cpp
     utilities/presenter/propertyobserver.cpp
