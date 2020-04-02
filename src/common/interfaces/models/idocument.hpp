@@ -40,7 +40,7 @@ public:
     virtual QList<QSharedPointer<ILayer>> getLayers() = 0;
 
 signals:
-    void renderChanged(QRect area);
+    //void renderChanged(QRect area);
     void boundaryChanged(QRect newBoundary);
 
     //void applyingDrawingOperation(const IDrawingOperation& operation);

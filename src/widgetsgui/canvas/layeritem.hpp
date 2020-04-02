@@ -16,7 +16,7 @@ public:
     void paint(QPainter* painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
 public slots: 
-    void onRenderChanged(QRect area);
+    void onPresenterUpdated(QRect area);
 
 private: 
 

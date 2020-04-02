@@ -58,7 +58,7 @@ protected:
 private:
     IMainEditorPresenter* _mainEditorPresenter;
 
-    QSharedPointer<IBrushOperation> _operation;
+    //QSharedPointer<IBrushOperation> _operation;
 
     ToolWithAssetsHelper<IBrushPresenter, BrushId> _assetsHelper;
     InitializeHelper<BrushToolPresenter> _initHelper;

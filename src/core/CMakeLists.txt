@@ -5,7 +5,7 @@ set ( CMAKE_AUTOMOC ON)
 set (
     SOURCES
     editing/brushpainters/basicbrushpainter.cpp
-    editing/operations/brushoperation.cpp
+    editing/operations/rasteroperation.cpp
     editing/surfaces/rastersurface.cpp
     models/document.cpp
     models/layer.cpp
@@ -17,9 +17,11 @@ set (
     presenters/maineditorpresenter.cpp
     presenters/viewportpresenter.cpp
     presenters/assets/brushpresenter.cpp
+    presenters/operationpresenters/brushoperationpresenter.cpp
     presenters/toolpresenters/toolpresenterbase.cpp
     presenters/toolpresenters/navigatetoolpresenter.cpp
     presenters/toolpresenters/brushtoolpresenter.cpp
+    rendering/renderstack.cpp
     services/applicationservice.cpp
     services/formatservice.cpp
     services/taskservice.cpp

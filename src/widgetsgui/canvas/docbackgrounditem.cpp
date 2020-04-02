@@ -35,6 +35,10 @@ void DocBackgroundItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
     painter->save();
     painter->setTransform(QTransform());
 
+    // TODO: this looks bad on resizes; fix it
+    // if (widget)
+    //     painter->setBrushOrigin(widget->rect().center());
+
     if (backgroundColor.alpha() < 255)
         painter->fillPath(path, _texture);
 

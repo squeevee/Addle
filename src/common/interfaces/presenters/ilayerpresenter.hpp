@@ -9,13 +9,13 @@
 
 #include "interfaces/models/ilayer.hpp"
 
-#include "interfaces/editing/operations/irasteroperation.hpp"
+//#include "interfaces/editing/operations/irasteroperation.hpp"
 
 #include <QWeakPointer>
 #include <QPainter>
 #include <QRectF>
 
-class IRasterSurface;
+class IRenderStack;
 class ILayerPresenter
 {
 public:
@@ -26,12 +26,10 @@ public:
 
     virtual QWeakPointer<ILayer> getModel() = 0;
 
-    //virtual QRect getCanvasBounds() = 0;
-    virtual void render(QPainter& painter, QRect area) = 0;
+    virtual IRenderStack& getRenderStack() = 0;
 
 signals: 
-    virtual void renderChanged(QRect area) = 0;
-
+    virtual void updated(QRect area) = 0;
 };
 
 DECL_MAKEABLE(ILayerPresenter)

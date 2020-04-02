@@ -97,7 +97,7 @@ public:
     bool canUndo() { return _undoStackHelper.canUndo(); }
     bool canRedo() { return _undoStackHelper.canRedo(); }
 
-    void doOperation(QSharedPointer<IUndoableOperation> undoable) { _undoStackHelper.doOperation(undoable); }
+    void push(QSharedPointer<IUndoOperationPresenter> undoable) { _undoStackHelper.push(undoable); }
 
 public slots: 
     void undo() { _undoStackHelper.undo(); }

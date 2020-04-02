@@ -160,7 +160,7 @@ void Document::layersChanged(QList<ILayer*> layers)
     QRect changed = unitedBoundary();
     if (!changed.isNull())
     {
-        emit renderChanged(changed);
+        //emit renderChanged(changed);
     }
 }
 

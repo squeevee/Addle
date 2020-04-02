@@ -3,7 +3,7 @@
 
 #include <QSharedPointer>
 
-#include "interfaces/editing/operations/iundoableoperation.hpp"
+#include "interfaces/presenters/operationpresenters/iundooperationpresenter.hpp"
 
 #include "interfaces/traits/qobject_trait.hpp"
 
@@ -15,7 +15,7 @@ public:
     virtual bool canUndo() = 0;
     virtual bool canRedo() = 0;
 
-    virtual void doOperation(QSharedPointer<IUndoableOperation> undoable) = 0;
+    virtual void push(QSharedPointer<IUndoOperationPresenter> operation) = 0;
 
 public slots: 
     virtual void undo() = 0;

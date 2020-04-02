@@ -11,7 +11,7 @@
 #include "utilities/configuration/qobjectfactory.hpp"
 
 #include "core/editing/brushpainters/basicbrushpainter.hpp"
-#include "core/editing/operations/brushoperation.hpp"
+#include "core/editing/operations/rasteroperation.hpp"
 #include "core/editing/surfaces/rastersurface.hpp"
 
 #include "core/models/layer.hpp"
@@ -27,6 +27,9 @@
 #include "core/presenters/assets/brushpresenter.hpp"
 #include "core/presenters/toolpresenters/navigatetoolpresenter.hpp"
 #include "core/presenters/toolpresenters/brushtoolpresenter.hpp"
+#include "core/presenters/operationpresenters/brushoperationpresenter.hpp"
+
+#include "core/rendering/renderstack.hpp"
 
 #include "core/services/applicationservice.hpp"
 #include "core/services/formatservice.hpp"
@@ -48,7 +51,7 @@ void ServiceConfiguration::configure()
     REGISTER_TFACTORY(IBasicBrushPainter, BasicBrushPainter);
 
     // ## Operations
-    REGISTER_QOBJECT_FACTORY(IBrushOperation, BrushOperation);
+    REGISTER_TFACTORY(IRasterOperation, RasterOperation);
 
     // ## Surfaces
     REGISTER_QOBJECT_FACTORY(IRasterSurface, RasterSurface);
@@ -65,6 +68,7 @@ void ServiceConfiguration::configure()
     REGISTER_TFACTORY(IErrorPresenter, ErrorPresenter);
     REGISTER_QOBJECT_FACTORY(ILayerPresenter, LayerPresenter);
     REGISTER_QOBJECT_FACTORY(IDocumentPresenter, DocumentPresenter);
+    REGISTER_QOBJECT_FACTORY(IBrushOperationPresenter, BrushOperationPresenter);
 
     // ## Asset presenters
     REGISTER_QOBJECT_FACTORY(IBrushPresenter, BrushPresenter);
@@ -72,6 +76,9 @@ void ServiceConfiguration::configure()
     // ## Tool presenters
     REGISTER_QOBJECT_FACTORY(INavigateToolPresenter, NavigateToolPresenter);
     REGISTER_QOBJECT_FACTORY(IBrushToolPresenter, BrushToolPresenter);
+
+    // # Rendering
+    REGISTER_QOBJECT_FACTORY(IRenderStack, RenderStack);
 
     // # Services
     REGISTER_QOBJECT_FACTORY(IApplicationService, ApplicationService);

@@ -18,7 +18,7 @@ public:
     double getMaximumSize() const { return DEFAULT_MAXIMUM_SIZE; }
 
     QRect boundingRect(const BrushPainterData& segment) const;
-    void paint(BrushPainterData& segment, QPainter& painter) const;
+    void paint(BrushPainterData& segment, QImage& buffer) const;
 };
 
 #endif // BASICBRUSHPAINTER_HPP

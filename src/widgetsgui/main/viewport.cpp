@@ -29,6 +29,7 @@ ViewPort::ViewPort(IViewPortPresenter* presenter)
 {
     _presenter = presenter;
     _mainEditorPresenter = _presenter->getMainEditorPresenter();
+    _canvasPresenter = _mainEditorPresenter->getCanvasPresenter();
 
     QGraphicsView::setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     QGraphicsView::setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -37,6 +38,8 @@ ViewPort::ViewPort(IViewPortPresenter* presenter)
 
     verticalScrollBar()->disconnect(this);
     horizontalScrollBar()->disconnect(this);
+
+    QFrame::setFrameShape(QFrame::Shape::StyledPanel);
 
     connect_interface(
         _presenter,
@@ -50,30 +53,20 @@ ViewPort::ViewPort(IViewPortPresenter* presenter)
         Qt::ConnectionType::QueuedConnection
     );
 
-    new PropertyBinding(
-        this,
-        "_mainPresenterIsEmpty",
-        qobject_interface_cast(_mainEditorPresenter), 
-        IMainEditorPresenter::Meta::Properties::empty,
-        PropertyBinding::ReadOnly
-    );
-
     connect_interface(
         _mainEditorPresenter,
         SIGNAL(documentPresenterChanged(IDocumentPresenter*)),
         this,
-        SLOT(onMainEditorPresenter_documentChanged(IDocumentPresenter*))
+        SLOT(setDocument(IDocumentPresenter*))
     );
 
-    QFrame::setFrameShape(QFrame::Shape::StyledPanel);
+    setDocument(_mainEditorPresenter->getDocumentPresenter());
 }
 
 void ViewPort::resizeEvent(QResizeEvent *event)
 {
-    _cache_viewPortRect = QAbstractScrollArea::viewport()->contentsRect();
-
     //auto s_presenter = _presenter.toStrongRef();
-    _presenter->setSize(_cache_viewPortRect.size());
+    _presenter->setSize(QAbstractScrollArea::viewport()->contentsRect().size());
 }
 
 void ViewPort::moveEvent(QMoveEvent *event)
@@ -84,8 +77,6 @@ void ViewPort::moveEvent(QMoveEvent *event)
 
 void ViewPort::onTransformsChanged()
 {
-    _cache_ontoCanvasTransform = _presenter->getOntoCanvasTransform();
-    _cache_fromCanvasTransform = _presenter->getFromCanvasTransform();
 
     //auto s_presenter = _presenter.toStrongRef();
 
@@ -104,19 +95,19 @@ void ViewPort::onTransformsChanged()
     QGraphicsView::scene()->installEventFilter(&blocker);
 
     QGraphicsView::setSceneRect(bound);
-    QGraphicsView::setTransform(_cache_fromCanvasTransform);
+    QGraphicsView::setTransform(_presenter->getFromCanvasTransform());
     QGraphicsView::centerOn(_presenter->getPosition());
 
     QGraphicsView::scene()->removeEventFilter(&blocker);
 }
 
-void ViewPort::onMainEditorPresenter_documentChanged(IDocumentPresenter* documentPresenter)
+void ViewPort::setDocument(IDocumentPresenter* documentPresenter)
 {
+    _documentPresenter = documentPresenter;
+
     if (!documentPresenter)
         return;
 
-    ICanvasPresenter* canvasPresenter = _mainEditorPresenter->getCanvasPresenter();
-
-    _canvasScene = new CanvasScene(*canvasPresenter, this);
+    _canvasScene = new CanvasScene(*_canvasPresenter, this);
     setScene(_canvasScene);
 }

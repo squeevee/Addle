@@ -1,8 +1,27 @@
 #include "layerpresenter.hpp"
 #include "servicelocator.hpp"
 #include "interfaces/editing/surfaces/irastersurface.hpp"
+#include "interfaces/rendering/irenderstack.hpp"
 
 #include "utilities/qtextensions/qobject.hpp"
+
+using namespace LayerPresenterAux;
+
+RasterRenderStep::RasterRenderStep(LayerPresenter& owner)
+    : QObject(&owner), _owner(owner)
+{
+}
+
+void RasterRenderStep::before(RenderData& data)
+{
+}
+
+void RasterRenderStep::after(RenderData& data)
+{
+    auto s_model = _owner._model.toStrongRef();
+
+    s_model->getRasterSurface()->render(*data.getPainter(), data.getArea());
+}
 
 void LayerPresenter::initialize(IDocumentPresenter* documentPresenter, QWeakPointer<ILayer> model)
 {
@@ -21,21 +40,22 @@ void LayerPresenter::initialize(IDocumentPresenter* documentPresenter, QWeakPoin
         Qt::QueuedConnection
     );
 
+    _rasterRenderStep = QSharedPointer<RasterRenderStep>(new RasterRenderStep(*this));
+
     _initHelper.initializeEnd();
 }
 
-void LayerPresenter::render(QPainter& painter, QRect area)
+IRenderStack& LayerPresenter::getRenderStack()
 {
-    if (_model.isNull())
-        return;
+    _initHelper.check();
 
-    auto s_model = _model.toStrongRef();
-    //assert s_model
+    if (!_renderStack)
+        _renderStack = ServiceLocator::make<IRenderStack>(_rasterRenderStep);
 
-    s_model->getRasterSurface()->render(painter, area);
+    return *_renderStack;
 }
 
 void LayerPresenter::onRasterChanged(QRect area)
 {
-    emit renderChanged(area);
+    emit updated(area);
 }

@@ -6,6 +6,7 @@
 #include <QStyleOptionGraphicsItem>
 
 #include "interfaces/presenters/ilayerpresenter.hpp"
+#include "interfaces/rendering/irenderstack.hpp"
 
 LayerItem::LayerItem(ILayerPresenter& presenter)
     : _presenter(presenter)
@@ -18,8 +19,8 @@ LayerItem::LayerItem(ILayerPresenter& presenter)
     );
     connect_interface(
         &_presenter,
-        SIGNAL(renderChanged(QRect)),
-        this, SLOT(onRenderChanged(QRect))
+        SIGNAL(updated(QRect)),
+        this, SLOT(onPresenterUpdated(QRect))
     );
 }
 
@@ -30,10 +31,13 @@ QRectF LayerItem::boundingRect() const
 
 void LayerItem::paint(QPainter* painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    _presenter.render(*painter, coarseBoundRect(option->exposedRect));
+    //assert painter
+    
+    RenderData data(coarseBoundRect(option->exposedRect), painter);
+    _presenter.getRenderStack().render(data);
 }
 
-void LayerItem::onRenderChanged(QRect area)
+void LayerItem::onPresenterUpdated(QRect area)
 {
     update(area);
 }

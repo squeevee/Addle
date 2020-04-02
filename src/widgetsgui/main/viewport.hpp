@@ -10,15 +10,12 @@
 #include "utilities/initializehelper.hpp"
 
 class CanvasScene;
+class ICanvasPresenter;
 class IViewPortPresenter;
 class IDocumentPresenter;
 class ViewPort : public QGraphicsView
 {
     Q_OBJECT
-    Q_PROPERTY(
-        bool _mainPresenterIsEmpty
-        MEMBER _cache_mainPresenterIsEmpty
-    )
 public:
     ViewPort(IViewPortPresenter* presenter);
     virtual ~ViewPort() = default;
@@ -28,20 +25,16 @@ protected:
     void moveEvent(QMoveEvent *event);
 
 private slots:
-    void onMainEditorPresenter_documentChanged(IDocumentPresenter* documentPresenter);
+    void setDocument(IDocumentPresenter* documentPresenter);
     void onTransformsChanged();
 
 private:
-    //keep local cached copies of some presenter properties for fast drawing
-    bool _cache_mainPresenterIsEmpty = true;
-    QTransform _cache_ontoCanvasTransform;
-    QTransform _cache_fromCanvasTransform;
-    QRect _cache_viewPortRect;
-
     CanvasScene* _canvasScene;
 
     IViewPortPresenter* _presenter;
     IMainEditorPresenter* _mainEditorPresenter;
+    ICanvasPresenter* _canvasPresenter;
+    IDocumentPresenter* _documentPresenter = nullptr;
 };
 
 

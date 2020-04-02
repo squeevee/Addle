@@ -11,7 +11,6 @@ public:
     virtual ~RasterSurface() = default; 
 
     void initialize(
-        QImage::Format format = QImage::Format_ARGB32_Premultiplied,
         QRect area = QRect(),
         InitFlags flags = None
     );
@@ -27,21 +26,27 @@ public:
 
     void render(QPainter& painter, QRect region) const;
 
-    RasterPaintHandle getPaintHandle(QRect area)
+    RasterPaintHandle getPaintHandle(QRect handleArea)
     {
-        return RasterPaintHandle(*this, _buffer, _bufferOffset, _area);
+        allocate(handleArea);
+        return getPaintHandle_p(_buffer, _bufferOffset, handleArea);
     }
+    
+    void merge(IRasterSurface& other);
 
 signals:
     void changed(QRect region);
 
 protected:
-    void allocate(QRect area);
+    void onHandleDestroyed(const RasterPaintHandle& handle) { emit changed(handle.getArea()); }
 
 private: 
+    void allocate(QRect allocArea);
 
     const int CHUNK_SIZE = 512;
     
+    QImage::Format _format = QImage::Format_Invalid;
+
     QImage _buffer;
     QPoint _bufferOffset;
 

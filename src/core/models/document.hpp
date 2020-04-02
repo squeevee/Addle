@@ -50,7 +50,7 @@ public:
     QImage exportImage();
 
 signals:
-    void renderChanged(QRect area);
+    //void renderChanged(QRect area);
     void boundaryChanging(QRect change);
     void boundaryChanged(QRect change);
 

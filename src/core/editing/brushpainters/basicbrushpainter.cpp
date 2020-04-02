@@ -1,5 +1,6 @@
 #include "basicbrushpainter.hpp"
 
+#include <QPainter>
 #include <QPen>
 #include "utilities/mathutils.hpp"
 
@@ -22,7 +23,7 @@ QRect BasicBrushPainter::boundingRect(const BrushPainterData& segment) const
     return coarseBoundRect(fine);
 }
 
-void BasicBrushPainter::paint(BrushPainterData& segment, QPainter& painter) const
+void BasicBrushPainter::paint(BrushPainterData& segment, QImage& buffer) const
 {
     double halfSize = segment.getSize() / 2;
     QPainterPath inner(segment.getStartPoint());
@@ -32,6 +33,7 @@ void BasicBrushPainter::paint(BrushPainterData& segment, QPainter& painter) cons
         inner.lineTo(segment.getEndPoint());
     }
 
+    QPainter painter(&buffer);
     painter.fillPath(
         QPainterPathStroker(QPen(
             QBrush(),

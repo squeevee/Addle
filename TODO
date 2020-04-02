@@ -88,10 +88,3 @@ InitHelper:
 
 see if PropertyCache can't be made more flexible with std::function and
 std::bind
-
-Don't create and destroy so many BufferPainterNotifiers -- associate them with
-the buffer itself rather than the (may I remind you *disposable*) painter
-objects
-
-Also, I've got too many slightly different things called Painters. See if we can 
-ease up on that a bit.

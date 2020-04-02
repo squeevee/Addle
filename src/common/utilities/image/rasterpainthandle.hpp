@@ -18,12 +18,11 @@ public:
 
     QPainter& getPainter() { return *_painter; }
 
-    void merge(const IRasterSurface& other);
-
-    // "private" constructor for use by IPaintableRasterSurface implementation.
-    RasterPaintHandle(IRasterSurface& surface, QImage& buffer, QPoint bufferOffset, QRect area);
+    QRect getArea() const { return _area; }
 
 private:
+    RasterPaintHandle(IRasterSurface& surface, QImage& buffer, QPoint bufferOffset, QRect area);
+
     IRasterSurface& _surface;
 
     QRect _area;
@@ -34,6 +33,8 @@ private:
     QImage& _buffer;
 
     bool _final = true;
+
+    friend class IRasterSurface;
 };
 
 #endif // RASTERSURFACEHANDLE_HPP

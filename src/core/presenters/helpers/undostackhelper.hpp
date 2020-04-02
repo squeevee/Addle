@@ -1,7 +1,7 @@
 #ifndef UNDOSTACKHELPER_HPP
 #define UNDOSTACKHELPER_HPP
 
-#include "interfaces/editing/operations/iundoableoperation.hpp"
+#include "interfaces/editing/operations/iundooperation.hpp"
 #include "interfaces/presenters/ihaveundostackpresenter.hpp"
 
 #include <QStack>
@@ -14,40 +14,37 @@ public:
     {
     }
 
-    QStack<QSharedPointer<IUndoableOperation>> getUndoStack() { return _undoStack; }
-    QStack<QSharedPointer<IUndoableOperation>> getRedoStack() { return _redoStack; }
-
     bool canUndo() { return !_undoStack.isEmpty(); }
     bool canRedo() { return !_redoStack.isEmpty(); }
 
-    void doOperation(QSharedPointer<IUndoableOperation> undoable)
+    void push(QSharedPointer<IUndoOperationPresenter> operation)
     {
-        _undoStack.push(undoable);
+        _undoStack.push(operation);
         _redoStack.clear();
-        undoable->doOperation();
+        operation->do_();
         emit _presenter.undoStateChanged();
     }
 
     void undo()
     {
-        QSharedPointer<IUndoableOperation> undoable = _undoStack.pop();
-        _redoStack.push(undoable);
-        undoable->undoOperation();
+        QSharedPointer<IUndoOperationPresenter> operation = _undoStack.pop();
+        _redoStack.push(operation);
+        operation->undo();
         emit _presenter.undoStateChanged();
     }
 
     void redo()
     {
-        QSharedPointer<IUndoableOperation> undoable = _redoStack.pop();
-        _undoStack.push(undoable);
-        undoable->doOperation();
+        QSharedPointer<IUndoOperationPresenter> operation = _redoStack.pop();
+        _undoStack.push(operation);
+        operation->do_();
         emit _presenter.undoStateChanged();
     }
 
-private:
-    QStack<QSharedPointer<IUndoableOperation>> _undoStack;
-    QStack<QSharedPointer<IUndoableOperation>> _redoStack;
+    QStack<QSharedPointer<IUndoOperationPresenter>> _undoStack;
+    QStack<QSharedPointer<IUndoOperationPresenter>> _redoStack;
 
+private:
     IHaveUndoStackPresenter& _presenter;
 };
 

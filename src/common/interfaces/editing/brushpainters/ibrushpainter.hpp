@@ -1,7 +1,6 @@
 #ifndef IBRUSHPAINTER_HPP
 #define IBRUSHPAINTER_HPP
 
-#include <QPainter>
 #include <QImage>
 
 #include "idtypes/brushid.hpp"
@@ -25,7 +24,7 @@ public:
     virtual double getMaximumSize() const = 0;
 
     virtual QRect boundingRect(const BrushPainterData& segment) const = 0;
-    virtual void paint(BrushPainterData& segment, QPainter& painter) const = 0;
+    virtual void paint(BrushPainterData& segment, QImage& buffer) const = 0;
 };
 
 #endif // IBRUSHPAINTER_HPP
