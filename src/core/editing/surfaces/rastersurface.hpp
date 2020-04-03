@@ -1,8 +1,28 @@
 #ifndef RASTERSURFACE_HPP
 #define RASTERSURFACE_HPP
 
+#include "interfaces/rendering/irenderstep.hpp"
 #include "interfaces/editing/surfaces/irastersurface.hpp"
 #include <QObject>
+
+class RasterSurface;
+class RasterSurfaceRenderStep : public QObject, public IRenderStep
+{
+    Q_OBJECT 
+    Q_INTERFACES(IRenderStep)
+public: 
+    RasterSurfaceRenderStep(RasterSurface& owner) : _owner(owner) { }
+    virtual ~RasterSurfaceRenderStep() = default;
+
+    virtual void before(RenderData& data) { }
+    virtual void after(RenderData& data);
+
+signals: 
+    void changed(QRect area);
+
+private:
+    RasterSurface& _owner;
+};
 
 class RasterSurface : public QObject, public IRasterSurface
 {
@@ -24,7 +44,7 @@ public:
 
     QImage copy(QRect area, QPoint* offset = nullptr) const;
 
-    void render(QPainter& painter, QRect region) const;
+    IRenderStep* makeRenderStep() { return new RasterSurfaceRenderStep(*this); }
 
     RasterPaintHandle getPaintHandle(QRect handleArea)
     {
@@ -51,6 +71,8 @@ private:
     QPoint _bufferOffset;
 
     QRect _area;
+
+    friend class RasterSurfaceRenderStep;
 };
 
 #endif // RASTERSURFACE_HPP

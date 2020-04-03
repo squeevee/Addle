@@ -24,13 +24,13 @@ public:
     QRect getRect() { return QRect(QPoint(), getSize()); }
     QColor getBackgroundColor() { _initHelper.check(); return _model ? _model->getBackgroundColor() : QColor(); }
 
-    QList<ILayerPresenter*> getLayers() { _initHelper.check(); return _layers; }
+    QList<QSharedPointer<ILayerPresenter>> getLayers() { _initHelper.check(); return _layers; }
 
 private:
     QSize _size;
     QColor _backgroundColor;
 
-    QList<ILayerPresenter*> _layers;
+    QList<QSharedPointer<ILayerPresenter>> _layers;
 
     QSharedPointer<IDocument> _model;
 

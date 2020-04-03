@@ -15,8 +15,8 @@ public:
     QRectF boundingRect() const;
     void paint(QPainter* painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
-public slots: 
-    void onPresenterUpdated(QRect area);
+private slots: 
+    void onRenderChanged(QRect area);
 
 private: 
 

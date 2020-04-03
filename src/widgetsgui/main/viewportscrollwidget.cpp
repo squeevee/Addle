@@ -39,8 +39,8 @@ ViewPortScrollWidget::ViewPortScrollWidget(IViewPortPresenter& presenter, QWidge
 
     connect_interface(&_presenter, SIGNAL(scrollStateChanged()), this, SLOT(onScrollStateChanged()));
 
-    connect(_scrollbar_horizontal, SIGNAL(valueChanged(int)), qobject_interface_cast(&_presenter), SLOT(scrollX(int)));
-    connect(_scrollbar_vertical, SIGNAL(valueChanged(int)), qobject_interface_cast(&_presenter), SLOT(scrollY(int)));
+    connect_interface(_scrollbar_horizontal, SIGNAL(valueChanged(int)), &_presenter, SLOT(scrollX(int)));
+    connect_interface(_scrollbar_vertical, SIGNAL(valueChanged(int)), &_presenter, SLOT(scrollY(int)));
 }
 
 void ViewPortScrollWidget::setViewPort(ViewPort* viewPort)

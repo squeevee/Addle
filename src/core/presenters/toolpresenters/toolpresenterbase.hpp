@@ -24,6 +24,7 @@ public:
     ToolPresenterBase()
         : _mouseHelper(*this), _propertyDecorationHelper(this)
     {
+        connect(this, &ToolPresenterBase::selectionChanged, this, &ToolPresenterBase::onSelectionChanged); // woof.
     }
     virtual ~ToolPresenterBase() = default;
 
@@ -63,6 +64,11 @@ protected:
     virtual void onMove() { }
     virtual void onDisengage() { }
 
+    virtual void onSelected() { }
+    virtual void onDeselected() { }
+
+protected:
+
     IMainEditorPresenter* _mainEditorPresenter;
     IViewPortPresenter* _viewPortPresenter;
 
@@ -76,6 +82,16 @@ protected:
     MouseHelper _mouseHelper;
 
     PropertyDecorationHelper _propertyDecorationHelper;
+
+private slots:
+
+    void onSelectionChanged(bool selected)
+    {
+        if (selected)
+            onSelected();
+        else 
+            onDeselected();
+    }
 
 private:
     InitializeHelper<ToolPresenterBase> _initHelper;

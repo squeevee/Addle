@@ -49,7 +49,7 @@ void DocumentPresenter::initialize(QSharedPointer<IDocument> model)
 
     for (auto layer : _model->getLayers())
     {
-        ILayerPresenter* layerPresenter = ServiceLocator::make<ILayerPresenter>(this, layer);
+        QSharedPointer<ILayerPresenter> layerPresenter = ServiceLocator::makeShared<ILayerPresenter>(this, layer);
         _layers.append(layerPresenter);
     }
     

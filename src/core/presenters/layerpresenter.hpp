@@ -7,16 +7,13 @@
 #include "utilities/initializehelper.hpp"
 
 class LayerPresenter;
-namespace LayerPresenterAux
-{
-
-class RasterRenderStep : public QObject, public IRenderStep
+class LayerPresenterRenderStep : public QObject, public IRenderStep
 {
     Q_OBJECT
     Q_INTERFACES(IRenderStep)
 public:
-    RasterRenderStep(LayerPresenter& owner);
-    virtual ~RasterRenderStep() = default;
+    LayerPresenterRenderStep(LayerPresenter& owner) : _owner(owner) { }
+    virtual ~LayerPresenterRenderStep() = default;
 
     void before(RenderData& data);
     void after(RenderData& data);
@@ -28,14 +25,12 @@ private:
     LayerPresenter& _owner;
 };
 
-} //namespace LayerPresenterRenderSteps
-
 class LayerPresenter: public QObject, public ILayerPresenter
 {
     Q_OBJECT
 public:
     LayerPresenter() : _initHelper(this) { }
-    virtual ~LayerPresenter() = default;
+    virtual ~LayerPresenter();
 
     void initialize(IDocumentPresenter* documentPresenter, QWeakPointer<ILayer> model);
     IDocumentPresenter* getDocumentPresenter() { _initHelper.check(); return _documentPresenter; }
@@ -56,11 +51,12 @@ private:
     
     QWeakPointer<ILayer> _model;
 
-    QSharedPointer<LayerPresenterAux::RasterRenderStep> _rasterRenderStep;
+    QSharedPointer<IRenderStep> _renderStep;
+    QSharedPointer<IRenderStep> _rasterSurfaceStep;
 
     InitializeHelper<LayerPresenter> _initHelper;
 
-    friend class LayerPresenterAux::RasterRenderStep;
+    friend class LayerPresenterRenderStep;
 };
 
 

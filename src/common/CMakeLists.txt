@@ -16,5 +16,6 @@ add_library( common SHARED
     utilities/presenter/propertyobserver.cpp
     utilities/qtextensions/qhash.cpp
     utilities/qtextensions/translation.cpp
+    utilities/render/rendersubstack.cpp
 )
 target_link_libraries(common Qt5::Core Qt5::Gui)

@@ -88,3 +88,5 @@ InitHelper:
 
 see if PropertyCache can't be made more flexible with std::function and
 std::bind
+
+Widgets gui focus issues

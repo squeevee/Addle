@@ -5,22 +5,17 @@
 
 #include "utilities/qtextensions/qobject.hpp"
 
-using namespace LayerPresenterAux;
-
-RasterRenderStep::RasterRenderStep(LayerPresenter& owner)
-    : QObject(&owner), _owner(owner)
+void LayerPresenterRenderStep::before(RenderData& data)
 {
 }
 
-void RasterRenderStep::before(RenderData& data)
+void LayerPresenterRenderStep::after(RenderData& data)
 {
 }
 
-void RasterRenderStep::after(RenderData& data)
+LayerPresenter::~LayerPresenter()
 {
-    auto s_model = _owner._model.toStrongRef();
-
-    s_model->getRasterSurface()->render(*data.getPainter(), data.getArea());
+    delete _renderStack;
 }
 
 void LayerPresenter::initialize(IDocumentPresenter* documentPresenter, QWeakPointer<ILayer> model)
@@ -40,7 +35,8 @@ void LayerPresenter::initialize(IDocumentPresenter* documentPresenter, QWeakPoin
         Qt::QueuedConnection
     );
 
-    _rasterRenderStep = QSharedPointer<RasterRenderStep>(new RasterRenderStep(*this));
+    _renderStep = QSharedPointer<IRenderStep>(new LayerPresenterRenderStep(*this));
+    _rasterSurfaceStep = QSharedPointer<IRenderStep>(s_model->getRasterSurface()->makeRenderStep());
 
     _initHelper.initializeEnd();
 }
@@ -49,8 +45,15 @@ IRenderStack& LayerPresenter::getRenderStack()
 {
     _initHelper.check();
 
+
     if (!_renderStack)
-        _renderStack = ServiceLocator::make<IRenderStack>(_rasterRenderStep);
+    {
+        auto s_model = _model.toStrongRef();
+        _renderStack = ServiceLocator::make<IRenderStack>(QList<QWeakPointer<IRenderStep>>({
+            _renderStep,
+            _rasterSurfaceStep
+        }));
+    }
 
     return *_renderStack;
 }

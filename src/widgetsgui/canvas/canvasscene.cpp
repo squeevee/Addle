@@ -31,7 +31,7 @@ CanvasScene::CanvasScene(ICanvasPresenter& presenter, QObject* parent)
     addItem(background);
 
     double layerZ = MINIMUM_LAYER_Z;
-    for (ILayerPresenter* layerPresenter : documentPresenter.getLayers())
+    for (auto layerPresenter : documentPresenter.getLayers())
     {
         LayerItem* layerItem = new LayerItem(*layerPresenter);
         layerItem->setZValue(layerZ);

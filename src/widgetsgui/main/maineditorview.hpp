@@ -53,6 +53,8 @@ private slots:
     void onToolBarNeedsShown();
     void onToolBarNeedsHidden();
 
+    void onPresenterEmptyChanged(bool);
+
 private:
     void setupUi();
 

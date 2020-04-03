@@ -70,6 +70,9 @@ void MainEditorView::setupUi()
     _viewPortScrollWidget = new ViewPortScrollWidget(*viewPortPresenter, this);
     _viewPortScrollWidget->setViewPort(_viewPort);
     QMainWindow::setCentralWidget(_viewPortScrollWidget);
+    _viewPort->setFocus();
+    
+    connect_interface(_presenter, SIGNAL(isEmptyChanged(bool)), this, SLOT(onPresenterEmptyChanged(bool)));
 
     _statusBar = new QStatusBar(this);
     QMainWindow::setStatusBar(_statusBar);
@@ -207,4 +210,10 @@ void MainEditorView::onToolBarNeedsHidden()
 
     toolBar->hide();
     removeToolBar(toolBar);
+}
+
+void MainEditorView::onPresenterEmptyChanged(bool empty)
+{
+    if (!empty && _viewPort)
+        _viewPort->setFocus();
 }

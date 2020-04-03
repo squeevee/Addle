@@ -60,8 +60,8 @@ public:
     ICanvasPresenter* getCanvasPresenter();
     IViewPortPresenter* getViewPortPresenter();
 
-    ILayerPresenter* getSelectedLayer() { return _selectedLayer; }
-    void selectLayer(ILayerPresenter* layer);
+    QWeakPointer<ILayerPresenter> getSelectedLayer() { return _selectedLayer; }
+    void selectLayer(QWeakPointer<ILayerPresenter> layer);
     void selectLayerAt(int index);
 
     void setMode(Mode mode);
@@ -74,6 +74,7 @@ public:
 
 signals:
     void documentPresenterChanged(IDocumentPresenter* documentPresenter);
+    void selectedLayerChanged(QWeakPointer<ILayerPresenter> layer);
     void isEmptyChanged(bool);
 
 public slots:
@@ -150,7 +151,7 @@ private:
     ToolId _currentTool;
     IToolPresenter* _currentToolPresenter = nullptr;
 
-    ILayerPresenter* _selectedLayer = nullptr;
+    QWeakPointer<ILayerPresenter> _selectedLayer;
 
     PropertyDecorationHelper _propertyDecorationHelper;
     UndoStackHelper _undoStackHelper;

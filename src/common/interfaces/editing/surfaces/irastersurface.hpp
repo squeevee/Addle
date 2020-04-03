@@ -11,6 +11,7 @@
 #include <QImage>
 
 //class IRasterPreview;
+class IRenderStep;
 
 /**
  * An "infinite" surface containing raster data. Paint operations must use
@@ -50,7 +51,9 @@ public:
 
     virtual QImage copy(QRect area = QRect(), QPoint* offset = nullptr) const = 0;
 
-    virtual void render(QPainter& painter, QRect area) const = 0;
+    //virtual void render(QPainter& painter, QRect area) const = 0;
+
+    virtual IRenderStep* makeRenderStep() = 0;
 
     virtual RasterPaintHandle getPaintHandle(QRect area) = 0;
     virtual void merge(IRasterSurface& other) = 0;

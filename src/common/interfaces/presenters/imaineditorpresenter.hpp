@@ -48,10 +48,11 @@ public:
     virtual void setMode(Mode mode) = 0;
     virtual Mode getMode() = 0;
 
-    virtual ILayerPresenter* getSelectedLayer() = 0;
-    virtual void selectLayer(ILayerPresenter* layer) = 0;
+    virtual QWeakPointer<ILayerPresenter> getSelectedLayer() = 0;
+    virtual void selectLayer(QWeakPointer<ILayerPresenter> layer) = 0;
     virtual void selectLayerAt(int index) = 0;
-
+    
+public:
     struct DefaultTools
     {
         static const ToolId SELECT;
@@ -65,6 +66,12 @@ public:
         static const ToolId NAVIGATE;
         static const ToolId MEASURE;
     };
+
+signals:
+    virtual void documentPresenterChanged(IDocumentPresenter* documentPresenter) = 0;
+    virtual void selectedLayerChanged(QWeakPointer<ILayerPresenter> layer) = 0;
+    virtual void isEmptyChanged(bool) = 0;
+
 };
 
 DECL_MAKEABLE(IMainEditorPresenter)

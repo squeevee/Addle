@@ -41,6 +41,8 @@ ViewPort::ViewPort(IViewPortPresenter* presenter)
 
     QFrame::setFrameShape(QFrame::Shape::StyledPanel);
 
+    setMouseTracking(true);
+
     connect_interface(
         _presenter,
         SIGNAL(transformsChanged()),

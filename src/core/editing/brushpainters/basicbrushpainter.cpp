@@ -6,6 +6,9 @@
 
 QRect BasicBrushPainter::boundingRect(const BrushPainterData& segment) const
 {
+    if (!segment.hasStartPoint())
+        return QRect();
+
     double halfSize = segment.getSize() / 2;
     QRectF fine(
         segment.getStartPoint() - QPoint(halfSize, halfSize),
@@ -25,22 +28,33 @@ QRect BasicBrushPainter::boundingRect(const BrushPainterData& segment) const
 
 void BasicBrushPainter::paint(BrushPainterData& segment, QImage& buffer) const
 {
+    if (!segment.hasStartPoint()) return;
+
+    QPainter painter(&buffer);
+    painter.setRenderHints(QPainter::Antialiasing);
+    painter.setTransform(segment.getOntoBufferTransform());
     double halfSize = segment.getSize() / 2;
-    QPainterPath inner(segment.getStartPoint());
 
     if (segment.hasEndPoint())
     {
-        inner.lineTo(segment.getEndPoint());
-    }
+        QPainterPath inner(segment.getStartPoint());
 
-    QPainter painter(&buffer);
-    painter.fillPath(
-        QPainterPathStroker(QPen(
-            QBrush(),
-            halfSize,
-            Qt::SolidLine,
-            Qt::RoundCap
-        )).createStroke(inner),
-        segment.getColor()
-    );
+        inner.lineTo(segment.getEndPoint());
+        painter.fillPath(
+            QPainterPathStroker(QPen(
+                QBrush(),
+                segment.getSize(),
+                Qt::SolidLine,
+                Qt::RoundCap
+            )).createStroke(inner),
+            segment.getColor()
+        );
+    }
+    else 
+    {
+        QPainterPath path;
+        path.addEllipse(segment.getStartPoint(), halfSize, halfSize);
+
+        painter.fillPath(path, segment.getColor());
+    }
 }

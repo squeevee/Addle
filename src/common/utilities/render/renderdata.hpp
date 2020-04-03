@@ -9,6 +9,18 @@
 
 class RenderData
 {
+public:
+    enum Hint
+    {
+        None = 0x0,
+
+        // Tells render steps to render at full opacity even if 
+        FullOpacity = 0x1
+
+    };
+    Q_DECLARE_FLAGS(Hints, Hint);
+
+private:
     struct RenderDataInner : QSharedData
     {
         RenderDataInner() = default;
@@ -61,5 +73,7 @@ public:
 private:
     QSharedDataPointer<RenderDataInner> _data;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(RenderData::Hints);
 
 #endif // RENDERDATA_HPP

@@ -1,5 +1,7 @@
 #include "renderstack.hpp"
 
+#include "utilities/qtextensions/qobject.hpp"
+
 #include <QVector>
 
 void RenderStack::initialize(QWeakPointer<IRenderStep> step)
@@ -18,18 +20,34 @@ void RenderStack::initialize(QList<QWeakPointer<IRenderStep>> steps)
 void RenderStack::push(QWeakPointer<IRenderStep> step)
 {
     _steps.append(step);
+
+    auto s_step = step.toStrongRef();
+    connect_interface(s_step.data(), SIGNAL(changed(QRect)), this, SLOT(onRenderStepChange(QRect)));
+}
+
+
+void RenderStack::remove(QWeakPointer<IRenderStep> step)
+{
+    _steps.removeAll(step);
+
+    if (step)
+    {
+        auto s_step = step.toStrongRef();
+        disconnect(qobject_interface_cast(s_step.data()), SIGNAL(changed(QRect)), this, SLOT(onRenderStepChange(QRect)));
+    }
 }
 
 void RenderStack::render(RenderData data, int maxDepth)
 {
     if (maxDepth == -1) maxDepth = _steps.size();
     if (maxDepth == 0) return;
+    maxDepth = qMin(maxDepth, _steps.size());
 
     QVector<RenderData> stackData(qMin(maxDepth, _steps.size()));
 
-    int depth = 1;
+    int depth = maxDepth;
     RenderData lastData = data;
-    while (depth <= qMin(maxDepth, _steps.size()))
+    while (depth >= 1)
     {
         auto s_step = _steps[depth - 1].toStrongRef();
 
@@ -40,12 +58,12 @@ void RenderStack::render(RenderData data, int maxDepth)
         stackData[depth - 1] = stepData;
         lastData = stepData;
 
-        depth++;
+        depth--;
     }
 
-    while (depth > 1)
+    while (depth < maxDepth)
     {
-        depth--;
+        depth++;
 
         auto s_step = _steps[depth - 1].toStrongRef();
 
@@ -53,4 +71,9 @@ void RenderStack::render(RenderData data, int maxDepth)
         s_step->after(stepData);
         stepData.getPainter()->restore();
     }
+}
+
+void RenderStack::onRenderStepChange(QRect area)
+{
+    emit changed(area);
 }

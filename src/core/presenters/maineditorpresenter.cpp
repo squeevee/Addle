@@ -1,4 +1,5 @@
 #include "QtDebug"
+#include <QApplication>
 
 #include "maineditorpresenter.hpp"
 
@@ -117,6 +118,7 @@ void MainEditorPresenter::setDocumentPresenter(IDocumentPresenter* documentPrese
     _selectedLayer = _documentPresenter->getLayers().first();
     _isEmptyCache.recalculate();
     emit documentPresenterChanged(_documentPresenter);
+    emit selectedLayerChanged(_selectedLayer);
 }
 
 void MainEditorPresenter::setMode(Mode mode)
@@ -234,7 +236,7 @@ void MainEditorPresenter::selectTool(ToolId tool)
         emit previousTool->selectionChanged(false);
 }
 
-void MainEditorPresenter::selectLayer(ILayerPresenter* layer)
+void MainEditorPresenter::selectLayer(QWeakPointer<ILayerPresenter> layer)
 {
 
 }

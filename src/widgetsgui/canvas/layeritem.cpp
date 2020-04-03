@@ -18,9 +18,9 @@ LayerItem::LayerItem(ILayerPresenter& presenter)
         }
     );
     connect_interface(
-        &_presenter,
-        SIGNAL(updated(QRect)),
-        this, SLOT(onPresenterUpdated(QRect))
+        &_presenter.getRenderStack(),
+        SIGNAL(changed(QRect)),
+        this, SLOT(onRenderChanged(QRect))
     );
 }
 
@@ -37,7 +37,7 @@ void LayerItem::paint(QPainter* painter, const QStyleOptionGraphicsItem *option,
     _presenter.getRenderStack().render(data);
 }
 
-void LayerItem::onPresenterUpdated(QRect area)
+void LayerItem::onRenderChanged(QRect area)
 {
     update(area);
 }

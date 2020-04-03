@@ -19,6 +19,8 @@ public:
     virtual QList<QWeakPointer<IRenderStep>> getSteps() const = 0;
 
     virtual void push(QWeakPointer<IRenderStep> step) = 0;
+    virtual void remove(QWeakPointer<IRenderStep> step) = 0;
+    // virtual void remove(const char* className) = 0;
 
     virtual void render(RenderData data, int maxDepth = -1) = 0;
     // may support more selective partial rendering

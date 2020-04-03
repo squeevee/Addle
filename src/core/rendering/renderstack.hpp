@@ -15,6 +15,7 @@ public:
     QList<QWeakPointer<IRenderStep>> getSteps() const { return _steps; }
 
     void push(QWeakPointer<IRenderStep> step);
+    void remove(QWeakPointer<IRenderStep> step);
 
     void render(RenderData data, int maxDepth);
 
@@ -23,6 +24,7 @@ signals:
 
 private slots: 
     //void onStepDestroyed(QObject*)
+    void onRenderStepChange(QRect);
 
 private: 
     QList<QWeakPointer<IRenderStep>> _steps;

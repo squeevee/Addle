@@ -42,7 +42,7 @@ public:
     virtual QRect getRect() = 0;
     virtual QColor getBackgroundColor() = 0;
 
-    virtual QList<ILayerPresenter*> getLayers() = 0;
+    virtual QList<QSharedPointer<ILayerPresenter>> getLayers() = 0;
 };
 DECL_MAKEABLE(IDocumentPresenter);
 DECL_EXPECTS_INITIALIZE(IDocumentPresenter);
