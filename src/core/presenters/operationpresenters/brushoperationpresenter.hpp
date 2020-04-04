@@ -63,6 +63,8 @@ private:
 
     bool _isFinalized = false;
 
+    QPainterPath _nibMask;
+
     friend class BrushOperationPreview;
 };
 

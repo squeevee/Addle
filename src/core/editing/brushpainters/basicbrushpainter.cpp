@@ -4,57 +4,59 @@
 #include <QPen>
 #include "utilities/mathutils.hpp"
 
-QRect BasicBrushPainter::boundingRect(const BrushPainterData& segment) const
+QRect BasicBrushPainter::boundingRect(const BrushPainterData& data) const
 {
-    if (!segment.hasStartPoint())
+    if (!data.hasStartPoint())
         return QRect();
 
-    double halfSize = segment.getSize() / 2;
+    double halfSize = data.getSize() / 2;
     QRectF fine(
-        segment.getStartPoint() - QPoint(halfSize, halfSize),
-        QSize(segment.getSize(), segment.getSize())
+        data.getStartPoint() - QPoint(halfSize, halfSize),
+        QSize(data.getSize(), data.getSize())
     );
 
-    if (segment.hasEndPoint())
+    if (data.hasEndPoint())
     {
         fine = fine.united(QRectF(
-            segment.getEndPoint() - QPoint(halfSize, halfSize),
-            QSize(segment.getSize(), segment.getSize())
+            data.getEndPoint() - QPoint(halfSize, halfSize),
+            QSize(data.getSize(), data.getSize())
         ));
     }
 
     return coarseBoundRect(fine);
 }
 
-void BasicBrushPainter::paint(BrushPainterData& segment, QImage& buffer) const
+void BasicBrushPainter::paint(BrushPainterData& data, QImage& buffer) const
 {
-    if (!segment.hasStartPoint()) return;
+    if (!data.hasStartPoint()) return;
 
     QPainter painter(&buffer);
     painter.setRenderHints(QPainter::Antialiasing);
-    painter.setTransform(segment.getOntoBufferTransform());
-    double halfSize = segment.getSize() / 2;
+    painter.setTransform(data.getOntoBufferTransform());
+    double halfSize = data.getSize() / 2;
 
-    if (segment.hasEndPoint())
+    if (data.hasEndPoint())
     {
-        QPainterPath inner(segment.getStartPoint());
+        QPainterPath inner(data.getStartPoint());
+        inner.lineTo(data.getEndPoint());
 
-        inner.lineTo(segment.getEndPoint());
+        QPainterPath path = QPainterPathStroker(QPen(
+            QBrush(),
+            data.getSize(),
+            Qt::SolidLine,
+            Qt::RoundCap
+        )).createStroke(inner);
+
         painter.fillPath(
-            QPainterPathStroker(QPen(
-                QBrush(),
-                segment.getSize(),
-                Qt::SolidLine,
-                Qt::RoundCap
-            )).createStroke(inner),
-            segment.getColor()
+            path,
+            data.getColor()
         );
     }
     else 
     {
         QPainterPath path;
-        path.addEllipse(segment.getStartPoint(), halfSize, halfSize);
+        path.addEllipse(data.getStartPoint(), halfSize, halfSize);
 
-        painter.fillPath(path, segment.getColor());
+        painter.fillPath(path, data.getColor());
     }
 }

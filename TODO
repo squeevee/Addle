@@ -36,7 +36,7 @@ unhandledexceptionrouter and the debug message handler
 
 Icons need some kind of configurable interface
 
-style: namespaces???
+style: namespaces!!! (we'll support plugins eventually, might as well be courteous)
 
 trim down readme. it doesn't need to be so rambly
 
@@ -55,13 +55,6 @@ declarations to reduce compile times at least a little
 Is there some way to make qobject_interface_cast work via qobject_cast instead 
 of dynamic_cast ? Maybe interfaces implemented as qobject can be required to 
 expose a asQObject() method? Is it actually all that bad as is?
-
-Look back into ServiceLocator and see if we can't leverage the static linker
-more with it. The performance is probably fine as-is, but it'd very much be to
-our advantage to get linker errors instead of runtime ones for a bad
-configuration. And overall it'd be more C++-esque.
-Potential complications might involve unit tests and dynamically loaded code
-(i.e., plugins), but I think we can adapt.
 
 Pass presenters with shared or weak pointers? const references to shared/weak 
 pointers (might be easier on the include network)? At least make init function
@@ -90,3 +83,18 @@ see if PropertyCache can't be made more flexible with std::function and
 std::bind
 
 Widgets gui focus issues
+
+ServiceLocator issues:
+
+- Select implementation of interface by PersistentId
+
+- Look back into ServiceLocator and see if we can't leverage the static linker
+more with it. The performance is probably fine as-is, but it'd very much be to
+our advantage to get linker errors instead of runtime ones for a bad
+configuration. And overall it'd be more C++-esque.
+Potential complications might involve unit tests and dynamically loaded code
+(i.e., plugins), but I think we can adapt. (in retrospect, this may be largely
+undermined by the PersistentId makers)
+
+BrushPainter should track the state of a brush stroke internally, this will be 
+much easier to do with the ServiceLocator enhancement above.

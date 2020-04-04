@@ -23,8 +23,8 @@ public:
     virtual double getMinimumSize() const = 0;
     virtual double getMaximumSize() const = 0;
 
-    virtual QRect boundingRect(const BrushPainterData& segment) const = 0;
-    virtual void paint(BrushPainterData& segment, QImage& buffer) const = 0;
+    virtual QRect boundingRect(const BrushPainterData& data) const = 0;
+    virtual void paint(BrushPainterData& data, QImage& buffer) const = 0;
 };
 
 #endif // IBRUSHPAINTER_HPP
