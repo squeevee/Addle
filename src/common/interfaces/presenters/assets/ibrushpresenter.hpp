@@ -4,13 +4,14 @@
 #include <QObject>
 #include <QSharedPointer>
 
+#include "idtypes/brushid.hpp"
 #include "iassetpresenter.hpp"
-
-#include "interfaces/models/ibrush.hpp"
 
 #include "interfaces/traits/initialize_trait.hpp"
 #include "interfaces/traits/makeable_trait.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
+
+// Brushes 
 
 class IBrushPresenter : public IAssetPresenter
 {
@@ -40,10 +41,8 @@ public:
     Q_ENUM(SizeOption)
 
     virtual void initialize(BrushId id) = 0;
-    virtual void initialize(QSharedPointer<IBrush> model) = 0;
 
     virtual BrushId getBrushId() = 0;
-    virtual QSharedPointer<IBrush> getModel() = 0;
     
     virtual SizeOption getSize() = 0;
     virtual double getCustomPixelSize() = 0;

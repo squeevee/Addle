@@ -84,17 +84,10 @@ std::bind
 
 Widgets gui focus issues
 
-ServiceLocator issues:
-
-- Select implementation of interface by PersistentId
-
-- Look back into ServiceLocator and see if we can't leverage the static linker
-more with it. The performance is probably fine as-is, but it'd very much be to
-our advantage to get linker errors instead of runtime ones for a bad
-configuration. And overall it'd be more C++-esque.
-Potential complications might involve unit tests and dynamically loaded code
-(i.e., plugins), but I think we can adapt. (in retrospect, this may be largely
-undermined by the PersistentId makers)
-
 BrushPainter should track the state of a brush stroke internally, this will be 
 much easier to do with the ServiceLocator enhancement above.
+
+style: Models should have Model in their names.
+
+I have removed the Brush data model because it's clutter right now, but it will
+need to be restored at some point when brushes can be dynamically / created.

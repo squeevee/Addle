@@ -9,17 +9,8 @@ class IFactory
 {
 public:
     virtual ~IFactory() = default;
-    virtual void* make() = 0;
-    
-    virtual const std::type_info& getInterfaceType() = 0;
-    virtual const std::type_info& getImplementationType() = 0;
-
-    virtual void setServiceLocator(IServiceLocator* serviceLocator) = 0;
-    
-#ifdef ADDLE_DEBUG
-    virtual const char* getFactoryTypeName() = 0;
-    virtual const char* getProductTypeName() = 0;
-#endif
+    virtual void* make() const = 0;
+    virtual void destroy(void* obj) const = 0;
 };
 
 #endif // IFACTORY_HPP

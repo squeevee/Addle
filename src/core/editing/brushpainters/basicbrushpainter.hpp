@@ -1,14 +1,14 @@
 #ifndef BASICBRUSHPAINTER_HPP
 #define BASICBRUSHPAINTER_HPP
 
-#include "interfaces/editing/brushpainters/ibasicbrushpainter.hpp"
+#include "interfaces/editing/ibrushpainter.hpp"
 
-class BasicBrushPainter : public IBasicBrushPainter
+class BasicBrushPainter : public IBrushPainter
 {
 public:
     virtual ~BasicBrushPainter() = default;
 
-    BrushId getId() const { return Id; }
+    BrushId getId() const { return CoreBrushes::BasicBrush; }
 
     bool isSizeInvariant() const { return false; }
     bool isColorInvariant() const { return false; }

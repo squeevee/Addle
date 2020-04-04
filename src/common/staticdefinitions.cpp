@@ -57,6 +57,11 @@ const FormatId IJPEGFormatDriver::JPEG_FORMAT_ID = FormatId(
     typeid(IDocument)
 );
 
+#include "interfaces/editing/ibrushpainter.hpp"
+const BrushId IBrushPainter::CoreBrushes::BasicBrush = BrushId(
+    "basic-brush"
+);
+
 #include "interfaces/presenters/toolpresenters/iselecttoolpresenter.hpp"
 const ToolId ISelectToolPresenter::SELECT_TOOL_ID = ToolId(
     "select-tool"
@@ -120,12 +125,8 @@ const ToolId IMainEditorPresenter::DefaultTools::EYEDROP  = IEyedropToolPresente
 const ToolId IMainEditorPresenter::DefaultTools::NAVIGATE = INavigateToolPresenter::NAVIGATE_TOOL_ID;
 const ToolId IMainEditorPresenter::DefaultTools::MEASURE  = IMeasureToolPresenter::MEASURE_TOOL_ID;
 
-#include "interfaces/editing/brushpainters/ibasicbrushpainter.hpp"
-
-const BrushId IBasicBrushPainter::Id = BrushId("basic-brush");
-
 #include "interfaces/presenters/toolpresenters/ibrushtoolpresenter.hpp"
-const BrushId IBrushToolPresenter::DefaultBrushes::Basic  = IBasicBrushPainter::Id;
+const BrushId IBrushToolPresenter::DefaultBrushes::Basic  = IBrushPainter::CoreBrushes::BasicBrush;
 
 const BrushId IBrushToolPresenter::DEFAULT_BRUSH = DefaultBrushes::Basic;
 

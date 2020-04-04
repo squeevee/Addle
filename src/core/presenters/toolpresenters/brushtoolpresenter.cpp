@@ -14,6 +14,7 @@
 #include "interfaces/rendering/irenderstack.hpp"
 #include "utilities/canvas/canvasmouseevent.hpp"
 
+#include "interfaces/editing/ibrushpainter.hpp"
 
 // #include "../helpers/brushsizepresethelper.hpp"
 // const BrushSizePresetHelper::PxPresetHelper BrushSizePresetHelper::_instance_px = PxPresetHelper();
@@ -161,7 +162,9 @@ void HoveringBrushPreview::updateBuffer()
 
     if (!_visibleCache.getValue()) return;
 
-    auto brushPainter = _owner.getSelectedBrushPresenter()->getModel()->getPainter(); //streamline
+    //auto brushPainter = _owner.getSelectedBrushPresenter()->getModel()->getPainter(); //streamline
+
+    auto brushPainter = ServiceLocator::makeUnique<IBrushPainter>(_owner.getSelectedBrush());
     _previousPreviewRect = _previewRect;
     _previewRect = brushPainter->boundingRect(_previewData);
 

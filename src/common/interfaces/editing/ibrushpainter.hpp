@@ -6,6 +6,8 @@
 #include "idtypes/brushid.hpp"
 #include "utilities/canvas/brushpainterdata.hpp"
 
+#include "interfaces/traits/by_id_traits.hpp"
+
 class IBrushPainter
 {
 public: 
@@ -25,6 +27,13 @@ public:
 
     virtual QRect boundingRect(const BrushPainterData& data) const = 0;
     virtual void paint(BrushPainterData& data, QImage& buffer) const = 0;
+
+    struct CoreBrushes
+    {
+        static const BrushId BasicBrush;
+    };
 };
+
+DECL_MAKEABLE_BY_ID(IBrushPainter, BrushId);
 
 #endif // IBRUSHPAINTER_HPP

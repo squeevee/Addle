@@ -11,11 +11,9 @@ class BrushPresenter : public QObject, public IBrushPresenter
 public:
     BrushPresenter() : _initHelper(this) {}
     void initialize(BrushId id);
-    void initialize(QSharedPointer<IBrush> model);
 
     PersistentId getId() { return getBrushId(); }
-    BrushId getBrushId() { _initHelper.check(); return _model->getId(); }
-    QSharedPointer<IBrush> getModel() { _initHelper.check(); return _model; }
+    BrushId getBrushId() { _initHelper.check(); return _id; }
     
     SizeOption getSize() { return SizeOption::_25px; } //todo
     double getCustomPixelSize() { return 0; } //
@@ -39,7 +37,8 @@ private:
     double _customPixelSize;
     double _customPercentSize;
 
-    QSharedPointer<IBrush> _model;
+    BrushId _id;
+
     InitializeHelper<BrushPresenter> _initHelper;
 };
 

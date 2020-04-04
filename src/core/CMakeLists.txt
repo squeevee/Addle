@@ -9,7 +9,6 @@ set (
     editing/surfaces/rastersurface.cpp
     models/document.cpp
     models/layer.cpp
-    models/brush.cpp
     presenters/canvaspresenter.cpp
     presenters/documentpresenter.cpp
     presenters/errorpresenter.cpp
@@ -25,7 +24,6 @@ set (
     services/applicationservice.cpp
     services/formatservice.cpp
     services/taskservice.cpp
-    services/brushrepository.cpp
     format/qtformatdrivers/qtimageformatdriver.cpp
     tasks/loaddocumentfiletask.cpp
     tasks/taskcontroller.cpp

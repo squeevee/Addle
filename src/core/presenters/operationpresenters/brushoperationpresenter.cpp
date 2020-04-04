@@ -1,6 +1,8 @@
 #include "brushoperationpresenter.hpp"
 #include "interfaces/presenters/assets/ibrushpresenter.hpp"
 
+#include "servicelocator.hpp"
+
 void BrushOperationPreview::before(RenderData& data)
 {
 
@@ -19,15 +21,17 @@ void BrushOperationPresenter::initialize(QWeakPointer<ILayerPresenter> layer, QS
     _preview = QSharedPointer<BrushOperationPreview>(new BrushOperationPreview(*this));
 
     _buffer = QImage(QSize(1280,1024), QImage::Format_ARGB32_Premultiplied);
+
+    _brushPainter = ServiceLocator::makeUnique<IBrushPainter>(brush->getBrushId());
 }
 
 void BrushOperationPresenter::addPainterData(BrushPainterData data)
 {
-    auto brushPainter = _brush->getModel()->getPainter();
+    //auto brushPainter = _brush->getModel()->getPainter();
 
-    QRect rect = brushPainter->boundingRect(data);
+    QRect rect = _brushPainter->boundingRect(data);
 
-    brushPainter->paint(data, _buffer);
+    _brushPainter->paint(data, _buffer);
 
     emit _preview->changed(rect);
 }

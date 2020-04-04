@@ -12,6 +12,7 @@
 #include <typeindex>
 #include <typeinfo>
 #include <type_traits>
+#include <memory>
 #include <QHash>
 #include <QMultiHash>
 #include <QMutex>
@@ -24,8 +25,17 @@
 #include "exceptions/servicelocatorexceptions.hpp"
 
 #include "interfaces/traits/makeable_trait.hpp"
+#include "interfaces/traits/by_id_traits.hpp"
 #include "interfaces/traits/initialize_trait.hpp"
 #include "utilities/qtextensions/qhash.hpp"
+
+template<class Interface>
+class StaticFactory
+{
+private:
+    static const IFactory* const instance;
+    friend class ServiceLocator;
+};
 
 /**
  * @class ServiceLocator
@@ -74,6 +84,17 @@ public:
         }
 
         return *_instance->get_p<Interface>();
+    }
+
+    template<class Interface, class TypeId>
+    static Interface& get(TypeId id)
+    {
+        if (!_instance)
+        {
+            ADDLE_THROW(ServiceLocatorNotInitializedException());
+        }
+
+        return *_instance->get_p<Interface>(id);
     }
 
     /**
@@ -138,7 +159,11 @@ public:
      * @sa
      * expects_initialize, is_makeable
      */
-    template<class Interface, typename... ArgTypes>
+    template<class Interface, typename... ArgTypes,
+        typename = typename std::enable_if<
+            !is_makeable_by_id<Interface>::value
+        >::type
+    >
     static Interface* make(ArgTypes... args)
     {
         static_assert(
@@ -163,46 +188,78 @@ public:
         return result;
     }
 
-    /**
-     * @brief Make an uninitialized object.
-     * 
-     * Creates a new object that implements the interface specified by 
-     * `Interface`, and returns a pointer to this new object. Specifically does
-     * not initialize the object.
-     *  
-     * @note
-     * Interface must be make-able, i.e., must have trait is_makeable
-     * 
-     * @note
-     * `Interface` must expect initialization. To make interfaces that don't
-     * expect initialization, use make() instead.
-     * 
-     * @note
-     * The caller is responsible to delete this object.
-     * 
-     * @sa
-     * expects_initialize, is_makeable
-     */
-    template<class Interface>
-    static Interface* make_uninitialized()
-    {
-        static_assert(
-            expects_initialize<Interface>::value,
-            "Calling ServiceLocator::make_uninitialized() requires Interface to expect initialization."
-        );
+    // /**
+    //  * @brief Make an uninitialized object.
+    //  * 
+    //  * Creates a new object that implements the interface specified by 
+    //  * `Interface`, and returns a pointer to this new object. Specifically does
+    //  * not initialize the object.
+    //  *  
+    //  * @note
+    //  * Interface must be make-able, i.e., must have trait is_makeable
+    //  * 
+    //  * @note
+    //  * `Interface` must expect initialization. To make interfaces that don't
+    //  * expect initialization, use make() instead.
+    //  * 
+    //  * @note
+    //  * The caller is responsible to delete this object.
+    //  * 
+    //  * @sa
+    //  * expects_initialize, is_makeable
+    //  */
+    // template<class Interface>
+    // static Interface* make_uninitialized()
+    // {
+    //     static_assert(
+    //         expects_initialize<Interface>::value,
+    //         "Calling ServiceLocator::make_uninitialized() requires Interface to expect initialization."
+    //     );
 
+    //     if (!_instance)
+    //     {
+    //         ADDLE_THROW(ServiceLocatorNotInitializedException());
+    //     }
+
+    //     return _instance->make_p<Interface>();;
+    // }
+
+    template<class Interface, class TypeId,
+        typename = typename std::enable_if<
+            is_makeable_by_id<Interface>::value
+        >::type
+    >
+    static Interface* make(TypeId id)
+    {
         if (!_instance)
         {
             ADDLE_THROW(ServiceLocatorNotInitializedException());
         }
 
-        return _instance->make_p<Interface>();;
+        Interface* result = _instance->make_p<Interface>(id);
+
+        noParameterInitializeHelper(result, expects_initialize<Interface>());
+
+        return result;
     }
 
-    template<class Interface>
-    static QSharedPointer<Interface> makeShared()
+    template<class Interface, class TypeId, typename... ArgTypes,
+        typename std::enable_if<
+            is_makeable_by_id<Interface>::value
+        >::type
+    >
+    static Interface* make(TypeId id, ArgTypes... args)
     {
-        return QSharedPointer<Interface>(make<Interface>());
+        if (!_instance)
+        {
+            ADDLE_THROW(ServiceLocatorNotInitializedException());
+        }
+
+        Interface* result = _instance->make_p<Interface>(id);
+
+        result->initialize(args...);
+
+        return result;
     }
 
     template<class Interface, typename... ArgTypes>
@@ -211,20 +268,28 @@ public:
         return QSharedPointer<Interface>(make<Interface>(args...));
     }
 
+    template<class Interface, typename... ArgTypes>
+    static std::unique_ptr<Interface> makeUnique(ArgTypes... args)
+    {
+        return std::unique_ptr<Interface>(make<Interface>(args...));
+    }
+
 private:
 
     ServiceLocator() = default;
     virtual ~ServiceLocator()
     {
-        for (IFactory* factory : _factoryRegistry) delete factory;
+        //for (IFactory* factory : _factoryRegistry) delete factory;
         for (IService* service : _serviceRegistry) delete service;
     }
 
     static ServiceLocator* _instance;
     
-    QHash<std::type_index, IFactory*> _factoryRegistry;
     QHash<std::type_index, IService*> _serviceRegistry;
     QHash<std::type_index, QSharedPointer<QMutex>> _serviceInitMutexes;
+
+    QHash<PersistentId, IFactory*> _dynamicFactoryRegistry;
+    QHash<PersistentId, void*> _persistentObjectRegistry;
     
     // Private internals of getting a service
     template<class Interface>
@@ -233,7 +298,7 @@ private:
         //todo: thread safety
         static_assert(
             std::is_base_of<IService, Interface>::value,
-            "Interface must inherit IService"
+            "Interface must derive from IService (in order to be gotten without PersistentId)."
         );
         static_assert(
             !std::is_same<IService, Interface>::value,
@@ -262,22 +327,6 @@ private:
         }
         else
         {
-            // This service has not yet been made. We must make it now.
-
-            if (!_factoryRegistry.contains(interfaceIndex))
-            {
-#ifdef ADDLE_DEBUG
-                ServiceNotFoundException ex(
-                        typeid(Interface).name(),
-                        _serviceRegistry.size(),
-                        _factoryRegistry.size()
-                );
-#else
-                ServiceNotFoundException ex;
-#endif
-                ADDLE_THROW(ex);
-            }
-            
             auto mutex = QSharedPointer<QMutex>(new QMutex);
             _serviceInitMutexes.insert(interfaceIndex, mutex);
             mutex->lock();
@@ -293,6 +342,37 @@ private:
         }
     }
 
+    template<class Interface, class IdType>
+    Interface* get_p(IdType id)
+    {
+        static_assert(
+            is_gettable_by_id<Interface>::value,
+            "Interface must be gettable by id."
+        );
+        static_assert(
+            std::is_same<typename is_makeable_by_id<Interface>::IdType, IdType>::value,
+            "Interface must be makeable by id of type IdType"
+        );
+        static_assert(
+            std::is_base_of<PersistentId, IdType>::value,
+            "IdType must be PersistentId"
+        );
+
+        //mutex
+
+        if (_persistentObjectRegistry.contains(id))
+        {
+            return reinterpret_cast<Interface*>(_persistentObjectRegistry[id]);
+        }
+        else 
+        {
+            Interface* object = make_p<Interface>(id);
+            _persistentObjectRegistry[id] = object;
+
+            return object;
+        }
+    }
+
     // Private internals of making an object
     template<class Interface>
     Interface* make_p()
@@ -302,22 +382,33 @@ private:
             "Interface must be makeable"
         );
 
-        std::type_index interfaceIndex(typeid(Interface));
-        
-        if (!_factoryRegistry.contains(interfaceIndex))
+        return reinterpret_cast<Interface*>(
+            StaticFactory<Interface>::instance->make()
+        );
+    }
+
+    template<class Interface, class IdType>
+    Interface* make_p(IdType id)
+    {
+        static_assert(
+            is_makeable_by_id<Interface>::value,
+            "Interface must be makeable by id"
+        );
+        static_assert(
+            std::is_same<typename is_makeable_by_id<Interface>::IdType, IdType>::value,
+            "Interface must be makeable by id of type IdType"
+        );
+        static_assert(
+            std::is_base_of<PersistentId, IdType>::value,
+            "IdType must be PersistentId"
+        );
+
+        if (!_dynamicFactoryRegistry.contains(id))
         {
-#ifdef ADDLE_DEBUG
-            FactoryNotFoundException ex(
-                    typeid(Interface).name(),
-                    _factoryRegistry.size()
-            );
-#else
-            FactoryNotFoundException ex;
-#endif
-            ADDLE_THROW(ex);
+            // throw
         }
-        
-        IFactory* factory = _factoryRegistry[interfaceIndex];
+
+        IFactory* factory = _dynamicFactoryRegistry[id];
         Interface* product = reinterpret_cast<Interface*>(factory->make());
 
         return product;

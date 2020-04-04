@@ -8,7 +8,7 @@
 #include "serviceconfiguration.hpp"
 
 #include "utilities/configuration/tfactory.hpp"
-#include "utilities/configuration/qobjectfactory.hpp"
+//#include "utilities/configuration/qobjectfactory.hpp"
 
 #include "core/editing/brushpainters/basicbrushpainter.hpp"
 #include "core/editing/operations/rasteroperation.hpp"
@@ -16,7 +16,6 @@
 
 #include "core/models/layer.hpp"
 #include "core/models/document.hpp"
-#include "core/models/brush.hpp"
 
 #include "core/presenters/maineditorpresenter.hpp"
 #include "core/presenters/documentpresenter.hpp"
@@ -34,7 +33,6 @@
 #include "core/services/applicationservice.hpp"
 #include "core/services/formatservice.hpp"
 #include "core/services/taskservice.hpp"
-#include "core/services/brushrepository.hpp"
 
 #include "core/format/qtformatdrivers/qtpngformatdriver.hpp"
 #include "core/format/qtformatdrivers/qtjpegformatdriver.hpp"
@@ -46,54 +44,49 @@
 
 void ServiceConfiguration::configure()
 {
-    // # Editing
-    // ## Brush renderers
-    REGISTER_TFACTORY(IBasicBrushPainter, BasicBrushPainter);
-
-    // ## Operations
-    REGISTER_TFACTORY(IRasterOperation, RasterOperation);
-
-    // ## Surfaces
-    REGISTER_QOBJECT_FACTORY(IRasterSurface, RasterSurface);
-
-    // # Models
-    REGISTER_TFACTORY(ILayer, Layer);
-    REGISTER_TFACTORY(IDocument, Document);
-    REGISTER_TFACTORY(IBrush, Brush);
-
-    // # Presenters
-    REGISTER_TFACTORY(IMainEditorPresenter, MainEditorPresenter);
-    REGISTER_TFACTORY(ICanvasPresenter, CanvasPresenter);
-    REGISTER_TFACTORY(IViewPortPresenter, ViewPortPresenter);
-    REGISTER_TFACTORY(IErrorPresenter, ErrorPresenter);
-    REGISTER_QOBJECT_FACTORY(ILayerPresenter, LayerPresenter);
-    REGISTER_QOBJECT_FACTORY(IDocumentPresenter, DocumentPresenter);
-    REGISTER_QOBJECT_FACTORY(IBrushOperationPresenter, BrushOperationPresenter);
-
-    // ## Asset presenters
-    REGISTER_QOBJECT_FACTORY(IBrushPresenter, BrushPresenter);
-
-    // ## Tool presenters
-    REGISTER_QOBJECT_FACTORY(INavigateToolPresenter, NavigateToolPresenter);
-    REGISTER_QOBJECT_FACTORY(IBrushToolPresenter, BrushToolPresenter);
-
-    // # Rendering
-    REGISTER_QOBJECT_FACTORY(IRenderStack, RenderStack);
-
-    // # Services
-    REGISTER_QOBJECT_FACTORY(IApplicationService, ApplicationService);
-    REGISTER_TFACTORY(IFormatService, FormatService);
-    REGISTER_QOBJECT_FACTORY(ITaskService, TaskService);
-    REGISTER_QOBJECT_FACTORY(IBrushRepository, BrushRepository);
-
-    // # Tasks
-    REGISTER_QOBJECT_FACTORY(ITaskController, TaskController);
-    REGISTER_TFACTORY(ILoadDocumentFileTask, LoadDocumentFileTask);
-
-    // # Formats
-    REGISTER_TFACTORY(IPNGFormatDriver, QtPNGFormatDriver);
-    REGISTER_TFACTORY(IJPEGFormatDriver, QtJPEGFormatDriver);
-
-    // # Views
-    REGISTER_QOBJECT_FACTORY(IMainEditorView, MainEditorView);
+    REGISTER_TFACTORY(IBrushPainter, BasicBrushPainter, IBrushPainter::CoreBrushes::BasicBrush);
 }
+
+DEFINE_STATIC_FACTORY(IRasterOperation, RasterOperation);
+
+// ## Surfaces
+DEFINE_STATIC_FACTORY(IRasterSurface, RasterSurface);
+
+// # Models
+DEFINE_STATIC_FACTORY(ILayer, Layer);
+DEFINE_STATIC_FACTORY(IDocument, Document);
+
+// # Presenters
+DEFINE_STATIC_FACTORY(IMainEditorPresenter, MainEditorPresenter);
+DEFINE_STATIC_FACTORY(ICanvasPresenter, CanvasPresenter);
+DEFINE_STATIC_FACTORY(IViewPortPresenter, ViewPortPresenter);
+DEFINE_STATIC_FACTORY(IErrorPresenter, ErrorPresenter);
+DEFINE_STATIC_FACTORY(ILayerPresenter, LayerPresenter);
+DEFINE_STATIC_FACTORY(IDocumentPresenter, DocumentPresenter);
+DEFINE_STATIC_FACTORY(IBrushOperationPresenter, BrushOperationPresenter);
+
+// ## Asset presenters
+DEFINE_STATIC_FACTORY(IBrushPresenter, BrushPresenter);
+
+// ## Tool presenters
+DEFINE_STATIC_FACTORY(INavigateToolPresenter, NavigateToolPresenter);
+DEFINE_STATIC_FACTORY(IBrushToolPresenter, BrushToolPresenter);
+
+// # Rendering
+DEFINE_STATIC_FACTORY(IRenderStack, RenderStack);
+
+// # Services
+DEFINE_STATIC_FACTORY(IApplicationService, ApplicationService);
+DEFINE_STATIC_FACTORY(IFormatService, FormatService);
+DEFINE_STATIC_FACTORY(ITaskService, TaskService);
+
+// # Tasks
+DEFINE_STATIC_FACTORY(ITaskController, TaskController);
+DEFINE_STATIC_FACTORY(ILoadDocumentFileTask, LoadDocumentFileTask);
+
+// # Formats
+DEFINE_STATIC_FACTORY(IPNGFormatDriver, QtPNGFormatDriver);
+DEFINE_STATIC_FACTORY(IJPEGFormatDriver, QtJPEGFormatDriver);
+
+// # Views
+DEFINE_STATIC_FACTORY(IMainEditorView, MainEditorView);

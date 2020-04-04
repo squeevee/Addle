@@ -2,9 +2,12 @@
 #define BRUSHOPERATIONPRESENTER_HPP
 
 #include <QObject>
+#include <memory>
 
 #include "interfaces/presenters/operationpresenters/ibrushoperationpresenter.hpp"
 #include "interfaces/rendering/irenderstep.hpp"
+
+#include "interfaces/editing/ibrushpainter.hpp"
 
 class BrushOperationPresenter;
 class BrushOperationPreview : public QObject, public IRenderStep
@@ -64,6 +67,8 @@ private:
     bool _isFinalized = false;
 
     QPainterPath _nibMask;
+
+    std::unique_ptr<IBrushPainter> _brushPainter;
 
     friend class BrushOperationPreview;
 };
