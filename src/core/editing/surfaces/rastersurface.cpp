@@ -1,17 +1,5 @@
 #include "rastersurface.hpp"
 
-
-void RasterSurfaceRenderStep::after(RenderData& data)
-{
-    QRect intersection = _owner._area.intersected(data.getArea());
-
-    data.getPainter()->drawImage(
-        intersection, 
-        _owner._buffer,
-        intersection.translated(_owner._bufferOffset)
-    );
-}
-
 void RasterSurface::initialize(QRect area, InitFlags flags)
 {
     _format = QImage::Format_ARGB32_Premultiplied;
@@ -32,6 +20,11 @@ void RasterSurface::initialize(QImage image, InitFlags flags)
         image.convertTo(_format);
     _buffer = image;
     _area = image.rect();
+}
+
+IRenderStep* RasterSurface::makeRenderStep()
+{
+    return new RasterSurfaceRenderStep(*this);
 }
 
 QImage RasterSurface::copy(QRect copyArea, QPoint* offset) const
@@ -80,4 +73,15 @@ void RasterSurface::allocate(QRect allocArea)
 void RasterSurface::merge(IRasterSurface& other)
 {
     
+}
+
+void RasterSurfaceRenderStep::onPop(RenderData& data)
+{
+    QRect intersection = _owner._area.intersected(data.getArea());
+
+    data.getPainter()->drawImage(
+        intersection, 
+        _owner._buffer,
+        intersection.translated(_owner._bufferOffset)
+    );
 }

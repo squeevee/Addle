@@ -5,11 +5,11 @@
 
 #include "utilities/qtextensions/qobject.hpp"
 
-void LayerPresenterRenderStep::before(RenderData& data)
+void LayerPresenterRenderStep::onPush(RenderData& data)
 {
 }
 
-void LayerPresenterRenderStep::after(RenderData& data)
+void LayerPresenterRenderStep::onPop(RenderData& data)
 {
 }
 

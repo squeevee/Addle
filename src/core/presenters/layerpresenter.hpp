@@ -15,8 +15,8 @@ public:
     LayerPresenterRenderStep(LayerPresenter& owner) : _owner(owner) { }
     virtual ~LayerPresenterRenderStep() = default;
 
-    void before(RenderData& data);
-    void after(RenderData& data);
+    void onPush(RenderData& data);
+    void onPop(RenderData& data);
 
 signals: 
     void changed(QRect area);

@@ -4,33 +4,11 @@
 #include <QObject>
 #include <memory>
 
+#include "interfaces/editing/surfaces/irastersurface.hpp"
 #include "interfaces/presenters/operationpresenters/ibrushoperationpresenter.hpp"
 #include "interfaces/rendering/irenderstep.hpp"
 
 #include "interfaces/editing/ibrushpainter.hpp"
-
-class BrushOperationPresenter;
-class BrushOperationPreview : public QObject, public IRenderStep
-{
-    Q_OBJECT
-public: 
-    BrushOperationPreview(BrushOperationPresenter& owner)
-        : _owner(owner)
-    {
-    }
-    virtual ~BrushOperationPreview() = default;
-
-    void before(RenderData& data);
-    void after(RenderData& data);
-
-signals: 
-    void changed(QRect area);
-
-private: 
-    BrushOperationPresenter& _owner;
-
-    friend class BrushOperationPresenter;
-};
 
 class BrushOperationPresenter : public QObject, public IBrushOperationPresenter
 {
@@ -40,13 +18,12 @@ public:
 
     void initialize(QWeakPointer<ILayerPresenter> layer, QSharedPointer<IBrushPresenter> brush);
 
-    void addPainterData(BrushPainterData data);
-    
     QString getText() { return tr("Brush Stroke"); }
 
     bool isFinalized() { return _isFinalized; }
     void finalize();
 
+    QWeakPointer<IBrushPainter> getBrushPainter() { return _brushPainter; }
     QSharedPointer<IRenderStep> getPreview() { return _preview; }
 
 public slots: 
@@ -54,21 +31,19 @@ public slots:
     void undo();
 
 signals: 
-    void isFinalizedChanged(bool isFinalized);
+    void finalized();
 
 private:
-    QSharedPointer<BrushOperationPreview> _preview;
 
-    QImage _buffer;
+    QSharedPointer<IBrushPainter> _brushPainter;
+    QSharedPointer<IRasterSurface> _buffer;
+    QSharedPointer<IRenderStep> _preview;
 
     QWeakPointer<ILayerPresenter> _layer;
-    QSharedPointer<IBrushPresenter> _brush;
+    QSharedPointer<IBrushPresenter> _brushPresenter;
 
     bool _isFinalized = false;
 
-    QPainterPath _nibMask;
-
-    std::unique_ptr<IBrushPainter> _brushPainter;
 
     friend class BrushOperationPreview;
 };

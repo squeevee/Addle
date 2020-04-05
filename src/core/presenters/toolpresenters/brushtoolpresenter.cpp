@@ -78,10 +78,10 @@ void BrushToolPresenter::onEngage()
         brush
     );
 
-    BrushPainterData painterData(
-        Qt::blue, 10, _mouseHelper.getLatestPosition()
-    );
-    _operation->addPainterData(painterData);
+    // BrushPainterData painterData(
+    //     Qt::blue, 10, _mouseHelper.getLatestPosition()
+    // );
+    // _operation->addPainterData(painterData);
 
     auto s_layer = layer.toStrongRef();
     s_layer->getRenderStack().push(_operation->getPreview());
@@ -90,12 +90,12 @@ void BrushToolPresenter::onEngage()
 void BrushToolPresenter::onMove()
 {
     _hoveringBrushPreview->move(_mouseHelper.getLatestPosition());
-    BrushPainterData painterData(
-        Qt::blue, 10,
-        _mouseHelper.getPreviousPosition(),
-        _mouseHelper.getLatestPosition()
-    );
-    _operation->addPainterData(painterData);
+    // BrushPainterData painterData(
+    //     Qt::blue, 10,
+    //     _mouseHelper.getPreviousPosition(),
+    //     _mouseHelper.getLatestPosition()
+    // );
+    // _operation->addPainterData(painterData);
 }
 
 void BrushToolPresenter::onDisengage()
@@ -145,7 +145,7 @@ void HoveringBrushPreview::onVisibleChanged()
 
 void HoveringBrushPreview::move(QPointF to)
 {
-    _previewData.setStartPoint(to);
+    //_previewData.setStartPoint(to);
     updateBuffer();
 }
 
@@ -160,56 +160,56 @@ void HoveringBrushPreview::updateBuffer()
     //   point precision will not be necessary and the buffer can just be moved
     //   without being redrawn. (this may help it feel less laggy)
 
-    if (!_visibleCache.getValue()) return;
+    // if (!_visibleCache.getValue()) return;
 
-    //auto brushPainter = _owner.getSelectedBrushPresenter()->getModel()->getPainter(); //streamline
+    // //auto brushPainter = _owner.getSelectedBrushPresenter()->getModel()->getPainter(); //streamline
 
-    auto brushPainter = ServiceLocator::makeUnique<IBrushPainter>(_owner.getSelectedBrush());
-    _previousPreviewRect = _previewRect;
-    _previewRect = brushPainter->boundingRect(_previewData);
+    // auto brushPainter = ServiceLocator::makeUnique<IBrushPainter>(_owner.getSelectedBrush());
+    // _previousPreviewRect = _previewRect;
+    // _previewRect = brushPainter->boundingRect(_previewData);
 
-    // Determine if the buffer needs to be reallocated for a new size
-    if (_previewRect.width() != 0 && _previewRect.height() != 0)
-    {
-        int width = _buffer.width();
-        if (_previewRect.width() > width)
-            width = _previewRect.width() * BUFFER_RESIZE_FACTOR;
-        else if (width != 0 && _previewRect.width() / width < BUFFER_RESIZE_FACTOR)
-            width /= BUFFER_RESIZE_FACTOR;
+    // // Determine if the buffer needs to be reallocated for a new size
+    // if (_previewRect.width() != 0 && _previewRect.height() != 0)
+    // {
+    //     int width = _buffer.width();
+    //     if (_previewRect.width() > width)
+    //         width = _previewRect.width() * BUFFER_RESIZE_FACTOR;
+    //     else if (width != 0 && _previewRect.width() / width < BUFFER_RESIZE_FACTOR)
+    //         width /= BUFFER_RESIZE_FACTOR;
 
-        int height = _buffer.height();
+    //     int height = _buffer.height();
 
-        if (_previewRect.height() > height)
-            height = _previewRect.height() * BUFFER_RESIZE_FACTOR;
-        else if (height != 0 && _previewRect.height() / height < BUFFER_RESIZE_FACTOR)
-            height /= BUFFER_RESIZE_FACTOR;
+    //     if (_previewRect.height() > height)
+    //         height = _previewRect.height() * BUFFER_RESIZE_FACTOR;
+    //     else if (height != 0 && _previewRect.height() / height < BUFFER_RESIZE_FACTOR)
+    //         height /= BUFFER_RESIZE_FACTOR;
 
-        if (width > _buffer.width() || height > _buffer.height())
-            _buffer = QImage(QSize(width, height), QImage::Format_ARGB32_Premultiplied);
-    }
+    //     if (width > _buffer.width() || height > _buffer.height())
+    //         _buffer = QImage(QSize(width, height), QImage::Format_ARGB32_Premultiplied);
+    // }
 
-    _buffer.fill(Qt::transparent);
+    // _buffer.fill(Qt::transparent);
 
-    QRect bufferRect = _buffer.rect();
-    bufferRect.moveCenter(_previewRect.center());
+    // QRect bufferRect = _buffer.rect();
+    // bufferRect.moveCenter(_previewRect.center());
 
-    _bufferOffset = bufferRect.topLeft();
-    _previewData.setOntoBufferTransform(QTransform::fromTranslate(-_bufferOffset.x(), -_bufferOffset.y()));
+    // _bufferOffset = bufferRect.topLeft();
+    // _previewData.setOntoBufferTransform(QTransform::fromTranslate(-_bufferOffset.x(), -_bufferOffset.y()));
 
-    brushPainter->paint(_previewData, _buffer);
+    // brushPainter->paint(_previewData, _buffer);
 
-    if (_previousPreviewRect.isValid())
-        emit changed(_previewRect.united(_previousPreviewRect));
-    else 
-        emit changed(_previewRect);
+    // if (_previousPreviewRect.isValid())
+    //     emit changed(_previewRect.united(_previousPreviewRect));
+    // else 
+    //     emit changed(_previewRect);
 }
 
-void HoveringBrushPreview::before(RenderData& data)
+void HoveringBrushPreview::onPush(RenderData& data)
 {
 
 }
 
-void HoveringBrushPreview::after(RenderData& data)
+void HoveringBrushPreview::onPop(RenderData& data)
 {
     if (!_visibleCache.getValue()) return;
 

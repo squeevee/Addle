@@ -12,7 +12,7 @@
 #include "interfaces/traits/qobject_trait.hpp"
 
 // Brushes 
-
+class IBrushModel;
 class IBrushPresenter : public IAssetPresenter
 {
     Q_GADGET
@@ -40,6 +40,7 @@ public:
     };
     Q_ENUM(SizeOption)
 
+    virtual void initialize(IBrushModel& model) = 0;
     virtual void initialize(BrushId id) = 0;
 
     virtual BrushId getBrushId() = 0;

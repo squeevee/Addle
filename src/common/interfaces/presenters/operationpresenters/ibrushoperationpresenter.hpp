@@ -3,14 +3,13 @@
 
 #include "iundooperationpresenter.hpp"
 
-#include "utilities/canvas/brushpainterdata.hpp"
-
 #include "interfaces/traits/initialize_trait.hpp"
 #include "interfaces/traits/makeable_trait.hpp"
 
 class IRenderStep;
 class ILayerPresenter;
 class IBrushPresenter;
+class IBrushPainter;
 class IBrushOperationPresenter : public IUndoOperationPresenter
 {
 public:
@@ -21,8 +20,7 @@ public:
         QSharedPointer<IBrushPresenter> brush
     ) = 0;
 
-    virtual void addPainterData(BrushPainterData data) = 0;
-
+    virtual QWeakPointer<IBrushPainter> getBrushPainter() = 0;
     virtual QSharedPointer<IRenderStep> getPreview() = 0;
 };
 

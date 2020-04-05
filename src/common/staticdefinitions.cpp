@@ -27,6 +27,11 @@ const QString IApplicationService::CMD_EDITOR_SHORT_OPTION = QStringLiteral(ADDL
 const QString IApplicationService::CMD_BROWSER_OPTION = QStringLiteral(ADDLE_STRING__IAPPLICATIONSERVICE__CMD_BROWSER_OPTION);
 const QString IApplicationService::CMD_BROWSER_SHORT_OPTION = QStringLiteral(ADDLE_STRING__IAPPLICATIONSERVICE__CMD_BROWSER_SHORT_OPTION);
 
+#include "interfaces/models/ibrushmodel.hpp"
+const BrushId IBrushModel::CoreBrushes::BasicBrush = BrushId(
+    "basic-brush"
+);
+
 #include "interfaces/models/idocument.hpp"
 const QColor IDocument::DEFAULT_BACKGROUND_COLOR = Qt::white;
 
@@ -55,11 +60,6 @@ const FormatId IJPEGFormatDriver::JPEG_FORMAT_ID = FormatId(
     "jpeg-format-id",
     IJPEGFormatDriver::JPEG_MIME_TYPE,
     typeid(IDocument)
-);
-
-#include "interfaces/editing/ibrushpainter.hpp"
-const BrushId IBrushPainter::CoreBrushes::BasicBrush = BrushId(
-    "basic-brush"
 );
 
 #include "interfaces/presenters/toolpresenters/iselecttoolpresenter.hpp"
@@ -126,7 +126,7 @@ const ToolId IMainEditorPresenter::DefaultTools::NAVIGATE = INavigateToolPresent
 const ToolId IMainEditorPresenter::DefaultTools::MEASURE  = IMeasureToolPresenter::MEASURE_TOOL_ID;
 
 #include "interfaces/presenters/toolpresenters/ibrushtoolpresenter.hpp"
-const BrushId IBrushToolPresenter::DefaultBrushes::Basic  = IBrushPainter::CoreBrushes::BasicBrush;
+const BrushId IBrushToolPresenter::DefaultBrushes::Basic  = IBrushModel::CoreBrushes::BasicBrush;
 
 const BrushId IBrushToolPresenter::DEFAULT_BRUSH = DefaultBrushes::Basic;
 

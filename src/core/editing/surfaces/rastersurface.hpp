@@ -5,25 +5,7 @@
 #include "interfaces/editing/surfaces/irastersurface.hpp"
 #include <QObject>
 
-class RasterSurface;
-class RasterSurfaceRenderStep : public QObject, public IRenderStep
-{
-    Q_OBJECT 
-    Q_INTERFACES(IRenderStep)
-public: 
-    RasterSurfaceRenderStep(RasterSurface& owner) : _owner(owner) { }
-    virtual ~RasterSurfaceRenderStep() = default;
-
-    virtual void before(RenderData& data) { }
-    virtual void after(RenderData& data);
-
-signals: 
-    void changed(QRect area);
-
-private:
-    RasterSurface& _owner;
-};
-
+class RasterSurfaceRenderStep;
 class RasterSurface : public QObject, public IRasterSurface
 {
     Q_OBJECT
@@ -39,12 +21,15 @@ public:
         InitFlags flags = None
     );
 
+    void linkTo(QSharedPointer<IRasterSurface> other) { _linked = other; }
+    void unlink() { _linked.clear(); }
+
     QRect getArea() const { return _area; }
     QSize getSize() const { return _area.size(); }
 
     QImage copy(QRect area, QPoint* offset = nullptr) const;
 
-    IRenderStep* makeRenderStep() { return new RasterSurfaceRenderStep(*this); }
+    IRenderStep* makeRenderStep();
 
     RasterPaintHandle getPaintHandle(QRect handleArea)
     {
@@ -65,6 +50,8 @@ private:
 
     const int CHUNK_SIZE = 512;
     
+    QSharedPointer<IRasterSurface> _linked;
+
     QImage::Format _format = QImage::Format_Invalid;
 
     QImage _buffer;
@@ -73,6 +60,24 @@ private:
     QRect _area;
 
     friend class RasterSurfaceRenderStep;
+};
+
+class RasterSurfaceRenderStep : public QObject, public IRenderStep
+{
+    Q_OBJECT 
+    Q_INTERFACES(IRenderStep)
+public: 
+    RasterSurfaceRenderStep(RasterSurface& owner) : _owner(owner) { }
+    virtual ~RasterSurfaceRenderStep() = default;
+
+    virtual void onPush(RenderData& data) { }
+    virtual void onPop(RenderData& data);
+
+signals: 
+    void changed(QRect area);
+
+private:
+    RasterSurface& _owner;
 };
 
 #endif // RASTERSURFACE_HPP

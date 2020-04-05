@@ -46,6 +46,9 @@ public:
         InitFlags flags = None
     ) = 0;
 
+    virtual void linkTo(QSharedPointer<IRasterSurface> other) = 0;
+    virtual void unlink() = 0;
+
     virtual QRect getArea() const = 0;
     virtual QSize getSize() const = 0;
 

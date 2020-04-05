@@ -9,7 +9,7 @@ RenderSubStack::RenderSubStack(IRenderStack* stack, QObject* parent)
     connect_interface(_stack, SIGNAL(changed(QRect)), this, SLOT(onStackChanged(QRect)));
 }
 
-void RenderSubStack::after(RenderData& data)
+void RenderSubStack::onPop(RenderData& data)
 {
     if (_stack)
         _stack->render(data);

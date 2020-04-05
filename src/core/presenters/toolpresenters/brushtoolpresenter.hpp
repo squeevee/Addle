@@ -13,8 +13,6 @@
 
 #include "utilities/presenter/propertycache.hpp"
 
-#include "utilities/canvas/brushpainterdata.hpp"
-
 class HoveringBrushPreview;
 class BrushToolPresenter : public ToolPresenterBase, public virtual IBrushToolPresenter
 {
@@ -99,15 +97,11 @@ public:
         _visibleCache.onChange({
             [&]() { onVisibleChanged(); }
         });
-
-        _previewData.setColor(Qt::blue);
-        _previewData.setSize(10);
-        _previewData.setPreview(true);
     }
     virtual ~HoveringBrushPreview() = default;
 
-    void before(RenderData& data);
-    void after(RenderData& data);
+    void onPush(RenderData& data);
+    void onPop(RenderData& data);
 
 signals: 
     void changed(QRect area);
@@ -123,7 +117,6 @@ private:
 
     static constexpr double BUFFER_RESIZE_FACTOR = 2.0;
 
-    BrushPainterData _previewData;
     QRect _previewRect;
     QRect _previousPreviewRect;
 

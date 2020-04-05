@@ -11,8 +11,8 @@ class IRenderStep
 public:
     virtual ~IRenderStep() = default;
 
-    virtual void before(RenderData& data) = 0;
-    virtual void after(RenderData& data) = 0;
+    virtual void onPush(RenderData& data) = 0;
+    virtual void onPop(RenderData& data) = 0;
 
     // virtual bool isVisible() const = 0;
     // virtual void hide() = 0;

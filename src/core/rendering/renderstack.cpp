@@ -53,7 +53,7 @@ void RenderStack::render(RenderData data, int maxDepth)
 
         RenderData stepData = lastData;
         stepData.getPainter()->save();
-        s_step->before(stepData);
+        s_step->onPush(stepData);
 
         stackData[depth - 1] = stepData;
         lastData = stepData;
@@ -68,7 +68,7 @@ void RenderStack::render(RenderData data, int maxDepth)
         auto s_step = _steps[depth - 1].toStrongRef();
 
         RenderData stepData = stackData[depth - 1];
-        s_step->after(stepData);
+        s_step->onPop(stepData);
         stepData.getPainter()->restore();
     }
 }

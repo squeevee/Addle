@@ -120,7 +120,7 @@ protected:
     //     ServiceLocator::_instance->_factoryRegistry[interfaceIndex] = factory;
     // }
 
-    template<class Interface, class Impl, class Factory, class IdType>
+    template<class Interface, class Factory, class IdType>
     void registerDynamicFactory(Factory* factory, IdType id)
     {
         // TODO: asserts

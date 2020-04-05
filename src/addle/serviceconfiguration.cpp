@@ -7,8 +7,10 @@
 
 #include "serviceconfiguration.hpp"
 
-#include "utilities/configuration/tfactory.hpp"
-//#include "utilities/configuration/qobjectfactory.hpp"
+#include "utilities/configuration/autofactory.hpp"
+#include "utilities/configuration/customfactory.hpp"
+
+#include "interfaces/models/ibrushmodel.hpp"
 
 #include "core/editing/brushpainters/basicbrushpainter.hpp"
 #include "core/editing/operations/rasteroperation.hpp"
@@ -16,6 +18,7 @@
 
 #include "core/models/layer.hpp"
 #include "core/models/document.hpp"
+#include "core/models/brushmodels/corebrushmodel.hpp"
 
 #include "core/presenters/maineditorpresenter.hpp"
 #include "core/presenters/documentpresenter.hpp"
@@ -42,51 +45,53 @@
 
 #include "widgetsgui/main/maineditorview.hpp"
 
-void ServiceConfiguration::configure()
-{
-    REGISTER_TFACTORY(IBrushPainter, BasicBrushPainter, IBrushPainter::CoreBrushes::BasicBrush);
-}
-
-DEFINE_STATIC_FACTORY(IRasterOperation, RasterOperation);
+CONFIG_STATIC_AUTOFACTORY(IRasterOperation, RasterOperation);
 
 // ## Surfaces
-DEFINE_STATIC_FACTORY(IRasterSurface, RasterSurface);
+CONFIG_STATIC_AUTOFACTORY(IRasterSurface, RasterSurface);
 
 // # Models
-DEFINE_STATIC_FACTORY(ILayer, Layer);
-DEFINE_STATIC_FACTORY(IDocument, Document);
+CONFIG_STATIC_AUTOFACTORY(ILayer, Layer);
+CONFIG_STATIC_AUTOFACTORY(IDocument, Document);
 
 // # Presenters
-DEFINE_STATIC_FACTORY(IMainEditorPresenter, MainEditorPresenter);
-DEFINE_STATIC_FACTORY(ICanvasPresenter, CanvasPresenter);
-DEFINE_STATIC_FACTORY(IViewPortPresenter, ViewPortPresenter);
-DEFINE_STATIC_FACTORY(IErrorPresenter, ErrorPresenter);
-DEFINE_STATIC_FACTORY(ILayerPresenter, LayerPresenter);
-DEFINE_STATIC_FACTORY(IDocumentPresenter, DocumentPresenter);
-DEFINE_STATIC_FACTORY(IBrushOperationPresenter, BrushOperationPresenter);
+CONFIG_STATIC_AUTOFACTORY(IMainEditorPresenter, MainEditorPresenter);
+CONFIG_STATIC_AUTOFACTORY(ICanvasPresenter, CanvasPresenter);
+CONFIG_STATIC_AUTOFACTORY(IViewPortPresenter, ViewPortPresenter);
+CONFIG_STATIC_AUTOFACTORY(IErrorPresenter, ErrorPresenter);
+CONFIG_STATIC_AUTOFACTORY(ILayerPresenter, LayerPresenter);
+CONFIG_STATIC_AUTOFACTORY(IDocumentPresenter, DocumentPresenter);
+CONFIG_STATIC_AUTOFACTORY(IBrushOperationPresenter, BrushOperationPresenter);
 
 // ## Asset presenters
-DEFINE_STATIC_FACTORY(IBrushPresenter, BrushPresenter);
+CONFIG_STATIC_AUTOFACTORY(IBrushPresenter, BrushPresenter);
 
 // ## Tool presenters
-DEFINE_STATIC_FACTORY(INavigateToolPresenter, NavigateToolPresenter);
-DEFINE_STATIC_FACTORY(IBrushToolPresenter, BrushToolPresenter);
+CONFIG_STATIC_AUTOFACTORY(INavigateToolPresenter, NavigateToolPresenter);
+CONFIG_STATIC_AUTOFACTORY(IBrushToolPresenter, BrushToolPresenter);
 
 // # Rendering
-DEFINE_STATIC_FACTORY(IRenderStack, RenderStack);
+CONFIG_STATIC_AUTOFACTORY(IRenderStack, RenderStack);
 
 // # Services
-DEFINE_STATIC_FACTORY(IApplicationService, ApplicationService);
-DEFINE_STATIC_FACTORY(IFormatService, FormatService);
-DEFINE_STATIC_FACTORY(ITaskService, TaskService);
+CONFIG_STATIC_AUTOFACTORY(IApplicationService, ApplicationService);
+CONFIG_STATIC_AUTOFACTORY(IFormatService, FormatService);
+CONFIG_STATIC_AUTOFACTORY(ITaskService, TaskService);
 
 // # Tasks
-DEFINE_STATIC_FACTORY(ITaskController, TaskController);
-DEFINE_STATIC_FACTORY(ILoadDocumentFileTask, LoadDocumentFileTask);
+CONFIG_STATIC_AUTOFACTORY(ITaskController, TaskController);
+CONFIG_STATIC_AUTOFACTORY(ILoadDocumentFileTask, LoadDocumentFileTask);
 
 // # Formats
-DEFINE_STATIC_FACTORY(IPNGFormatDriver, QtPNGFormatDriver);
-DEFINE_STATIC_FACTORY(IJPEGFormatDriver, QtJPEGFormatDriver);
+CONFIG_STATIC_AUTOFACTORY(IPNGFormatDriver, QtPNGFormatDriver);
+CONFIG_STATIC_AUTOFACTORY(IJPEGFormatDriver, QtJPEGFormatDriver);
 
 // # Views
-DEFINE_STATIC_FACTORY(IMainEditorView, MainEditorView);
+CONFIG_STATIC_AUTOFACTORY(IMainEditorView, MainEditorView);
+
+
+void ServiceConfiguration::configure()
+{
+    CONFIG_DYNAMIC_AUTOFACTORY(IBrushPainter, IBrushModel::CoreBrushes::BasicBrush, BasicBrushPainter);
+    CONFIG_DYNAMIC_CUSTOMFACTORY(IBrushModel, IBrushModel::CoreBrushes::BasicBrush, &CoreBrushModel::make<BasicBrushPainter>);
+}

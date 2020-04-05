@@ -21,7 +21,7 @@ public slots:
     virtual void undo() = 0;
 
 signals: 
-    virtual void isFinalizedChanged(bool isFinalized) = 0;
+    virtual void finalized() = 0;
 };
 
 DECL_IMPLEMENTED_AS_QOBJECT(IUndoOperationPresenter);

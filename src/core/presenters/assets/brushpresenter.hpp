@@ -10,6 +10,7 @@ class BrushPresenter : public QObject, public IBrushPresenter
     Q_OBJECT 
 public:
     BrushPresenter() : _initHelper(this) {}
+    void initialize(IBrushModel& model);
     void initialize(BrushId id);
 
     PersistentId getId() { return getBrushId(); }
@@ -38,6 +39,7 @@ private:
     double _customPercentSize;
 
     BrushId _id;
+    IBrushModel* _model;
 
     InitializeHelper<BrushPresenter> _initHelper;
 };

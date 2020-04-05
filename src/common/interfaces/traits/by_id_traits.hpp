@@ -14,7 +14,9 @@ template<> struct is_makeable_by_id<Interface> : std::true_type { typedef IdType
 template<class Interface>
 struct is_gettable_by_id : std::false_type { };
 
-#define DECL_GETTABLE_BY_ID(Interface, IdType_) template<> struct is_gettable_by_id<Interface> : std::true_type { typedef IdType_ IdType; };
+#define DECL_PERSISTENT_OBJECT_TYPE(Interface, IdType_) \
+template<> struct is_makeable_by_id<Interface> : std::true_type { typedef IdType_ IdType; }; \
+template<> struct is_gettable_by_id<Interface> : std::true_type { typedef IdType_ IdType; };
 
 
 #endif // BY_ID_TRAITS_HPP

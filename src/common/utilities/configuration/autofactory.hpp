@@ -1,5 +1,5 @@
-#ifndef TFACTORY_HPP
-#define TFACTORY_HPP
+#ifndef AUTOFACTORY_HPP
+#define AUTOFACTORY_HPP
 
 #include <type_traits>
 
@@ -14,7 +14,7 @@
  * A generic template-based object factory.
  */
 template<class Interface, class Impl>
-class TFactory : public IFactory
+class AutoFactory : public IFactory
 {
     static_assert(
         is_makeable<Interface>::value || is_makeable_by_id<Interface>::value,
@@ -23,7 +23,7 @@ class TFactory : public IFactory
 
 public:
 
-    virtual ~TFactory() = default;
+    virtual ~AutoFactory() = default;
 
     virtual void* make() const
     { 
@@ -32,16 +32,20 @@ public:
         );
     }
 
-    void destroy(void* obj) const 
+    void delete_(void* obj) const 
     {
         delete reinterpret_cast<Interface*>(obj);
     }
 };
 
-#define DEFINE_STATIC_FACTORY(Interface, Impl) \
-template<> const IFactory* const StaticFactory<Interface>::instance = new TFactory<Interface, Impl>();
+// Interfaces implemented as QObject may desire some QObject-aware logic in
+// their AutoFactory, for example with regard to thread affinity. Keep this in
+// mind for the future.
 
-#define REGISTER_TFACTORY(Interface, Impl, id) \
-BaseServiceConfiguration::registerDynamicFactory<Interface, Impl>(new TFactory<Interface, Impl>(), id);
+#define CONFIG_STATIC_AUTOFACTORY(Interface, Impl) \
+template<> const IFactory* const StaticFactory<Interface>::instance = new AutoFactory<Interface, Impl>();
 
-#endif // TFACTORY_HPP
+#define CONFIG_DYNAMIC_AUTOFACTORY(Interface, id, Impl) \
+BaseServiceConfiguration::registerDynamicFactory<Interface>(new AutoFactory<Interface, Impl>(), id);
+
+#endif // AUTOFACTORY_HPP

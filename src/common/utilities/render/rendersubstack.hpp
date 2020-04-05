@@ -13,8 +13,8 @@ public:
     RenderSubStack(IRenderStack* stack, QObject* parent = nullptr);
     virtual ~RenderSubStack() = default;
 
-    void before(RenderData& data) { }
-    void after(RenderData& data);
+    void onPush(RenderData& data) { }
+    void onPop(RenderData& data);
 
 signals: 
     void changed(QRect area);
