@@ -28,7 +28,7 @@ void LayerPresenter::initialize(IDocumentPresenter* documentPresenter, QWeakPoin
     auto s_model = _model.toStrongRef();
 
     connect_interface(
-        s_model->getRasterSurface(),
+        s_model->getRasterSurface().data(),
         SIGNAL(changed(QRect)),
         this,
         SLOT(onRasterChanged(QRect)),
@@ -36,7 +36,7 @@ void LayerPresenter::initialize(IDocumentPresenter* documentPresenter, QWeakPoin
     );
 
     _renderStep = QSharedPointer<IRenderStep>(new LayerPresenterRenderStep(*this));
-    _rasterSurfaceStep = QSharedPointer<IRenderStep>(s_model->getRasterSurface()->makeRenderStep());
+    _rasterSurfaceStep = s_model->getRasterSurface()->getRenderStep();
 
     _initHelper.initializeEnd();
 }

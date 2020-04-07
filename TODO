@@ -15,7 +15,7 @@ Zoom slider: notches, and snapping to presets.
 
 Zoom presets will need some serious work before too long.
 
-Lifetime of views and presenters
+Lifetime of views and presenters, of all objects really
 
 cut icon
 redo icon looks like it's disabled
@@ -79,15 +79,33 @@ InitHelper:
   initializeBegin() and whose destructor callse initializeEnd(), would simplify
   some syntax
 
-see if PropertyCache can't be made more flexible with std::function and
-std::bind
-
 Widgets gui focus issues
-
-BrushPainter should track the state of a brush stroke internally, this will be 
-much easier to do with the ServiceLocator enhancement above.
 
 style: Models should have Model in their names.
 
-I have removed the Brush data model because it's clutter right now, but it will
-need to be restored at some point when brushes can be dynamically / created.
+Raster Surface lazy clear
++ async safety
+
+I think I'd prefer the semantics if the tool mouse helper were constructed on 
+mouse down and destroyed on mouse release (or on abort), and tool logic
+involving creation and release of resources were tied to those events.
+
+Async brush painting -- perform all (non-purely-presentational) drawing
+operations on a different thread? BEEF UP ASYNC TASK STUFF
+
+Is IService necessary? Services don't really seem to need a common interface,
+either for ServiceLocator or consuming code, and thanks to IFactory::delete_(),
+ServiceLocator can store services as void* and still access their destructors.
+Might also be better semantics, to distinguish between gettable singleton
+interfaces, and the more specific concept of a service.
+
+Also, tidy up the gettable_by_id trait vs DECL_PERSISTENT_OBJECT_TYPE thing 
+
+Maybe move stuff into a 'interfaces/meta' folder, or even distinguish between 
+'common' and perhaps 'framework'. (Probably would only be useful if I were going
+to make another SOLID application in Qt... so it can probably wait for a long
+while.)
+
+Don't allow ServiceLocator to publicly make objects that are meant to be
+persistent / singletons. befriend ServiceLocator to IFactory and make IFactory 
+methods protected.

@@ -12,26 +12,54 @@
  * 
  * 
  */
-template<typename OwnerType, typename PropertyType>
+template<typename PropertyType>
 class PropertyCache
 {
 public:
-    PropertyCache(
-            OwnerType& owner,
-            PropertyType (OwnerType::*calculate)(),
-            void (OwnerType::*notify)(PropertyType) = nullptr,
-            QVector<std::function<void()>> propagate = QVector<std::function<void()>>()
-        )
-        : _owner(owner),
-        _calculate(calculate),
-        _notify(notify),
-        _propagate(propagate)
+    PropertyCache(std::function<PropertyType()> calculate = nullptr)
+        : _calculate(calculate)
     {
     }
 
-    inline void onChange(QVector<std::function<void()>> propagate)
+    PropertyCache(const PropertyCache<PropertyType>&) = delete;
+
+    inline void calculateBy(std::function<PropertyType()> calculate)
     {
-        _propagate.append(propagate);
+        _calculate = calculate;
+    }
+
+    template<typename OwnerType>
+    inline void calculateBy(PropertyType (OwnerType::*calculate)(), OwnerType* owner)
+    {
+        _calculate = std::bind(calculate, owner);
+    }
+
+    inline void onChange(std::function<void()> onChange)
+    {
+        _onChange_0.append(onChange);
+    }
+
+    inline void onChange(std::function<void(PropertyType)> onChange)
+    {
+        _onChange_1.append(onChange);
+    }
+
+    template<class OwnerType>
+    inline void onChange(void (OwnerType::*onChange)(), OwnerType* owner)
+    {
+        _onChange_0.append(std::bind(onChange, owner));
+    }
+
+    template<class OwnerType>
+    inline void onChange(void (OwnerType::*onChange)(PropertyType), OwnerType* owner)
+    {
+        _onChange_1.append(std::bind(onChange, owner, std::placeholders::_1));
+    }
+
+    template<typename T>
+    inline void onChange_Recalculate(PropertyCache<T>& other)
+    {
+        _onChange_0.append(std::bind(&PropertyCache<T>::recalculate, &other));
     }
     
     inline void initialize(PropertyType value)
@@ -42,37 +70,35 @@ public:
 
     inline const PropertyType& getValue()
     {
-        if (!_initialized) initialize((_owner.*_calculate)());
+        if (!_initialized && _calculate) initialize(_calculate());
         return _value;
     }
     
     inline void recalculate()
     {
-        PropertyType newValue = (_owner.*_calculate)();
+        if (!_calculate) return;
+
+        PropertyType newValue = _calculate();
         if (_value != newValue)
         {
             _value = newValue;
-            if (_notify)
-                (_owner.*_notify)(_value);
+            for (std::function<void(PropertyType)> func : _onChange_1)
+                func(_value);
                 
-            for (std::function<void()> func : _propagate)
+            for (std::function<void()> func : _onChange_0)
                 func();
         }
         _initialized = true;
     }
-    
+
 private:
     bool _initialized = false;
     PropertyType _value;
 
-    OwnerType& _owner;
+    std::function<PropertyType()> _calculate;
 
-    PropertyType (OwnerType::*_calculate)();
-    void (OwnerType::*_notify)(PropertyType);
-    QVector<std::function<void()>> _propagate;
+    QVector<std::function<void()>> _onChange_0;
+    QVector<std::function<void(PropertyType)>> _onChange_1;
 };
-
-#define _BIND(obj, member) \
-    std::bind( &std::remove_reference<decltype(obj)>::type::member, obj )
 
 #endif // PROPERTYCACHE_HPP

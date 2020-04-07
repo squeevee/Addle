@@ -23,15 +23,14 @@ public:
     virtual BrushId getId() const = 0;
 
     virtual void initialize(
-        QSharedPointer<IRasterSurface> buffer,
         QColor color = QColor(),
-        double size = 0
+        double size = 0,
+        QSharedPointer<IRasterSurface> buffer = QSharedPointer<IRasterSurface>()
     ) = 0;
 
     virtual BrushPainterInfo getInfo() = 0;
 
     virtual QSharedPointer<IRasterSurface> getBuffer() = 0;
-    virtual void setBuffer(QSharedPointer<IRasterSurface> buffer) = 0;
 
     virtual QColor getColor() = 0;
     virtual void setColor(QColor color) = 0;
@@ -47,7 +46,7 @@ public:
     virtual bool isPreview() const = 0;
     virtual void setPreview(bool isPreview) = 0;
 
-    virtual void setPosition(QPointF pos) = 0;
+    virtual void startFrom(QPointF pos) = 0;
     virtual void moveTo(QPointF pos) = 0;
 
 signals: 

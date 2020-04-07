@@ -6,17 +6,17 @@
 #include "interfaces/editing/ibrushpainter.hpp"
 #include "interfaces/models/ibrushmodel.hpp"
 
-#include "helpers/commonbrushpainterhelper.hpp"
+#include "helpers/brushpaintercommon.hpp"
 
 class BasicBrushPainter : public QObject, public IBrushPainter
 {
     Q_OBJECT
 public:
 
-    BasicBrushPainter() : _commonHelper(*this) {}
+    BasicBrushPainter() : _common(*this) {}
     virtual ~BasicBrushPainter() = default;
 
-    void initialize(QSharedPointer<IRasterSurface> buffer, QColor color, double size);
+    void initialize(QColor color, double size, QSharedPointer<IRasterSurface> buffer);
 
     static const BrushId ID;
     BrushId getId() const { return ID; }
@@ -24,21 +24,20 @@ public:
     static const BrushPainterInfo INFO;
     BrushPainterInfo getInfo() { return INFO; }
 
-    QSharedPointer<IRasterSurface> getBuffer() { return _commonHelper.buffer; }
-    void setBuffer(QSharedPointer<IRasterSurface> buffer) { _commonHelper.buffer = buffer; }
+    QSharedPointer<IRasterSurface> getBuffer() { return _common.buffer; }
 
-    QColor getColor() { return _commonHelper.getColor(); }
-    void setColor(QColor color) { _commonHelper.setColor(color); }
+    QColor getColor() { return _common.getColor(); }
+    void setColor(QColor color) { _common.setColor(color); }
 
-    double getSize() { return _commonHelper.getSize(); }
-    void setSize(double size) { _commonHelper.setSize(size); }
+    double getSize() { return _common.getSize(); }
+    void setSize(double size) { _common.setSize(size); }
 
     QPainterPath getIndicatorShape() { return QPainterPath(); }
     
-    bool isPreview() const { return _commonHelper.isPreview; }
-    void setPreview(bool isPreview) { _commonHelper.isPreview = isPreview; }
+    bool isPreview() const { return _common.isPreview; }
+    void setPreview(bool isPreview) { _common.isPreview = isPreview; }
 
-    void setPosition(QPointF pos);
+    void startFrom(QPointF pos);
     void moveTo(QPointF pos);
 
 signals: 
@@ -46,7 +45,12 @@ signals:
     void sizeChanged(QColor color);
 
 private:
-    CommonBrushPainterHelper _commonHelper;
+    QRect boundingRect(QPointF pos);
+
+    QPainterPath _path;
+    QRect _lastNibBound;
+
+    BrushPainterCommon _common;
 };
 
 #endif // BASICBRUSHPAINTER_HPP

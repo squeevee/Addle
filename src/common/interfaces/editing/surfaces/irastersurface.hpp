@@ -56,7 +56,7 @@ public:
 
     //virtual void render(QPainter& painter, QRect area) const = 0;
 
-    virtual IRenderStep* makeRenderStep() = 0;
+    virtual QSharedPointer<IRenderStep> getRenderStep() = 0;
 
     virtual RasterPaintHandle getPaintHandle(QRect area) = 0;
     virtual void merge(IRasterSurface& other) = 0;

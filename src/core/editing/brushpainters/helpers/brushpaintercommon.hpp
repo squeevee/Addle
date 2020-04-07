@@ -1,21 +1,27 @@
-#ifndef COMMONBRUSHPAINTERHELPER_HPP
-#define COMMONBRUSHPAINTERHELPER_HPP
+#ifndef BRUSHPAINTERCOMMON_HPP
+#define BRUSHPAINTERCOMMON_HPP
 
 #include "interfaces/editing/ibrushpainter.hpp"
+#include "interfaces/editing/surfaces/irastersurface.hpp"
+#include "servicelocator.hpp"
 
-class CommonBrushPainterHelper
+class BrushPainterCommon
 {
 public:
-    CommonBrushPainterHelper(IBrushPainter& owner)
+    BrushPainterCommon(IBrushPainter& owner)
         : _owner(owner)
     {
     }
 
-    void initialize(QSharedPointer<IRasterSurface> buffer_arg, double size, QColor color)
+    void initialize(double size, QColor color, QSharedPointer<IRasterSurface> buffer_arg)
     {
-        buffer = buffer_arg;
         _size = size;
         _color = color;
+
+        if (buffer_arg)
+            buffer = buffer_arg;
+        else 
+            buffer = ServiceLocator::makeShared<IRasterSurface>();
     }
 
     QSharedPointer<IRasterSurface> buffer;
@@ -48,4 +54,4 @@ private:
     IBrushPainter& _owner;
 };
 
-#endif // COMMONBRUSHPAINTERHELPER_HPP
+#endif // BRUSHPAINTERCOMMON_HPP

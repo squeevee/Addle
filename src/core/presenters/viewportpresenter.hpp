@@ -106,24 +106,25 @@ class ViewPortPresenter: public QObject, public virtual IViewPortPresenter
 
 public:
     ViewPortPresenter()
-        : _canNavigateCache(*this, &ViewPortPresenter::canNavigate_p, &ViewPortPresenter::canNavigateChanged),
-        _canZoomInCache(*this, &ViewPortPresenter::canZoomIn_p, &ViewPortPresenter::canZoomInChanged),
-        _canZoomOutCache(*this, &ViewPortPresenter::canZoomOut_p, &ViewPortPresenter::canZoomOutChanged),
-        _transformCache(*this, &ViewPortPresenter::getTransforms_p),
-        _scrollStateCache(*this, &ViewPortPresenter::getScrollState_p),
-        _initHelper(this)
+        : _initHelper(this)
     {
-        _canNavigateCache.onChange({
-            [this](){ _canZoomInCache.recalculate(); }, //_BIND(_canZoomInCache, recalculate),
-            [this](){ _canZoomOutCache.recalculate(); }//_BIND(_canZoomOutCache, recalculate)
-        });
-        _transformCache.onChange({
-            [this](){ _scrollStateCache.recalculate(); }, //_BIND(_scrollStateCache, recalculate),
-            [this](){ emit transformsChanged(); }
-        });
-        _scrollStateCache.onChange({
-            [this](){ emit scrollStateChanged(); }
-        });
+        _canNavigateCache.calculateBy(&ViewPortPresenter::canNavigate_p, this);
+        _canNavigateCache.onChange(&ViewPortPresenter::canNavigateChanged, this);
+        _canNavigateCache.onChange_Recalculate(_canZoomInCache);
+        _canNavigateCache.onChange_Recalculate(_canZoomOutCache);
+
+        _canZoomInCache.calculateBy(&ViewPortPresenter::canZoomIn_p, this);
+        _canZoomInCache.onChange(&ViewPortPresenter::canZoomInChanged, this);
+
+        _canZoomOutCache.calculateBy(&ViewPortPresenter::canZoomOut_p, this);
+        _canZoomOutCache.onChange(&ViewPortPresenter::canZoomOutChanged, this);
+
+        _transformCache.calculateBy(&ViewPortPresenter::getTransforms_p, this);
+        _transformCache.onChange(&ViewPortPresenter::transformsChanged, this);
+        _transformCache.onChange_Recalculate(_scrollStateCache);
+        
+        _scrollStateCache.calculateBy(&ViewPortPresenter::getScrollState_p, this);
+        _scrollStateCache.onChange(&ViewPortPresenter::scrollStateChanged, this);
     }
     virtual ~ViewPortPresenter() = default;
 
@@ -254,9 +255,9 @@ private:
 
     ZoomPreset _zoomPreset;
 
-    PropertyCache<ViewPortPresenter, bool> _canNavigateCache;
-    PropertyCache<ViewPortPresenter, bool> _canZoomInCache;
-    PropertyCache<ViewPortPresenter, bool> _canZoomOutCache;
+    PropertyCache<bool> _canNavigateCache;
+    PropertyCache<bool> _canZoomInCache;
+    PropertyCache<bool> _canZoomOutCache;
 
     //The rotation of the viewport in degrees
     double _rotation = 0.0;
@@ -268,9 +269,9 @@ private:
     //The center of the viewport in the canvas' coordinates.
     QPointF _position;
 
-    PropertyCache<ViewPortPresenter, TransformPair> _transformCache;
+    PropertyCache<TransformPair> _transformCache;
 
-    PropertyCache<ViewPortPresenter, ScrollState> _scrollStateCache;
+    PropertyCache<ScrollState> _scrollStateCache;
 
     TransformPair getTransforms_p();
 

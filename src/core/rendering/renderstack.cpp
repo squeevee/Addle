@@ -28,13 +28,19 @@ void RenderStack::push(QWeakPointer<IRenderStep> step)
 
 void RenderStack::remove(QWeakPointer<IRenderStep> step)
 {
+    QRect areaHint;
+
     _steps.removeAll(step);
 
     if (step)
     {
         auto s_step = step.toStrongRef();
         disconnect(qobject_interface_cast(s_step.data()), SIGNAL(changed(QRect)), this, SLOT(onRenderStepChange(QRect)));
+
+        areaHint = s_step->getAreaHint();
     }
+
+    emit changed(areaHint);
 }
 
 void RenderStack::render(RenderData data, int maxDepth)

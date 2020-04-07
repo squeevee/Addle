@@ -13,7 +13,6 @@
 
 #include "utilities/presenter/propertycache.hpp"
 
-class HoveringBrushPreview;
 class BrushToolPresenter : public ToolPresenterBase, public virtual IBrushToolPresenter
 {
     Q_OBJECT
@@ -32,6 +31,7 @@ class BrushToolPresenter : public ToolPresenterBase, public virtual IBrushToolPr
 public:
     BrushToolPresenter()
         : _assetsHelper(*this, DEFAULT_BRUSH),
+        //_previewVisibleCache(*this, ),
         _initHelper(this)
     {
         _icon = QIcon(":/icons/brush.png");
@@ -73,58 +73,17 @@ private:
     bool calc_hoverVisible();
     void hoverVisibleChanged(bool visible);
 
-    QSharedPointer<HoveringBrushPreview> _hoveringBrushPreview;
-    
     IMainEditorPresenter* _mainEditorPresenter;
+    
+    QSharedPointer<IBrushPainter> _brushPainter;
 
-    QSharedPointer<IBrushOperationPresenter> _operation;
+    QSharedPointer<IRasterSurface> _previewSurface;
+    QSharedPointer<IBrushPainter> _previewBrushPainter;
+
+    //PropertyCache<BrushToolPresenter, bool> _previewVisibleCache;
 
     ToolWithAssetsHelper<IBrushPresenter, BrushId> _assetsHelper;
     InitializeHelper<BrushToolPresenter> _initHelper;
-
-    friend class HoveringBrushPreview;
 };
 
-class HoveringBrushPreview : public QObject, public IRenderStep
-{
-    Q_OBJECT 
-public:
-    HoveringBrushPreview(BrushToolPresenter& owner)
-        : _owner(owner),
-        _visibleCache(*this, &HoveringBrushPreview::calculateVisible)
-    {
-        _visibleCache.initialize(false);
-        _visibleCache.onChange({
-            [&]() { onVisibleChanged(); }
-        });
-    }
-    virtual ~HoveringBrushPreview() = default;
-
-    void onPush(RenderData& data);
-    void onPop(RenderData& data);
-
-signals: 
-    void changed(QRect area);
-
-private: 
-    bool calculateVisible();
-    void onVisibleChanged();
-
-    void updateBuffer();
-    void move(QPointF to);
-
-    PropertyCache<HoveringBrushPreview, bool> _visibleCache;
-
-    static constexpr double BUFFER_RESIZE_FACTOR = 2.0;
-
-    QRect _previewRect;
-    QRect _previousPreviewRect;
-
-    QImage _buffer;
-    QPoint _bufferOffset;
-
-    BrushToolPresenter& _owner;
-
-    friend class BrushToolPresenter;
-};
 #endif // BRUSHTOOLPRESENTER_HPP

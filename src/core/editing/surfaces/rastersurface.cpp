@@ -22,9 +22,11 @@ void RasterSurface::initialize(QImage image, InitFlags flags)
     _area = image.rect();
 }
 
-IRenderStep* RasterSurface::makeRenderStep()
+QSharedPointer<IRenderStep> RasterSurface::getRenderStep()
 {
-    return new RasterSurfaceRenderStep(*this);
+    if (!_renderStep)
+        _renderStep = QSharedPointer<IRenderStep>(new RasterSurfaceRenderStep(*this));
+    return _renderStep;
 }
 
 QImage RasterSurface::copy(QRect copyArea, QPoint* offset) const
@@ -41,6 +43,8 @@ void RasterSurface::allocate(QRect allocArea)
     {
         _area = allocArea;
         _buffer = QImage(_area.size(), _format);
+        _buffer.fill(Qt::transparent);
+        _bufferOffset = _area.topLeft();
         return;
     }
 
@@ -75,6 +79,15 @@ void RasterSurface::merge(IRasterSurface& other)
     
 }
 
+void RasterSurface::onHandleDestroyed(const RasterPaintHandle& handle)
+{
+    emit changed(handle.getArea());
+    if (_renderStep)
+    {
+        _renderStep->changed(handle.getArea());
+    }
+}
+
 void RasterSurfaceRenderStep::onPop(RenderData& data)
 {
     QRect intersection = _owner._area.intersected(data.getArea());
@@ -82,6 +95,6 @@ void RasterSurfaceRenderStep::onPop(RenderData& data)
     data.getPainter()->drawImage(
         intersection, 
         _owner._buffer,
-        intersection.translated(_owner._bufferOffset)
+        intersection.translated(-_owner._bufferOffset)
     );
 }

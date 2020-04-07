@@ -33,7 +33,7 @@ public:
 
     QColor getSkirtColor() { _initHelper.check(); return Qt::GlobalColor::transparent; }
 
-    IRasterSurface* getRasterSurface() { return _rasterSurface; }
+    QSharedPointer<IRasterSurface> getRasterSurface() { return _rasterSurface; }
 
 private:
     QRect _boundary;
@@ -42,7 +42,7 @@ private:
 
     IDocument* _document;
 
-    IRasterSurface* _rasterSurface;
+    QSharedPointer<IRasterSurface> _rasterSurface;
 
     InitializeHelper<Layer> _initHelper;
 };

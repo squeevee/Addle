@@ -30,7 +30,7 @@ public:
     virtual QPoint getTopLeft() = 0;
     virtual void setTopLeft(QPoint) = 0;
 
-    virtual IRasterSurface* getRasterSurface() = 0;
+    virtual QSharedPointer<IRasterSurface> getRasterSurface() = 0;
 };
 
 DECL_MAKEABLE(ILayer)

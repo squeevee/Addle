@@ -43,7 +43,7 @@ public:
 // mind for the future.
 
 #define CONFIG_STATIC_AUTOFACTORY(Interface, Impl) \
-template<> const IFactory* const StaticFactory<Interface>::instance = new AutoFactory<Interface, Impl>();
+template<> const IFactory* const StaticFactoryLocator<Interface>::factory = new AutoFactory<Interface, Impl>();
 
 #define CONFIG_DYNAMIC_AUTOFACTORY(Interface, id, Impl) \
 BaseServiceConfiguration::registerDynamicFactory<Interface>(new AutoFactory<Interface, Impl>(), id);

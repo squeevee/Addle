@@ -29,7 +29,7 @@ public:
 
     QImage copy(QRect area, QPoint* offset = nullptr) const;
 
-    IRenderStep* makeRenderStep();
+    QSharedPointer<IRenderStep> getRenderStep();
 
     RasterPaintHandle getPaintHandle(QRect handleArea)
     {
@@ -43,7 +43,7 @@ signals:
     void changed(QRect region);
 
 protected:
-    void onHandleDestroyed(const RasterPaintHandle& handle) { emit changed(handle.getArea()); }
+    void onHandleDestroyed(const RasterPaintHandle& handle);
 
 private: 
     void allocate(QRect allocArea);
@@ -51,6 +51,7 @@ private:
     const int CHUNK_SIZE = 512;
     
     QSharedPointer<IRasterSurface> _linked;
+    QSharedPointer<IRenderStep> _renderStep;
 
     QImage::Format _format = QImage::Format_Invalid;
 
@@ -72,6 +73,8 @@ public:
 
     virtual void onPush(RenderData& data) { }
     virtual void onPop(RenderData& data);
+
+    virtual QRect getAreaHint() { return _owner._area; }
 
 signals: 
     void changed(QRect area);

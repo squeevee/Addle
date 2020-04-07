@@ -36,7 +36,7 @@ private:
 };
 
 #define CONFIG_STATIC_CUSTOMFACTORY(Interface, ...) \
-template<> const IFactory* const StaticFactory<Interface>::instance = new CustomFactory<Interface>(__VA_ARGS__);
+template<> const IFactory* const StaticFactoryLocator<Interface>::factory = new CustomFactory<Interface>(__VA_ARGS__);
 
 #define CONFIG_DYNAMIC_CUSTOMFACTORY(Interface, id, ...) \
 BaseServiceConfiguration::registerDynamicFactory<Interface>(new CustomFactory<Interface>(__VA_ARGS__), id);

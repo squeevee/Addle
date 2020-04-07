@@ -74,58 +74,13 @@ protected:
      */
     virtual void configure() = 0;
     
-    // /**
-    //  * Call this function from inside configure() to assign a concrete
-    //  * `Factory` to each `Interface`.
-    //  * 
-    //  * @tparam Interface
-    //  * The interface that this factory will be used with
-    //  * 
-    //  * @tparam Factory
-    //  * The factory class to be used to create objects that implement
-    //  * `Interface`
-    //  * 
-    //  * @note
-    //  * `Factory` must inherit IFactory, and must expose a constructor
-    //  * requiring no arguments.
-    //  */
-    // template<class Interface, class Impl, class Factory, typename... ArgsType>
-    // void registerFactory(ArgsType... args)
-    // {
-    //     Factory* factory = new Factory(args...);
-    //     registerFactory<Interface, Impl, Factory>(factory);
-    // }
-
-    // template<class Interface, class Impl, class Factory>
-    // void registerFactory(Factory* factory)
-    // {
-    //     static_assert(
-    //         std::is_base_of<IFactory, Factory>::value,
-    //         "Factory must inherit IFactory"
-    //     );
-    //     static_assert(
-    //         std::is_base_of<Interface, Impl>::value,
-    //         "Impl must inherit Interface"
-    //     );
-    //     static_assert(
-    //         is_makeable<Interface>::value,
-    //         "Interface must be makeable"
-    //     );
-
-    //     ASSERT_IMPLEMENTATION_HINTS(Interface, Impl);
-
-    //     std::type_index interfaceIndex(typeid(Interface));
-
-    //     factory->setServiceLocator(ServiceLocator::_instance);
-    //     ServiceLocator::_instance->_factoryRegistry[interfaceIndex] = factory;
-    // }
-
     template<class Interface, class Factory, class IdType>
     void registerDynamicFactory(Factory* factory, IdType id)
     {
         // TODO: asserts
         
-        ServiceLocator::_instance->_dynamicFactoryRegistry[id] = factory;
+        std::type_index type_index(typeid(Interface));
+        ServiceLocator::_instance->_dynamicFactoryRegistry[qMakePair(id, type_index)] = factory;
     }
 };
 

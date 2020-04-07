@@ -14,75 +14,74 @@ const BrushPainterInfo BasicBrushPainter::INFO = BrushPainterInfo(
     /* maxSize: */ DEFAULT_MAXIMUM_SIZE
 );
 
-
-void BasicBrushPainter::initialize(QSharedPointer<IRasterSurface> buffer, QColor color, double size)
+void BasicBrushPainter::initialize(QColor color, double size, QSharedPointer<IRasterSurface> buffer)
 {
-    _commonHelper.initialize(buffer, size, color);
+    _common.initialize(size, color, buffer);
 }
 
-// QRect BasicBrushPainter::boundingRect(const BrushPainterData& data) const
-// {
-//     if (!data.hasStartPoint())
-//         return QRect();
-
-//     double halfSize = data.getSize() / 2;
-//     QRectF fine(
-//         data.getStartPoint() - QPoint(halfSize, halfSize),
-//         QSize(data.getSize(), data.getSize())
-//     );
-
-//     if (data.hasEndPoint())
-//     {
-//         fine = fine.united(QRectF(
-//             data.getEndPoint() - QPoint(halfSize, halfSize),
-//             QSize(data.getSize(), data.getSize())
-//         ));
-//     }
-
-//     return coarseBoundRect(fine);
-// }
-
-// void BasicBrushPainter::paint(BrushPainterData& data, QImage& buffer) const
-// {
-//     if (!data.hasStartPoint()) return;
-
-//     QPainter painter(&buffer);
-//     painter.setRenderHints(QPainter::Antialiasing);
-//     painter.setTransform(data.getOntoBufferTransform());
-//     double halfSize = data.getSize() / 2;
-
-//     if (data.hasEndPoint())
-//     {
-//         QPainterPath inner(data.getStartPoint());
-//         inner.lineTo(data.getEndPoint());
-
-//         QPainterPath path = QPainterPathStroker(QPen(
-//             QBrush(),
-//             data.getSize(),
-//             Qt::SolidLine,
-//             Qt::RoundCap
-//         )).createStroke(inner);
-
-//         painter.fillPath(
-//             path,
-//             data.getColor()
-//         );
-//     }
-//     else 
-//     {
-//         QPainterPath path;
-//         path.addEllipse(data.getStartPoint(), halfSize, halfSize);
-
-//         painter.fillPath(path, data.getColor());
-//     }
-// }
-
-void BasicBrushPainter::setPosition(QPointF pos)
+QRect BasicBrushPainter::boundingRect(QPointF pos)
 {
+    double halfSize = _common.getSize() / 2;
 
+    return coarseBoundRect(
+        QRectF(pos - QPointF(halfSize, halfSize), QSizeF(_common.getSize(), _common.getSize()))
+    );
+}
+
+void BasicBrushPainter::startFrom(QPointF pos)
+{
+    QRect nibBound = boundingRect(pos);
+
+    double halfSize = _common.getSize() / 2;
+    _path = QPainterPath(pos);
+
+    auto handle = _common.buffer->getPaintHandle(nibBound);
+    QPainter& painter = handle.getPainter();
+
+    painter.setRenderHint(QPainter::Antialiasing, true);
+    painter.setCompositionMode(QPainter::CompositionMode_Source);
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(_common.getColor());
+    painter.drawEllipse(QRectF(
+        pos - QPointF(halfSize, halfSize),
+        QSizeF(_common.getSize(), _common.getSize())
+    ));
+
+    _lastNibBound = nibBound;
 }
 
 void BasicBrushPainter::moveTo(QPointF pos)
 {
+    QRect nibBound = boundingRect(pos);
+    QRect bound = nibBound.united(_lastNibBound);
 
+    _path.lineTo(pos);
+
+    auto handle = _common.buffer->getPaintHandle(bound);
+    QPainter& painter = handle.getPainter();
+
+    painter.setRenderHint(QPainter::Antialiasing, true);
+    painter.setCompositionMode(QPainter::CompositionMode_Source);
+    painter.setClipRect(bound);
+    painter.setPen(QPen(
+        _common.getColor(),
+        _common.getSize(),
+        Qt::SolidLine,
+        Qt::RoundCap,
+        Qt::RoundJoin
+    ));
+    painter.drawPath(_path);
+
+    // The linear cost of redrawing _path doesn't seem to be too big of a
+    // performance hit for most lines of reasonable size and complexity, but it
+    // does add up quickly enough to be noticeable.
+
+    // Since we only want to redraw rectangular sections of the path at a time,
+    // and the path is assumed to have uniform width, we should be able to
+    // optimize this quite a lot using a spacial tree.
+
+    // (I'll note that using small curved masks on a segment-by-segment basis 
+    // does not anti-alias well.)
+
+    _lastNibBound = nibBound;
 }

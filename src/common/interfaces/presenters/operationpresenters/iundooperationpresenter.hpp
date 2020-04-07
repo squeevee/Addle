@@ -13,15 +13,9 @@ public:
 
     virtual QString getText() = 0;
 
-    virtual bool isFinalized() = 0;
-    virtual void finalize() = 0;
-
 public slots: 
     virtual void do_() = 0;
     virtual void undo() = 0;
-
-signals: 
-    virtual void finalized() = 0;
 };
 
 DECL_IMPLEMENTED_AS_QOBJECT(IUndoOperationPresenter);

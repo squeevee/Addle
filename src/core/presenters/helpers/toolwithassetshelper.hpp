@@ -67,12 +67,10 @@ public:
 
     const IdType defaultSelected;
 
-    PersistentId getSelectedAsset() { return _selected; }
+    IdType getSelectedAsset() { return _selected; }
 
-    void selectAsset(PersistentId id)
-    {
-        IdType selection = static_cast<IdType>(id);
-        
+    void selectAsset(IdType selection)
+    {        
         if (selection != _selected && _assets.contains(selection))
         {
             _selected = selection;

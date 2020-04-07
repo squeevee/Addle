@@ -44,10 +44,11 @@ class MainEditorPresenter : public QObject, public virtual IMainEditorPresenter
     )
 public:
     MainEditorPresenter()
-        : _isEmptyCache(*this, &MainEditorPresenter::isEmpty_p, &MainEditorPresenter::isEmptyChanged),
-        _propertyDecorationHelper(this),
+        : _propertyDecorationHelper(this),
         _undoStackHelper(*this)
     {
+        _isEmptyCache.calculateBy(&MainEditorPresenter::isEmpty_p, this);
+        _isEmptyCache.onChange(&MainEditorPresenter::isEmptyChanged, this);
     }
     virtual ~MainEditorPresenter();
 
@@ -133,7 +134,7 @@ private:
     ICanvasPresenter* _canvasPresenter = nullptr;
 
     IDocumentPresenter* _documentPresenter = nullptr;
-    PropertyCache<MainEditorPresenter, bool> _isEmptyCache;
+    PropertyCache<bool> _isEmptyCache;
 
     ISelectToolPresenter* _selectTool;
     IBrushToolPresenter* _brushTool;

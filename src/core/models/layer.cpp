@@ -23,8 +23,8 @@ void Layer::initialize(LayerBuilder& builder)
     _boundary = builder.getBoundary();
     _empty = true;
     
-    _rasterSurface = ServiceLocator::make<IRasterSurface>(builder.getImage());
-    qobject_interface_cast(_rasterSurface)->setParent(this);
+    _rasterSurface = ServiceLocator::makeShared<IRasterSurface>(builder.getImage());
+    //qobject_interface_cast(_rasterSurface.data())->setParent(this);
 
     _initHelper.initializeEnd();
 }

@@ -6,25 +6,7 @@
 #include "interfaces/rendering/irenderstep.hpp"
 #include "utilities/initializehelper.hpp"
 
-class LayerPresenter;
-class LayerPresenterRenderStep : public QObject, public IRenderStep
-{
-    Q_OBJECT
-    Q_INTERFACES(IRenderStep)
-public:
-    LayerPresenterRenderStep(LayerPresenter& owner) : _owner(owner) { }
-    virtual ~LayerPresenterRenderStep() = default;
-
-    void onPush(RenderData& data);
-    void onPop(RenderData& data);
-
-signals: 
-    void changed(QRect area);
-
-private:
-    LayerPresenter& _owner;
-};
-
+class LayerPresenterRenderStep;
 class LayerPresenter: public QObject, public ILayerPresenter
 {
     Q_OBJECT
@@ -38,6 +20,7 @@ public:
     QWeakPointer<ILayer> getModel() { _initHelper.check(); return _model; }
 
     IRenderStack& getRenderStack();
+
 
 signals:
     void updated(QRect area);
@@ -59,5 +42,24 @@ private:
     friend class LayerPresenterRenderStep;
 };
 
+class LayerPresenterRenderStep : public QObject, public IRenderStep
+{
+    Q_OBJECT
+    Q_INTERFACES(IRenderStep)
+public:
+    LayerPresenterRenderStep(LayerPresenter& owner) : _owner(owner) { }
+    virtual ~LayerPresenterRenderStep() = default;
+
+    void onPush(RenderData& data);
+    void onPop(RenderData& data);
+
+    QRect getAreaHint() { return QRect(); }
+
+signals: 
+    void changed(QRect area);
+
+private:
+    LayerPresenter& _owner;
+};
 
 #endif // LAYERPRESENTER_HPP

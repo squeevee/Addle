@@ -23,7 +23,7 @@ RasterPaintHandle::~RasterPaintHandle()
 {
     if (_final)
     {
-        emit _surface.changed(_area);
+        _surface.onHandleDestroyed(*this);
         delete _painter;
     }
 }
