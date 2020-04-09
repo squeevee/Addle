@@ -52,7 +52,7 @@ FormatService::~FormatService()
     }
 }
 
-IFormatModel* FormatService::importModel_p(const std::type_info& modelType, QIODevice& device, const ImportExportInfo& info, ITaskStatusController* status)
+IFormatModel* FormatService::importModel_p(const std::type_info& modelType, QIODevice& device, const ImportExportInfo& info)
 {
     std::type_index modelTypeIndex(modelType);
     if (!_formats_byModelType.contains(modelTypeIndex))

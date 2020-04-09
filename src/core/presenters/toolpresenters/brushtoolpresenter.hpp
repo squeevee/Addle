@@ -13,6 +13,10 @@
 
 #include "utilities/presenter/propertycache.hpp"
 
+#include "utilities/asynctask.hpp"
+#include <QQueue>
+
+// class BrushPaintTask;
 class BrushToolPresenter : public ToolPresenterBase, public virtual IBrushToolPresenter
 {
     Q_OBJECT
@@ -82,8 +86,38 @@ private:
 
     //PropertyCache<BrushToolPresenter, bool> _previewVisibleCache;
 
+    // BrushPaintTask* _brushPaintTask;
+
     ToolWithAssetsHelper<IBrushPresenter, BrushId> _assetsHelper;
     InitializeHelper<BrushToolPresenter> _initHelper;
 };
+
+// class BrushPaintTask : public AsyncTask
+// {
+//     Q_OBJECT 
+// public: 
+//     BrushPaintTask(QObject* parent = nullptr)
+//         : AsyncTask(parent)
+//     {
+//     }
+//     virtual ~BrushPaintTask() = default;
+
+//     void setBrushPainter(QSharedPointer<IBrushPainter> brushPainter)
+//     {
+//         const auto lock = lockIO();
+//         _brushPainter = brushPainter;
+//     }
+
+//     void enqueue(QPointF);
+
+// protected:
+//     void doTask() override;
+
+// private: 
+
+//     bool _brushStarted = false;
+//     QQueue<QPointF> _queue;
+//     QSharedPointer<IBrushPainter> _brushPainter;
+// };
 
 #endif // BRUSHTOOLPRESENTER_HPP

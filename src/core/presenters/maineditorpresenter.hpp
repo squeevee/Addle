@@ -1,16 +1,19 @@
 #ifndef MAINEDITORPRESENTER_HPP
 #define MAINEDITORPRESENTER_HPP
 
+#include <QFutureWatcher>
 #include <QObject>
 #include <QList>
 #include <QSet>
 #include <QHash>
+#include <QUrl>
 
 #include "helpers/undostackhelper.hpp"
 
-#include "interfaces/tasks/itask.hpp"
+//#include "interfaces/tasks/itask.hpp"
 #include "interfaces/presenters/imaineditorpresenter.hpp"
 
+#include "utilities/asynctask.hpp"
 #include "utilities/presenter/propertycache.hpp"
 
 #include "helpers/propertydecorationhelper.hpp"
@@ -27,6 +30,8 @@ class IStickersToolPresenter;
 class IEyedropToolPresenter;
 class INavigateToolPresenter;
 class IMeasureToolPresenter;
+
+class LoadDocumentTask;
 
 class MainEditorPresenter : public QObject, public virtual IMainEditorPresenter
 {
@@ -120,7 +125,7 @@ public:
     }
 
 private slots:
-    void onTaskDone_LoadDocument(ITask* task);
+    void onLoadDocumentCompleted();
 
 private:
     void setDocumentPresenter(IDocumentPresenter* document);
@@ -154,8 +159,43 @@ private:
 
     QWeakPointer<ILayerPresenter> _selectedLayer;
 
+    LoadDocumentTask* _loadDocumentTask;
+
     PropertyDecorationHelper _propertyDecorationHelper;
     UndoStackHelper _undoStackHelper;
+};
+
+class LoadDocumentTask : public AsyncTask
+{
+    Q_OBJECT 
+public:
+    LoadDocumentTask(QObject* parent = nullptr)
+        : AsyncTask(parent)
+    {
+    }
+    virtual ~LoadDocumentTask() = default;
+
+    QUrl getUrl() { const auto lock = lockIO(); return _url; }
+    void setUrl(QUrl url) { const auto lock = lockIO(); _url = url; }
+
+    IDocumentPresenter* getDocumentPresenter()
+    { 
+        const auto lock = lockIO();
+        return _documentPresenter;
+    }
+
+protected:
+    void doTask();
+
+private:
+    void setDocumentPresenter(IDocumentPresenter* documentPresenter)
+    { 
+        const auto lock = lockIO();
+        _documentPresenter = documentPresenter;
+    }
+
+    QUrl _url;
+    IDocumentPresenter* _documentPresenter;
 };
 
 #endif // MAINEDITORPRESENTER_HPP

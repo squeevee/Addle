@@ -109,3 +109,5 @@ while.)
 Don't allow ServiceLocator to publicly make objects that are meant to be
 persistent / singletons. befriend ServiceLocator to IFactory and make IFactory 
 methods protected.
+
+AsyncTask needs to be verified for correctness with unit tests

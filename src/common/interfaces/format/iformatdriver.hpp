@@ -8,8 +8,8 @@
 #include <type_traits>
 
 #include "utilities/model/importexportinfo.hpp"
-#include "interfaces/tasks/itaskstatuscontroller.hpp"
-#include "interfaces/tasks/itaskcontroller.hpp"
+//#include "interfaces/tasks/itaskstatuscontroller.hpp"
+//#include "interfaces/tasks/itaskcontroller.hpp"
 
 #include "idtypes/formatid.hpp"
 
@@ -31,8 +31,8 @@ public:
     virtual QString getMimeType() const = 0;
     virtual FormatId getFormatId() const = 0;
 
-    virtual IFormatModel* importModel(QIODevice& device, ImportExportInfo info, ITaskStatusController* status = nullptr) = 0;
-    virtual void exportModel(IFormatModel* model, QIODevice& device, ImportExportInfo info, ITaskStatusController* status = nullptr) = 0;
+    virtual IFormatModel* importModel(QIODevice& device, ImportExportInfo info) = 0;
+    virtual void exportModel(IFormatModel* model, QIODevice& device, ImportExportInfo info) = 0;
 };
 
 #endif // IFORMATDRIVER_HPP

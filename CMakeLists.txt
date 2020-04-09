@@ -7,6 +7,7 @@ set ( LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib" )
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DADDLE_DEBUG")
 
 include_directories(
+    .
     src
     src/common
 )

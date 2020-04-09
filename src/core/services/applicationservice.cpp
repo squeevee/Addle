@@ -116,7 +116,7 @@ void ApplicationService::parseCommandLine()
     parser.setApplicationDescription(
         QCoreApplication::translate(
             "ApplicationService",
-            "Quick & simple drawing program / image utility"
+            "Pretty little drawing program and image utility"
         )
     );
 

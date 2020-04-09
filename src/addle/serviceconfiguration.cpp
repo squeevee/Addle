@@ -35,13 +35,13 @@
 
 #include "core/services/applicationservice.hpp"
 #include "core/services/formatservice.hpp"
-#include "core/services/taskservice.hpp"
+//#include "core/services/taskservice.hpp"
 
 #include "core/format/qtformatdrivers/qtpngformatdriver.hpp"
 #include "core/format/qtformatdrivers/qtjpegformatdriver.hpp"
 
-#include "core/tasks/taskcontroller.hpp"
-#include "core/tasks/loaddocumentfiletask.hpp"
+//#include "core/tasks/taskcontroller.hpp"
+//#include "core/tasks/loaddocumentfiletask.hpp"
 
 #include "widgetsgui/main/maineditorview.hpp"
 
@@ -76,11 +76,11 @@ CONFIG_STATIC_AUTOFACTORY(IRenderStack, RenderStack);
 // # Services
 CONFIG_STATIC_AUTOFACTORY(IApplicationService, ApplicationService);
 CONFIG_STATIC_AUTOFACTORY(IFormatService, FormatService);
-CONFIG_STATIC_AUTOFACTORY(ITaskService, TaskService);
+//CONFIG_STATIC_AUTOFACTORY(ITaskService, TaskService);
 
 // # Tasks
-CONFIG_STATIC_AUTOFACTORY(ITaskController, TaskController);
-CONFIG_STATIC_AUTOFACTORY(ILoadDocumentFileTask, LoadDocumentFileTask);
+//CONFIG_STATIC_AUTOFACTORY(ITaskController, TaskController);
+//CONFIG_STATIC_AUTOFACTORY(ILoadDocumentFileTask, LoadDocumentFileTask);
 
 // # Formats
 CONFIG_STATIC_AUTOFACTORY(IPNGFormatDriver, QtPNGFormatDriver);

@@ -14,8 +14,8 @@ public:
     }
     virtual ~QtImageFormatDriver() = default;
 
-    IFormatModel* importModel(QIODevice& device, ImportExportInfo info, ITaskStatusController* status = nullptr);
-    void exportModel(IFormatModel* model, QIODevice& device, ImportExportInfo info, ITaskStatusController* status = nullptr);
+    IFormatModel* importModel(QIODevice& device, ImportExportInfo info);
+    void exportModel(IFormatModel* model, QIODevice& device, ImportExportInfo info);
 
 private:
     const char* _qtFormatName;

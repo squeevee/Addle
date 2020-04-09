@@ -50,6 +50,8 @@ void BrushToolPresenter::initialize(IMainEditorPresenter* owner)
 
     connect_interface(_mainEditorPresenter, SIGNAL(selectedLayerChanged(QWeakPointer<ILayerPresenter>)), this, SLOT(onSelectedLayerChanged(QWeakPointer<ILayerPresenter>)));
 
+    // _brushPaintTask = new BrushPaintTask(this);
+
     _initHelper.initializeEnd();
 }
 
@@ -82,12 +84,15 @@ void BrushToolPresenter::onEngage()
     auto s_layerPresenter = _mainEditorPresenter->getSelectedLayer().toStrongRef();
     s_layerPresenter->getRenderStack().push(_brushPainter->getBuffer()->getRenderStep());
 
+    // _brushPaintTask->setBrushPainter(_brushPainter);
+    // _brushPaintTask->enqueue(_mouseHelper.getFirstPosition());
     _brushPainter->startFrom(_mouseHelper.getFirstPosition());
 }
 
 void BrushToolPresenter::onMove()
 {
     _brushPainter->moveTo(_mouseHelper.getLatestPosition());
+    // _brushPaintTask->enqueue(_mouseHelper.getLatestPosition());
 }
 
 void BrushToolPresenter::onDisengage()
@@ -114,3 +119,37 @@ void BrushToolPresenter::onSelectedLayerChanged(QWeakPointer<ILayerPresenter> la
 
     //_hoveringBrushPreview->_visibleCache.recalculate();
 }
+
+// void BrushPaintTask::enqueue(QPointF point)
+// {
+//     {
+//         const auto lock = lockIO();
+//         _queue.enqueue(point);
+//     }
+
+//     start();
+// }
+
+// void BrushPaintTask::doTask()
+// {
+//     while (true)
+//     {
+//         bool brushStarted;
+//         QPointF point;
+//         QSharedPointer<IBrushPainter> brushPainter;
+//         {
+//             const auto lock = lockIO();
+//             if (!_brushPainter) return;
+//             if (_queue.isEmpty()) return;
+
+//             brushPainter = _brushPainter;
+//             brushStarted = _brushStarted;
+//             _brushStarted = true;
+//             point = _queue.dequeue();
+//         }
+//         if (!brushStarted)
+//             brushPainter->startFrom(point);
+    
+//         brushPainter->moveTo(point);
+//     }
+// }

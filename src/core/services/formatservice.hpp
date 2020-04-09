@@ -21,7 +21,7 @@ public:
 
 protected:
     //IDocument* loadFile(QString filename);
-    IFormatModel* importModel_p(const std::type_info& modelType, QIODevice& device, const ImportExportInfo& info, ITaskStatusController* status = nullptr);
+    IFormatModel* importModel_p(const std::type_info& modelType, QIODevice& device, const ImportExportInfo& info);
 
 private:
 
