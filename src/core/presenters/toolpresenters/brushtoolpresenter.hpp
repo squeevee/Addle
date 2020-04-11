@@ -16,7 +16,6 @@
 #include "utilities/asynctask.hpp"
 #include <QQueue>
 
-// class BrushPaintTask;
 class BrushToolPresenter : public ToolPresenterBase, public virtual IBrushToolPresenter
 {
     Q_OBJECT
@@ -34,7 +33,7 @@ class BrushToolPresenter : public ToolPresenterBase, public virtual IBrushToolPr
     )
 public:
     BrushToolPresenter()
-        : _assetsHelper(*this, DEFAULT_BRUSH),
+        : _brushAssetsHelper(*this, DEFAULT_BRUSH),
         //_previewVisibleCache(*this, ),
         _initHelper(this)
     {
@@ -46,15 +45,15 @@ public:
 
     ToolId getId() { return BRUSH_TOOL_ID; }
 
-    QList<QSharedPointer<IAssetPresenter>> getAllAssets() { _initHelper.check(); return _assetsHelper.getAllAssets(); }
-    QSharedPointer<IAssetPresenter> getAssetPresenter(PersistentId id) { _initHelper.check(); return _assetsHelper.getAssetPresenter(id); }
+    QList<QSharedPointer<IAssetPresenter>> getAllAssets() { _initHelper.check(); return _brushAssetsHelper.getAllAssets(); }
+    QSharedPointer<IAssetPresenter> getAssetPresenter(PersistentId id) { _initHelper.check(); return _brushAssetsHelper.getAssetPresenter(id); }
 
-    PersistentId getSelectedAsset() { _initHelper.check(); return _assetsHelper.getSelectedAsset(); }
-    void selectAsset(PersistentId id) {_initHelper.check(); _assetsHelper.selectAsset(id); }
-    QSharedPointer<IAssetPresenter> getSelectedAssetPresenter() { _initHelper.check(); return _assetsHelper.getSelectedAssetPresenter(); }
+    PersistentId getSelectedAsset() { _initHelper.check(); return _brushAssetsHelper.getSelectedAsset(); }
+    void selectAsset(PersistentId id) {_initHelper.check(); _brushAssetsHelper.selectAsset(id); }
+    QSharedPointer<IAssetPresenter> getSelectedAssetPresenter() { _initHelper.check(); return _brushAssetsHelper.getSelectedAssetPresenter(); }
 
-    BrushId getSelectedBrush() { _initHelper.check(); return _assetsHelper.getSelectedAsset(); }
-    QSharedPointer<IBrushPresenter> getSelectedBrushPresenter() { _initHelper.check(); return _assetsHelper.getSelectedAssetPresenter(); }
+    BrushId getSelectedBrush() { _initHelper.check(); return _brushAssetsHelper.getSelectedAsset(); }
+    QSharedPointer<IBrushPresenter> getSelectedBrushPresenter() { _initHelper.check(); return _brushAssetsHelper.getSelectedAssetPresenter(); }
     
     virtual bool event(QEvent* e);
 
@@ -74,50 +73,42 @@ private slots:
     void onSelectedLayerChanged(QWeakPointer<ILayerPresenter> layer);
 
 private:
-    bool calc_hoverVisible();
-    void hoverVisibleChanged(bool visible);
+    class HoverPreview;
 
     IMainEditorPresenter* _mainEditorPresenter;
     
     QSharedPointer<IBrushPainter> _brushPainter;
 
-    QSharedPointer<IRasterSurface> _previewSurface;
-    QSharedPointer<IBrushPainter> _previewBrushPainter;
+    HoverPreview* _hoverPreview;
 
-    //PropertyCache<BrushToolPresenter, bool> _previewVisibleCache;
-
-    // BrushPaintTask* _brushPaintTask;
-
-    ToolWithAssetsHelper<IBrushPresenter, BrushId> _assetsHelper;
+    ToolWithAssetsHelper<IBrushPresenter, BrushId> _brushAssetsHelper;
     InitializeHelper<BrushToolPresenter> _initHelper;
+
+    friend class HoverPreview;
 };
 
-// class BrushPaintTask : public AsyncTask
-// {
-//     Q_OBJECT 
-// public: 
-//     BrushPaintTask(QObject* parent = nullptr)
-//         : AsyncTask(parent)
-//     {
-//     }
-//     virtual ~BrushPaintTask() = default;
+class BrushToolPresenter::HoverPreview
+{
+public:
+    HoverPreview(BrushToolPresenter& owner);
+    ~HoverPreview();
 
-//     void setBrushPainter(QSharedPointer<IBrushPainter> brushPainter)
-//     {
-//         const auto lock = lockIO();
-//         _brushPainter = brushPainter;
-//     }
+    void updateBrush();
+    void setPosition(QPointF);
 
-//     void enqueue(QPointF);
+    PropertyCache<bool> isVisible_cache;
 
-// protected:
-//     void doTask() override;
+private:
+    bool calc_visible();
+    void onVisibleChanged(bool);
+    void paint();
 
-// private: 
+    QPointF _position;
 
-//     bool _brushStarted = false;
-//     QQueue<QPointF> _queue;
-//     QSharedPointer<IBrushPainter> _brushPainter;
-// };
+    QSharedPointer<IRasterSurface> _surface;
+    QSharedPointer<IBrushPainter> _brushPainter;
+
+    BrushToolPresenter& _owner;
+};
 
 #endif // BRUSHTOOLPRESENTER_HPP

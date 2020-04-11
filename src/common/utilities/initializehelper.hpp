@@ -40,7 +40,7 @@ public:
     }
     inline bool isInitialized() { return _isInitialized; }
 
-    inline void check()
+    inline void check() const
     {
         //potential threading hazard
         if (_initializingLevel > 0)
