@@ -15,6 +15,13 @@ public:
 
 private: 
     QWeakPointer<IRasterSurface> _surface;
+    QPoint _offset;
+    QImage _data;
+    QRect _dataRect;
+
+    QByteArray _xor;
+
+    Mode _mode = (Mode)NULL;
 };
 
 #endif // RASTEROPERATION_HPP

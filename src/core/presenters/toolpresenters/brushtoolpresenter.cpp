@@ -92,12 +92,18 @@ void BrushToolPresenter::onMove()
 
 void BrushToolPresenter::onDisengage()
 {
-    _hoverPreview->isVisible_cache.recalculate();
-
     auto s_layerPresenter = _mainEditorPresenter->getSelectedLayer().toStrongRef();
     s_layerPresenter->getRenderStack().remove(_brushPainter->getBuffer()->getRenderStep());
     
+    auto operation = ServiceLocator::makeShared<IBrushOperationPresenter>(
+        _brushPainter,
+        _mainEditorPresenter->getSelectedLayer()
+    );
+
+    _mainEditorPresenter->push(operation);
+
     _brushPainter.clear();
+    _hoverPreview->isVisible_cache.recalculate();
 }
 
 void BrushToolPresenter::onSelected()

@@ -13,7 +13,7 @@ void BrushOperationPresenter::initialize(QWeakPointer<IBrushPainter> brushPainte
     auto s_brushPainter = brushPainter.toStrongRef();
     
     QPoint offset;
-    QImage data = s_brushPainter->getBuffer()->copy(QRect(), &offset);
+    QImage data = s_brushPainter->getBuffer()->copy(&offset);
 
     _operation = ServiceLocator::makeShared<IRasterOperation>(
         s_layerModel->getRasterSurface(),

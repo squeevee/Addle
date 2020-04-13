@@ -65,7 +65,7 @@ public:
         return _area.size();
     }
 
-    QImage copy(QRect area, QPoint* offset) const override;
+    QImage copy(QPoint* offset, QRect area) const override;
 
     void clear() override;
 
@@ -90,7 +90,7 @@ protected:
 private: 
     void allocate(QRect allocArea);
 
-    const int CHUNK_SIZE = 512;
+    const int CHUNK_SIZE = 64;
 
     mutable QReadWriteLock _lock;
     

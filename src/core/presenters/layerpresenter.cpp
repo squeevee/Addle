@@ -60,5 +60,5 @@ IRenderStack& LayerPresenter::getRenderStack()
 
 void LayerPresenter::onRasterChanged(QRect area)
 {
-    emit updated(area);
+    //emit updated(area);
 }

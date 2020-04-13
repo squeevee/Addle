@@ -62,12 +62,12 @@ void RasterSurface::clear()
     }
 }
 
-QImage RasterSurface::copy(QRect copyArea, QPoint* offset) const
+QImage RasterSurface::copy(QPoint* offset, QRect copyArea) const
 {
-    QRect copyRect = copyArea.isValid() ? _area.intersected(copyArea) : _area;
+    copyArea = copyArea.isValid() ? _area.intersected(copyArea) : _area;
 
-    if (offset) *offset = copyRect.topLeft();
-    return _buffer.copy(copyRect.translated(_bufferOffset));
+    if (offset) *offset = copyArea.topLeft();
+    return _buffer.copy(copyArea.translated(-_bufferOffset));
 }
 
 void RasterSurface::allocate(QRect allocArea)

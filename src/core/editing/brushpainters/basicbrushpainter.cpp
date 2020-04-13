@@ -41,7 +41,10 @@ void BasicBrushPainter::startFrom(QPointF pos)
     painter.setRenderHint(QPainter::Antialiasing, true);
     painter.setCompositionMode(QPainter::CompositionMode_Source);
     painter.setPen(Qt::NoPen);
+    painter.setBackground(Qt::transparent);
     painter.setBrush(_common.getColor());
+
+    painter.eraseRect(nibBound);
     painter.drawEllipse(QRectF(
         pos - QPointF(halfSize, halfSize),
         QSizeF(_common.getSize(), _common.getSize())
@@ -70,6 +73,9 @@ void BasicBrushPainter::moveTo(QPointF pos)
         Qt::RoundCap,
         Qt::RoundJoin
     ));
+    painter.setBackground(Qt::transparent);
+
+    painter.eraseRect(bound);
     painter.drawPath(_path);
 
     // The linear cost of redrawing _path doesn't seem to be too big of a

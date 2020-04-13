@@ -15,6 +15,11 @@ void RenderStack::initialize(QWeakPointer<IRenderStep> step)
 void RenderStack::initialize(QList<QWeakPointer<IRenderStep>> steps)
 {
     _steps = steps;
+    for (auto step : _steps)
+    {
+        auto s_step = step.toStrongRef();
+        connect_interface(s_step.data(), SIGNAL(changed(QRect)), this, SLOT(onRenderStepChange(QRect)));
+    }
 }
 
 void RenderStack::push(QWeakPointer<IRenderStep> step)
@@ -59,11 +64,13 @@ void RenderStack::render(RenderData data, int maxDepth)
 
         RenderData stepData = lastData;
         stepData.getPainter()->save();
-        s_step->onPush(stepData);
+        
+        if (s_step) //temporary stop gap
+            s_step->onPush(stepData);
 
         stackData[depth - 1] = stepData;
         lastData = stepData;
-
+    
         depth--;
     }
 
@@ -74,7 +81,8 @@ void RenderStack::render(RenderData data, int maxDepth)
         auto s_step = _steps[depth - 1].toStrongRef();
 
         RenderData stepData = stackData[depth - 1];
-        s_step->onPop(stepData);
+        if (s_step)
+            s_step->onPop(stepData);
         stepData.getPainter()->restore();
     }
 }

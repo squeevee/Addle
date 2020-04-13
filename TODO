@@ -176,3 +176,10 @@ Anyway, tackle that when we're tightening up constness
 
 Despite it all, BasicBrush still has anit-aliasing artifacts at the endpoints of
 moveTo paints. fix this
+
+chuck QImage::offset() into more of the API
+
+make renderstack auto-remove steps as they're deleted
+
+right-clicking in the middle of a tool operation causes it to disengage
+haphazardly

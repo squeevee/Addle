@@ -57,7 +57,7 @@ public:
     virtual QRect getArea() const = 0;
     virtual QSize getSize() const = 0;
 
-    virtual QImage copy(QRect area = QRect(), QPoint* offset = nullptr) const = 0;
+    virtual QImage copy(QPoint* offset = nullptr, QRect area = QRect()) const = 0;
 
     //virtual void render(QPainter& painter, QRect area) const = 0;
 
