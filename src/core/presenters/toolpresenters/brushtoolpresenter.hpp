@@ -5,8 +5,6 @@
 #include "interfaces/presenters/toolpresenters/ibrushtoolpresenter.hpp"
 #include "interfaces/presenters/operationpresenters/ibrushoperationpresenter.hpp"
 
-#include "interfaces/editing/operations/irasteroperation.hpp"
-
 #include "../helpers/toolwithassetshelper.hpp"
 
 #include "interfaces/rendering/irenderstep.hpp"

@@ -5,8 +5,8 @@ set ( CMAKE_AUTOMOC ON)
 set (
     SOURCES
     editing/brushpainters/basicbrushpainter.cpp
-    editing/operations/rasteroperation.cpp
-    editing/surfaces/rastersurface.cpp
+    editing/rasterdiff.cpp
+    editing/rastersurface.cpp
     models/document.cpp
     models/layer.cpp
     presenters/canvaspresenter.cpp

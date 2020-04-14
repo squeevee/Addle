@@ -11,6 +11,7 @@ add_library( common SHARED
     utilities/indexvariant.cpp
     utilities/typeinforef.cpp
     utilities/unhandledexceptionrouter.cpp
+    utilities/image/rasterbithandles.cpp
     utilities/image/rasterpainthandle.cpp
     utilities/presenter/propertybinding.cpp
     utilities/presenter/propertyobserver.cpp

@@ -2,7 +2,7 @@
 #define RASTERSURFACE_HPP
 
 #include "interfaces/rendering/irenderstep.hpp"
-#include "interfaces/editing/surfaces/irastersurface.hpp"
+#include "interfaces/editing/irastersurface.hpp"
 #include "utilities/initializehelper.hpp"
 #include <QObject>
 #include <QReadWriteLock>
@@ -58,14 +58,6 @@ public:
         const QReadLocker lock(&_lock);
         return _area;
     }
-    QSize getSize() const override
-    { 
-        _initHelper.check();
-        const QReadLocker lock(&_lock);
-        return _area.size();
-    }
-
-    QImage copy(QPoint* offset, QRect area) const override;
 
     void clear() override;
 
@@ -73,19 +65,35 @@ public:
 
     RasterPaintHandle getPaintHandle(QRect handleArea) override
     {
-        _lock.lockForWrite(); //unlock in onHandleDestroyed
+        _lock.lockForWrite(); //unlock in onPaintHandleDestroyed
 
         allocate(handleArea);
         return getPaintHandle_p(_buffer, _bufferOffset, handleArea);
     }
-    
-    void merge(IRasterSurface& other) override;
+
+    RasterBitReader getBitReader(QRect area) const override
+    {
+        _lock.lockForRead(); //unlock in onBitReaderDestroyed
+
+        QRect readerArea = QRect(_bufferOffset, _buffer.size()).intersected(area);
+        return getBitReader_p(_buffer, _bufferOffset, readerArea);
+    }
+
+    RasterBitWriter getBitWriter(QRect area)
+    {
+        _lock.lockForWrite(); //unlock in onBitReaderDestroyed
+
+        allocate(area);
+        return getBitWriter_p(_buffer, _bufferOffset, area);
+    }
 
 signals:
     void changed(QRect region);
 
 protected:
-    void onHandleDestroyed(const RasterPaintHandle& handle) override;
+    void onPaintHandleDestroyed(const RasterPaintHandle& handle) override;
+    void onBitReaderDestroyed(const RasterBitReader& handle) const override;
+    void onBitWriterDestroyed(const RasterBitWriter& handle) override;
 
 private: 
     void allocate(QRect allocArea);
@@ -97,7 +105,6 @@ private:
     QSharedPointer<IRasterSurface> _linked;
     QSharedPointer<IRenderStep> _renderStep;
 
-    QImage::Format _format = QImage::Format_Invalid;
     QPainter::CompositionMode _compositionMode = (QPainter::CompositionMode)NULL;
 
     QImage _buffer;

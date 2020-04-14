@@ -7,15 +7,15 @@ void RasterSurface::initialize(
     )
 {
     const QWriteLocker lock(&_lock);
-
-    _format = QImage::Format_ARGB32_Premultiplied;
+    _initHelper.initializeBegin();
 
     if (_area.isValid())
     {
-        _buffer = QImage(area.size(), _format);
+        _buffer = QImage(area.size(), QImage::Format_ARGB32_Premultiplied);
         _bufferOffset = _area.topLeft();
         _area = area;
     }
+    _initHelper.initializeEnd();
 }
 
 void RasterSurface::initialize(
@@ -26,13 +26,13 @@ void RasterSurface::initialize(
     )
 {
     const QWriteLocker lock(&_lock);
+    _initHelper.initializeBegin();
 
-    _format = QImage::Format_ARGB32_Premultiplied;
-
-    if (image.format() != _format)
-        image.convertTo(_format);
+    if (image.format() != QImage::Format_ARGB32_Premultiplied)
+        image.convertTo(QImage::Format_ARGB32_Premultiplied);
     _buffer = image;
     _area = QRect(offset, image.size());
+    _initHelper.initializeEnd();
 }
 
 QSharedPointer<IRenderStep> RasterSurface::getRenderStep()
@@ -62,13 +62,14 @@ void RasterSurface::clear()
     }
 }
 
-QImage RasterSurface::copy(QPoint* offset, QRect copyArea) const
-{
-    copyArea = copyArea.isValid() ? _area.intersected(copyArea) : _area;
+// QImage RasterSurface::copy(QRect copyArea) const
+// {
+//     copyArea = copyArea.isValid() ? _area.intersected(copyArea) : _area;
 
-    if (offset) *offset = copyArea.topLeft();
-    return _buffer.copy(copyArea.translated(-_bufferOffset));
-}
+//     QImage result = _buffer.copy(copyArea.translated(-_bufferOffset));
+//     result.setOffset(copyArea.topLeft());
+//     return result;
+// }
 
 void RasterSurface::allocate(QRect allocArea)
 {
@@ -81,7 +82,7 @@ void RasterSurface::allocate(QRect allocArea)
             _area = allocArea;
             _bufferOffset = _area.topLeft();
 
-            _buffer = QImage(_area.size(), _format);
+            _buffer = QImage(_area.size(), QImage::Format_ARGB32_Premultiplied);
             _buffer.fill(Qt::transparent);
             return;
         }
@@ -125,7 +126,7 @@ void RasterSurface::allocate(QRect allocArea)
     bufferArea = QRect(left, top, right - left + 1, bottom - top + 1);
 
     const QImage oldBuffer = _buffer;
-    _buffer = QImage(bufferArea.size(), _format);
+    _buffer = QImage(bufferArea.size(), QImage::Format_ARGB32_Premultiplied);
     _buffer.fill(Qt::transparent);
 
     QPainter painter(&_buffer);
@@ -137,12 +138,7 @@ void RasterSurface::allocate(QRect allocArea)
     _bufferOffset = QPoint(left, top);
 }
 
-void RasterSurface::merge(IRasterSurface& other)
-{
-    
-}
-
-void RasterSurface::onHandleDestroyed(const RasterPaintHandle& handle)
+void RasterSurface::onPaintHandleDestroyed(const RasterPaintHandle& handle)
 {
     _lock.unlock();
 
@@ -153,6 +149,26 @@ void RasterSurface::onHandleDestroyed(const RasterPaintHandle& handle)
         if (_renderStep)
         {
             emit _renderStep->changed(handle.getArea());
+        }
+    }
+}
+
+void RasterSurface::onBitReaderDestroyed(const RasterBitReader& reader) const
+{
+    _lock.unlock();
+}
+
+void RasterSurface::onBitWriterDestroyed(const RasterBitWriter& writer)
+{
+    _lock.unlock();
+
+    {
+        const QReadLocker lock(&_lock);
+
+        emit changed(writer.area());
+        if (_renderStep)
+        {
+            emit _renderStep->changed(writer.area());
         }
     }
 }

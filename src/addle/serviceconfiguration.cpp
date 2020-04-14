@@ -13,8 +13,8 @@
 #include "interfaces/models/ibrushmodel.hpp"
 
 #include "core/editing/brushpainters/basicbrushpainter.hpp"
-#include "core/editing/operations/rasteroperation.hpp"
-#include "core/editing/surfaces/rastersurface.hpp"
+#include "core/editing/rasterdiff.hpp"
+#include "core/editing/rastersurface.hpp"
 
 #include "core/models/layer.hpp"
 #include "core/models/document.hpp"
@@ -45,7 +45,7 @@
 
 #include "widgetsgui/main/maineditorview.hpp"
 
-CONFIG_STATIC_AUTOFACTORY(IRasterOperation, RasterOperation);
+CONFIG_STATIC_AUTOFACTORY(IRasterDiff, RasterDiff);
 
 // ## Surfaces
 CONFIG_STATIC_AUTOFACTORY(IRasterSurface, RasterSurface);

@@ -17,6 +17,8 @@
 #include "interfaces/editing/ibrushpainter.hpp"
 #include "interfaces/presenters/imaineditorpresenter.hpp"
 
+#include "interfaces/editing/irastersurface.hpp"
+
 // #include "../helpers/brushsizepresethelper.hpp"
 // const BrushSizePresetHelper::PxPresetHelper BrushSizePresetHelper::_instance_px = PxPresetHelper();
 // const BrushSizePresetHelper::PercentPresetHelper BrushSizePresetHelper::_instance_percent = PercentPresetHelper();

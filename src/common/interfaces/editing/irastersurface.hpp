@@ -7,12 +7,15 @@
 #include "interfaces/traits/metaobjectinfo.hpp"
 
 #include "utilities/image/rasterpainthandle.hpp"
+#include "utilities/image/rasterbithandles.hpp"
 
 #include <QPainter>
 #include <QImage>
 
 //class IRasterPreview;
 class IRenderStep;
+
+class IRasterDiff;
 
 /**
  * An "infinite" surface containing raster data. Paint operations must use
@@ -55,9 +58,6 @@ public:
     virtual void unlink() = 0;
 
     virtual QRect getArea() const = 0;
-    virtual QSize getSize() const = 0;
-
-    virtual QImage copy(QPoint* offset = nullptr, QRect area = QRect()) const = 0;
 
     //virtual void render(QPainter& painter, QRect area) const = 0;
 
@@ -66,7 +66,9 @@ public:
     virtual QSharedPointer<IRenderStep> getRenderStep() = 0;
 
     virtual RasterPaintHandle getPaintHandle(QRect area) = 0;
-    virtual void merge(IRasterSurface& other) = 0;
+
+    virtual RasterBitReader getBitReader(QRect area) const = 0;
+    virtual RasterBitWriter getBitWriter(QRect area) = 0;
 
 signals:
     virtual void changed(QRect area) = 0;
@@ -77,9 +79,25 @@ protected:
         return RasterPaintHandle(*this, buffer, bufferOffset, area);
     }
 
-    virtual void onHandleDestroyed(const RasterPaintHandle& handle) = 0;
+    virtual void onPaintHandleDestroyed(const RasterPaintHandle& handle) = 0;
+
+    inline RasterBitReader getBitReader_p(const QImage& buffer, QPoint bufferOffset, QRect area) const
+    {
+        return RasterBitReader(*this, buffer, bufferOffset, area);
+    }
+
+    virtual void onBitReaderDestroyed(const RasterBitReader& handle) const = 0;
+
+    inline RasterBitWriter getBitWriter_p(QImage& buffer, QPoint bufferOffset, QRect area)
+    {
+        return RasterBitWriter(*this, buffer, bufferOffset, area);
+    }
+
+    virtual void onBitWriterDestroyed(const RasterBitWriter& handle) = 0;
 
     friend class RasterPaintHandle;
+    friend class RasterBitReader;
+    friend class RasterBitWriter;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(IRasterSurface::InitFlags)

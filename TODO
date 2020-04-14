@@ -183,3 +183,9 @@ make renderstack auto-remove steps as they're deleted
 
 right-clicking in the middle of a tool operation causes it to disengage
 haphazardly
+
+okay but *reeeeaaallllyy* do I have to insist on get- property method names,
+because *nobody* else does that and it's not even consistent with C# (i.e., the
+counterexample I keep thinking of.)
+
+combine the raster bit reader and writer?

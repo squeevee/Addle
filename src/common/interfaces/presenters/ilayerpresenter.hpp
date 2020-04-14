@@ -9,8 +9,6 @@
 
 #include "interfaces/models/ilayer.hpp"
 
-//#include "interfaces/editing/operations/irasteroperation.hpp"
-
 #include <QWeakPointer>
 #include <QPainter>
 #include <QRectF>

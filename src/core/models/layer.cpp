@@ -1,6 +1,5 @@
 #include "layer.hpp"
-#include "interfaces/editing/operations/irasteroperation.hpp"
-#include "interfaces/editing/surfaces/irastersurface.hpp"
+#include "interfaces/editing/irastersurface.hpp"
 
 #include "utilities/qtextensions/qobject.hpp"
 
