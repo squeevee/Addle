@@ -1,6 +1,6 @@
 #include "layerpresenter.hpp"
 #include "servicelocator.hpp"
-#include "interfaces/editing/surfaces/irastersurface.hpp"
+#include "interfaces/editing/irastersurface.hpp"
 #include "interfaces/rendering/irenderstack.hpp"
 
 #include "utilities/qtextensions/qobject.hpp"
@@ -60,5 +60,5 @@ IRenderStack& LayerPresenter::getRenderStack()
 
 void LayerPresenter::onRasterChanged(QRect area)
 {
-    emit updated(area);
+    //emit updated(area);
 }

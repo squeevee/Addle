@@ -5,13 +5,14 @@
 #include "interfaces/presenters/toolpresenters/ibrushtoolpresenter.hpp"
 #include "interfaces/presenters/operationpresenters/ibrushoperationpresenter.hpp"
 
-#include "interfaces/editing/operations/irasteroperation.hpp"
-
 #include "../helpers/toolwithassetshelper.hpp"
 
 #include "interfaces/rendering/irenderstep.hpp"
 
 #include "utilities/presenter/propertycache.hpp"
+
+#include "utilities/asynctask.hpp"
+#include <QQueue>
 
 class BrushToolPresenter : public ToolPresenterBase, public virtual IBrushToolPresenter
 {
@@ -30,7 +31,7 @@ class BrushToolPresenter : public ToolPresenterBase, public virtual IBrushToolPr
     )
 public:
     BrushToolPresenter()
-        : _assetsHelper(*this, DEFAULT_BRUSH),
+        : _brushAssetsHelper(*this, DEFAULT_BRUSH),
         //_previewVisibleCache(*this, ),
         _initHelper(this)
     {
@@ -42,15 +43,15 @@ public:
 
     ToolId getId() { return BRUSH_TOOL_ID; }
 
-    QList<QSharedPointer<IAssetPresenter>> getAllAssets() { _initHelper.check(); return _assetsHelper.getAllAssets(); }
-    QSharedPointer<IAssetPresenter> getAssetPresenter(PersistentId id) { _initHelper.check(); return _assetsHelper.getAssetPresenter(id); }
+    QList<QSharedPointer<IAssetPresenter>> getAllAssets() { _initHelper.check(); return _brushAssetsHelper.getAllAssets(); }
+    QSharedPointer<IAssetPresenter> getAssetPresenter(PersistentId id) { _initHelper.check(); return _brushAssetsHelper.getAssetPresenter(id); }
 
-    PersistentId getSelectedAsset() { _initHelper.check(); return _assetsHelper.getSelectedAsset(); }
-    void selectAsset(PersistentId id) {_initHelper.check(); _assetsHelper.selectAsset(id); }
-    QSharedPointer<IAssetPresenter> getSelectedAssetPresenter() { _initHelper.check(); return _assetsHelper.getSelectedAssetPresenter(); }
+    PersistentId getSelectedAsset() { _initHelper.check(); return _brushAssetsHelper.getSelectedAsset(); }
+    void selectAsset(PersistentId id) {_initHelper.check(); _brushAssetsHelper.selectAsset(id); }
+    QSharedPointer<IAssetPresenter> getSelectedAssetPresenter() { _initHelper.check(); return _brushAssetsHelper.getSelectedAssetPresenter(); }
 
-    BrushId getSelectedBrush() { _initHelper.check(); return _assetsHelper.getSelectedAsset(); }
-    QSharedPointer<IBrushPresenter> getSelectedBrushPresenter() { _initHelper.check(); return _assetsHelper.getSelectedAssetPresenter(); }
+    BrushId getSelectedBrush() { _initHelper.check(); return _brushAssetsHelper.getSelectedAsset(); }
+    QSharedPointer<IBrushPresenter> getSelectedBrushPresenter() { _initHelper.check(); return _brushAssetsHelper.getSelectedAssetPresenter(); }
     
     virtual bool event(QEvent* e);
 
@@ -70,20 +71,42 @@ private slots:
     void onSelectedLayerChanged(QWeakPointer<ILayerPresenter> layer);
 
 private:
-    bool calc_hoverVisible();
-    void hoverVisibleChanged(bool visible);
+    class HoverPreview;
 
     IMainEditorPresenter* _mainEditorPresenter;
     
     QSharedPointer<IBrushPainter> _brushPainter;
 
-    QSharedPointer<IRasterSurface> _previewSurface;
-    QSharedPointer<IBrushPainter> _previewBrushPainter;
+    HoverPreview* _hoverPreview;
 
-    //PropertyCache<BrushToolPresenter, bool> _previewVisibleCache;
-
-    ToolWithAssetsHelper<IBrushPresenter, BrushId> _assetsHelper;
+    ToolWithAssetsHelper<IBrushPresenter, BrushId> _brushAssetsHelper;
     InitializeHelper<BrushToolPresenter> _initHelper;
+
+    friend class HoverPreview;
+};
+
+class BrushToolPresenter::HoverPreview
+{
+public:
+    HoverPreview(BrushToolPresenter& owner);
+    ~HoverPreview();
+
+    void updateBrush();
+    void setPosition(QPointF);
+
+    PropertyCache<bool> isVisible_cache;
+
+private:
+    bool calc_visible();
+    void onVisibleChanged(bool);
+    void paint();
+
+    QPointF _position;
+
+    QSharedPointer<IRasterSurface> _surface;
+    QSharedPointer<IBrushPainter> _brushPainter;
+
+    BrushToolPresenter& _owner;
 };
 
 #endif // BRUSHTOOLPRESENTER_HPP

@@ -74,6 +74,8 @@ But the trouble is not always.
 
 InitHelper:
 
+- Where does it get off having no default constructor. This shouldn't be a
+  template class, it is *not* that important as a debugging or diagnostic tool.
 - Do less/nothing in release builds (optimization, low priority)
 - For init functions, make a scope-limited object whose constructor calls
   initializeBegin() and whose destructor callse initializeEnd(), would simplify
@@ -109,3 +111,81 @@ while.)
 Don't allow ServiceLocator to publicly make objects that are meant to be
 persistent / singletons. befriend ServiceLocator to IFactory and make IFactory 
 methods protected.
+
+AsyncTask needs to be verified for correctness with unit tests
+
+generic data structure representing a collection of rectangles indexed by
+position with btrees
+- Quickly test whether a given rectangle intersects with one or more rectangles
+  in the collection
+- Quickly test whether a given rectangle is covered by one or more rectangles
+  in the collection
+- Get a list of the rectangles that intersect with a given rectangle (e.g., to
+  convert it into a conservative QPainterPath for use as a clip region)
+
+RenderData can use this to hold masks made of rectangle segments, and render 
+steps can cheaply minimize or skip drawing logic when appropriate
+
+BasicBrush can use this to redraw itself by section more quickly
+
+https://stackoverflow.com/questions/3374743/c-const-getter-method-with-lazy-initialization
+(tl;dr) we can make a const getter with lazy init. This is generally regarded as
+not violating constness, but I don't want to make every lazy-initialized member
+`mutable`. A LazyConstValue class like `suspension` in the thread will be
+desirable
+
+I don't like the one in the thread (the saved-off init function feels off to me),*
+so I think have mine expose a mutable a setter that only works once.
+
+(
+  Am I sure I don't like this... tbh? Wouldn't the constructor be a more appropriate
+  place for initialization code, and the suspension class would automatically handle
+  the init check which would be super convenient, plus I wouldn't need to bother with
+  runtime assertions on the setter.
+
+  Consider:
+
+  ```
+  private:
+      const LazySharedPointer<IFoo> _foo;
+
+      // ...
+
+  public:
+      QSharedPointer<IFoo> getFoo() const { return _foo; }
+
+      // ...
+
+      c'tor()
+          : _foo(std::bind(ServiceLocator::makeShared, this))
+      {
+      }
+
+  ```
+
+  That honestly feels pretty clean
+)
+
+* This does beg the question if I want to refactor PropertyCache.
+
+If I feel like a c'tor's initialization list is getting kind of cumbersome
+I can move the it to the implementation file. It'd look right at home next to
+the proper init function.
+
+Anyway, tackle that when we're tightening up constness
+
+Despite it all, BasicBrush still has anit-aliasing artifacts at the endpoints of
+moveTo paints. fix this
+
+chuck QImage::offset() into more of the API
+
+make renderstack auto-remove steps as they're deleted
+
+right-clicking in the middle of a tool operation causes it to disengage
+haphazardly
+
+okay but *reeeeaaallllyy* do I have to insist on get- property method names,
+because *nobody* else does that and it's not even consistent with C# (i.e., the
+counterexample I keep thinking of.)
+
+combine the raster bit reader and writer?

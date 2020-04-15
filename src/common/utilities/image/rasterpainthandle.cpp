@@ -1,6 +1,6 @@
 #include "rasterpainthandle.hpp"
 
-#include "interfaces/editing/surfaces/irastersurface.hpp"
+#include "interfaces/editing/irastersurface.hpp"
 
 RasterPaintHandle::RasterPaintHandle(RasterPaintHandle&& other)
     : _surface(other._surface),
@@ -23,7 +23,7 @@ RasterPaintHandle::~RasterPaintHandle()
 {
     if (_final)
     {
-        _surface.onHandleDestroyed(*this);
+        _surface.onPaintHandleDestroyed(*this);
         delete _painter;
     }
 }

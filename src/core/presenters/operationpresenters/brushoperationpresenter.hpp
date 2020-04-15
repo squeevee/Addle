@@ -4,7 +4,7 @@
 #include <QObject>
 
 #include "interfaces/presenters/operationpresenters/ibrushoperationpresenter.hpp"
-#include "interfaces/editing/operations/irasteroperation.hpp"
+#include "interfaces/editing/irasterdiff.hpp"
 
 class BrushOperationPresenter : public QObject, public IBrushOperationPresenter
 {
@@ -26,7 +26,7 @@ public slots:
 private:
     QWeakPointer<ILayerPresenter> _layer;
 
-    QSharedPointer<IRasterOperation> _operation;
+    QSharedPointer<IRasterDiff> _operation;
 
     friend class BrushOperationPreview;
 };

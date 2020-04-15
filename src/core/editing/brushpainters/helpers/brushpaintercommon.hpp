@@ -2,7 +2,7 @@
 #define BRUSHPAINTERCOMMON_HPP
 
 #include "interfaces/editing/ibrushpainter.hpp"
-#include "interfaces/editing/surfaces/irastersurface.hpp"
+#include "interfaces/editing/irastersurface.hpp"
 #include "servicelocator.hpp"
 
 class BrushPainterCommon

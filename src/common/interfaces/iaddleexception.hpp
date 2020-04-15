@@ -2,6 +2,7 @@
 #define IADDLEEXCEPTION_HPP
 
 #include <exception>
+#include <QSharedPointer>
 
 class IAddleException : public std::exception
 {
@@ -27,9 +28,31 @@ struct is_runtime_error : std::false_type {};
 #define DECL_RUNTIME_ERROR(T) class T; template<> struct is_runtime_error<T> : std::true_type {}; 
 
 #ifdef ADDLE_DEBUG
-#define ADDLE_THROW(ex) { static_assert(std::is_base_of<IAddleException, std::remove_reference<decltype(ex)>::type>::value, "ADDLE_THROW may only be used for IAddleExceptions"); (ex).debugRaise( Q_FUNC_INFO, __FILE__, __LINE__ ); }
+#define ADDLE_THROW(ex) \
+{ \
+    static_assert( \
+        std::is_base_of< \
+            IAddleException, \
+            std::remove_reference<decltype(ex)>::type \
+        >::value, \
+        "ADDLE_THROW may only be used for IAddleException" \
+    ); \
+    (ex).debugRaise( Q_FUNC_INFO, __FILE__, __LINE__ ); \
+}
 #else
-#define ADDLE_THROW(ex) { static_assert(std::is_base_of<IAddleException, std::remove_reference<decltype(ex)>::type>::value, "ADDLE_THROW may only be used for IAddleExceptions"); (ex).raise(); }
+#define ADDLE_THROW(ex) \
+{ \
+    static_assert( \
+        std::is_base_of< \
+            IAddleException, \
+            std::remove_reference<decltype(ex)>::type \
+        >::value, \
+        "ADDLE_THROW may only be used for IAddleException" \
+    ); \
+    (ex).raise(); \
+}
 #endif
+
+Q_DECLARE_METATYPE(QSharedPointer<IAddleException>);
 
 #endif // IADDLEEXCEPTION_HPP

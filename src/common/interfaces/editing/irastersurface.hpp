@@ -7,11 +7,15 @@
 #include "interfaces/traits/metaobjectinfo.hpp"
 
 #include "utilities/image/rasterpainthandle.hpp"
+#include "utilities/image/rasterbithandles.hpp"
 
+#include <QPainter>
 #include <QImage>
 
 //class IRasterPreview;
 class IRenderStep;
+
+class IRasterDiff;
 
 /**
  * An "infinite" surface containing raster data. Paint operations must use
@@ -20,18 +24,16 @@ class IRenderStep;
 class IRasterSurface
 {
 public:
+    // These may be used by makers of RasterSurface to indicate that special
+    // behaviors or optimizations are desired.
     enum InitFlag
     {
-        // These may be used by makers of RasterSurface to indicate that special
-        // behaviors or optimizations are desired.
-
         None = 0x0,
 
-        //AlphaChannelOnly = 0x10
-        // ARGB32-premultiplied is the only format supported by the Raster
-        // QPainter backend for "high performance" that has an alpha channel.
-        // Sparing the extra memory will be appropriate in some places, but I 
-        // suspect it will not be here.
+
+
+        CopyFromLinked = 0x20,
+
     };
     Q_DECLARE_FLAGS(InitFlags, InitFlag);
 
@@ -39,27 +41,34 @@ public:
 
     virtual void initialize(
         QRect area = QRect(),
+        QPainter::CompositionMode compositionMode = QPainter::CompositionMode_SourceOver,
         InitFlags flags = None
     ) = 0;
     virtual void initialize(
         QImage image,
+        QPoint offset = QPoint(),
+        QPainter::CompositionMode compositionMode = QPainter::CompositionMode_SourceOver,
         InitFlags flags = None
     ) = 0;
 
-    virtual void linkTo(QSharedPointer<IRasterSurface> other) = 0;
+    virtual void setCompositionMode(QPainter::CompositionMode mode) = 0;
+    virtual QPainter::CompositionMode getCompositionMode() const = 0;
+
+    virtual void link(QSharedPointer<IRasterSurface> other) = 0;
     virtual void unlink() = 0;
 
     virtual QRect getArea() const = 0;
-    virtual QSize getSize() const = 0;
-
-    virtual QImage copy(QRect area = QRect(), QPoint* offset = nullptr) const = 0;
 
     //virtual void render(QPainter& painter, QRect area) const = 0;
+
+    virtual void clear() = 0;
 
     virtual QSharedPointer<IRenderStep> getRenderStep() = 0;
 
     virtual RasterPaintHandle getPaintHandle(QRect area) = 0;
-    virtual void merge(IRasterSurface& other) = 0;
+
+    virtual RasterBitReader getBitReader(QRect area) const = 0;
+    virtual RasterBitWriter getBitWriter(QRect area) = 0;
 
 signals:
     virtual void changed(QRect area) = 0;
@@ -70,9 +79,25 @@ protected:
         return RasterPaintHandle(*this, buffer, bufferOffset, area);
     }
 
-    virtual void onHandleDestroyed(const RasterPaintHandle& handle) = 0;
+    virtual void onPaintHandleDestroyed(const RasterPaintHandle& handle) = 0;
+
+    inline RasterBitReader getBitReader_p(const QImage& buffer, QPoint bufferOffset, QRect area) const
+    {
+        return RasterBitReader(*this, buffer, bufferOffset, area);
+    }
+
+    virtual void onBitReaderDestroyed(const RasterBitReader& handle) const = 0;
+
+    inline RasterBitWriter getBitWriter_p(QImage& buffer, QPoint bufferOffset, QRect area)
+    {
+        return RasterBitWriter(*this, buffer, bufferOffset, area);
+    }
+
+    virtual void onBitWriterDestroyed(const RasterBitWriter& handle) = 0;
 
     friend class RasterPaintHandle;
+    friend class RasterBitReader;
+    friend class RasterBitWriter;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(IRasterSurface::InitFlags)

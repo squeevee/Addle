@@ -14,7 +14,7 @@
 
 #include "interfaces/format/iformatmodel.hpp"
 
-#include "interfaces/tasks/itaskstatuscontroller.hpp"
+//#include "interfaces/tasks/itaskstatuscontroller.hpp"
 
 #include "interfaces/traits/initialize_trait.hpp"
 #include "utilities/model/importexportinfo.hpp"
@@ -32,18 +32,18 @@ public:
     //virtual IDocument* loadFile(QString filename) = 0;
 
     template<class FormatModel>
-    FormatModel* importModel(QIODevice& device, const ImportExportInfo& info, ITaskStatusController* status = nullptr)
+    FormatModel* importModel(QIODevice& device, const ImportExportInfo& info)
     {
         static_assert (
             std::is_base_of<IFormatModel, FormatModel>::value,
             "FormatModel must inherit IFormatModel"
         );
 
-        return dynamic_cast<FormatModel*>(importModel_p(typeid(FormatModel), device, info, status));
+        return dynamic_cast<FormatModel*>(importModel_p(typeid(FormatModel), device, info));
     }
 
 protected:
-    virtual IFormatModel* importModel_p(const std::type_info& modelType, QIODevice& device, const ImportExportInfo& info, ITaskStatusController* status = nullptr) = 0;
+    virtual IFormatModel* importModel_p(const std::type_info& modelType, QIODevice& device, const ImportExportInfo& info) = 0;
 };
 
 DECL_MAKEABLE(IFormatService)

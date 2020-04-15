@@ -6,7 +6,7 @@
 #include <QImage>
 #include <QString>
 
-IFormatModel* QtImageFormatDriver::importModel(QIODevice& device, ImportExportInfo info, ITaskStatusController* status)
+IFormatModel* QtImageFormatDriver::importModel(QIODevice& device, ImportExportInfo info)
 {
     DocumentBuilder documentBuilder;
     documentBuilder.setFilename(info.getFilename());
@@ -19,14 +19,14 @@ IFormatModel* QtImageFormatDriver::importModel(QIODevice& device, ImportExportIn
     layerBuilder.setBoundary(image.rect());
     documentBuilder.addLayer(layerBuilder);
 
-    if (status)
-        status->setProgress(1.00);
+    // if (status)
+    //     status->setProgress(1.00);
 
     return ServiceLocator::make<IDocument>(documentBuilder);
 }
 
 
-void QtImageFormatDriver::exportModel(IFormatModel* model, QIODevice& device, ImportExportInfo info, ITaskStatusController* status)
+void QtImageFormatDriver::exportModel(IFormatModel* model, QIODevice& device, ImportExportInfo info)
 {
 
 }

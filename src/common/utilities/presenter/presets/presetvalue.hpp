@@ -1,0 +1,6 @@
+#ifndef PRESETVALUE_HPP
+#define PRESETVALUE_HPP
+
+
+
+#endif // PRESETVALUE_HPP

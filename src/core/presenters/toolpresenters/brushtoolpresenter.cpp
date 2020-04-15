@@ -17,6 +17,8 @@
 #include "interfaces/editing/ibrushpainter.hpp"
 #include "interfaces/presenters/imaineditorpresenter.hpp"
 
+#include "interfaces/editing/irastersurface.hpp"
+
 // #include "../helpers/brushsizepresethelper.hpp"
 // const BrushSizePresetHelper::PxPresetHelper BrushSizePresetHelper::_instance_px = PxPresetHelper();
 // const BrushSizePresetHelper::PercentPresetHelper BrushSizePresetHelper::_instance_percent = PercentPresetHelper();
@@ -29,7 +31,7 @@ void BrushToolPresenter::initialize(IMainEditorPresenter* owner)
     _mainEditorPresenter = owner;
     ToolPresenterBase::initialize_p(owner);
 
-    _assetsHelper.setAssetList({
+    _brushAssetsHelper.setAssetList({
         ServiceLocator::makeShared<IBrushPresenter>(DefaultBrushes::Basic)
         //ServiceLocator::makeShared<IBrushPresenter>(DefaultBrushes::AliasedCircle),
         //ServiceLocator::makeShared<IBrushPresenter>(DefaultBrushes::Square)
@@ -37,16 +39,10 @@ void BrushToolPresenter::initialize(IMainEditorPresenter* owner)
 
     _propertyDecorationHelper.initializeIdProperty<BrushId>(
         "brush",
-        _assetsHelper.getAssetIds()
+        _brushAssetsHelper.getAssetIds()
     );
 
-    _previewSurface = ServiceLocator::makeShared<IRasterSurface>();
-    _previewBrushPainter = ServiceLocator::makeShared<IBrushPainter>(
-        _assetsHelper.getSelectedAsset(),
-        Qt::blue,
-        20,
-        _previewSurface
-    );
+    _hoverPreview = new HoverPreview(*this);
 
     connect_interface(_mainEditorPresenter, SIGNAL(selectedLayerChanged(QWeakPointer<ILayerPresenter>)), this, SLOT(onSelectedLayerChanged(QWeakPointer<ILayerPresenter>)));
 
@@ -63,7 +59,7 @@ bool BrushToolPresenter::event(QEvent* e)
         if(canvasMouseEvent->action() == CanvasMouseEvent::Action::move
             && !_mouseHelper.isEngaged())
         {
-            //_hoveringBrushPreview->move(canvasMouseEvent->pos());
+            _hoverPreview->setPosition(canvasMouseEvent->pos());
             return true;
         }
     }
@@ -73,8 +69,11 @@ bool BrushToolPresenter::event(QEvent* e)
 
 void BrushToolPresenter::onEngage()
 {
+    _hoverPreview->isVisible_cache.recalculate();
+    _hoverPreview->setPosition(_mouseHelper.getLatestPosition());
+
     _brushPainter = ServiceLocator::makeShared<IBrushPainter>(
-        _assetsHelper.getSelectedAsset(),
+        _brushAssetsHelper.getSelectedAsset(),
         Qt::blue,
         5
     );
@@ -82,12 +81,15 @@ void BrushToolPresenter::onEngage()
     auto s_layerPresenter = _mainEditorPresenter->getSelectedLayer().toStrongRef();
     s_layerPresenter->getRenderStack().push(_brushPainter->getBuffer()->getRenderStep());
 
+    // _brushPaintTask->setBrushPainter(_brushPainter);
+    // _brushPaintTask->enqueue(_mouseHelper.getFirstPosition());
     _brushPainter->startFrom(_mouseHelper.getFirstPosition());
 }
 
 void BrushToolPresenter::onMove()
 {
     _brushPainter->moveTo(_mouseHelper.getLatestPosition());
+    _hoverPreview->setPosition(_mouseHelper.getLatestPosition());
 }
 
 void BrushToolPresenter::onDisengage()
@@ -95,22 +97,100 @@ void BrushToolPresenter::onDisengage()
     auto s_layerPresenter = _mainEditorPresenter->getSelectedLayer().toStrongRef();
     s_layerPresenter->getRenderStack().remove(_brushPainter->getBuffer()->getRenderStep());
     
+    auto operation = ServiceLocator::makeShared<IBrushOperationPresenter>(
+        _brushPainter,
+        _mainEditorPresenter->getSelectedLayer()
+    );
+
+    _mainEditorPresenter->push(operation);
+
     _brushPainter.clear();
+    _hoverPreview->isVisible_cache.recalculate();
 }
 
 void BrushToolPresenter::onSelected()
 {
-    //_hoveringBrushPreview->_visibleCache.recalculate();
+    _hoverPreview->isVisible_cache.recalculate();
 }
 
 void BrushToolPresenter::onDeselected()
 {
-    //_hoveringBrushPreview->_visibleCache.recalculate();
+    _hoverPreview->isVisible_cache.recalculate();
 }
 
 void BrushToolPresenter::onSelectedLayerChanged(QWeakPointer<ILayerPresenter> layer)
 {
-    auto s_layer = layer.toStrongRef();
+    _hoverPreview->isVisible_cache.recalculate();
+}
 
-    //_hoveringBrushPreview->_visibleCache.recalculate();
+BrushToolPresenter::HoverPreview::HoverPreview(BrushToolPresenter& owner)
+    : isVisible_cache(std::bind(&BrushToolPresenter::HoverPreview::calc_visible, this)),
+    _owner(owner)
+{
+    isVisible_cache.onChange(&BrushToolPresenter::HoverPreview::onVisibleChanged, this);
+
+    _surface = ServiceLocator::makeShared<IRasterSurface>();
+    updateBrush();
+}
+
+BrushToolPresenter::HoverPreview::~HoverPreview()
+{
+}
+
+void BrushToolPresenter::HoverPreview::updateBrush()
+{
+    _brushPainter = ServiceLocator::makeShared<IBrushPainter>(
+        _owner._brushAssetsHelper.getSelectedAsset(),
+        Qt::blue, 
+        5,
+        _surface
+    );
+    paint();
+}
+
+void BrushToolPresenter::HoverPreview::setPosition(QPointF position)
+{
+    _position = position;
+    paint();
+}
+
+bool BrushToolPresenter::HoverPreview::calc_visible()
+{
+    return _owner.isSelected()
+        && !_owner._mouseHelper.isEngaged()
+        && _owner._mainEditorPresenter->getSelectedLayer();
+        // TODO: and viewport has focus
+}
+
+void BrushToolPresenter::HoverPreview::onVisibleChanged(bool visible)
+{
+    if (visible)
+    {
+        auto layerPresenter = _owner._mainEditorPresenter->getSelectedLayer();
+        if (layerPresenter)
+        {
+            auto s_layerPresenter = layerPresenter.toStrongRef();
+
+            s_layerPresenter->getRenderStack().push(_surface->getRenderStep());
+        }
+        paint();
+    }
+    else 
+    {
+        auto layerPresenter = _owner._mainEditorPresenter->getSelectedLayer();
+        if (layerPresenter)
+        {
+            auto s_layerPresenter = layerPresenter.toStrongRef();
+
+            s_layerPresenter->getRenderStack().remove(_surface->getRenderStep());
+        }
+    }
+}
+
+void BrushToolPresenter::HoverPreview::paint()
+{
+    if (!isVisible_cache.getValue()) return;
+    
+    _surface->clear();
+    _brushPainter->startFrom(_position);
 }

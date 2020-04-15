@@ -1,15 +1,16 @@
 #include "QtDebug"
 #include <QApplication>
+#include <QtConcurrent>
 
 #include "maineditorpresenter.hpp"
 
 #include "servicelocator.hpp"
 
-#include "interfaces/services/itaskservice.hpp"
+//#include "interfaces/services/itaskservice.hpp"
 #include "interfaces/services/iformatservice.hpp"
 
-#include "interfaces/tasks/itaskcontroller.hpp"
-#include "interfaces/tasks/iloaddocumentfiletask.hpp"
+//#include "interfaces/tasks/itaskcontroller.hpp"
+//#include "interfaces/tasks/iloaddocumentfiletask.hpp"
 
 #include "interfaces/presenters/ilayerpresenter.hpp"
 
@@ -82,6 +83,9 @@ void MainEditorPresenter::initialize(Mode mode)
             DefaultTools::NAVIGATE
         }
     );
+
+    _loadDocumentTask = new LoadDocumentTask(this);
+    connect(_loadDocumentTask, &AsyncTask::completed, this, &MainEditorPresenter::onLoadDocumentCompleted);
 }
 
 IMainEditorView* MainEditorPresenter::getView()
@@ -153,67 +157,18 @@ void MainEditorPresenter::loadDocument(QUrl url)
         newPresenter->getView()->start();
     }
     else
-    {
-        //leak
-        if (url.isLocalFile())
+    {            
+        if (!_loadDocumentTask->isRunning())
         {
-            auto task = ServiceLocator::make<ILoadDocumentFileTask>(QFileInfo(url.toLocalFile()));
-            auto controller = task->getController().data();
-
-            connect_interface(
-                controller,
-                SIGNAL(done(ITask*)),
-                this,
-                SLOT(onTaskDone_LoadDocument(ITask*)),
-                Qt::ConnectionType::BlockingQueuedConnection
-            );
-
-            ServiceLocator::get<ITaskService>().queueTask(task);
-        }
-        else
-        {
-            qWarning() << qUtf8Printable(tr("Loading a document from a remote URL is not yet supported."));
+            _loadDocumentTask->setUrl(url);
+            _loadDocumentTask->start();
         }
     }
 }
 
-void MainEditorPresenter::onTaskDone_LoadDocument(ITask* task)
+void MainEditorPresenter::onLoadDocumentCompleted()
 {
-    auto loadDocumentFileTask = dynamic_cast<ILoadDocumentFileTask*>(task);
-    auto taskController = task->getController();
-
-    if (!taskController->getError())
-    {
-        IDocumentPresenter* presenter = ServiceLocator::make<IDocumentPresenter>(
-            loadDocumentFileTask->getDocument()
-        );
-        setDocumentPresenter(presenter);
-    }
-    else
-    {
-        auto error = taskController->getError();
-
-        QSharedPointer<IErrorPresenter> errorPresenter(ServiceLocator::make<IErrorPresenter>());
-        errorPresenter->setSeverity(IErrorPresenter::warning);
-
-        if (error->type_info() == typeid(FileDoesNotExistException))
-        {
-            auto& e = static_cast<FileDoesNotExistException&>(*error);
-            QFileInfo fi = e.getFileInfo();
-            errorPresenter->setMessage(
-                tr("Addle could not open the requested file \"%1\" because it did not exist.")
-                .arg(fi.filePath())
-            );
-        }
-        else
-        {
-            errorPresenter->setMessage(
-                tr("An unknown error occurred attempting to open the file.")
-            );
-        }
-
-        raiseError(errorPresenter);
-    }
+    setDocumentPresenter(_loadDocumentTask->getDocumentPresenter());
 }
 
 void MainEditorPresenter::selectTool(ToolId tool)
@@ -244,4 +199,24 @@ void MainEditorPresenter::selectLayer(QWeakPointer<ILayerPresenter> layer)
 void MainEditorPresenter::selectLayerAt(int index)
 {
     
+}
+
+void LoadDocumentTask::doTask()
+{
+    QUrl url = getUrl();
+
+    if (url.isLocalFile())
+    {
+        QFile file(url.toLocalFile());
+
+        ImportExportInfo info;
+        info.setFilename(url.toLocalFile());
+
+        auto doc = QSharedPointer<IDocument>(ServiceLocator::get<IFormatService>().importModel<IDocument>(file, info));
+        setDocumentPresenter(ServiceLocator::make<IDocumentPresenter>(doc));
+    }
+    else
+    {
+        qWarning() << qUtf8Printable(tr("Loading a document from a remote URL is not yet supported."));
+    }
 }

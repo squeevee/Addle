@@ -1,7 +1,6 @@
 #ifndef UNDOSTACKHELPER_HPP
 #define UNDOSTACKHELPER_HPP
 
-#include "interfaces/editing/operations/iundooperation.hpp"
 #include "interfaces/presenters/ihaveundostackpresenter.hpp"
 
 #include <QStack>
