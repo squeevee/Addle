@@ -35,10 +35,10 @@ private:
     const std::function<void(Interface*)> _deleter;
 };
 
-#define CONFIG_STATIC_CUSTOMFACTORY(Interface, ...) \
-template<> const IFactory* const StaticFactoryLocator<Interface>::factory = new CustomFactory<Interface>(__VA_ARGS__);
+#define CONFIG_CUSTOMFACTORY_BY_TYPE(Interface, ...) \
+BaseServiceConfiguration::registerFactoryByType<Interface>(new CustomFactory<Interface>(__VA_ARGS__), id);
 
-#define CONFIG_DYNAMIC_CUSTOMFACTORY(Interface, id, ...) \
-BaseServiceConfiguration::registerDynamicFactory<Interface>(new CustomFactory<Interface>(__VA_ARGS__), id);
+#define CONFIG_CUSTOMFACTORY_BY_ID(Interface, id, ...) \
+BaseServiceConfiguration::registerFactoryById<Interface>(new CustomFactory<Interface>(__VA_ARGS__), id);
 
 #endif // CUSTOMFACTORY_HPP
