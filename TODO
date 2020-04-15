@@ -19,6 +19,7 @@ Lifetime of views and presenters, of all objects really
 
 cut icon
 redo icon looks like it's disabled
+put dark outlines on the icons so they look good on light backgrounds
 
 clean up dynamic casting (and virtual inheritance) where possible -- see also 
 IFormatModel
@@ -189,3 +190,4 @@ because *nobody* else does that and it's not even consistent with C# (i.e., the
 counterexample I keep thinking of.)
 
 combine the raster bit reader and writer?
+
