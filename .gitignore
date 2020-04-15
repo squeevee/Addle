@@ -1,5 +1,8 @@
 /.vscode
+/.vs
 Makefile
+
+/build
 
 /debug
 /release
@@ -12,3 +15,5 @@ Makefile
 *.qmake.stash
 
 __pycache__
+
+CMakeSettings.json
