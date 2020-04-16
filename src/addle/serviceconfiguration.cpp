@@ -91,6 +91,6 @@ void ServiceConfiguration::configure()
     // # Views
     CONFIG_AUTOFACTORY_BY_TYPE(IMainEditorView, MainEditorView);
 
-    CONFIG_AUTOFACTORY_BY_ID(IBrushPainter, IBrushModel::CoreBrushes::BasicBrush, BasicBrushPainter);
-    CONFIG_CUSTOMFACTORY_BY_ID(IBrushModel, IBrushModel::CoreBrushes::BasicBrush, &CoreBrushModel::make<BasicBrushPainter>);
+    CONFIG_AUTOFACTORY_BY_ID(IBrushPainter, GlobalConstants::CoreBrushes::BasicBrush, BasicBrushPainter);
+    CONFIG_CUSTOMFACTORY_BY_ID(IBrushModel, GlobalConstants::CoreBrushes::BasicBrush, &CoreBrushModel::make<BasicBrushPainter>);
 }

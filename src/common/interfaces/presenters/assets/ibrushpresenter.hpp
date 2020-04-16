@@ -10,10 +10,11 @@
 #include "interfaces/traits/initialize_trait.hpp"
 #include "interfaces/traits/makeable_trait.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
+#include "interfaces/traits/compat.hpp"
 
 // Brushes 
 class IBrushModel;
-class IBrushPresenter : public IAssetPresenter
+class ADDLE_COMMON_EXPORT IBrushPresenter : public IAssetPresenter
 {
     Q_GADGET
 public:

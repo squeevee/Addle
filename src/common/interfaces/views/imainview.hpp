@@ -1,9 +1,10 @@
 #ifndef IMAINVIEW_HPP
 #define IMAINVIEW_HPP
 
+#include "interfaces/traits/compat.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 
-class IMainView
+class ADDLE_COMMON_EXPORT IMainView
 {
 public:
     virtual ~IMainView() = default;

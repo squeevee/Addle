@@ -8,9 +8,10 @@
 #include <QRect>
 #include <QImage>
 #include <QPainter>
+#include "interfaces/traits/compat.hpp"
 
 class IRasterSurface;
-class RasterPaintHandle
+class ADDLE_COMMON_EXPORT RasterPaintHandle
 {
 public:
     RasterPaintHandle(RasterPaintHandle&& other);

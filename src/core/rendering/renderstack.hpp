@@ -2,8 +2,9 @@
 #define RENDERSTACK_HPP
 
 #include "interfaces/rendering/irenderstack.hpp"
+#include "core/compat.hpp"
 
-class RenderStack : public QObject, public IRenderStack
+class ADDLE_CORE_EXPORT RenderStack : public QObject, public IRenderStack
 {
     Q_OBJECT 
 public: 

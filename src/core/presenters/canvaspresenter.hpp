@@ -4,11 +4,12 @@
 #include "interfaces/presenters/icanvaspresenter.hpp"
 #include "utilities/initializehelper.hpp"
 
+#include "core/compat.hpp"
 #include <QCursor>
 #include <QString>
 #include <QObject>
 
-class CanvasPresenter : public QObject, public ICanvasPresenter
+class ADDLE_CORE_EXPORT CanvasPresenter : public QObject, public ICanvasPresenter
 {
     Q_OBJECT
 public: 

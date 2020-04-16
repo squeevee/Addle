@@ -4,6 +4,7 @@
 #include "interfaces/traits/initialize_trait.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 #include "interfaces/traits/makeable_trait.hpp"
+#include "interfaces/traits/compat.hpp"
 
 #include "idocumentpresenter.hpp"
 
@@ -14,7 +15,7 @@
 #include <QRectF>
 
 class IRenderStack;
-class ILayerPresenter
+class ADDLE_COMMON_EXPORT ILayerPresenter
 {
 public:
     virtual ~ILayerPresenter() = default;

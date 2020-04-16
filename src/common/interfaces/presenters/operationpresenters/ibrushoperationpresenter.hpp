@@ -5,10 +5,11 @@
 
 #include "interfaces/traits/initialize_trait.hpp"
 #include "interfaces/traits/makeable_trait.hpp"
+#include "interfaces/traits/compat.hpp"
 
 class IBrushPainter;
 class ILayerPresenter;
-class IBrushOperationPresenter : public IUndoOperationPresenter
+class ADDLE_COMMON_EXPORT IBrushOperationPresenter : public IUndoOperationPresenter
 {
 public:
     virtual ~IBrushOperationPresenter() = default;

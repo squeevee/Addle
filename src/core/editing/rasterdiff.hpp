@@ -1,9 +1,10 @@
 #ifndef RASTERDIFF_HPP
 #define RASTERDIFF_HPP
 
+#include "core/compat.hpp"
 #include "interfaces/editing/irasterdiff.hpp"
 
-class RasterDiff : public IRasterDiff
+class ADDLE_CORE_EXPORT RasterDiff : public IRasterDiff
 {
 public: 
     virtual ~RasterDiff() = default;

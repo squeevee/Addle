@@ -1,7 +1,8 @@
 #ifndef ISCROLLSTATE_HPP
 #define ISCROLLSTATE_HPP
+#include "interfaces/traits/compat.hpp"
 
-class IScrollState
+class ADDLE_COMMON_EXPORT IScrollState
 {
 public:
     virtual ~IScrollState() = default;

@@ -8,7 +8,7 @@
 #include "interfaces/traits/makeable_trait.hpp"
 
 class IMainEditorPresenter;
-class IMainEditorView: public virtual IMainView
+class ADDLE_COMMON_EXPORT IMainEditorView: public virtual IMainView
 {
 public:
     virtual ~IMainEditorView() = default;

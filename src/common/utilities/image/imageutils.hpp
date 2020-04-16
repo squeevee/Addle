@@ -3,11 +3,12 @@
 
 #include <QImage>
 #include <QPainter>
+#include "interfaces/traits/compat.hpp"
 
 namespace ImageUtils
 {
 
-    QImage compositeByMask(QImage mask, QImage image0, QImage image1);
+    QImage ADDLE_COMMON_EXPORT compositeByMask(QImage mask, QImage image0, QImage image1);
 
 }
 

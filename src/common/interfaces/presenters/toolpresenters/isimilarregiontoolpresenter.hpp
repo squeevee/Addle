@@ -1,11 +1,12 @@
 #ifndef ISIMILARREGIONTOOLPRESENTER_HPP
 #define ISIMILARREGIONTOOLPRESENTER_HPP
 
+#include "interfaces/traits/compat.hpp"
 #include "itoolpresenter.hpp"
 #include "interfaces/traits/initialize_trait.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 
-class ISimilarRegionToolPresenter : public virtual IToolPresenter
+class ADDLE_COMMON_EXPORT ISimilarRegionToolPresenter : public virtual IToolPresenter
 {
 public:
     enum GapBridgeOptions {

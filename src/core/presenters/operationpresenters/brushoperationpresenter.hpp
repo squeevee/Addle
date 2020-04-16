@@ -3,10 +3,11 @@
 
 #include <QObject>
 
+#include "core/compat.hpp"
 #include "interfaces/presenters/operationpresenters/ibrushoperationpresenter.hpp"
 #include "interfaces/editing/irasterdiff.hpp"
 
-class BrushOperationPresenter : public QObject, public IBrushOperationPresenter
+class ADDLE_CORE_EXPORT BrushOperationPresenter : public QObject, public IBrushOperationPresenter
 {
     Q_OBJECT
 public: 

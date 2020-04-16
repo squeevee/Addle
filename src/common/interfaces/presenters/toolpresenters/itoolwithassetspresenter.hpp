@@ -8,10 +8,11 @@
 #include "itoolpresenter.hpp"
 #include "../assets/iassetpresenter.hpp"
 
+#include "interfaces/traits/compat.hpp"
 #include "interfaces/traits/initialize_trait.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 
-class IToolWithAssetsPresenter : public virtual IToolPresenter
+class ADDLE_COMMON_EXPORT IToolWithAssetsPresenter : public virtual IToolPresenter
 {
 public:
     virtual ~IToolWithAssetsPresenter() = default;

@@ -1,7 +1,8 @@
 #ifndef ISERVICELOCATOR_HPP
 #define ISERVICELOCATOR_HPP
+#include "interfaces/traits/compat.hpp"
         
-class IServiceLocator
+class ADDLE_COMMON_EXPORT IServiceLocator
 {
 };
 

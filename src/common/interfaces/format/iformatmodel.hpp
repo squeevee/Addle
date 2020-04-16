@@ -1,7 +1,8 @@
 #ifndef IFORMATMODEL_HPP
 #define IFORMATMODEL_HPP
 
-class IFormatModel
+#include "interfaces/traits/compat.hpp"
+class ADDLE_COMMON_EXPORT IFormatModel
 {
 public:
     virtual ~IFormatModel() = default;

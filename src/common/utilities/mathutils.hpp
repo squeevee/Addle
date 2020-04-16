@@ -6,6 +6,7 @@
 #include <QPoint>
 #include <QPointF>
 #include <QRectF>
+#include "interfaces/traits/compat.hpp"
 
 static inline QPoint pointFloor(QPointF in)
 {

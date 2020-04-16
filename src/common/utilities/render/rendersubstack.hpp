@@ -4,8 +4,9 @@
 #include <QObject>
 #include "interfaces/rendering/irenderstep.hpp"
 #include "interfaces/rendering/irenderstack.hpp"
+#include "interfaces/traits/compat.hpp"
 
-class RenderSubStack : public QObject, public IRenderStep
+class ADDLE_COMMON_EXPORT RenderSubStack : public QObject, public IRenderStep
 {
     Q_OBJECT
     Q_INTERFACES(IRenderStep)

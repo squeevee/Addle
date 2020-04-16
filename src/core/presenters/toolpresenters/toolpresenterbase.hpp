@@ -12,12 +12,13 @@
 
 #include "interfaces/presenters/toolpresenters/itoolpresenter.hpp"
 
+#include "core/compat.hpp"
 #include "utilities/initializehelper.hpp"
 
 #include "interfaces/presenters/imaineditorpresenter.hpp"
 #include "interfaces/presenters/iviewportpresenter.hpp"
 
-class ToolPresenterBase : public QObject, public virtual IToolPresenter
+class ADDLE_CORE_EXPORT ToolPresenterBase : public QObject, public virtual IToolPresenter
 {
     Q_OBJECT
 public:

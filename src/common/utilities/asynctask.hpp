@@ -2,6 +2,7 @@
 #define ASYNCTASK_HPP
 
 #include "interfaces/iaddleexception.hpp"
+#include "interfaces/traits/compat.hpp"
 
 #include <memory>
 #include <QObject>
@@ -43,7 +44,7 @@
  * heavily on the stack and atomics, or exposing post-termination cleanup
  * functions.
  */
-class AsyncTask : public QObject
+class ADDLE_COMMON_EXPORT AsyncTask : public QObject
 {
     Q_OBJECT 
 

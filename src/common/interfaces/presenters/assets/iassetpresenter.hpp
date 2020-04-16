@@ -4,9 +4,10 @@
 #include <QString>
 #include <QSharedPointer>
 #include "idtypes/persistentid.hpp"
+#include "interfaces/traits/compat.hpp"
 
 class IToolWithAssetsPresenter;
-class IAssetPresenter
+class ADDLE_COMMON_EXPORT IAssetPresenter
 {
 public:
     virtual ~IAssetPresenter() = default;

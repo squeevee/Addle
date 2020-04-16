@@ -24,7 +24,14 @@ set (
     services/applicationservice.cpp
     services/formatservice.cpp
     format/qtformatdrivers/qtimageformatdriver.cpp
+	definitions.cpp
 )
 
+add_definitions( -DADDLE_BUILDING_CORE )
+
 add_library(core SHARED ${SOURCES})
-target_link_libraries(core common Qt5::Core Qt5::Widgets Qt5::Concurrent)
+target_link_libraries(core common Qt5::Core Qt5::Widgets)
+
+if (${MSVC})
+	set_target_properties(core PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
+endif()

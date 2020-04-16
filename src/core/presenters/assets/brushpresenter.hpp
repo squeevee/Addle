@@ -4,8 +4,9 @@
 #include <QObject>
 #include "interfaces/presenters/assets/ibrushpresenter.hpp"
 #include "utilities/initializehelper.hpp"
+#include "core/compat.hpp"
 
-class BrushPresenter : public QObject, public IBrushPresenter
+class ADDLE_CORE_EXPORT BrushPresenter : public QObject, public IBrushPresenter
 {
     Q_OBJECT 
 public:

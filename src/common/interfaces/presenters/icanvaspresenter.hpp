@@ -1,12 +1,14 @@
 #ifndef ICANVASPRESENTER_HPP
 #define ICANVASPRESENTER_HPP
 
+#include "interfaces/traits/compat.hpp"
+
 #include "interfaces/traits/makeable_trait.hpp"
 #include "interfaces/traits/initialize_trait.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 
 class IMainEditorPresenter;
-class ICanvasPresenter
+class ADDLE_COMMON_EXPORT ICanvasPresenter
 {
 public:
     virtual ~ICanvasPresenter() = default; 

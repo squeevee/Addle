@@ -5,8 +5,9 @@
 
 #include "interfaces/traits/qobject_trait.hpp"
 #include "utilities/render/renderdata.hpp"
+#include "interfaces/traits/compat.hpp"
 
-class IRenderStep
+class ADDLE_COMMON_EXPORT IRenderStep
 {
 public:
     virtual ~IRenderStep() = default;

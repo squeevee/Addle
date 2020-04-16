@@ -1,6 +1,7 @@
 #ifndef IDOCUMENTPRESENTER_HPP
 #define IDOCUMENTPRESENTER_HPP
 
+#include "interfaces/traits/compat.hpp"
 #include <QUrl>
 #include <QFileInfo>
 #include <QWeakPointer>
@@ -18,7 +19,7 @@
 
 class ICanvasPresenter;
 class ILayerPresenter;
-class IDocumentPresenter
+class ADDLE_COMMON_EXPORT IDocumentPresenter
 {
 public:
     enum EmptyInitOptions

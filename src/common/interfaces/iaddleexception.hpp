@@ -4,7 +4,9 @@
 #include <exception>
 #include <QSharedPointer>
 
-class IAddleException : public std::exception
+#include "interfaces/traits/compat.hpp"
+
+class ADDLE_COMMON_EXPORT IAddleException : public std::exception
 {
 public:
     virtual ~IAddleException() = default;

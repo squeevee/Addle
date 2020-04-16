@@ -18,6 +18,8 @@
 #include <QMutex>
 #include <QSharedPointer>
 
+#include "interfaces/traits/compat.hpp"
+
 #include "interfaces/servicelocator/ifactory.hpp"
 #include "interfaces/servicelocator/iservicelocator.hpp"
 #include "interfaces/services/iservice.hpp"
@@ -44,7 +46,7 @@
  * is expected to be used infrequently by persistent objects. Be mindful of
  * situations where this may be too expensive.
  */
-class ServiceLocator : public IServiceLocator
+class ADDLE_COMMON_EXPORT ServiceLocator : public IServiceLocator
 {
 public:
     /**
@@ -349,7 +351,7 @@ private:
         for (IService* service : _services) delete service;
     }
 
-    static ServiceLocator* _instance;
+	static ServiceLocator* _instance;
     
     QHash<std::type_index, IService*> _services;
     QHash<std::type_index, QSharedPointer<QMutex>> _serviceInitMutexes;

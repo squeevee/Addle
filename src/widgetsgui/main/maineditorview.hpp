@@ -19,6 +19,7 @@
 #include "utilities/initializehelper.hpp"
 #include "utilities/qtextensions/qobject.hpp"
 
+#include "widgetsgui/compat.hpp"
 class BrushToolOptionsBar;
 class NavigateToolOptionsBar;
 
@@ -26,7 +27,7 @@ class ViewPort;
 class ViewPortScrollWidget;
 class ZoomRotateWidget;
 
-class MainEditorView : public QMainWindow, public virtual IMainEditorView
+class ADDLE_WIDGETSGUI_EXPORT MainEditorView : public QMainWindow, public virtual IMainEditorView
 {
     Q_OBJECT
 

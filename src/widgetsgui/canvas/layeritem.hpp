@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QGraphicsItem>
 
+#include "widgetsgui/compat.hpp"
 class ILayerPresenter;
 class LayerItem: public QObject, public QGraphicsItem
 {

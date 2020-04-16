@@ -2,12 +2,13 @@
 #define IJPEGFORMATDRIVER_HPP
 
 #include "interfaces/traits/makeable_trait.hpp"
+#include "interfaces/traits/compat.hpp"
 
 #include "../iformatdriver.hpp"
 
 #include "idtypes/formatid.hpp"
 
-class IJPEGFormatDriver : public virtual IFormatDriver
+class ADDLE_COMMON_EXPORT IJPEGFormatDriver : public virtual IFormatDriver
 {
 public:
     virtual ~IJPEGFormatDriver() = default;
@@ -20,12 +21,12 @@ public:
 #define ADDLE_STRING__IJPEGFORMATDRIVER__JPEG_MIME_TYPE "image/jpeg"
 #define ADDLE_STRING__IJPEGFORMATDRIVER__JPEG_FILE_SIGNATURE "\xff\xd8\xff"
 
-    static const QString JPEG_FILE_EXTENSION;
-    static const QStringList JPEG_FILE_EXTENSIONS;
-    static const QString JPEG_MIME_TYPE;
-    static const QByteArray JPEG_FILE_SIGNATURE;
+    //static const QString JPEG_FILE_EXTENSION;
+    //static const QStringList JPEG_FILE_EXTENSIONS;
+    //static const QString JPEG_MIME_TYPE;
+    //static const QByteArray JPEG_FILE_SIGNATURE;
 
-    static const FormatId JPEG_FORMAT_ID;
+    //static const FormatId JPEG_FORMAT_ID;
 
 };
 

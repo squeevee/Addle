@@ -10,7 +10,7 @@
 #include "interfaces/traits/qobject_trait.hpp"
 #include "interfaces/traits/makeable_trait.hpp"
 
-class IApplicationService : public virtual IService
+class ADDLE_COMMON_EXPORT IApplicationService : public virtual IService
 {
 public:
     enum StartupMode
@@ -27,16 +27,6 @@ public:
     virtual StartupMode getStartupMode() = 0;
 
     virtual int getExitCode() = 0;
-
-#define ADDLE_STRING__IAPPLICATIONSERVICE__CMD_EDITOR_OPTION "editor"
-#define ADDLE_STRING__IAPPLICATIONSERVICE__CMD_EDITOR_SHORT_OPTION "e"
-#define ADDLE_STRING__IAPPLICATIONSERVICE__CMD_BROWSER_OPTION "browser"
-#define ADDLE_STRING__IAPPLICATIONSERVICE__CMD_BROWSER_SHORT_OPTION "b"
-
-    static const QString CMD_EDITOR_OPTION;
-    static const QString CMD_EDITOR_SHORT_OPTION;
-    static const QString CMD_BROWSER_OPTION;
-    static const QString CMD_BROWSER_SHORT_OPTION;
 
 public slots:
     virtual void quitting() = 0;

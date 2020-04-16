@@ -5,6 +5,7 @@
 #include <QPainter>
 #include <QBrush>
 #include <QWeakPointer>
+#include "interfaces/traits/compat.hpp"
 
 #include "interfaces/models/ilayer.hpp"
 #include "interfaces/traits/makeable_trait.hpp"
@@ -15,7 +16,7 @@
 #include <QPoint>
 
 class IRasterSurface;
-class IRasterDiff
+class ADDLE_COMMON_EXPORT IRasterDiff
 {
 public:
     virtual ~IRasterDiff() = default;

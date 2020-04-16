@@ -2,8 +2,9 @@
 #define ISHAPEPRESENTER_HPP
 
 #include "iassetpresenter.hpp"
+#include "interfaces/traits/compat.hpp"
 
-class IShapePresenter : public virtual IAssetPresenter
+class ADDLE_COMMON_EXPORT IShapePresenter : public virtual IAssetPresenter
 {
 };
 

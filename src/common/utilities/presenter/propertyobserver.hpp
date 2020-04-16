@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QVariant>
 #include <QMetaObject>
+#include "interfaces/traits/compat.hpp"
 
 /**
  * @class PropertyObserver

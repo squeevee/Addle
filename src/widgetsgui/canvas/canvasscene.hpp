@@ -9,6 +9,7 @@
 
 //#include "interfaces/presenters/icanvaspresenter.hpp"
 
+#include "widgetsgui/compat.hpp"
 class ICanvasPresenter;
 class CanvasItem;
 class CanvasScene : public QGraphicsScene

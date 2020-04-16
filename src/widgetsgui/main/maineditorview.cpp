@@ -121,13 +121,13 @@ void MainEditorView::setupUi()
 
 
     setupHelper.addTool(
-        IMainEditorPresenter::DefaultTools::BRUSH,
+        GlobalConstants::CoreTools::BRUSH,
         &_action_selectBrushTool,
         &_optionsToolBar_brush
     );
 
     setupHelper.addTool(
-        IMainEditorPresenter::DefaultTools::NAVIGATE,
+		GlobalConstants::CoreTools::NAVIGATE,
         &_action_selectNavigateTool,
         &_optionsToolBar_navigate
     );

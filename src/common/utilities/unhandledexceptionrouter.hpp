@@ -6,6 +6,7 @@
 #include <exception>
 #include <QCoreApplication>
 #include <QObject>
+#include "interfaces/traits/compat.hpp"
 
 class AddleUnhandledException;
 
@@ -68,7 +69,7 @@ void Class::slotName()
  * Bear in mind that this class has no jurisdiction over the much lower-level
  * C error signals.
  */
-class UnhandledExceptionRouter : public QObject
+class ADDLE_COMMON_EXPORT UnhandledExceptionRouter : public QObject
 {
     Q_OBJECT 
 public:

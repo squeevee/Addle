@@ -10,6 +10,7 @@
 #ifndef QTEXCEPTIONS__QOBJECT_HPP
 #define QTEXCEPTIONS__QOBJECT_HPP
 
+#include "interfaces/traits/compat.hpp"
 #include <QObject>
 
 #include "interfaces/traits/qobject_trait.hpp"

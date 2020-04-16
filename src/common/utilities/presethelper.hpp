@@ -2,6 +2,7 @@
 #define PRESETHELPERS_HPP
 
 #include "interfaces/presenters/iviewportpresenter.hpp"
+#include "interfaces/traits/compat.hpp"
 
 #include <initializer_list>
 #include <utility>

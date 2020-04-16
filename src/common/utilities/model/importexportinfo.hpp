@@ -11,6 +11,7 @@
 #include <QString>
 #include <QUrl>
 #include <QFileInfo>
+#include "interfaces/traits/compat.hpp"
 
 // Data about a resource (i.e., a file or stream) that is to be imported or
 // exported as a format model.

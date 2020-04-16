@@ -11,12 +11,13 @@
 #include "utilities/model/layerbuilder.hpp"
 #include "interfaces/traits/makeable_trait.hpp"
 
+#include "interfaces/traits/compat.hpp"
 #include "interfaces/traits/initialize_trait.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 
 class IRasterSurface;
 class IDocument;
-class ILayer
+class ADDLE_COMMON_EXPORT ILayer
 {
 public:
     virtual ~ILayer() {}

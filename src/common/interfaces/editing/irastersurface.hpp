@@ -8,6 +8,7 @@
 
 #include "utilities/image/rasterpainthandle.hpp"
 #include "utilities/image/rasterbithandles.hpp"
+#include "interfaces/traits/compat.hpp"
 
 #include <QPainter>
 #include <QImage>
@@ -21,7 +22,7 @@ class IRasterDiff;
  * An "infinite" surface containing raster data. Paint operations must use
  * RasterPaintHandle to request the area on which they will operate.
  */
-class IRasterSurface
+class ADDLE_COMMON_EXPORT IRasterSurface
 {
 public:
     // These may be used by makers of RasterSurface to indicate that special

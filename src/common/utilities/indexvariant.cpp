@@ -46,5 +46,3 @@ bool IndexVariant::variantCanHash(const QVariant& var)
         || var.canConvert<double>()
         || var.canConvert<QString>();
 }
-
-uint qHash(const IndexVariant& var, uint seed) { return var.getHash(seed); }

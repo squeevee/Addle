@@ -7,8 +7,9 @@
 #include "interfaces/traits/initialize_trait.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 #include "irenderstep.hpp"
+#include "interfaces/traits/compat.hpp"
 
-class IRenderStack
+class ADDLE_COMMON_EXPORT IRenderStack
 {
 public:
     virtual ~IRenderStack() = default;

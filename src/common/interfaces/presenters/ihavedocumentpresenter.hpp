@@ -2,10 +2,11 @@
 #define IHAVEDOCUMENTPRESENTER_HPP
 
 #include "interfaces/traits/qobject_trait.hpp"
+#include "interfaces/traits/compat.hpp"
 
 class IDocumentPresenter;
 class IDocumentView;
-class IHaveDocumentPresenter
+class ADDLE_COMMON_EXPORT IHaveDocumentPresenter
 {
 public:
     virtual ~IHaveDocumentPresenter() = default;

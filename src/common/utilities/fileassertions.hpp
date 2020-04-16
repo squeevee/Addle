@@ -4,6 +4,7 @@
 #include <QFileInfo>
 
 #include "exceptions/fileexceptions.hpp"
+#include "interfaces/traits/compat.hpp"
 
 //throws verbose exceptions if a file is not readable
 //accesses the filesystem but not the file itself

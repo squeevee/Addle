@@ -5,9 +5,10 @@
 
 #include "interfaces/presenters/operationpresenters/iundooperationpresenter.hpp"
 
+#include "interfaces/traits/compat.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 
-class IHaveUndoStackPresenter
+class ADDLE_COMMON_EXPORT IHaveUndoStackPresenter
 {
 public: 
     virtual ~IHaveUndoStackPresenter() = default;

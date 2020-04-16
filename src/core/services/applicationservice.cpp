@@ -125,8 +125,8 @@ void ApplicationService::parseCommandLine()
 
     QCommandLineOption editorOption(
         {
-            IApplicationService::CMD_EDITOR_SHORT_OPTION,
-            IApplicationService::CMD_EDITOR_OPTION
+            "e",
+            "editor"
         }, 
         QCoreApplication::translate("ApplicationService", "Explicitly start Addle in editor mode.")
     );
@@ -134,8 +134,8 @@ void ApplicationService::parseCommandLine()
 
     QCommandLineOption viewerOption(
         {
-            IApplicationService::CMD_BROWSER_SHORT_OPTION,
-            IApplicationService::CMD_BROWSER_OPTION
+            "b",
+            "browser"
         },
         QCoreApplication::translate("ApplicationService", "Explicitly start Addle in browser mode.")
     );

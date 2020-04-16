@@ -4,8 +4,9 @@
 #include <typeinfo>
 
 #include "iservicelocator.hpp"
+#include "interfaces/traits/compat.hpp"
 
-class IFactory
+class ADDLE_COMMON_EXPORT IFactory
 {
 public:
     virtual ~IFactory() = default;

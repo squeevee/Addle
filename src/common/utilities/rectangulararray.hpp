@@ -6,6 +6,7 @@
 #include <QPoint>
 #include <QSharedData>
 #include <QSharedDataPointer>
+#include "interfaces/traits/compat.hpp"
 
 template<typename T>
 class RectangularArray
@@ -54,17 +55,17 @@ public:
 
     inline void insert(QPoint position, const T& value)
     {
-        _data->contents[y][x] = value;
+        _data->contents[position.y()][position.x()] = value;
     }
 
     inline const T& at(QPoint position) const
     {
-        return _data->contents[y][x];
+        return _data->contents[position.y()][position.x()];
     }
 
     inline T& rAt(QPoint position)
     {
-        return _data->contents[y][x];
+        return _data->contents[position.y()][position.x()];
     }
 
     //TODO: probably want some rectangular operations

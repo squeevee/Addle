@@ -5,6 +5,7 @@
 #include <QImage>
 #include <QSharedData>
 #include <QSharedDataPointer>
+#include "interfaces/traits/compat.hpp"
 
 class LayerBuilder
 {

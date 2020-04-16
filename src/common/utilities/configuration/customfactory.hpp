@@ -5,6 +5,7 @@
 #include <memory>
 
 #include "interfaces/servicelocator/ifactory.hpp"
+#include "interfaces/traits/compat.hpp"
 
 template<class Interface>
 class CustomFactory : public IFactory

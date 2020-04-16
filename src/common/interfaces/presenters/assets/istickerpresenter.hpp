@@ -2,8 +2,9 @@
 #define ISTICKERPRESENTER_HPP
 
 #include "iassetpresenter.hpp"
+#include "interfaces/traits/compat.hpp"
 
-class IStickerPresenter : public virtual IAssetPresenter
+class ADDLE_COMMON_EXPORT IStickerPresenter : public virtual IAssetPresenter
 {
 };
 

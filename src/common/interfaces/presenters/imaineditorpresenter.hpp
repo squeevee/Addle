@@ -21,7 +21,7 @@ class IMainEditorView;
 class ICanvasPresenter;
 class IViewPortPresenter;
 
-class IMainEditorPresenter
+class ADDLE_COMMON_EXPORT IMainEditorPresenter
     : public virtual IHaveDocumentPresenter,
     public virtual IHaveToolsPresenter,
     public virtual IHaveUndoStackPresenter,
@@ -52,21 +52,6 @@ public:
     virtual void selectLayer(QWeakPointer<ILayerPresenter> layer) = 0;
     virtual void selectLayerAt(int index) = 0;
     
-public:
-    struct DefaultTools
-    {
-        static const ToolId SELECT;
-        static const ToolId BRUSH;
-        static const ToolId ERASER;
-        static const ToolId FILL;
-        static const ToolId TEXT;
-        static const ToolId SHAPES;
-        static const ToolId STICKERS;
-        static const ToolId EYEDROP;
-        static const ToolId NAVIGATE;
-        static const ToolId MEASURE;
-    };
-
 signals:
     virtual void documentPresenterChanged(IDocumentPresenter* documentPresenter) = 0;
     virtual void selectedLayerChanged(QWeakPointer<ILayerPresenter> layer) = 0;

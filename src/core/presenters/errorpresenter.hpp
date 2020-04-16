@@ -4,8 +4,9 @@
 #include "interfaces/presenters/ierrorpresenter.hpp"
 
 #include "utilities/initializehelper.hpp"
+#include "core/compat.hpp"
 
-class ErrorPresenter : public IErrorPresenter
+class ADDLE_CORE_EXPORT ErrorPresenter : public IErrorPresenter
 {
 public:
     ErrorPresenter() : _initHelper(this) {}

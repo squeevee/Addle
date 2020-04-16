@@ -5,6 +5,7 @@
 #include <QPainterPath>
 #include <QColor>
 #include <QSharedPointer>
+#include "interfaces/traits/compat.hpp"
 
 #include "idtypes/brushid.hpp"
 
@@ -15,7 +16,7 @@
 #include "interfaces/traits/qobject_trait.hpp"
 
 class IRasterSurface;
-class IBrushPainter
+class ADDLE_COMMON_EXPORT IBrushPainter
 {
 public: 
     virtual ~IBrushPainter() = default;

@@ -2,10 +2,11 @@
 #define QTIMAGEFORMATDRIVER_HPP
 
 #include "interfaces/format/iformatdriver.hpp"
+#include "core/compat.hpp"
 
 // An image format driver that uses Qt's image processing functionality as its
 // backend
-class QtImageFormatDriver : public virtual IFormatDriver
+class ADDLE_CORE_EXPORT QtImageFormatDriver : public virtual IFormatDriver
 {
 public:
     QtImageFormatDriver(const char* qtFormatName)

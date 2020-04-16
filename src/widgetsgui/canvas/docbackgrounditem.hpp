@@ -7,6 +7,7 @@
 #include <QGraphicsItemGroup>
 #include <QGraphicsRectItem>
 
+#include "widgetsgui/compat.hpp"
 class IDocumentPresenter;
 class DocBackgroundItem : public QObject, public QGraphicsItem
 {

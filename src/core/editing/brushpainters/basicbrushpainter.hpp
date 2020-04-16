@@ -5,10 +5,11 @@
 
 #include "interfaces/editing/ibrushpainter.hpp"
 #include "interfaces/models/ibrushmodel.hpp"
+#include "core/compat.hpp"
 
 #include "helpers/brushpaintercommon.hpp"
 
-class BasicBrushPainter : public QObject, public IBrushPainter
+class ADDLE_CORE_EXPORT BasicBrushPainter : public QObject, public IBrushPainter
 {
     Q_OBJECT
 public:

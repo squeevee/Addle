@@ -8,13 +8,14 @@
 
 #include "interfaces/presenters/iviewportpresenter.hpp"
 
+#include "widgetsgui/compat.hpp"
 class ViewPort;
 
 /**
  * It's easier to just make new scroll bars than to get the ones that come 
  * built into QGraphicsView to play nice with the presenter.
  */
-class ViewPortScrollWidget : public QWidget
+class ADDLE_WIDGETSGUI_EXPORT ViewPortScrollWidget : public QWidget
 {
     Q_OBJECT
 public:

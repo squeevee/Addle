@@ -5,9 +5,10 @@
 #include "interfaces/presenters/ilayerpresenter.hpp"
 #include "interfaces/rendering/irenderstep.hpp"
 #include "utilities/initializehelper.hpp"
+#include "core/compat.hpp"
 
 class LayerPresenterRenderStep;
-class LayerPresenter: public QObject, public ILayerPresenter
+class ADDLE_CORE_EXPORT LayerPresenter: public QObject, public ILayerPresenter
 {
     Q_OBJECT
 public:

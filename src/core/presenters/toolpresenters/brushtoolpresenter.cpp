@@ -23,6 +23,7 @@
 // const BrushSizePresetHelper::PxPresetHelper BrushSizePresetHelper::_instance_px = PxPresetHelper();
 // const BrushSizePresetHelper::PercentPresetHelper BrushSizePresetHelper::_instance_percent = PercentPresetHelper();
 
+const BrushId BrushToolPresenter::DEFAULT_BRUSH = GlobalConstants::CoreBrushes::BasicBrush;
 
 void BrushToolPresenter::initialize(IMainEditorPresenter* owner)
 {
@@ -32,9 +33,7 @@ void BrushToolPresenter::initialize(IMainEditorPresenter* owner)
     ToolPresenterBase::initialize_p(owner);
 
     _brushAssetsHelper.setAssetList({
-        ServiceLocator::makeShared<IBrushPresenter>(DefaultBrushes::Basic)
-        //ServiceLocator::makeShared<IBrushPresenter>(DefaultBrushes::AliasedCircle),
-        //ServiceLocator::makeShared<IBrushPresenter>(DefaultBrushes::Square)
+        ServiceLocator::makeShared<IBrushPresenter>(GlobalConstants::CoreBrushes::BasicBrush)
     });
 
     _propertyDecorationHelper.initializeIdProperty<BrushId>(

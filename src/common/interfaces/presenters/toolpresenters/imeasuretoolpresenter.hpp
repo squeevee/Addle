@@ -1,12 +1,13 @@
 #ifndef IMEASURETOOLPRESENTER_HPP
 #define IMEASURETOOLPRESENTER_HPP
 
+#include "interfaces/traits/compat.hpp"
 #include "itoolpresenter.hpp"
 #include "interfaces/traits/initialize_trait.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 #include "interfaces/traits/makeable_trait.hpp"
 
-class IMeasureToolPresenter : public virtual IToolPresenter
+class ADDLE_COMMON_EXPORT IMeasureToolPresenter : public virtual IToolPresenter
 {
 public:
     enum MeasureOperationOptions {
@@ -16,7 +17,7 @@ public:
         angle
     };
 
-    static const ToolId MEASURE_TOOL_ID;
+    static const ToolId ID;
 
     virtual ~IMeasureToolPresenter() = default;
 

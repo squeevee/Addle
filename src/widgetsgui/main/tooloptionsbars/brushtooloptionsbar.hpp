@@ -6,8 +6,9 @@
 #include "interfaces/presenters/assets/ibrushpresenter.hpp"
 #include "interfaces/presenters/toolpresenters/ibrushtoolpresenter.hpp"
 #include "tooloptionbarbase.hpp"
+#include "widgetsgui/compat.hpp"
 
-class BrushToolOptionsBar : public ToolOptionBarBase 
+class ADDLE_WIDGETSGUI_EXPORT BrushToolOptionsBar : public ToolOptionBarBase
 {
     Q_OBJECT 
     typedef IBrushPresenter::SizeOption SizeOption;
