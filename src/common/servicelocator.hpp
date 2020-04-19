@@ -29,14 +29,6 @@
 #include "interfaces/traits/initialize_trait.hpp"
 #include "utilities/qtextensions/qhash.hpp"
 
-template<class Interface>
-class StaticFactoryLocator
-{
-private:
-    static const IFactory* const factory;
-    friend class ServiceLocator;
-};
-
 /**
  * @class ServiceLocator
  * @brief Use the public static members of this class to access services and to
@@ -354,16 +346,17 @@ private:
     virtual ~ServiceLocator()
     {
         //for (IFactory* factory : _factoryRegistry) delete factory;
-        for (IService* service : _serviceRegistry) delete service;
+        for (IService* service : _services) delete service;
     }
 
     static ServiceLocator* _instance;
     
-    QHash<std::type_index, IService*> _serviceRegistry;
+    QHash<std::type_index, IService*> _services;
     QHash<std::type_index, QSharedPointer<QMutex>> _serviceInitMutexes;
+    QHash<std::type_index, const IFactory*> _factoriesByType;
 
-    QHash<QPair<PersistentId, std::type_index>, IFactory*> _dynamicFactoryRegistry;
-    QHash<QPair<PersistentId, std::type_index>, void*> _persistentObjectRegistry;
+    QHash<QPair<PersistentId, std::type_index>, const IFactory*> _factoriesById;
+    QHash<QPair<PersistentId, std::type_index>, void*> _persistentObjectsById;
     
     // internal get by interface
     template<class Interface>
@@ -394,11 +387,11 @@ private:
             mutex->unlock();
         }
 
-        if (_serviceRegistry.contains(interfaceIndex))
+        if (_services.contains(interfaceIndex))
         {   
             // This service has already been made. Return the locator's instance.
 
-            IService* service = _serviceRegistry[interfaceIndex];
+            IService* service = _services[interfaceIndex];
             return dynamic_cast<Interface*>(service);
         }
         else
@@ -409,7 +402,7 @@ private:
 
             Interface* service = make_p<Interface>();
             //service->setServiceLocator(this);
-            _serviceRegistry[interfaceIndex] = service;
+            _services[interfaceIndex] = service;
 
             _serviceInitMutexes.remove(interfaceIndex);
             mutex->unlock();
@@ -439,14 +432,14 @@ private:
     
         auto index = qMakePair(id, std::type_index(typeid(Interface)));
 
-        if (_persistentObjectRegistry.contains(index))
+        if (_persistentObjectsById.contains(index))
         {
-            return reinterpret_cast<Interface*>(_persistentObjectRegistry[index]);
+            return reinterpret_cast<Interface*>(_persistentObjectsById[index]);
         }
         else 
         {
             Interface* object = make_p<Interface>(id);
-            _persistentObjectRegistry[index] = object;
+            _persistentObjectsById[index] = object;
 
             return object;
         }
@@ -461,9 +454,27 @@ private:
             "Interface must be makeable"
         );
 
-        return reinterpret_cast<Interface*>(
-            StaticFactoryLocator<Interface>::factory->make()
-        );
+
+        auto index = std::type_index(typeid(Interface));
+
+        if (!_factoriesByType.contains(index))
+        {
+            
+#ifdef ADDLE_DEBUG
+            FactoryNotFoundException ex(
+                typeid(Interface).name(),
+                _factoriesByType.count()
+            );
+#else
+            FactoryNotFoundException ex;
+#endif
+            ADDLE_THROW(ex);
+        }
+
+        const IFactory* factory = _factoriesByType[index];
+        Interface* product = reinterpret_cast<Interface*>(factory->make());
+
+        return product;
     }
 
     // internal make object by interface and id
@@ -485,19 +496,21 @@ private:
 
         auto index = qMakePair(id, std::type_index(typeid(Interface)));
 
-        if (!_dynamicFactoryRegistry.contains(index))
+        if (!_factoriesById.contains(index))
         {
-            FactoryNotFoundException ex(
+            
 #ifdef ADDLE_DEBUG
+            FactoryNotFoundException ex(
                 typeid(Interface).name(),
-                _dynamicFactoryRegistry.count()
-#endif
+                _factoriesById.count()
             );
-
+#else
+            FactoryNotFoundException ex;
+#endif
             ADDLE_THROW(ex);
         }
 
-        IFactory* factory = _dynamicFactoryRegistry[index];
+        const IFactory* factory = _factoriesById[index];
         Interface* product = reinterpret_cast<Interface*>(factory->make());
 
         return product;

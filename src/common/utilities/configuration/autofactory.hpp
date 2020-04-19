@@ -42,10 +42,10 @@ public:
 // their AutoFactory, for example with regard to thread affinity. Keep this in
 // mind for the future.
 
-#define CONFIG_STATIC_AUTOFACTORY(Interface, Impl) \
-template<> const IFactory* const StaticFactoryLocator<Interface>::factory = new AutoFactory<Interface, Impl>();
+#define CONFIG_AUTOFACTORY_BY_TYPE(Interface, Impl) \
+BaseServiceConfiguration::registerFactoryByType<Interface>(new AutoFactory<Interface, Impl>());
 
-#define CONFIG_DYNAMIC_AUTOFACTORY(Interface, id, Impl) \
-BaseServiceConfiguration::registerDynamicFactory<Interface>(new AutoFactory<Interface, Impl>(), id);
+#define CONFIG_AUTOFACTORY_BY_ID(Interface, id, Impl) \
+BaseServiceConfiguration::registerFactoryById<Interface>(new AutoFactory<Interface, Impl>(), id);
 
 #endif // AUTOFACTORY_HPP

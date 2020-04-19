@@ -74,13 +74,22 @@ protected:
      */
     virtual void configure() = 0;
     
-    template<class Interface, class Factory, class IdType>
-    void registerDynamicFactory(Factory* factory, IdType id)
+    template<class Interface, class IdType>
+    void registerFactoryById(const IFactory* factory, IdType id)
     {
         // TODO: asserts
         
-        std::type_index type_index(typeid(Interface));
-        ServiceLocator::_instance->_dynamicFactoryRegistry[qMakePair(id, type_index)] = factory;
+        auto index = qMakePair(id, std::type_index(typeid(Interface)));
+        ServiceLocator::_instance->_factoriesById[index] = factory;
+    }
+
+    template<class Interface>
+    void registerFactoryByType(const IFactory* factory)
+    {
+        // TODO: asserts
+        
+        std::type_index index(typeid(Interface));
+        ServiceLocator::_instance->_factoriesByType[index] = factory;
     }
 };
 

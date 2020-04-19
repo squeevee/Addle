@@ -45,53 +45,52 @@
 
 #include "widgetsgui/main/maineditorview.hpp"
 
-CONFIG_STATIC_AUTOFACTORY(IRasterDiff, RasterDiff);
-
-// ## Surfaces
-CONFIG_STATIC_AUTOFACTORY(IRasterSurface, RasterSurface);
-
-// # Models
-CONFIG_STATIC_AUTOFACTORY(ILayer, Layer);
-CONFIG_STATIC_AUTOFACTORY(IDocument, Document);
-
-// # Presenters
-CONFIG_STATIC_AUTOFACTORY(IMainEditorPresenter, MainEditorPresenter);
-CONFIG_STATIC_AUTOFACTORY(ICanvasPresenter, CanvasPresenter);
-CONFIG_STATIC_AUTOFACTORY(IViewPortPresenter, ViewPortPresenter);
-CONFIG_STATIC_AUTOFACTORY(IErrorPresenter, ErrorPresenter);
-CONFIG_STATIC_AUTOFACTORY(ILayerPresenter, LayerPresenter);
-CONFIG_STATIC_AUTOFACTORY(IDocumentPresenter, DocumentPresenter);
-CONFIG_STATIC_AUTOFACTORY(IBrushOperationPresenter, BrushOperationPresenter);
-
-// ## Asset presenters
-CONFIG_STATIC_AUTOFACTORY(IBrushPresenter, BrushPresenter);
-
-// ## Tool presenters
-CONFIG_STATIC_AUTOFACTORY(INavigateToolPresenter, NavigateToolPresenter);
-CONFIG_STATIC_AUTOFACTORY(IBrushToolPresenter, BrushToolPresenter);
-
-// # Rendering
-CONFIG_STATIC_AUTOFACTORY(IRenderStack, RenderStack);
-
-// # Services
-CONFIG_STATIC_AUTOFACTORY(IApplicationService, ApplicationService);
-CONFIG_STATIC_AUTOFACTORY(IFormatService, FormatService);
-//CONFIG_STATIC_AUTOFACTORY(ITaskService, TaskService);
-
-// # Tasks
-//CONFIG_STATIC_AUTOFACTORY(ITaskController, TaskController);
-//CONFIG_STATIC_AUTOFACTORY(ILoadDocumentFileTask, LoadDocumentFileTask);
-
-// # Formats
-CONFIG_STATIC_AUTOFACTORY(IPNGFormatDriver, QtPNGFormatDriver);
-CONFIG_STATIC_AUTOFACTORY(IJPEGFormatDriver, QtJPEGFormatDriver);
-
-// # Views
-CONFIG_STATIC_AUTOFACTORY(IMainEditorView, MainEditorView);
-
-
 void ServiceConfiguration::configure()
 {
-    CONFIG_DYNAMIC_AUTOFACTORY(IBrushPainter, IBrushModel::CoreBrushes::BasicBrush, BasicBrushPainter);
-    CONFIG_DYNAMIC_CUSTOMFACTORY(IBrushModel, IBrushModel::CoreBrushes::BasicBrush, &CoreBrushModel::make<BasicBrushPainter>);
+    CONFIG_AUTOFACTORY_BY_TYPE(IRasterDiff, RasterDiff);
+
+    // ## Surfaces
+    CONFIG_AUTOFACTORY_BY_TYPE(IRasterSurface, RasterSurface);
+
+    // # Models
+    CONFIG_AUTOFACTORY_BY_TYPE(ILayer, Layer);
+    CONFIG_AUTOFACTORY_BY_TYPE(IDocument, Document);
+
+    // # Presenters
+    CONFIG_AUTOFACTORY_BY_TYPE(IMainEditorPresenter, MainEditorPresenter);
+    CONFIG_AUTOFACTORY_BY_TYPE(ICanvasPresenter, CanvasPresenter);
+    CONFIG_AUTOFACTORY_BY_TYPE(IViewPortPresenter, ViewPortPresenter);
+    CONFIG_AUTOFACTORY_BY_TYPE(IErrorPresenter, ErrorPresenter);
+    CONFIG_AUTOFACTORY_BY_TYPE(ILayerPresenter, LayerPresenter);
+    CONFIG_AUTOFACTORY_BY_TYPE(IDocumentPresenter, DocumentPresenter);
+    CONFIG_AUTOFACTORY_BY_TYPE(IBrushOperationPresenter, BrushOperationPresenter);
+
+    // ## Asset presenters
+    CONFIG_AUTOFACTORY_BY_TYPE(IBrushPresenter, BrushPresenter);
+
+    // ## Tool presenters
+    CONFIG_AUTOFACTORY_BY_TYPE(INavigateToolPresenter, NavigateToolPresenter);
+    CONFIG_AUTOFACTORY_BY_TYPE(IBrushToolPresenter, BrushToolPresenter);
+
+    // # Rendering
+    CONFIG_AUTOFACTORY_BY_TYPE(IRenderStack, RenderStack);
+
+    // # Services
+    CONFIG_AUTOFACTORY_BY_TYPE(IApplicationService, ApplicationService);
+    CONFIG_AUTOFACTORY_BY_TYPE(IFormatService, FormatService);
+    //CONFIG_AUTOFACTORY_BY_TYPE(ITaskService, TaskService);
+
+    // # Tasks
+    //CONFIG_AUTOFACTORY_BY_TYPE(ITaskController, TaskController);
+    //CONFIG_AUTOFACTORY_BY_TYPE(ILoadDocumentFileTask, LoadDocumentFileTask);
+
+    // # Formats
+    CONFIG_AUTOFACTORY_BY_TYPE(IPNGFormatDriver, QtPNGFormatDriver);
+    CONFIG_AUTOFACTORY_BY_TYPE(IJPEGFormatDriver, QtJPEGFormatDriver);
+
+    // # Views
+    CONFIG_AUTOFACTORY_BY_TYPE(IMainEditorView, MainEditorView);
+
+    CONFIG_AUTOFACTORY_BY_ID(IBrushPainter, IBrushModel::CoreBrushes::BasicBrush, BasicBrushPainter);
+    CONFIG_CUSTOMFACTORY_BY_ID(IBrushModel, IBrushModel::CoreBrushes::BasicBrush, &CoreBrushModel::make<BasicBrushPainter>);
 }

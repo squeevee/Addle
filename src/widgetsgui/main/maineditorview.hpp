@@ -112,6 +112,8 @@ private:
     QToolBar* _optionsToolBar_currentTool = nullptr;
 
     InitializeHelper<MainEditorView> _initHelper;
+
+    friend class ToolSetupHelper;
 };
 
 #endif // BASEDOCUMENTVIEW_HPP
