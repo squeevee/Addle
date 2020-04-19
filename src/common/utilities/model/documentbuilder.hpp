@@ -5,7 +5,6 @@
 #include <QSharedData>
 #include <QSharedDataPointer>
 #include "layerbuilder.hpp"
-#include "interfaces/traits/compat.hpp"
 
 class DocumentBuilder
 {

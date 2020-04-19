@@ -10,12 +10,11 @@
 
 #include "idtypes/toolid.hpp"
 
-#include "interfaces/traits/compat.hpp"
 #include "interfaces/traits/initialize_trait.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 
 class IMainEditorPresenter;
-class ADDLE_COMMON_EXPORT IToolPresenter
+class IToolPresenter
     : public virtual IPropertyDecoratedPresenter
 {
 public:

@@ -9,10 +9,9 @@
 #include "interfaces/models/idocument.hpp"
 #include "interfaces/models/ilayer.hpp"
 
-#include "core/compat.hpp"
 #include "utilities/initializehelper.hpp"
 
-class ADDLE_CORE_EXPORT Document : public QObject, public IDocument
+class Document : public QObject, public IDocument
 {
     Q_OBJECT
 public:

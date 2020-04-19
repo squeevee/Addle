@@ -3,11 +3,10 @@
 
 #include <QList>
 #include "interfaces/traits/qobject_trait.hpp"
-#include "interfaces/traits/compat.hpp"
 #include "idtypes/toolid.hpp"
 
 class IToolPresenter;
-class ADDLE_COMMON_EXPORT IHaveToolsPresenter
+class IHaveToolsPresenter
 {
 public:
     virtual ~IHaveToolsPresenter() = default;

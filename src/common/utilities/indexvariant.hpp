@@ -8,7 +8,6 @@
 #include <typeindex>
 #include <type_traits>
 
-#include "interfaces/traits/compat.hpp"
 #include "typeinforef.hpp"
 
 /**
@@ -19,7 +18,7 @@
  * @note Use direct conversions between QVariant and IndexVariant, not meta
  * conversions.
  */
-class ADDLE_COMMON_EXPORT IndexVariant
+class IndexVariant
 {
 public:
     IndexVariant() = default;
@@ -98,10 +97,7 @@ inline bool operator!=(const QVariant& lhs, const IndexVariant& rhs)
     return !(lhs == rhs);
 }
 
-inline uint qHash(const IndexVariant& var, uint seed = 0)
-{
-	return var.getHash(seed);
-}
+uint qHash(const IndexVariant& var, uint seed = 0);
 
 Q_DECLARE_METATYPE(IndexVariant)
 

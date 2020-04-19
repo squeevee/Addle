@@ -5,7 +5,7 @@
 
 #include "utilities/typeinforef.hpp"
 
-class ADDLE_COMMON_EXPORT FormatId : public PersistentId
+class FormatId : public PersistentId
 {
     PERSISTENT_ID_BOILERPLATE(FormatId)
 public:

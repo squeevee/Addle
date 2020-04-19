@@ -3,7 +3,7 @@
 
 #include "persistentid.hpp"
 
-class ADDLE_COMMON_EXPORT ToolId : public PersistentId
+class ToolId : public PersistentId
 {
     PERSISTENT_ID_BOILERPLATE(ToolId)
 public:

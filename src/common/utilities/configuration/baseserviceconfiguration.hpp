@@ -11,7 +11,6 @@
 #include "interfaces/traits/makeable_trait.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 #include "interfaces/traits/initialize_trait.hpp"
-#include "interfaces/traits/compat.hpp"
 
 #include "idtypes/persistentid.hpp"
 
@@ -27,7 +26,7 @@ static_assert( !implemented_as_QObject<Interface>::value || std::is_base_of<QObj
  * An instance of a subclass of BaseServiceConfiguration can be used to
  * initialize and destroy the ServiceLocator instance.
  */
-class ADDLE_COMMON_EXPORT BaseServiceConfiguration
+class BaseServiceConfiguration
 {
 public:
 

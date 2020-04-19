@@ -2,11 +2,10 @@
 #define QTJPEGFORMATDRIVER_HPP
 
 #include "interfaces/format/drivers/ijpegformatdriver.hpp"
-#include "globalconstants.hpp"
 
 #include "qtimageformatdriver.hpp"
 
-class ADDLE_CORE_EXPORT QtJPEGFormatDriver : public QtImageFormatDriver, public virtual IJPEGFormatDriver
+class QtJPEGFormatDriver : public QtImageFormatDriver, public virtual IJPEGFormatDriver
 {
 public:
     QtJPEGFormatDriver()
@@ -19,12 +18,12 @@ public:
     bool supportsImport() const { return true; }
     bool supportsExport() const { return false; }
 
-    QString getMimeType() const { return "image/jpeg"; }
-    FormatId getFormatId() const { return GlobalConstants::CoreFormats::JPEG; }
+    QString getMimeType() const { return JPEG_MIME_TYPE; }
+    FormatId getFormatId() const { return JPEG_FORMAT_ID; }
 
-    QString getPrimaryFileExtension() { return "jpg"; }
-	QList<QString> getFileExtensions() { return { "jpg", "jpeg", "jpe", "jfif", "jif" }; }
-    QByteArray getSignature() { return QByteArrayLiteral("\xff\xd8\xff"); }
+    QString getPrimaryFileExtension() { return JPEG_FILE_EXTENSION; }
+    QList<QString> getFileExtensions() { return JPEG_FILE_EXTENSIONS; }
+    QByteArray getSignature() { return JPEG_FILE_SIGNATURE; }
 };
 
 #endif // QTJPEGFORMATDRIVER_HPP

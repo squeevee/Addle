@@ -1,17 +1,16 @@
 #ifndef IFILLTOOLPRESENTER_HPP
 #define IFILLTOOLPRESENTER_HPP
 
-#include "interfaces/traits/compat.hpp"
 #include "isimilarregiontoolpresenter.hpp"
 #include "interfaces/traits/initialize_trait.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 #include "interfaces/traits/makeable_trait.hpp"
 #include "interfaces/traits/makeable_trait.hpp"
 
-class ADDLE_COMMON_EXPORT IFillToolPresenter : public virtual ISimilarRegionToolPresenter
+class IFillToolPresenter : public virtual ISimilarRegionToolPresenter
 {
 public:
-    static const ToolId ID;
+    static const ToolId FILL_TOOL_ID;
 
     virtual ~IFillToolPresenter() = default;
 };

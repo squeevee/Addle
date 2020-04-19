@@ -2,7 +2,6 @@
 #define BRUSHPAINTERINFO_HPP
 
 #include <QSharedData>
-#include "interfaces/traits/compat.hpp"
 
 class BrushPainterInfo
 {

@@ -10,12 +10,11 @@
 #include "utilities/initializehelper.hpp"
 
 #include "utilities/presenter/propertycache.hpp"
-#include "core/compat.hpp"
 
 //The ViewPort is the main presenter for the Canvas, representing a rectangular
 //region onscreen that transforms and displays the Canvas' contents. The
 //ViewPort can be zoomed, moved, and rotated relative to the Canvas.
-class ADDLE_CORE_EXPORT ViewPortPresenter: public QObject, public virtual IViewPortPresenter
+class ViewPortPresenter: public QObject, public virtual IViewPortPresenter
 {
     Q_OBJECT
     Q_PROPERTY(

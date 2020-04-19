@@ -5,9 +5,8 @@
 
 #include <QSharedPointer>
 #include "ierrorpresenter.hpp"
-#include "interfaces/traits/compat.hpp"
 
-class ADDLE_COMMON_EXPORT IRaiseErrorPresenter
+class IRaiseErrorPresenter
 {
 public:
     virtual ~IRaiseErrorPresenter() = default;

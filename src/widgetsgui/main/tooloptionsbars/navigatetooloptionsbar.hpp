@@ -7,9 +7,8 @@
 #include "widgetsgui/utilities/optiongroup.hpp"
 #include "interfaces/presenters/toolpresenters/inavigatetoolpresenter.hpp"
 #include "tooloptionbarbase.hpp"
-#include "widgetsgui/compat.hpp"
 
-class ADDLE_WIDGETSGUI_EXPORT NavigateToolOptionsBar : public ToolOptionBarBase
+class NavigateToolOptionsBar : public ToolOptionBarBase 
 {
     typedef INavigateToolPresenter::NavigateOperationOptions NavigateOperationOptions;
     Q_OBJECT 

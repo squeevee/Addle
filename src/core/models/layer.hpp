@@ -13,10 +13,9 @@
 
 #include "interfaces/editing/irastersurface.hpp"
 
-#include "core/compat.hpp"
 #include "utilities/initializehelper.hpp"
 
-class ADDLE_CORE_EXPORT Layer : public QObject, public ILayer
+class Layer : public QObject, public ILayer
 {
     Q_OBJECT
 public:

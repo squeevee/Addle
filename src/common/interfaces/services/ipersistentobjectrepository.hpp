@@ -5,7 +5,6 @@
 #include <QHash>
 
 #include "idtypes/persistentid.hpp"
-#include "interfaces/traits/compat.hpp"
 
 #include <type_traits>
 #include "interfaces/traits/qobject_trait.hpp"

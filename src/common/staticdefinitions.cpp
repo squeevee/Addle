@@ -18,116 +18,117 @@ STATIC_PERSISTENT_ID_BOILERPLATE(ToolId)
 #include "utilities/canvas/canvasmouseevent.hpp"
 int CanvasMouseEvent::_type = QEvent::User;
 
-#include "globalconstants.hpp"
+#include "interfaces/services/iservice.hpp"
+const QString IService::SERVICE_THREAD_NAME_TEMPLATE = QStringLiteral(ADDLE_STRING__ISERVICE__SERVICE_THREAD_NAME_TEMPLATE);
 
-const QColor GlobalConstants::DEFAULT_BACKGROUND_COLOR = Qt::white;
+#include "interfaces/services/iapplicationsservice.hpp"
+const QString IApplicationService::CMD_EDITOR_OPTION = QStringLiteral(ADDLE_STRING__IAPPLICATIONSERVICE__CMD_EDITOR_OPTION);
+const QString IApplicationService::CMD_EDITOR_SHORT_OPTION = QStringLiteral(ADDLE_STRING__IAPPLICATIONSERVICE__CMD_EDITOR_SHORT_OPTION);
+const QString IApplicationService::CMD_BROWSER_OPTION = QStringLiteral(ADDLE_STRING__IAPPLICATIONSERVICE__CMD_BROWSER_OPTION);
+const QString IApplicationService::CMD_BROWSER_SHORT_OPTION = QStringLiteral(ADDLE_STRING__IAPPLICATIONSERVICE__CMD_BROWSER_SHORT_OPTION);
 
-const BrushId GlobalConstants::CoreBrushes::BasicBrush = BrushId("basic-brush");
+#include "interfaces/models/ibrushmodel.hpp"
+const BrushId IBrushModel::CoreBrushes::BasicBrush = BrushId(
+    "basic-brush"
+);
 
 #include "interfaces/models/idocument.hpp"
-const FormatId GlobalConstants::CoreFormats::PNG = FormatId(
+const QColor IDocument::DEFAULT_BACKGROUND_COLOR = Qt::white;
+
+#include "interfaces/format/drivers/ipngformatdriver.hpp"
+const QString IPNGFormatDriver::PNG_FILE_EXTENSION = QStringLiteral(ADDLE_STRING__IPNGFORMATDRIVER__PNG_FILE_EXTENSION);
+const QString IPNGFormatDriver::PNG_MIME_TYPE = QStringLiteral(ADDLE_STRING__IPNGFORMATDRIVER__PNG_MIME_TYPE);
+const QByteArray IPNGFormatDriver::PNG_FILE_SIGNATURE = QByteArrayLiteral(ADDLE_STRING__IPNGFORMATDRIVER__PNG_FILE_SIGNATURE);
+const FormatId IPNGFormatDriver::PNG_FORMAT_ID = FormatId(
     "png-format-id",
-    QStringLiteral("image/png"),
-    typeid(IDocument)
-);
-const FormatId GlobalConstants::CoreFormats::JPEG = FormatId(
-    "jpeg-format-id",
-	QStringLiteral("image/jpeg"),
+    IPNGFormatDriver::PNG_MIME_TYPE,
     typeid(IDocument)
 );
 
-const ToolId GlobalConstants::CoreTools::SELECT = ToolId("select-tool");
-const ToolId GlobalConstants::CoreTools::BRUSH = ToolId("brush-tool");
-const ToolId GlobalConstants::CoreTools::ERASER = ToolId("eraser-tool");
-const ToolId GlobalConstants::CoreTools::FILL = ToolId("fill-tool");
-const ToolId GlobalConstants::CoreTools::TEXT = ToolId("text-tool");
-const ToolId GlobalConstants::CoreTools::SHAPES = ToolId("shapes-tool");
-const ToolId GlobalConstants::CoreTools::STICKERS = ToolId("stickers-tool");
-const ToolId GlobalConstants::CoreTools::EYEDROP = ToolId("eyedrop-tool");
-const ToolId GlobalConstants::CoreTools::NAVIGATE = ToolId("navigate-tool");
-const ToolId GlobalConstants::CoreTools::MEASURE = ToolId("measure-tool");
+#include "interfaces/format/drivers/ijpegformatdriver.hpp"
+const QString IJPEGFormatDriver::JPEG_FILE_EXTENSION = QStringLiteral(ADDLE_STRING__IJPEGFORMATDRIVER__JPEG_FILE_EXTENSION);
+const QStringList IJPEGFormatDriver::JPEG_FILE_EXTENSIONS = {
+    QStringLiteral(ADDLE_STRING__IJPEGFORMATDRIVER__JPEG_FILE_EXTENSION),
+    QStringLiteral(ADDLE_STRING__IJPEGFORMATDRIVER__JPEG_ALT_FILE_EXTENSION_1),
+    QStringLiteral(ADDLE_STRING__IJPEGFORMATDRIVER__JPEG_ALT_FILE_EXTENSION_2),
+    QStringLiteral(ADDLE_STRING__IJPEGFORMATDRIVER__JPEG_ALT_FILE_EXTENSION_3),
+    QStringLiteral(ADDLE_STRING__IJPEGFORMATDRIVER__JPEG_ALT_FILE_EXTENSION_4)
+};
+const QString IJPEGFormatDriver::JPEG_MIME_TYPE = QStringLiteral(ADDLE_STRING__IJPEGFORMATDRIVER__JPEG_MIME_TYPE);
+const QByteArray IJPEGFormatDriver::JPEG_FILE_SIGNATURE = QByteArrayLiteral(ADDLE_STRING__IJPEGFORMATDRIVER__JPEG_FILE_SIGNATURE);
+const FormatId IJPEGFormatDriver::JPEG_FORMAT_ID = FormatId(
+    "jpeg-format-id",
+    IJPEGFormatDriver::JPEG_MIME_TYPE,
+    typeid(IDocument)
+);
 
 #include "interfaces/presenters/toolpresenters/iselecttoolpresenter.hpp"
-const ToolId ISelectToolPresenter::ID = GlobalConstants::CoreTools::SELECT;
+const ToolId ISelectToolPresenter::SELECT_TOOL_ID = ToolId(
+    "select-tool"
+);
 
 #include "interfaces/presenters/toolpresenters/ibrushtoolpresenter.hpp"
-const ToolId IBrushToolPresenter::ID = GlobalConstants::CoreTools::BRUSH;
+const ToolId IBrushToolPresenter::BRUSH_TOOL_ID = ToolId(
+    "brush-tool"
+);
 
 #include "interfaces/presenters/toolpresenters/ierasertoolpresenter.hpp"
-const ToolId IEraserToolPresenter::ID = GlobalConstants::CoreTools::ERASER;
+const ToolId IEraserToolPresenter::ERASER_TOOL_ID = ToolId(
+    "eraser-tool"
+);
 
 #include "interfaces/presenters/toolpresenters/ifilltoolpresenter.hpp"
-const ToolId IFillToolPresenter::ID = GlobalConstants::CoreTools::FILL;
+const ToolId IFillToolPresenter::FILL_TOOL_ID = ToolId(
+    "fill-tool"
+);
 
 #include "interfaces/presenters/toolpresenters/itexttoolpresenter.hpp"
-const ToolId ITextToolPresenter::ID = GlobalConstants::CoreTools::TEXT;
+const ToolId ITextToolPresenter::TEXT_TOOL_ID = ToolId(
+    "text-tool"
+);
 
 #include "interfaces/presenters/toolpresenters/ishapestoolpresenter.hpp"
-const ToolId IShapesToolPresenter::ID = GlobalConstants::CoreTools::SHAPES;
+const ToolId IShapesToolPresenter::SHAPES_TOOL_ID = ToolId(
+    "shapes-tool"
+);
 
 #include "interfaces/presenters/toolpresenters/istickerstoolpresenter.hpp"
-const ToolId IStickersToolPresenter::ID = GlobalConstants::CoreTools::STICKERS;
+const ToolId IStickersToolPresenter::STICKERS_TOOL_ID = ToolId(
+    "stickers-tool"
+);
 
 #include "interfaces/presenters/toolpresenters/ieyedroptoolpresenter.hpp"
-const ToolId IEyedropToolPresenter::ID = GlobalConstants::CoreTools::EYEDROP;
-
-#include "interfaces/presenters/toolpresenters/inavigatetoolpresenter.hpp"
-const ToolId INavigateToolPresenter::ID = GlobalConstants::CoreTools::NAVIGATE;
-
-#include "interfaces/presenters/toolpresenters/imeasuretoolpresenter.hpp"
-const ToolId IMeasureToolPresenter::ID = GlobalConstants::CoreTools::MEASURE;
-
+const ToolId IEyedropToolPresenter::EYEDROP_TOOL_ID = ToolId(
+    "eyedrop-tool"
+);
 
 #include "interfaces/presenters/toolpresenters/inavigatetoolpresenter.hpp"
 #include "interfaces/presenters/toolpresenters/moc_inavigatetoolpresenter.cpp"
+const ToolId INavigateToolPresenter::NAVIGATE_TOOL_ID = ToolId(
+    "navigate-tool"
+);
+
+#include "interfaces/presenters/toolpresenters/imeasuretoolpresenter.hpp"
+const ToolId IMeasureToolPresenter::MEASURE_TOOL_ID = ToolId(
+    "measure-tool"
+);
+
+#include "interfaces/presenters/imaineditorpresenter.hpp"
+const ToolId IMainEditorPresenter::DefaultTools::SELECT   = ISelectToolPresenter::SELECT_TOOL_ID;
+const ToolId IMainEditorPresenter::DefaultTools::BRUSH    = IBrushToolPresenter::BRUSH_TOOL_ID;
+const ToolId IMainEditorPresenter::DefaultTools::ERASER   = IEraserToolPresenter::ERASER_TOOL_ID;
+const ToolId IMainEditorPresenter::DefaultTools::FILL     = IFillToolPresenter::FILL_TOOL_ID;
+const ToolId IMainEditorPresenter::DefaultTools::TEXT     = ITextToolPresenter::TEXT_TOOL_ID;
+const ToolId IMainEditorPresenter::DefaultTools::SHAPES   = IShapesToolPresenter::SHAPES_TOOL_ID;
+const ToolId IMainEditorPresenter::DefaultTools::STICKERS = IStickersToolPresenter::STICKERS_TOOL_ID;
+const ToolId IMainEditorPresenter::DefaultTools::EYEDROP  = IEyedropToolPresenter::EYEDROP_TOOL_ID;
+const ToolId IMainEditorPresenter::DefaultTools::NAVIGATE = INavigateToolPresenter::NAVIGATE_TOOL_ID;
+const ToolId IMainEditorPresenter::DefaultTools::MEASURE  = IMeasureToolPresenter::MEASURE_TOOL_ID;
+
+#include "interfaces/presenters/toolpresenters/ibrushtoolpresenter.hpp"
+const BrushId IBrushToolPresenter::DefaultBrushes::Basic  = IBrushModel::CoreBrushes::BasicBrush;
+
+const BrushId IBrushToolPresenter::DEFAULT_BRUSH = DefaultBrushes::Basic;
 
 #include "interfaces/presenters/assets/ibrushpresenter.hpp"
 #include "interfaces/presenters/assets/moc_ibrushpresenter.cpp"
-
-#include "utilities/configuration/baseserviceconfiguration.hpp"
-
-#include "interfaces/views/imainview.hpp"
-#include "interfaces/views/imaineditorview.hpp"
-
-#include "utilities/debugging.hpp"
-
-#include "interfaces/editing/ibrushpainter.hpp"
-#include "interfaces/editing/irasterdiff.hpp"
-#include "interfaces/editing/irastersurface.hpp"
-#include "interfaces/format/iformatdriver.hpp"
-#include "interfaces/format/iformatmodel.hpp"
-#include "interfaces/format/drivers/ipngformatdriver.hpp"
-#include "interfaces/format/drivers/ijpegformatdriver.hpp"
-#include "interfaces/iaddleexception.hpp"
-#include "interfaces/models/ibrushmodel.hpp"
-#include "interfaces/models/icolorpalette.hpp"
-#include "interfaces/models/idocument.hpp"
-#include "interfaces/models/ilayer.hpp"
-#include "interfaces/presenters/assets/iassetpresenter.hpp"
-#include "interfaces/presenters/assets/ibrushpresenter.hpp"
-#include "interfaces/presenters/assets/ishapepresenter.hpp"
-#include "interfaces/presenters/assets/istickerpresenter.hpp"
-#include "interfaces/presenters/operationpresenters/iundooperationpresenter.hpp"
-#include "interfaces/presenters/operationpresenters/ibrushoperationpresenter.hpp"
-#include "interfaces/presenters/icanvaspresenter.hpp"
-#include "interfaces/presenters/idocumentpresenter.hpp"
-#include "interfaces/presenters/ierrorpresenter.hpp"
-#include "interfaces/presenters/ihavedocumentpresenter.hpp"
-#include "interfaces/presenters/ihavetoolspresenter.hpp"
-#include "interfaces/presenters/ihaveundostackpresenter.hpp"
-#include "interfaces/presenters/ilayerpresenter.hpp"
-#include "interfaces/presenters/imaineditorpresenter.hpp"
-#include "interfaces/presenters/ipropertydecoratedpresenter.hpp"
-#include "interfaces/presenters/iraiseerrorpresenter.hpp"
-#include "interfaces/presenters/iscrollstate.hpp"
-#include "interfaces/presenters/iviewportpresenter.hpp"
-#include "interfaces/rendering/irenderstack.hpp"
-#include "interfaces/rendering/irenderstep.hpp"
-#include "interfaces/servicelocator/ifactory.hpp"
-#include "interfaces/servicelocator/iservicelocator.hpp"
-#include "interfaces/services/iapplicationsservice.hpp"
-#include "interfaces/services/iformatservice.hpp"
-#include "interfaces/services/ipersistentobjectrepository.hpp"
-#include "interfaces/services/iservice.hpp"
-#include "interfaces/views/imaineditorview.hpp"
-#include "interfaces/views/imainview.hpp"

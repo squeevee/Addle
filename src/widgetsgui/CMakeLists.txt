@@ -20,11 +20,5 @@ set (
     utilities/zoomslider.cpp
 )
 
-add_definitions( -DADDLE_BUILDING_WIDGETSGUI )
-
 add_library(widgetsgui SHARED ${SOURCES})
 target_link_libraries(widgetsgui common Qt5::Core Qt5::Widgets )
-
-if (${MSVC})
-	set_target_properties(widgetsgui PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
-endif()

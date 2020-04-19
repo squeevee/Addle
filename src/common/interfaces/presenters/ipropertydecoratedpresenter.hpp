@@ -4,8 +4,7 @@
 #include "interfaces/traits/qobject_trait.hpp"
 #include "utilities/presenter/propertydecoration.hpp"
 
-#include "interfaces/traits/compat.hpp"
-class ADDLE_COMMON_EXPORT IPropertyDecoratedPresenter
+class IPropertyDecoratedPresenter
 {
 public:
     virtual ~IPropertyDecoratedPresenter() = default;

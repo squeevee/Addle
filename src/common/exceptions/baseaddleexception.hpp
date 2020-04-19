@@ -10,7 +10,7 @@
 
 #include "interfaces/iaddleexception.hpp"
 
-class ADDLE_COMMON_EXPORT BaseAddleException : public IAddleException
+class BaseAddleException : public IAddleException
 {
 #ifdef ADDLE_DEBUG
     struct Location

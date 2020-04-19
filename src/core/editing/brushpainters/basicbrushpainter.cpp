@@ -1,12 +1,10 @@
 #include "basicbrushpainter.hpp"
 
-#include "globalconstants.hpp"
-#include <QtDebug>
 #include <QPainter>
 #include <QPen>
 #include "utilities/mathutils.hpp"
 
-const BrushId BasicBrushPainter::ID = GlobalConstants::CoreBrushes::BasicBrush;
+const BrushId BasicBrushPainter::ID = IBrushModel::CoreBrushes::BasicBrush;
 
 const BrushPainterInfo BasicBrushPainter::INFO = BrushPainterInfo(
     /* isSizeInvariant: */ false,

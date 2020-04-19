@@ -9,12 +9,11 @@
 #include "interfaces/presenters/iviewportpresenter.hpp"
 #include "utilities/initializehelper.hpp"
 
-#include "widgetsgui/compat.hpp"
 class CanvasScene;
 class ICanvasPresenter;
 class IViewPortPresenter;
 class IDocumentPresenter;
-class ADDLE_WIDGETSGUI_EXPORT ViewPort : public QGraphicsView
+class ViewPort : public QGraphicsView
 {
     Q_OBJECT
 public:

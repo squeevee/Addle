@@ -4,7 +4,6 @@
 #include <QSharedPointer>
 #include <QMetaType>
 
-#include "interfaces/traits/compat.hpp"
 #include "interfaces/iaddleexception.hpp"
 
 #include "interfaces/models/idocument.hpp"

@@ -5,7 +5,6 @@
 #include <type_traits>
 #include <QVector>
 
-#include "interfaces/traits/compat.hpp"
 /**
  * @class PropertyCache
  * @brief Automatically caches a dynamically calculated property, calling a

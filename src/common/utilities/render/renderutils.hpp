@@ -5,7 +5,6 @@
 #include <QWeakPointer>
 #include "interfaces/rendering/irenderstep.hpp"
 #include "servicelocator.hpp"
-#include "interfaces/traits/compat.hpp"
 
 inline void render(QList<QWeakPointer<IRenderStep>> steps, RenderData data)
 {

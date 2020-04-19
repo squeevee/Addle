@@ -5,9 +5,8 @@
 #include <QObject>
 #include "interfaces/presenters/idocumentpresenter.hpp"
 #include "utilities/initializehelper.hpp"
-#include "core/compat.hpp"
 
-class ADDLE_CORE_EXPORT DocumentPresenter : public QObject, public IDocumentPresenter
+class DocumentPresenter : public QObject, public IDocumentPresenter
 {
     Q_OBJECT
 public:

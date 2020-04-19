@@ -1,15 +1,14 @@
 #ifndef ICOLORPALETTE_HPP
 #define ICOLORPALETTE_HPP
 
-#include "utilities/rectangulararray.hpp"
-#include "interfaces/traits/compat.hpp"
+#include "utilities/qtextensions/rectangulararray.hpp"
 #include <QColor>
 
-class ADDLE_COMMON_EXPORT IColorPalette
+class IColorPalette
 {
 public:
     virtual ~IColorPalette() = default;
-    virtual RectangularArray<QColor> getColors() = 0;
+    RectangularArray<QColor> getColors();
 
 };
 

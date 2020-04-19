@@ -1,16 +1,15 @@
 #ifndef ITEXTTOOLPRESENTER_HPP
 #define ITEXTTOOLPRESENTER_HPP
 
-#include "interfaces/traits/compat.hpp"
 #include "itoolpresenter.hpp"
 #include "interfaces/traits/initialize_trait.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 #include "interfaces/traits/makeable_trait.hpp"
 
-class ADDLE_COMMON_EXPORT ITextToolPresenter : public virtual IToolPresenter
+class ITextToolPresenter : public virtual IToolPresenter
 {
 public:
-    static const ToolId ID;
+    static const ToolId TEXT_TOOL_ID;
 
     virtual ~ITextToolPresenter() = default;
 };

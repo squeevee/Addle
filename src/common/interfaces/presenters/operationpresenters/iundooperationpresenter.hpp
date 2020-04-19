@@ -5,9 +5,8 @@
 #include <QSharedPointer>
 
 #include "interfaces/traits/qobject_trait.hpp"
-#include "interfaces/traits/compat.hpp"
 
-class ADDLE_COMMON_EXPORT IUndoOperationPresenter
+class IUndoOperationPresenter
 {
 public: 
     virtual ~IUndoOperationPresenter() = default;

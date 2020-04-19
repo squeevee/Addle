@@ -1,7 +1,6 @@
 #ifndef RASTERSURFACE_HPP
 #define RASTERSURFACE_HPP
 
-#include "core/compat.hpp"
 #include "interfaces/rendering/irenderstep.hpp"
 #include "interfaces/editing/irastersurface.hpp"
 #include "utilities/initializehelper.hpp"
@@ -9,7 +8,7 @@
 #include <QReadWriteLock>
 
 class RasterSurfaceRenderStep;
-class ADDLE_CORE_EXPORT RasterSurface : public QObject, public IRasterSurface
+class RasterSurface : public QObject, public IRasterSurface
 {
     Q_OBJECT
 public:

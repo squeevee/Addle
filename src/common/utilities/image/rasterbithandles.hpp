@@ -4,9 +4,8 @@
 #include <QRect>
 #include <QImage>
 
-#include "interfaces/traits/compat.hpp"
 class IRasterSurface;
-class ADDLE_COMMON_EXPORT RasterBitReader
+class RasterBitReader
 {
 public:
     RasterBitReader(RasterBitReader&& other);
@@ -40,7 +39,7 @@ private:
     friend class IRasterSurface;
 };
 
-class ADDLE_COMMON_EXPORT RasterBitWriter
+class RasterBitWriter
 {
 public:
     RasterBitWriter(RasterBitWriter&& other);

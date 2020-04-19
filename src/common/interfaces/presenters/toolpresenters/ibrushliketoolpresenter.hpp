@@ -8,7 +8,6 @@
 #include <QSharedPointer>
 
 #include "itoolpresenter.hpp"
-#include "interfaces/traits/compat.hpp"
 #include "interfaces/traits/initialize_trait.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 
@@ -19,7 +18,7 @@
 
 #include "interfaces/traits/metaobjectinfo.hpp"
 
-class ADDLE_COMMON_EXPORT IBrushLikeToolPresenter : public virtual IToolPresenter, public virtual IToolWithAssetsPresenter
+class IBrushLikeToolPresenter : public virtual IToolPresenter, public virtual IToolWithAssetsPresenter
 {
 public:
     INTERFACE_META(IBrushLikeToolPresenter)

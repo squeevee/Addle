@@ -1,13 +1,12 @@
 #ifndef IEYEDROPTOOLPRESENTER_HPP
 #define IEYEDROPTOOLPRESENTER_HPP
 
-#include "interfaces/traits/compat.hpp"
 #include "itoolpresenter.hpp"
 #include "interfaces/traits/initialize_trait.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 
 #include "interfaces/traits/makeable_trait.hpp"
-class ADDLE_COMMON_EXPORT IEyedropToolPresenter : public virtual IToolPresenter
+class IEyedropToolPresenter : public virtual IToolPresenter
 {
 public:
     //NECESSARY?
@@ -17,7 +16,7 @@ public:
         currentLayer
     };
 
-    static const ToolId ID;
+    static const ToolId EYEDROP_TOOL_ID;
 
     virtual ~IEyedropToolPresenter() = default;
 

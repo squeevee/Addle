@@ -3,11 +3,10 @@
 
 #include <QString>
 
-#include "interfaces/traits/compat.hpp"
 #include "interfaces/traits/initialize_trait.hpp"
 #include "interfaces/traits/makeable_trait.hpp"
 
-class ADDLE_COMMON_EXPORT IErrorPresenter
+class IErrorPresenter 
 {
 public:
 

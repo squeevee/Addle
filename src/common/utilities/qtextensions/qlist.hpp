@@ -1,7 +1,6 @@
 #ifndef qtextensions__QLIST_HPP
 #define qtextensions__QLIST_HPP
 
-#include "interfaces/traits/compat.hpp"
 #include <initializer_list>
 #include <QList>
 #include <QHash>

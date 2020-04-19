@@ -6,7 +6,6 @@
 #include <QHash>
 #include <QVariant>
 
-#include "interfaces/traits/compat.hpp"
 #include "utilities/indexvariant.hpp"
 
 /**
@@ -33,7 +32,7 @@
  * for derived classes, as well as declaring and registering meta-type, meta-
  * converters, and an IndexVariant hasher.
  */
-class ADDLE_COMMON_EXPORT PersistentId
+class PersistentId
 {
     struct PersistentIdData : QSharedData
     {

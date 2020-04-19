@@ -6,14 +6,13 @@
 #include <QFlags>
 #include "globalconstants.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
-#include "interfaces/traits/compat.hpp"
 
-void ADDLE_COMMON_EXPORT debugMessageHandler(QtMsgType type, const QMessageLogContext& context, const QString& message);
+void debugMessageHandler(QtMsgType type, const QMessageLogContext& context, const QString& message);
 
 // Modify various error handling and other debug-related behaviors
 // The environment variable `ADDLE_DEBUG_BEHAVIOR` can be set to an (base 10)
 // int representing a combination of these flags
-class ADDLE_COMMON_EXPORT DebugBehavior
+class DebugBehavior
 {
 public:
     enum DebugBehaviorOptions

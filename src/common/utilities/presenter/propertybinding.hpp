@@ -6,7 +6,6 @@
 
 #include "utilities/qtextensions/qobject.hpp"
 #include "propertyobserver.hpp"
-#include "interfaces/traits/compat.hpp"
 
 class BindingConverter
 {
@@ -49,7 +48,7 @@ private:
  * @class PropertyBinding
  * @brief Binds the value of one QObject property to another
  */
-class ADDLE_COMMON_EXPORT PropertyBinding : public QObject
+class PropertyBinding : public QObject
 {
     Q_OBJECT
 public:

@@ -13,7 +13,6 @@
 #include "interfaces/models/idocument.hpp"
 
 #include "interfaces/format/iformatmodel.hpp"
-#include "interfaces/traits/compat.hpp"
 
 //#include "interfaces/tasks/itaskstatuscontroller.hpp"
 
@@ -27,7 +26,7 @@
  * 
  * @ingroup interfaces
  */
-class ADDLE_COMMON_EXPORT IFormatService : public virtual IService
+class IFormatService : public virtual IService
 {
 public:
     //virtual IDocument* loadFile(QString filename) = 0;

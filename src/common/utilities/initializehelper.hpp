@@ -4,7 +4,6 @@
 #include <QObject>
 #include <typeinfo>
 #include <type_traits>
-#include "interfaces/traits/compat.hpp"
 
 #include "../exceptions/initializeexceptions.hpp"
 

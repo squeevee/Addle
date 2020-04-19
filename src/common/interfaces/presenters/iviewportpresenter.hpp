@@ -10,12 +10,11 @@
 #include "interfaces/traits/qobject_trait.hpp"
 
 #include "interfaces/traits/metaobjectinfo.hpp"
-#include "interfaces/traits/compat.hpp"
 
 #include "iscrollstate.hpp"
 
 class IMainEditorPresenter;
-class ADDLE_COMMON_EXPORT IViewPortPresenter
+class IViewPortPresenter
 {
 public:
     INTERFACE_META(IViewPortPresenter)

@@ -10,13 +10,12 @@
 #include "utilities/model/importexportinfo.hpp"
 //#include "interfaces/tasks/itaskstatuscontroller.hpp"
 //#include "interfaces/tasks/itaskcontroller.hpp"
-#include "interfaces/traits/compat.hpp"
 
 #include "idtypes/formatid.hpp"
 
 #include "iformatmodel.hpp"
 
-class ADDLE_COMMON_EXPORT IFormatDriver
+class IFormatDriver
 {
 public:
     virtual ~IFormatDriver() = default;

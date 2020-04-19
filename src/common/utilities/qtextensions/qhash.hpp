@@ -11,7 +11,6 @@
 
 #ifndef qtextensions__QHASH_HPP
 #define qtextensions__QHASH_HPP
-#include "interfaces/traits/compat.hpp"
 
 #include <typeindex>
 #include <QHash>
@@ -22,14 +21,8 @@
 
 namespace std
 {
-	inline uint qHash(const std::type_index& key, uint seed = 0)
-	{
-		return key.hash_code() ^ seed;
-	}
+    uint qHash(const std::type_index& key, uint seed = 0);
 }
-inline uint qHash(const PersistentId& id, uint seed = 0)
-{
-	return qHash(id._data, seed);
-}
+uint qHash(const PersistentId& id, uint seed = 0);
 
 #endif //qtextensions__QHASH_HPP

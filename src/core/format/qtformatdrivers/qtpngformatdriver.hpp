@@ -4,9 +4,8 @@
 #include "interfaces/format/drivers/ipngformatdriver.hpp"
 
 #include "qtimageformatdriver.hpp"
-#include "globalconstants.hpp"
 
-class ADDLE_CORE_EXPORT QtPNGFormatDriver : public QtImageFormatDriver, public virtual IPNGFormatDriver
+class QtPNGFormatDriver : public QtImageFormatDriver, public virtual IPNGFormatDriver
 {
 public:
     QtPNGFormatDriver()
@@ -19,12 +18,12 @@ public:
     bool supportsImport() const { return true; }
     bool supportsExport() const { return false; }
 
-    QString getMimeType() const { return "image/png"; }
-    FormatId getFormatId() const { return GlobalConstants::CoreFormats::PNG; }
+    QString getMimeType() const { return PNG_MIME_TYPE; }
+    FormatId getFormatId() const { return PNG_FORMAT_ID; }
 
-    QString getPrimaryFileExtension() { return "png"; }
-    QList<QString> getFileExtensions() { return { "png" }; }
-    QByteArray getSignature() { return QByteArrayLiteral("\x89\x50\x4E\x47\x0D\x0A\x1A\x0A"); }
+    QString getPrimaryFileExtension() { return PNG_FILE_EXTENSION; }
+    QList<QString> getFileExtensions() { return { PNG_FILE_EXTENSION }; }
+    QByteArray getSignature() { return PNG_FILE_SIGNATURE; }
 
 };
 

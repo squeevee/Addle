@@ -6,9 +6,8 @@
 #include <QRect>
 #include <QPainter>
 #include <QPainterPath>
-#include "interfaces/traits/compat.hpp"
 
-class ADDLE_COMMON_EXPORT RenderData
+class RenderData
 {
 public:
     enum Hint

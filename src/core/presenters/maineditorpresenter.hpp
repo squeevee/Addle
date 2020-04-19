@@ -8,7 +8,6 @@
 #include <QHash>
 #include <QUrl>
 
-#include "core/compat.hpp"
 #include "helpers/undostackhelper.hpp"
 
 //#include "interfaces/tasks/itask.hpp"
@@ -34,7 +33,7 @@ class IMeasureToolPresenter;
 
 class LoadDocumentTask;
 
-class ADDLE_CORE_EXPORT MainEditorPresenter : public QObject, public virtual IMainEditorPresenter
+class MainEditorPresenter : public QObject, public virtual IMainEditorPresenter
 {
     Q_OBJECT
     Q_PROPERTY(

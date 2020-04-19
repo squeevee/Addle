@@ -3,12 +3,11 @@
 
 #include <QEvent>
 #include <QPointF>
-#include "interfaces/traits/compat.hpp"
 
 /**
  * 
  */
-class ADDLE_COMMON_EXPORT CanvasMouseEvent : public QEvent
+class CanvasMouseEvent : public QEvent
 {
 public: 
     enum Action 

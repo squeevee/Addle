@@ -12,14 +12,15 @@
 #include "interfaces/format/iformatmodel.hpp"
 #include "interfaces/traits/makeable_trait.hpp"
 
-#include "interfaces/traits/compat.hpp"
 #include "utilities/model/documentbuilder.hpp"
 #include "interfaces/traits/initialize_trait.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 
-class ADDLE_COMMON_EXPORT IDocument : public virtual IFormatModel
+class IDocument : public virtual IFormatModel
 {
 public:
+    static const QColor DEFAULT_BACKGROUND_COLOR;
+
     virtual ~IDocument() {}
 
     virtual void initialize() = 0;

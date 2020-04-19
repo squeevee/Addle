@@ -11,8 +11,7 @@
 #include "interfaces/presenters/iviewportpresenter.hpp"
 #include "widgetsgui/utilities/zoomslider.hpp"
 
-#include "widgetsgui/compat.hpp"
-class ADDLE_WIDGETSGUI_EXPORT ZoomRotateWidget : public QToolBar //QWidget 
+class ZoomRotateWidget : public QToolBar //QWidget 
 {
     Q_OBJECT
 public:

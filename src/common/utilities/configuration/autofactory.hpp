@@ -9,7 +9,6 @@
 #include "interfaces/traits/by_id_traits.hpp"
 #include "interfaces/servicelocator/iservicelocator.hpp"
 #include "interfaces/servicelocator/ifactory.hpp"
-#include "interfaces/traits/compat.hpp"
 
 /**
  * A generic template-based object factory.

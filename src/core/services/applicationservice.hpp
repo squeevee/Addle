@@ -5,12 +5,11 @@
 #include <QUrl>
 #include "servicebase.hpp"
 
-#include "core/compat.hpp"
 #include "interfaces/services/iapplicationsservice.hpp"
 
 #include "helpers/servicethreadhelper.hpp"
 
-class ADDLE_CORE_EXPORT ApplicationService : public QObject, public virtual ServiceBase, public virtual IApplicationService
+class ApplicationService : public QObject, public virtual ServiceBase, public virtual IApplicationService
 {
     Q_OBJECT
     Q_INTERFACES(IApplicationService)

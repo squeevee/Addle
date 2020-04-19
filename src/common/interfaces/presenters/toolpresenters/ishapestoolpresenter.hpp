@@ -3,17 +3,16 @@
 
 #include <QList>
 
-#include "interfaces/traits/compat.hpp"
 #include "../assets/ishapepresenter.hpp"
 #include "itoolpresenter.hpp"
 #include "interfaces/traits/initialize_trait.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 #include "interfaces/traits/makeable_trait.hpp"
 
-class ADDLE_COMMON_EXPORT IShapesToolPresenter : public virtual IToolPresenter
+class IShapesToolPresenter : public virtual IToolPresenter
 {
 public:
-    static const ToolId ID;
+    static const ToolId SHAPES_TOOL_ID;
 
     virtual ~IShapesToolPresenter() = default;
 };

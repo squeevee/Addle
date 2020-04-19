@@ -1,13 +1,12 @@
 #ifndef ISELECTTOOLPRESENTER_HPP
 #define ISELECTTOOLPRESENTER_HPP
 
-#include "interfaces/traits/compat.hpp"
 #include "isimilarregiontoolpresenter.hpp"
 #include "interfaces/traits/initialize_trait.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 #include "interfaces/traits/makeable_trait.hpp"
 
-class ADDLE_COMMON_EXPORT ISelectToolPresenter : public virtual ISimilarRegionToolPresenter
+class ISelectToolPresenter : public virtual ISimilarRegionToolPresenter
 {
 public:
     enum SelectStyleOptions {
@@ -33,7 +32,7 @@ public:
         distort
     };
 
-    static const ToolId ID;
+    static const ToolId SELECT_TOOL_ID;
 
     virtual ~ISelectToolPresenter() = default;
 

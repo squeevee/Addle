@@ -4,10 +4,9 @@
 #include "idtypes/brushid.hpp"
 
 #include "utilities/canvas/brushpainterinfo.hpp"
-#include "interfaces/traits/compat.hpp"
 #include "interfaces/traits/by_id_traits.hpp"
 
-class ADDLE_COMMON_EXPORT IBrushModel
+class IBrushModel
 {
 public:
     virtual ~IBrushModel() = default;
@@ -15,6 +14,11 @@ public:
     virtual BrushId getId() const = 0;
 
     virtual BrushPainterInfo getPainterInfo() const = 0;
+    
+    struct CoreBrushes
+    {
+        static const BrushId BasicBrush;
+    };
 };
 
 DECL_PERSISTENT_OBJECT_TYPE(IBrushModel, BrushId);

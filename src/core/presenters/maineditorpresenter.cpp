@@ -1,7 +1,6 @@
 #include "QtDebug"
 #include <QApplication>
-
-#include "globalconstants.hpp"
+#include <QtConcurrent>
 
 #include "maineditorpresenter.hpp"
 
@@ -49,39 +48,39 @@ void MainEditorPresenter::initialize(Mode mode)
     _tools = {{
         Mode::Editor,
         {
-            GlobalConstants::CoreTools::SELECT,
-			GlobalConstants::CoreTools::BRUSH,
-			GlobalConstants::CoreTools::ERASER,
-			GlobalConstants::CoreTools::TEXT,
-			GlobalConstants::CoreTools::SHAPES,
-			GlobalConstants::CoreTools::STICKERS,
-			GlobalConstants::CoreTools::EYEDROP,
-			GlobalConstants::CoreTools::NAVIGATE,
-			GlobalConstants::CoreTools::MEASURE
+            DefaultTools::SELECT,
+            DefaultTools::BRUSH,
+            DefaultTools::ERASER,
+            DefaultTools::TEXT,
+            DefaultTools::SHAPES,
+            DefaultTools::STICKERS,
+            DefaultTools::EYEDROP,
+            DefaultTools::NAVIGATE,
+            DefaultTools::MEASURE
         }
     }};
 
     _toolPresenters = {
         {
-			GlobalConstants::CoreTools::BRUSH,
+            DefaultTools::BRUSH,
             _brushTool = ServiceLocator::make<IBrushToolPresenter>(this)
         },
         {
-			GlobalConstants::CoreTools::NAVIGATE,
+            DefaultTools::NAVIGATE,
             _navigateTool = ServiceLocator::make<INavigateToolPresenter>(this)
         }
     };
 
     _propertyDecorationHelper.setIconPool({
-        { GlobalConstants::CoreTools::BRUSH, QIcon(":/icons/brush.png") },
-        { GlobalConstants::CoreTools::NAVIGATE, QIcon(":/icons/navigate.png") }
+        { DefaultTools::BRUSH, QIcon(":/icons/brush.png") },
+        { DefaultTools::NAVIGATE, QIcon(":/icons/navigate.png") }
     });
 
     _propertyDecorationHelper.initializeIdProperty<ToolId>(
         "currentTool",
         {
-			GlobalConstants::CoreTools::BRUSH,
-			GlobalConstants::CoreTools::NAVIGATE
+            DefaultTools::BRUSH,
+            DefaultTools::NAVIGATE
         }
     );
 

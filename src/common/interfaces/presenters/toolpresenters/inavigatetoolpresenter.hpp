@@ -12,22 +12,23 @@
 #include "interfaces/presenters/iviewportpresenter.hpp"
 
 #include "interfaces/traits/metaobjectinfo.hpp"
-#include "interfaces/traits/compat.hpp"
 
-class ADDLE_COMMON_EXPORT INavigateToolPresenter : public virtual IToolPresenter
+class INavigateToolPresenter : public virtual IToolPresenter
 {
-	Q_GADGET
+    Q_GADGET
 public:
     INTERFACE_META(INavigateToolPresenter)
-		
+
+    static const ToolId NAVIGATE_TOOL_ID;
+
     enum NavigateOperationOptions {
         gripPan,
         gripPivot,
         rectangleZoomTo
     };
-	Q_ENUM(NavigateOperationOptions);
+    Q_ENUM(NavigateOperationOptions)
 
-	static const ToolId ID;
+    static const NavigateOperationOptions DEFAULT_NAVIGATE_OPERATION_OPTION = gripPan;
 
     virtual ~INavigateToolPresenter() = default;
 

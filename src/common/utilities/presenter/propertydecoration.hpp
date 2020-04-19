@@ -9,7 +9,6 @@
 #include <QHash>
 #include "utilities/qtextensions/qlist.hpp"
 #include "utilities/indexvariant.hpp"
-#include "interfaces/traits/compat.hpp"
 
 class OptionDecoration
 {

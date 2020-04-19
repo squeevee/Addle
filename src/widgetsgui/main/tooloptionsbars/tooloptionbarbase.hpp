@@ -7,9 +7,8 @@
 
 #include "utilities/qtextensions/qobject.hpp"
 #include "widgetsgui/utilities/decorationhelper.hpp"
-#include "widgetsgui/compat.hpp"
 
-class ADDLE_WIDGETSGUI_EXPORT ToolOptionBarBase : public QToolBar
+class ToolOptionBarBase : public QToolBar 
 {
     Q_OBJECT 
 public:
