@@ -12,3 +12,11 @@ set (
 
 add_executable(addle ${SOURCES})
 target_link_libraries(addle Qt5::Core core common widgetsgui )
+
+if (WIN32)
+    add_custom_command (
+        TARGET addle POST_BUILD
+        COMMAND cp
+        ARGS ${LIBRARY_OUTPUT_PATH}/*.dll ${EXECUTABLE_OUTPUT_PATH}
+    )
+endif ()
