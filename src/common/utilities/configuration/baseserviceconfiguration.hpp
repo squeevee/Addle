@@ -1,6 +1,7 @@
 #ifndef BASESERVICECONFIGURATION_HPP
 #define BASESERVICECONFIGURATION_HPP
 
+#include "compat.hpp"
 #include <QObject>
 #include <QTimer>
 #include <QtDebug>
@@ -26,7 +27,7 @@ static_assert( !implemented_as_QObject<Interface>::value || std::is_base_of<QObj
  * An instance of a subclass of BaseServiceConfiguration can be used to
  * initialize and destroy the ServiceLocator instance.
  */
-class BaseServiceConfiguration
+class ADDLE_COMMON_EXPORT BaseServiceConfiguration
 {
 public:
 

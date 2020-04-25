@@ -1,6 +1,8 @@
 #ifndef INAVIGATETOOLPRESENTER_HPP
 #define INAVIGATETOOLPRESENTER_HPP
 
+#include "compat.hpp"
+
 #include <QObject>
 #include <QString>
 #include <QIcon>
@@ -13,22 +15,13 @@
 
 #include "interfaces/traits/metaobjectinfo.hpp"
 
+#include "inavigatetoolpresenteraux.hpp"
+
 class INavigateToolPresenter : public virtual IToolPresenter
 {
-    Q_GADGET
 public:
+    typedef INavigateToolPresenterAux::NavigateOperationOptions NavigateOperationOptions;
     INTERFACE_META(INavigateToolPresenter)
-
-    static const ToolId NAVIGATE_TOOL_ID;
-
-    enum NavigateOperationOptions {
-        gripPan,
-        gripPivot,
-        rectangleZoomTo
-    };
-    Q_ENUM(NavigateOperationOptions)
-
-    static const NavigateOperationOptions DEFAULT_NAVIGATE_OPERATION_OPTION = gripPan;
 
     virtual ~INavigateToolPresenter() = default;
 

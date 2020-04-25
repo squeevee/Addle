@@ -1,6 +1,7 @@
 #ifndef DOCUMENTBUILDER_HPP
 #define DOCUMENTBUILDER_HPP
 
+#include "compat.hpp"
 #include <QString>
 #include <QSharedData>
 #include <QSharedDataPointer>

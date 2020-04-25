@@ -21,7 +21,7 @@
 #include "idtypes/formatid.hpp"
 #include "utilities/canvas/canvasmouseevent.hpp"
 
-void registerQMetaTypes()
+inline void registerQMetaTypes()
 {
     qRegisterMetaType<QSharedPointer<IAddleException>>();
 

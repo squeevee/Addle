@@ -30,6 +30,8 @@
 #include <QFile>
 #include <QImage>
 
+using namespace IMainEditorPresenterAux;
+
 MainEditorPresenter::~MainEditorPresenter()
 {
     for (IToolPresenter* tool : _toolPresenters)

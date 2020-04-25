@@ -4,6 +4,8 @@
 
 #include "utilities/canvas/canvasmouseevent.hpp"
 
+using namespace INavigateToolPresenterAux;
+
 void NavigateToolPresenter::initialize(IMainEditorPresenter* owner)
 {
     _initHelper.initializeBegin();

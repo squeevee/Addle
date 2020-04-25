@@ -4,6 +4,7 @@ set ( CMAKE_AUTOMOC ON)
 
 set (
     SOURCES
+    definitions.cpp
     editing/brushpainters/basicbrushpainter.cpp
     editing/rasterdiff.cpp
     editing/rastersurface.cpp
@@ -23,8 +24,10 @@ set (
     rendering/renderstack.cpp
     services/applicationservice.cpp
     services/formatservice.cpp
-    format/qtformatdrivers/qtimageformatdriver.cpp
+    format/qtimageformatdriver.cpp
 )
+
+add_definitions(-DADDLE_EXPORTING_CORE)
 
 add_library(core SHARED ${SOURCES})
 target_link_libraries(core common Qt5::Core Qt5::Widgets Qt5::Concurrent)

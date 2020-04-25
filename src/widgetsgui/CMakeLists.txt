@@ -20,5 +20,6 @@ set (
     utilities/zoomslider.cpp
 )
 
+add_definitions(-DADDLE_EXPORTING_WIDGETSGUI)
 add_library(widgetsgui SHARED ${SOURCES})
 target_link_libraries(widgetsgui common Qt5::Core Qt5::Widgets )

@@ -1,6 +1,7 @@
 #ifndef BASICBRUSHPAINTER_HPP
 #define BASICBRUSHPAINTER_HPP
 
+#include "compat.hpp"
 #include <QObject>
 
 #include "interfaces/editing/ibrushpainter.hpp"
@@ -8,7 +9,7 @@
 
 #include "helpers/brushpaintercommon.hpp"
 
-class BasicBrushPainter : public QObject, public IBrushPainter
+class ADDLE_CORE_EXPORT BasicBrushPainter : public QObject, public IBrushPainter
 {
     Q_OBJECT
 public:

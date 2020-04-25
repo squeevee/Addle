@@ -12,7 +12,7 @@ IFormatModel* QtImageFormatDriver::importModel(QIODevice& device, ImportExportIn
     documentBuilder.setFilename(info.getFilename());
 
     QImage image;
-    image.load(&device, _qtFormatName);
+    image.load(&device, _name);
 
     LayerBuilder layerBuilder;
     layerBuilder.setImage(image);

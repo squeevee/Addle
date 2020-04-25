@@ -1,13 +1,14 @@
 #ifndef CANVASMOUSEEVENT_HPP
 #define CANVASMOUSEEVENT_HPP
 
+#include "compat.hpp"
 #include <QEvent>
 #include <QPointF>
 
 /**
  * 
  */
-class CanvasMouseEvent : public QEvent
+class ADDLE_COMMON_EXPORT CanvasMouseEvent : public QEvent
 {
 public: 
     enum Action 

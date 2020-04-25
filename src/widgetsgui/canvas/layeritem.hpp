@@ -1,11 +1,12 @@
 #ifndef LAYERITEM_HPP
 #define LAYERITEM_HPP
 
+#include "compat.hpp"
 #include <QObject>
 #include <QGraphicsItem>
 
 class ILayerPresenter;
-class LayerItem: public QObject, public QGraphicsItem
+class ADDLE_WIDGETSGUI_EXPORT LayerItem: public QObject, public QGraphicsItem
 {
     Q_OBJECT 
 public:

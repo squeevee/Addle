@@ -125,21 +125,21 @@ void ApplicationService::parseCommandLine()
 
     QCommandLineOption editorOption(
         {
-            IApplicationService::CMD_EDITOR_SHORT_OPTION,
-            IApplicationService::CMD_EDITOR_OPTION
+            "e",
+            "editor"
         }, 
         QCoreApplication::translate("ApplicationService", "Explicitly start Addle in editor mode.")
     );
     parser.addOption(editorOption);
 
-    QCommandLineOption viewerOption(
+    QCommandLineOption browserOption(
         {
-            IApplicationService::CMD_BROWSER_SHORT_OPTION,
-            IApplicationService::CMD_BROWSER_OPTION
+            "b",
+            "browser"
         },
         QCoreApplication::translate("ApplicationService", "Explicitly start Addle in browser mode.")
     );
-    parser.addOption(viewerOption);
+    parser.addOption(browserOption);
 
     parser.addPositionalArgument(
         QCoreApplication::translate("ApplicationService", "open"),
@@ -206,7 +206,7 @@ void ApplicationService::parseCommandLine()
         }
     }
 
-    if (parser.isSet(editorOption) && parser.isSet(viewerOption))
+    if (parser.isSet(editorOption) && parser.isSet(browserOption))
     {
         ADDLE_THROW(MultipleStartModesException());
     }
@@ -221,7 +221,7 @@ void ApplicationService::parseCommandLine()
         ));
 #endif
     }
-    else if (parser.isSet(viewerOption))
+    else if (parser.isSet(browserOption))
     {
         _startupMode = StartupMode::browser;
 
@@ -232,7 +232,7 @@ void ApplicationService::parseCommandLine()
         ));
 #endif
     }
-    else if (!parser.isSet(editorOption) && !parser.isSet(viewerOption))
+    else if (!parser.isSet(editorOption) && !parser.isSet(browserOption))
     {
         if (_startingFilename.isNull() || _startingUrl.isEmpty())
         {
@@ -262,7 +262,7 @@ void ApplicationService::startGraphicalApplication()
     IMainEditorPresenter* presenter;
     //if (_startupMode == StartupMode::editor) always use editor view for now.
     //{
-    presenter = ServiceLocator::make<IMainEditorPresenter>(IMainEditorPresenter::Editor);
+    presenter = ServiceLocator::make<IMainEditorPresenter>(IMainEditorPresenterAux::Editor);
 
     //}
 

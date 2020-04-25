@@ -1,6 +1,7 @@
 #ifndef qtextensions__TRANSLATION_H
 #define qtextensions__TRANSLATION_H
 
+#include "compat.hpp"
 #include <QString>
 #include <QCoreApplication>
 
@@ -9,6 +10,6 @@
 // should also be fail-safe with at least one human-readable version specified
 // in source code.
 
-QString fallback_translate(const char* context, const char* key, const QString fallback);
+ADDLE_COMMON_EXPORT QString fallback_translate(const char* context, const char* key, const QString fallback);
 
 #endif // qtextensions__TRANSLATION_H

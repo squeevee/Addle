@@ -14,11 +14,6 @@ public:
     virtual BrushId getId() const = 0;
 
     virtual BrushPainterInfo getPainterInfo() const = 0;
-    
-    struct CoreBrushes
-    {
-        static const BrushId BasicBrush;
-    };
 };
 
 DECL_PERSISTENT_OBJECT_TYPE(IBrushModel, BrushId);

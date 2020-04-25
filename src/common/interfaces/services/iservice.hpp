@@ -9,8 +9,8 @@ class IService
 {
 public:
 
-#define ADDLE_STRING__ISERVICE__SERVICE_THREAD_NAME_TEMPLATE "addle:%1-service-thread"
-    static const QString SERVICE_THREAD_NAME_TEMPLATE;
+// #define ADDLE_STRING__ISERVICE__SERVICE_THREAD_NAME_TEMPLATE "addle:%1-service-thread"
+//     static const QString SERVICE_THREAD_NAME_TEMPLATE;
     
     virtual ~IService() {}
 

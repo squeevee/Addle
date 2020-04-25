@@ -1,9 +1,10 @@
 #ifndef BRUSHPAINTERINFO_HPP
 #define BRUSHPAINTERINFO_HPP
 
+#include "compat.hpp"
 #include <QSharedData>
 
-class BrushPainterInfo
+class ADDLE_COMMON_EXPORT BrushPainterInfo
 {
     struct BrushPainterInfoInner : QSharedData
     {

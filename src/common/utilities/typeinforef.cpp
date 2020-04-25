@@ -29,5 +29,3 @@ TypeInfoRef::operator QVariant() const
     v.setValue(*this);
     return v;
 }
-
-uint qHash(const TypeInfoRef& ref, uint seed) {  return ((const std::type_index&)ref).hash_code() ^ seed; }

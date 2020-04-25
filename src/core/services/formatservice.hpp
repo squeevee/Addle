@@ -5,6 +5,7 @@
 #include <QList>
 #include <QSet>
 
+#include "compat.hpp"
 #include "servicebase.hpp"
 #include "utilities/qtextensions/qhash.hpp"
 #include "interfaces/format/iformatdriver.hpp"
@@ -13,7 +14,7 @@
 #include "idtypes/formatid.hpp"
 
 
-class FormatService : public virtual ServiceBase, public virtual IFormatService
+class ADDLE_CORE_EXPORT FormatService : public virtual ServiceBase, public virtual IFormatService
 {
 public:
     FormatService();

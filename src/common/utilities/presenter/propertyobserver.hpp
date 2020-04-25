@@ -1,6 +1,7 @@
 #ifndef PROPERTYOBSERVER_HPP
 #define PROPERTYOBSERVER_HPP
 
+#include "compat.hpp"
 #include <QObject>
 #include <QVariant>
 #include <QMetaObject>
@@ -9,7 +10,7 @@
  * @class PropertyObserver
  * @brief Convenience class that exposes accessors on a 
  */
-class PropertyObserver : public QObject
+class ADDLE_COMMON_EXPORT PropertyObserver : public QObject
 {
     Q_OBJECT
 public: 

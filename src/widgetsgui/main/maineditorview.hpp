@@ -1,6 +1,7 @@
 #ifndef BASEDOCUMENTVIEW_HPP
 #define BASEDOCUMENTVIEW_HPP
 
+#include "compat.hpp"
 #include <QMainWindow>
 #include <QMenuBar>
 #include <QToolBar>
@@ -26,7 +27,7 @@ class ViewPort;
 class ViewPortScrollWidget;
 class ZoomRotateWidget;
 
-class MainEditorView : public QMainWindow, public virtual IMainEditorView
+class ADDLE_WIDGETSGUI_EXPORT MainEditorView : public QMainWindow, public virtual IMainEditorView
 {
     Q_OBJECT
 

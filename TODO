@@ -191,3 +191,12 @@ counterexample I keep thinking of.)
 
 combine the raster bit reader and writer?
 
+Move core tools into global constants
+All Addle code should be in Addle namespace, and global constants will not have
+a sub-namespace 
+
+get format drivers by id 
+
+after button up from basic brush tool, don't show a hover preview until the mouse
+moves so the preview is not being overdrawn. Possibly have it not draw on click
+again.

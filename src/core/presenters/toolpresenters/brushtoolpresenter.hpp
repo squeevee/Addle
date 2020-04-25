@@ -1,6 +1,7 @@
 #ifndef BRUSHTOOLPRESENTER_HPP
 #define BRUSHTOOLPRESENTER_HPP
 
+#include "compat.hpp"
 #include "toolpresenterbase.hpp"
 #include "interfaces/presenters/toolpresenters/ibrushtoolpresenter.hpp"
 #include "interfaces/presenters/operationpresenters/ibrushoperationpresenter.hpp"
@@ -14,7 +15,7 @@
 #include "utilities/asynctask.hpp"
 #include <QQueue>
 
-class BrushToolPresenter : public ToolPresenterBase, public virtual IBrushToolPresenter
+class ADDLE_CORE_EXPORT BrushToolPresenter : public ToolPresenterBase, public virtual IBrushToolPresenter
 {
     Q_OBJECT
     Q_PROPERTY(
@@ -31,7 +32,7 @@ class BrushToolPresenter : public ToolPresenterBase, public virtual IBrushToolPr
     )
 public:
     BrushToolPresenter()
-        : _brushAssetsHelper(*this, DEFAULT_BRUSH),
+        : _brushAssetsHelper(*this, IBrushToolPresenterAux::DEFAULT_BRUSH),
         //_previewVisibleCache(*this, ),
         _initHelper(this)
     {
@@ -41,7 +42,7 @@ public:
 
     void initialize(IMainEditorPresenter* owner);
 
-    ToolId getId() { return BRUSH_TOOL_ID; }
+    ToolId getId() { return IBrushToolPresenterAux::ID; }
 
     QList<QSharedPointer<IAssetPresenter>> getAllAssets() { _initHelper.check(); return _brushAssetsHelper.getAllAssets(); }
     QSharedPointer<IAssetPresenter> getAssetPresenter(PersistentId id) { _initHelper.check(); return _brushAssetsHelper.getAssetPresenter(id); }

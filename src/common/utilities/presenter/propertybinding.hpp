@@ -1,13 +1,14 @@
 #ifndef PROPERTYBINDING_HPP
 #define PROPERTYBINDING_HPP
 
+#include "compat.hpp"
 #include <QObject>
 #include <functional>
 
 #include "utilities/qtextensions/qobject.hpp"
 #include "propertyobserver.hpp"
 
-class BindingConverter
+class ADDLE_COMMON_EXPORT BindingConverter
 {
 public:
     BindingConverter() = default;
@@ -48,7 +49,7 @@ private:
  * @class PropertyBinding
  * @brief Binds the value of one QObject property to another
  */
-class PropertyBinding : public QObject
+class ADDLE_COMMON_EXPORT PropertyBinding : public QObject
 {
     Q_OBJECT
 public:

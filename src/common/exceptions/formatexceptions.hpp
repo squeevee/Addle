@@ -10,7 +10,7 @@
 
 #include "utilities/qtextensions/translation.hpp"
 
-class FormatException : public BaseAddleException
+class ADDLE_COMMON_EXPORT FormatException : public BaseAddleException
 {
 public:
 #ifdef ADDLE_DEBUG
@@ -42,7 +42,7 @@ private:
 };
 
 DECL_LOGIC_ERROR(FormatModelNotSupportedException)
-class FormatModelNotSupportedException : public FormatException
+class ADDLE_COMMON_EXPORT FormatModelNotSupportedException : public FormatException
 {
     ADDLE_EXCEPTION_BOILERPLATE(FormatModelNotSupportedException)
 public:
@@ -80,7 +80,7 @@ private:
 };
 
 DECL_RUNTIME_ERROR(FormatNotSupportedException)
-class FormatNotSupportedException : public FormatException
+class ADDLE_COMMON_EXPORT FormatNotSupportedException : public FormatException
 {
     ADDLE_EXCEPTION_BOILERPLATE(FormatNotSupportedException)
 public:
@@ -115,7 +115,7 @@ public:
 class IFormatDriver;
 
 DECL_RUNTIME_ERROR(ImportNotSupportedException)
-class ImportNotSupportedException : public FormatException
+class ADDLE_COMMON_EXPORT ImportNotSupportedException : public FormatException
 {
     ADDLE_EXCEPTION_BOILERPLATE(ImportNotSupportedException)
 public:
@@ -150,7 +150,7 @@ private:
 };
 
 DECL_RUNTIME_ERROR(FormatInferrenceFailedException)
-class FormatInferrenceFailedException : public FormatException
+class ADDLE_COMMON_EXPORT FormatInferrenceFailedException : public FormatException
 {
     ADDLE_EXCEPTION_BOILERPLATE(FormatInferrenceFailedException)
 public:

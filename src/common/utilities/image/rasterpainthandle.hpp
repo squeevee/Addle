@@ -1,6 +1,7 @@
 #ifndef RASTERSURFACEHANDLE_HPP
 #define RASTERSURFACEHANDLE_HPP
 
+#include "compat.hpp"
 #include <QObject>
 #include <QSharedData>
 #include <QSharedDataPointer>
@@ -10,7 +11,7 @@
 #include <QPainter>
 
 class IRasterSurface;
-class RasterPaintHandle
+class ADDLE_COMMON_EXPORT RasterPaintHandle
 {
 public:
     RasterPaintHandle(RasterPaintHandle&& other);

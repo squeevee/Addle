@@ -1,6 +1,7 @@
 #ifndef LAYER_HPP
 #define LAYER_HPP
 
+#include "compat.hpp"
 #include <QObject>
 #include <QColor>
 #include <QImage>
@@ -15,7 +16,7 @@
 
 #include "utilities/initializehelper.hpp"
 
-class Layer : public QObject, public ILayer
+class ADDLE_CORE_EXPORT Layer : public QObject, public ILayer
 {
     Q_OBJECT
 public:

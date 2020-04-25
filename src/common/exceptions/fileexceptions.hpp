@@ -6,7 +6,7 @@
 #include <QFileInfo>
 #include <QCoreApplication>
 
-class FileException : public BaseAddleException
+class ADDLE_COMMON_EXPORT FileException : public BaseAddleException
 {
 public:
     enum Action
@@ -35,7 +35,7 @@ private:
     const QFileInfo _fileInfo;
 };
 
-class FileDoesNotExistException : public FileException
+class ADDLE_COMMON_EXPORT FileDoesNotExistException : public FileException
 {
     ADDLE_EXCEPTION_BOILERPLATE(FileDoesNotExistException)
 #ifdef ADDLE_DEBUG

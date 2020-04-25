@@ -1,6 +1,7 @@
 #ifndef PROPERTYDECORATION_HPP
 #define PROPERTYDECORATION_HPP
 
+#include "compat.hpp"
 #include <QSharedData>
 #include <QSharedDataPointer>
 #include <QString>
@@ -10,7 +11,7 @@
 #include "utilities/qtextensions/qlist.hpp"
 #include "utilities/indexvariant.hpp"
 
-class OptionDecoration
+class ADDLE_COMMON_EXPORT OptionDecoration
 {
     struct OptionDecorationData : QSharedData
     {
@@ -54,7 +55,7 @@ private:
     QSharedDataPointer<OptionDecorationData> _data;
 };
 
-class PropertyDecoration
+class ADDLE_COMMON_EXPORT PropertyDecoration
 {
     struct PropertyDecorationData : QSharedData
     {

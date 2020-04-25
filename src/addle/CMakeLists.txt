@@ -19,4 +19,9 @@ if (WIN32)
         COMMAND cp
         ARGS ${LIBRARY_OUTPUT_PATH}/*.dll ${EXECUTABLE_OUTPUT_PATH}
     )
+
+    if (CMAKE_BUILD_TYPE STREQUAL "Release")
+        set_target_properties(addle PROPERTIES WIN32_EXECUTABLE true)
+    endif()
+
 endif ()

@@ -2,6 +2,7 @@
 #include <QtDebug>
 
 #include <QPaintEngine>
+#include <QtGlobal>
 
 #include <QLayout>
 #include <QGridLayout>
@@ -48,11 +49,15 @@ ViewPort::ViewPort(IViewPortPresenter* presenter)
         SIGNAL(transformsChanged()),
         this,
         SLOT(onTransformsChanged()),
+#ifdef Q_OS_LINUX
         // QueuedConnection is important for avoiding jitter with tools that move
         // the viewport, on X11. X11 mouse events are asynchronous so changing
         // the transforms inside the mouse event handler causes Qt to calculate
         // positions based on mismatched mouse positions and transforms.
         Qt::ConnectionType::QueuedConnection
+#else
+        Qt::ConnectionType::AutoConnection
+#endif
     );
 
     connect_interface(

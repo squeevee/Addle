@@ -1,9 +1,10 @@
 #ifndef COREBRUSHMODEL_HPP
 #define COREBRUSHMODEL_HPP
 
+#include "compat.hpp"
 #include "interfaces/models/ibrushmodel.hpp"
 
-class CoreBrushModel : public IBrushModel
+class ADDLE_CORE_EXPORT CoreBrushModel : public IBrushModel
 {
 public: 
     CoreBrushModel(BrushId id, BrushPainterInfo info)

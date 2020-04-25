@@ -11,35 +11,16 @@
 #include "interfaces/traits/makeable_trait.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 
+#include "ibrushpresenteraux.hpp"
+
 // Brushes 
 class IBrushModel;
 class IBrushPresenter : public IAssetPresenter
 {
-    Q_GADGET
 public:
+    typedef IBrushPresenterAux::SizeOption SizeOption;
     virtual ~IBrushPresenter() = default;
     
-    enum SizeOption
-    {
-        _1px,
-        _2px,
-        _4px,
-        _7px,
-        _13px,
-        _25px,
-        _50px,
-        _100px,
-        _250px,
-        _500px,
-        _10percent,
-        _25percent,
-        onethird,
-        _50percent,
-        custom_px,
-        custom_percent
-    };
-    Q_ENUM(SizeOption)
-
     virtual void initialize(IBrushModel& model) = 0;
     virtual void initialize(BrushId id) = 0;
 

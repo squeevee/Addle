@@ -1,6 +1,7 @@
 #ifndef IMAINEDITORPRESENTER_HPP
 #define IMAINEDITORPRESENTER_HPP
 
+#include "compat.hpp"
 #include <QObject>
 
 #include "interfaces/traits/initialize_trait.hpp"
@@ -21,6 +22,29 @@ class IMainEditorView;
 class ICanvasPresenter;
 class IViewPortPresenter;
 
+namespace IMainEditorPresenterAux
+{
+    enum Mode
+    {
+        Editor,
+        Viewer
+    };
+
+    struct ADDLE_COMMON_EXPORT DefaultTools
+    {
+        static const ToolId SELECT;
+        static const ToolId BRUSH;
+        static const ToolId ERASER;
+        static const ToolId FILL;
+        static const ToolId TEXT;
+        static const ToolId SHAPES;
+        static const ToolId STICKERS;
+        static const ToolId EYEDROP;
+        static const ToolId NAVIGATE;
+        static const ToolId MEASURE;
+    };
+}
+
 class IMainEditorPresenter
     : public virtual IHaveDocumentPresenter,
     public virtual IHaveToolsPresenter,
@@ -29,14 +53,11 @@ class IMainEditorPresenter
     public virtual IPropertyDecoratedPresenter
 {
 public:
-    enum Mode
-    {
-        Editor,
-        Viewer
-    };
     INTERFACE_META(IMainEditorPresenter);
     
     virtual ~IMainEditorPresenter() {}
+
+    typedef IMainEditorPresenterAux::Mode Mode;
 
     virtual void initialize(Mode mode) = 0;
 
@@ -52,26 +73,12 @@ public:
     virtual void selectLayer(QWeakPointer<ILayerPresenter> layer) = 0;
     virtual void selectLayerAt(int index) = 0;
     
-public:
-    struct DefaultTools
-    {
-        static const ToolId SELECT;
-        static const ToolId BRUSH;
-        static const ToolId ERASER;
-        static const ToolId FILL;
-        static const ToolId TEXT;
-        static const ToolId SHAPES;
-        static const ToolId STICKERS;
-        static const ToolId EYEDROP;
-        static const ToolId NAVIGATE;
-        static const ToolId MEASURE;
-    };
+    typedef IMainEditorPresenterAux::DefaultTools DefaultTools;
 
 signals:
     virtual void documentPresenterChanged(IDocumentPresenter* documentPresenter) = 0;
     virtual void selectedLayerChanged(QWeakPointer<ILayerPresenter> layer) = 0;
     virtual void isEmptyChanged(bool) = 0;
-
 };
 
 DECL_MAKEABLE(IMainEditorPresenter)

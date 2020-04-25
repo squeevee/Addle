@@ -1,6 +1,7 @@
 #ifndef CANVASSCENE_HPP
 #define CANVASSCENE_HPP
 
+#include "compat.hpp"
 #include <QObject>
 #include <QGraphicsScene>
 #include <QGraphicsItemGroup>
@@ -11,7 +12,7 @@
 
 class ICanvasPresenter;
 class CanvasItem;
-class CanvasScene : public QGraphicsScene
+class ADDLE_WIDGETSGUI_EXPORT CanvasScene : public QGraphicsScene
 {
     Q_OBJECT
 public:

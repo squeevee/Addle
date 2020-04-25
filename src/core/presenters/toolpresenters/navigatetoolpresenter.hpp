@@ -1,11 +1,12 @@
 #ifndef NAVIGATETOOLPRESENTER_HPP
 #define NAVIGATETOOLPRESENTER_HPP
 
+#include "compat.hpp"
 #include "toolpresenterbase.hpp"
 #include "interfaces/presenters/toolpresenters/inavigatetoolpresenter.hpp"
 #include "interfaces/presenters/iviewportpresenter.hpp"
 
-class NavigateToolPresenter : public ToolPresenterBase, public virtual INavigateToolPresenter
+class ADDLE_CORE_EXPORT NavigateToolPresenter : public ToolPresenterBase, public virtual INavigateToolPresenter
 {
     Q_OBJECT
     Q_PROPERTY(
@@ -24,7 +25,7 @@ public:
 
     void initialize(IMainEditorPresenter* owner);
 
-    ToolId getId() { return NAVIGATE_TOOL_ID; }
+    ToolId getId() { return INavigateToolPresenterAux::ID; }
 
     NavigateOperationOptions getNavigateOperation() { _initHelper.check(); return _operation; }
 
@@ -38,7 +39,7 @@ protected:
 
 private:
 
-    NavigateOperationOptions _operation = DEFAULT_NAVIGATE_OPERATION_OPTION;
+    NavigateOperationOptions _operation = INavigateToolPresenterAux::DEFAULT_NAVIGATE_OPERATION_OPTION;
 
     InitializeHelper<NavigateToolPresenter> _initHelper;
 };

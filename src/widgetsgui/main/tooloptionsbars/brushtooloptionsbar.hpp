@@ -1,13 +1,14 @@
 #ifndef BRUSHTOOLOPTIONSBAR_HPP
 #define BRUSHTOOLOPTIONSBAR_HPP
 
+#include "compat.hpp"
 #include "widgetsgui/utilities/optionaction.hpp"
 #include "widgetsgui/utilities/optiongroup.hpp"
 #include "interfaces/presenters/assets/ibrushpresenter.hpp"
 #include "interfaces/presenters/toolpresenters/ibrushtoolpresenter.hpp"
 #include "tooloptionbarbase.hpp"
 
-class BrushToolOptionsBar : public ToolOptionBarBase 
+class ADDLE_WIDGETSGUI_EXPORT BrushToolOptionsBar : public ToolOptionBarBase 
 {
     Q_OBJECT 
     typedef IBrushPresenter::SizeOption SizeOption;

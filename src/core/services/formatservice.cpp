@@ -1,12 +1,12 @@
 #include "formatservice.hpp"
 
 #include "interfaces/format/iformatdriver.hpp"
-#include "interfaces/format/drivers/ipngformatdriver.hpp"
-#include "interfaces/format/drivers/ijpegformatdriver.hpp"
 
 #include <typeinfo>
 #include <algorithm>
 #include <QSharedPointer>
+
+#include "globalconstants.hpp"
 
 #include "servicelocator.hpp"
 #include "exceptions/formatexceptions.hpp"
@@ -17,27 +17,27 @@
 FormatService::FormatService()
 {
     QList<IFormatDriver*> drivers = {
-        ServiceLocator::make<IPNGFormatDriver>(),
-        ServiceLocator::make<IJPEGFormatDriver>()
+        ServiceLocator::make<IFormatDriver>(GlobalConstants::CoreFormats::JPEG),
+        ServiceLocator::make<IFormatDriver>(GlobalConstants::CoreFormats::PNG)
     };
 
     for (IFormatDriver* driver : drivers)
     {
-        FormatId format(driver->getFormatId());
+        FormatId format(driver->getId());
         _drivers_byFormat.insert(format, driver);
-        _formats_byMimeType.insert(driver->getMimeType(), format);
+        _formats_byMimeType.insert(driver->getId().getMimeType(), format);
 
-        int length = driver->getSignature().length();
+        int length = driver->getId().getFileSignature().length();
         if (length > 0)
         {
-            _formats_bySignature.insert(driver->getSignature(), format);
+            _formats_bySignature.insert(driver->getId().getFileSignature(), format);
             if (length > _maxSignatureLength)
                 _maxSignatureLength = length;
         }
         
         _formats_byModelType[std::type_index(format.getModelType())].insert(format);
 
-        for (QString& extension : driver->getFileExtensions())
+        for (QString& extension : driver->getId().getFileExtensions())
         {
             _formats_byExtension.insert(extension, format);
         }

@@ -15,7 +15,6 @@ set (common_sources
     utilities/image/rasterpainthandle.cpp
     utilities/presenter/propertybinding.cpp
     utilities/presenter/propertyobserver.cpp
-    utilities/qtextensions/qhash.cpp
     utilities/qtextensions/translation.cpp
     utilities/render/rendersubstack.cpp
 )

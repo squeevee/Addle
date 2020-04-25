@@ -1,6 +1,7 @@
 #ifndef VIEWPORT_HPP
 #define VIEWPORT_HPP
 
+#include "compat.hpp"
 #include <QWidget>
 #include <QGraphicsView>
 #include <QGraphicsScene>
@@ -13,7 +14,7 @@ class CanvasScene;
 class ICanvasPresenter;
 class IViewPortPresenter;
 class IDocumentPresenter;
-class ViewPort : public QGraphicsView
+class ADDLE_WIDGETSGUI_EXPORT ViewPort : public QGraphicsView
 {
     Q_OBJECT
 public:

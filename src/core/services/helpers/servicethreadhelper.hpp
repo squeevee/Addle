@@ -41,10 +41,10 @@ public:
             case ThreadOption::own_thread:
             {
                 _serviceThread = new QThread;
-                _serviceThread->setObjectName(
-                    IService::SERVICE_THREAD_NAME_TEMPLATE
-                        .arg(q_owner->metaObject()->className())
-                );
+                // _serviceThread->setObjectName(
+                //     IService::SERVICE_THREAD_NAME_TEMPLATE
+                //         .arg(q_owner->metaObject()->className())
+                // );
                 q_owner->moveToThread(_serviceThread);
                 _serviceThread->start();
                 break;

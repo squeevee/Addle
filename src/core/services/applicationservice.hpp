@@ -1,6 +1,7 @@
 #ifndef APPLICATIONSERVICE_HPP
 #define APPLICATIONSERVICE_HPP
 
+#include "compat.hpp"
 #include <QObject>
 #include <QUrl>
 #include "servicebase.hpp"
@@ -9,7 +10,7 @@
 
 #include "helpers/servicethreadhelper.hpp"
 
-class ApplicationService : public QObject, public virtual ServiceBase, public virtual IApplicationService
+class ADDLE_CORE_EXPORT ApplicationService : public QObject, public virtual ServiceBase, public virtual IApplicationService
 {
     Q_OBJECT
     Q_INTERFACES(IApplicationService)

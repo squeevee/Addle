@@ -14,7 +14,7 @@ BrushToolOptionsBar::BrushToolOptionsBar(IBrushToolPresenter& presenter, QWidget
     );
     _optionGroup_brush = new OptionGroup(this);
 
-    _action_brush_basic = new OptionAction(IBrushToolPresenter::DefaultBrushes::Basic, this);
+    _action_brush_basic = new OptionAction(IBrushToolPresenterAux::DefaultBrushes::Basic, this);
     brush_decorHelper.decorateOption(_action_brush_basic);
     _optionGroup_brush->addOption(_action_brush_basic);
 

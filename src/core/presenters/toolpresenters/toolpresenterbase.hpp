@@ -1,6 +1,7 @@
 #ifndef TOOLPRESENTER_HPP
 #define TOOLPRESENTER_HPP
 
+#include "compat.hpp"
 #include <QObject>
 #include <QVariant>
 #include <QMetaProperty>
@@ -17,7 +18,7 @@
 #include "interfaces/presenters/imaineditorpresenter.hpp"
 #include "interfaces/presenters/iviewportpresenter.hpp"
 
-class ToolPresenterBase : public QObject, public virtual IToolPresenter
+class ADDLE_CORE_EXPORT ToolPresenterBase : public QObject, public virtual IToolPresenter
 {
     Q_OBJECT
 public:

@@ -1,6 +1,7 @@
 #ifndef PERSISTENTID_HPP
 #define PERSISTENTID_HPP
 
+#include "compat.hpp"
 #include <QSharedData>
 #include <QSharedDataPointer>
 #include <QHash>
@@ -32,7 +33,7 @@
  * for derived classes, as well as declaring and registering meta-type, meta-
  * converters, and an IndexVariant hasher.
  */
-class PersistentId
+class ADDLE_COMMON_EXPORT PersistentId
 {
     struct PersistentIdData : QSharedData
     {
@@ -87,7 +88,7 @@ protected:
         : _data(new PersistentIdData(metaTypeId, key, metadata))
     {
     }
-    inline const QHash<QString, QVariant>& getMetadata() { return _data->metadata; }
+    inline const QHash<QString, QVariant>& getMetadata() const { return _data->metadata; }
 
 private:
     QSharedDataPointer<const PersistentIdData> _data;

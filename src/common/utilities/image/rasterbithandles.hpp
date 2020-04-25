@@ -1,11 +1,12 @@
 #ifndef RASTERBITHANDLES_HPP
 #define RASTERBITHANDLES_HPP
 
+#include "compat.hpp"
 #include <QRect>
 #include <QImage>
 
 class IRasterSurface;
-class RasterBitReader
+class ADDLE_COMMON_EXPORT RasterBitReader
 {
 public:
     RasterBitReader(RasterBitReader&& other);
@@ -39,7 +40,7 @@ private:
     friend class IRasterSurface;
 };
 
-class RasterBitWriter
+class ADDLE_COMMON_EXPORT RasterBitWriter
 {
 public:
     RasterBitWriter(RasterBitWriter&& other);

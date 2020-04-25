@@ -1,6 +1,12 @@
 #ifndef GLOBALCONSTANTS_HPP
 #define GLOBALCONSTANTS_HPP
 
+#include "compat.hpp"
+#include "idtypes/brushid.hpp"
+#include "idtypes/formatid.hpp"
+
+#include <QColor>
+
 namespace GlobalConstants
 {
     const char* const ADDLE_VERSION = "0.0.1-dev";
@@ -23,6 +29,20 @@ namespace GlobalConstants
 
     const char* const DEBUG__NONE_TYPE_NAME = "<No type given>";
 #endif
+
+    extern ADDLE_COMMON_EXPORT const QColor DefaultBackgroundColor;
+
+    namespace CoreBrushes
+    {
+        extern ADDLE_COMMON_EXPORT const BrushId BasicBrush;
+    };
+
+    namespace CoreFormats
+    {
+        extern ADDLE_COMMON_EXPORT const FormatId JPEG;
+        extern ADDLE_COMMON_EXPORT const FormatId PNG;
+    }
+
 }
 
 #endif // GLOBALCONSTANTS_HPP

@@ -5,6 +5,7 @@
  * See "LICENSE" for full details.
  */
 
+#include "globalconstants.hpp"
 #include "serviceconfiguration.hpp"
 
 #include "utilities/configuration/autofactory.hpp"
@@ -37,9 +38,7 @@
 #include "core/services/formatservice.hpp"
 //#include "core/services/taskservice.hpp"
 
-#include "core/format/qtformatdrivers/qtpngformatdriver.hpp"
-#include "core/format/qtformatdrivers/qtjpegformatdriver.hpp"
-
+#include "core/format/qtimageformatdriver.hpp"
 //#include "core/tasks/taskcontroller.hpp"
 //#include "core/tasks/loaddocumentfiletask.hpp"
 
@@ -85,12 +84,16 @@ void ServiceConfiguration::configure()
     //CONFIG_AUTOFACTORY_BY_TYPE(ILoadDocumentFileTask, LoadDocumentFileTask);
 
     // # Formats
-    CONFIG_AUTOFACTORY_BY_TYPE(IPNGFormatDriver, QtPNGFormatDriver);
-    CONFIG_AUTOFACTORY_BY_TYPE(IJPEGFormatDriver, QtJPEGFormatDriver);
+    CONFIG_CUSTOMFACTORY_BY_ID(IFormatDriver, GlobalConstants::CoreFormats::JPEG, 
+        []() -> IFormatDriver* { return new QtImageFormatDriver(GlobalConstants::CoreFormats::JPEG, "JPEG"); }
+    );
+    CONFIG_CUSTOMFACTORY_BY_ID(IFormatDriver, GlobalConstants::CoreFormats::PNG, 
+        []() -> IFormatDriver* { return new QtImageFormatDriver(GlobalConstants::CoreFormats::PNG, "PNG"); }
+    );
 
     // # Views
     CONFIG_AUTOFACTORY_BY_TYPE(IMainEditorView, MainEditorView);
 
-    CONFIG_AUTOFACTORY_BY_ID(IBrushPainter, IBrushModel::CoreBrushes::BasicBrush, BasicBrushPainter);
-    CONFIG_CUSTOMFACTORY_BY_ID(IBrushModel, IBrushModel::CoreBrushes::BasicBrush, &CoreBrushModel::make<BasicBrushPainter>);
+    CONFIG_AUTOFACTORY_BY_ID(IBrushPainter, GlobalConstants::CoreBrushes::BasicBrush, BasicBrushPainter);
+    CONFIG_CUSTOMFACTORY_BY_ID(IBrushModel, GlobalConstants::CoreBrushes::BasicBrush, &CoreBrushModel::make<BasicBrushPainter>);
 }

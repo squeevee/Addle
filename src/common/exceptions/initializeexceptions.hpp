@@ -18,7 +18,7 @@
 #include "baseaddleexception.hpp"
 
 DECL_LOGIC_ERROR(InitializeException)
-class InitializeException : public BaseAddleException
+class ADDLE_COMMON_EXPORT InitializeException : public BaseAddleException
 {
 #ifdef ADDLE_DEBUG
 public:
@@ -50,7 +50,7 @@ DECL_LOGIC_ERROR(NotInitializedException)
  * @note This behavior is automatically handled by InitializeHelper
  * @sa InitializeHelper, expects_initialize
  */
-class NotInitializedException : public InitializeException
+class ADDLE_COMMON_EXPORT NotInitializedException : public InitializeException
 {
     ADDLE_EXCEPTION_BOILERPLATE(NotInitializedException)
 
@@ -84,7 +84,7 @@ DECL_LOGIC_ERROR(AlreadyInitializedException)
  * @note This behavior is automatically handled by InitializeHelper
  * @sa InitializeHelper, expects_initialize
  */
-class AlreadyInitializedException : public InitializeException
+class ADDLE_COMMON_EXPORT AlreadyInitializedException : public InitializeException
 {
     ADDLE_EXCEPTION_BOILERPLATE(AlreadyInitializedException)
 
@@ -116,7 +116,7 @@ DECL_LOGIC_ERROR(InvalidInitializeException)
  * @brief Thrown by InitializeHelper if a logic error was encountered during
  * initialization.
  */
-class InvalidInitializeException : public InitializeException
+class ADDLE_COMMON_EXPORT InvalidInitializeException : public InitializeException
 {
     ADDLE_EXCEPTION_BOILERPLATE(InvalidInitializeException)
 public:

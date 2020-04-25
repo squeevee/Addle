@@ -18,7 +18,7 @@
 #include "utilities/qtextensions/translation.hpp"
 
 DECL_LOGIC_ERROR(ServiceLocatorException)
-class ServiceLocatorException : public BaseAddleException
+class ADDLE_COMMON_EXPORT ServiceLocatorException : public BaseAddleException
 {
 #ifdef ADDLE_DEBUG
 public:
@@ -41,7 +41,7 @@ DECL_LOGIC_ERROR(ServiceLocatorNotInitializedException)
  * @brief Thrown if the ServiceLocator is expected to be initialized, but isn't,
  * (e.g., the ServiceLocator was not configured)
  */
-class ServiceLocatorNotInitializedException: public ServiceLocatorException
+class ADDLE_COMMON_EXPORT ServiceLocatorNotInitializedException: public ServiceLocatorException
 {
     ADDLE_EXCEPTION_BOILERPLATE(ServiceLocatorNotInitializedException)
 #ifdef ADDLE_DEBUG
@@ -65,7 +65,7 @@ public:
  * @brief Thrown if the ServiceLocator is not expected to be initialized, but
  * is, (e.g., there were multiple attempts to configure the ServiceLocator)
  */
-class ServiceLocatorAlreadyInitializedException : public ServiceLocatorException
+class ADDLE_COMMON_EXPORT ServiceLocatorAlreadyInitializedException : public ServiceLocatorException
 {
     ADDLE_EXCEPTION_BOILERPLATE(ServiceLocatorAlreadyInitializedException)
 
@@ -90,7 +90,7 @@ public:
  * @class FactoryNotFoundException
  * @brief Thrown by ServiceLocator if no factory is found for a given interface
  */
-class FactoryNotFoundException : public ServiceLocatorException
+class ADDLE_COMMON_EXPORT FactoryNotFoundException : public ServiceLocatorException
 {
     ADDLE_EXCEPTION_BOILERPLATE(FactoryNotFoundException)
 #ifdef ADDLE_DEBUG
@@ -127,7 +127,7 @@ public:
  * interface, and one could not be made, (i.e., there also was no factory for
  * it).
  */
-class ServiceNotFoundException : public ServiceLocatorException
+class ADDLE_COMMON_EXPORT ServiceNotFoundException : public ServiceLocatorException
 {
     ADDLE_EXCEPTION_BOILERPLATE(ServiceNotFoundException)
 #ifdef ADDLE_DEBUG
@@ -167,7 +167,7 @@ public:
  * @brief Thrown by ServiceLocator if the product from a factory did not 
  * implement the factory's interface.
  */
-class InvalidFactoryProductException : public ServiceLocatorException
+class ADDLE_COMMON_EXPORT InvalidFactoryProductException : public ServiceLocatorException
 {
     ADDLE_EXCEPTION_BOILERPLATE(InvalidFactoryProductException)
 
@@ -202,7 +202,7 @@ public:
     virtual ~InvalidFactoryProductException() = default;
 };
 
-class FactoryException : public ServiceLocatorException
+class ADDLE_COMMON_EXPORT FactoryException : public ServiceLocatorException
 {
     ADDLE_EXCEPTION_BOILERPLATE(FactoryException)
 

@@ -1,6 +1,7 @@
 #ifndef CANVASITEM_HPP
 #define CANVASITEM_HPP
 
+#include "compat.hpp"
 #include <QHash>
 #include <QObject>
 #include <QPixmap>
@@ -8,7 +9,7 @@
 #include <QGraphicsRectItem>
 
 class IDocumentPresenter;
-class DocBackgroundItem : public QObject, public QGraphicsItem
+class ADDLE_WIDGETSGUI_EXPORT DocBackgroundItem : public QObject, public QGraphicsItem
 {
     Q_OBJECT
 public:

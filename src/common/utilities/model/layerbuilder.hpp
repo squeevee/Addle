@@ -1,6 +1,7 @@
 #ifndef LAYERBUILDER_HPP
 #define LAYERBUILDER_HPP
 
+#include "compat.hpp"
 #include <QRect>
 #include <QImage>
 #include <QSharedData>

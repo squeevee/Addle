@@ -1,6 +1,7 @@
 #ifndef TOOLOPTIONBAR_HPP
 #define TOOLOPTIONBAR_HPP
 
+#include "compat.hpp"
 #include <QMainWindow>
 #include <QToolBar>
 #include "interfaces/presenters/toolpresenters/itoolpresenter.hpp"
@@ -8,7 +9,7 @@
 #include "utilities/qtextensions/qobject.hpp"
 #include "widgetsgui/utilities/decorationhelper.hpp"
 
-class ToolOptionBarBase : public QToolBar 
+class ADDLE_WIDGETSGUI_EXPORT ToolOptionBarBase : public QToolBar 
 {
     Q_OBJECT 
 public:

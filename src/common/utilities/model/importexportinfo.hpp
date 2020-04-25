@@ -1,6 +1,7 @@
 #ifndef FORMATPORTAGEINFO_HPP
 #define FORMATPORTAGEINFO_HPP 
 
+#include "compat.hpp"
 #include <typeinfo>
 
 #include "idtypes/formatid.hpp"

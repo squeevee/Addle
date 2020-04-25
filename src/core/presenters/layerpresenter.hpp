@@ -1,13 +1,14 @@
 #ifndef LAYERPRESENTER_HPP
 #define LAYERPRESENTER_HPP
 
+#include "compat.hpp"
 #include <QObject>
 #include "interfaces/presenters/ilayerpresenter.hpp"
 #include "interfaces/rendering/irenderstep.hpp"
 #include "utilities/initializehelper.hpp"
 
 class LayerPresenterRenderStep;
-class LayerPresenter: public QObject, public ILayerPresenter
+class ADDLE_CORE_EXPORT LayerPresenter: public QObject, public ILayerPresenter
 {
     Q_OBJECT
 public:

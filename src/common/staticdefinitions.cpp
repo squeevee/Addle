@@ -6,6 +6,12 @@
 #include "servicelocator.hpp"
 ServiceLocator* ServiceLocator::_instance = nullptr;
 
+#include "globalconstants.hpp"
+const BrushId GlobalConstants::CoreBrushes::BasicBrush = BrushId(
+    "basic-brush"
+);
+
+#include "idtypes/persistentid.hpp"
 #include "idtypes/brushid.hpp"
 STATIC_PERSISTENT_ID_BOILERPLATE(BrushId)
 
@@ -18,48 +24,30 @@ STATIC_PERSISTENT_ID_BOILERPLATE(ToolId)
 #include "utilities/canvas/canvasmouseevent.hpp"
 int CanvasMouseEvent::_type = QEvent::User;
 
-#include "interfaces/services/iservice.hpp"
-const QString IService::SERVICE_THREAD_NAME_TEMPLATE = QStringLiteral(ADDLE_STRING__ISERVICE__SERVICE_THREAD_NAME_TEMPLATE);
-
-#include "interfaces/services/iapplicationsservice.hpp"
-const QString IApplicationService::CMD_EDITOR_OPTION = QStringLiteral(ADDLE_STRING__IAPPLICATIONSERVICE__CMD_EDITOR_OPTION);
-const QString IApplicationService::CMD_EDITOR_SHORT_OPTION = QStringLiteral(ADDLE_STRING__IAPPLICATIONSERVICE__CMD_EDITOR_SHORT_OPTION);
-const QString IApplicationService::CMD_BROWSER_OPTION = QStringLiteral(ADDLE_STRING__IAPPLICATIONSERVICE__CMD_BROWSER_OPTION);
-const QString IApplicationService::CMD_BROWSER_SHORT_OPTION = QStringLiteral(ADDLE_STRING__IAPPLICATIONSERVICE__CMD_BROWSER_SHORT_OPTION);
-
-#include "interfaces/models/ibrushmodel.hpp"
-const BrushId IBrushModel::CoreBrushes::BasicBrush = BrushId(
-    "basic-brush"
-);
+const QColor GlobalConstants::DefaultBackgroundColor = Qt::white;
 
 #include "interfaces/models/idocument.hpp"
-const QColor IDocument::DEFAULT_BACKGROUND_COLOR = Qt::white;
 
-#include "interfaces/format/drivers/ipngformatdriver.hpp"
-const QString IPNGFormatDriver::PNG_FILE_EXTENSION = QStringLiteral(ADDLE_STRING__IPNGFORMATDRIVER__PNG_FILE_EXTENSION);
-const QString IPNGFormatDriver::PNG_MIME_TYPE = QStringLiteral(ADDLE_STRING__IPNGFORMATDRIVER__PNG_MIME_TYPE);
-const QByteArray IPNGFormatDriver::PNG_FILE_SIGNATURE = QByteArrayLiteral(ADDLE_STRING__IPNGFORMATDRIVER__PNG_FILE_SIGNATURE);
-const FormatId IPNGFormatDriver::PNG_FORMAT_ID = FormatId(
+const FormatId GlobalConstants::CoreFormats::PNG = FormatId(
     "png-format-id",
-    IPNGFormatDriver::PNG_MIME_TYPE,
-    typeid(IDocument)
+    QStringLiteral("image/png"),
+    typeid(IDocument),
+    QStringLiteral("png"),
+    QByteArrayLiteral("\x89\x50\x4E\x47\x0D\x0A\x1A\x0A")
 );
 
-#include "interfaces/format/drivers/ijpegformatdriver.hpp"
-const QString IJPEGFormatDriver::JPEG_FILE_EXTENSION = QStringLiteral(ADDLE_STRING__IJPEGFORMATDRIVER__JPEG_FILE_EXTENSION);
-const QStringList IJPEGFormatDriver::JPEG_FILE_EXTENSIONS = {
-    QStringLiteral(ADDLE_STRING__IJPEGFORMATDRIVER__JPEG_FILE_EXTENSION),
-    QStringLiteral(ADDLE_STRING__IJPEGFORMATDRIVER__JPEG_ALT_FILE_EXTENSION_1),
-    QStringLiteral(ADDLE_STRING__IJPEGFORMATDRIVER__JPEG_ALT_FILE_EXTENSION_2),
-    QStringLiteral(ADDLE_STRING__IJPEGFORMATDRIVER__JPEG_ALT_FILE_EXTENSION_3),
-    QStringLiteral(ADDLE_STRING__IJPEGFORMATDRIVER__JPEG_ALT_FILE_EXTENSION_4)
-};
-const QString IJPEGFormatDriver::JPEG_MIME_TYPE = QStringLiteral(ADDLE_STRING__IJPEGFORMATDRIVER__JPEG_MIME_TYPE);
-const QByteArray IJPEGFormatDriver::JPEG_FILE_SIGNATURE = QByteArrayLiteral(ADDLE_STRING__IJPEGFORMATDRIVER__JPEG_FILE_SIGNATURE);
-const FormatId IJPEGFormatDriver::JPEG_FORMAT_ID = FormatId(
+const FormatId GlobalConstants::CoreFormats::JPEG = FormatId(
     "jpeg-format-id",
-    IJPEGFormatDriver::JPEG_MIME_TYPE,
-    typeid(IDocument)
+    QStringLiteral("image/jpeg"),
+    typeid(IDocument),
+    {
+        QStringLiteral("jpg"),
+        QStringLiteral("jpeg"),
+        QStringLiteral("jpe"),
+        QStringLiteral("jfif"),
+        QStringLiteral("jif")
+    },
+    QByteArrayLiteral("\xFF\xD8\xFF")
 );
 
 #include "interfaces/presenters/toolpresenters/iselecttoolpresenter.hpp"
@@ -68,7 +56,7 @@ const ToolId ISelectToolPresenter::SELECT_TOOL_ID = ToolId(
 );
 
 #include "interfaces/presenters/toolpresenters/ibrushtoolpresenter.hpp"
-const ToolId IBrushToolPresenter::BRUSH_TOOL_ID = ToolId(
+const ToolId IBrushToolPresenterAux::ID = ToolId(
     "brush-tool"
 );
 
@@ -103,8 +91,8 @@ const ToolId IEyedropToolPresenter::EYEDROP_TOOL_ID = ToolId(
 );
 
 #include "interfaces/presenters/toolpresenters/inavigatetoolpresenter.hpp"
-#include "interfaces/presenters/toolpresenters/moc_inavigatetoolpresenter.cpp"
-const ToolId INavigateToolPresenter::NAVIGATE_TOOL_ID = ToolId(
+#include "interfaces/presenters/toolpresenters/moc_inavigatetoolpresenteraux.cpp"
+const ToolId INavigateToolPresenterAux::ID = ToolId(
     "navigate-tool"
 );
 
@@ -114,21 +102,38 @@ const ToolId IMeasureToolPresenter::MEASURE_TOOL_ID = ToolId(
 );
 
 #include "interfaces/presenters/imaineditorpresenter.hpp"
-const ToolId IMainEditorPresenter::DefaultTools::SELECT   = ISelectToolPresenter::SELECT_TOOL_ID;
-const ToolId IMainEditorPresenter::DefaultTools::BRUSH    = IBrushToolPresenter::BRUSH_TOOL_ID;
-const ToolId IMainEditorPresenter::DefaultTools::ERASER   = IEraserToolPresenter::ERASER_TOOL_ID;
-const ToolId IMainEditorPresenter::DefaultTools::FILL     = IFillToolPresenter::FILL_TOOL_ID;
-const ToolId IMainEditorPresenter::DefaultTools::TEXT     = ITextToolPresenter::TEXT_TOOL_ID;
-const ToolId IMainEditorPresenter::DefaultTools::SHAPES   = IShapesToolPresenter::SHAPES_TOOL_ID;
-const ToolId IMainEditorPresenter::DefaultTools::STICKERS = IStickersToolPresenter::STICKERS_TOOL_ID;
-const ToolId IMainEditorPresenter::DefaultTools::EYEDROP  = IEyedropToolPresenter::EYEDROP_TOOL_ID;
-const ToolId IMainEditorPresenter::DefaultTools::NAVIGATE = INavigateToolPresenter::NAVIGATE_TOOL_ID;
-const ToolId IMainEditorPresenter::DefaultTools::MEASURE  = IMeasureToolPresenter::MEASURE_TOOL_ID;
+const ToolId IMainEditorPresenterAux::DefaultTools::SELECT   = ISelectToolPresenter::SELECT_TOOL_ID;
+const ToolId IMainEditorPresenterAux::DefaultTools::BRUSH    = IBrushToolPresenterAux::ID;
+const ToolId IMainEditorPresenterAux::DefaultTools::ERASER   = IEraserToolPresenter::ERASER_TOOL_ID;
+const ToolId IMainEditorPresenterAux::DefaultTools::FILL     = IFillToolPresenter::FILL_TOOL_ID;
+const ToolId IMainEditorPresenterAux::DefaultTools::TEXT     = ITextToolPresenter::TEXT_TOOL_ID;
+const ToolId IMainEditorPresenterAux::DefaultTools::SHAPES   = IShapesToolPresenter::SHAPES_TOOL_ID;
+const ToolId IMainEditorPresenterAux::DefaultTools::STICKERS = IStickersToolPresenter::STICKERS_TOOL_ID;
+const ToolId IMainEditorPresenterAux::DefaultTools::EYEDROP  = IEyedropToolPresenter::EYEDROP_TOOL_ID;
+const ToolId IMainEditorPresenterAux::DefaultTools::NAVIGATE = INavigateToolPresenterAux::ID;
+const ToolId IMainEditorPresenterAux::DefaultTools::MEASURE  = IMeasureToolPresenter::MEASURE_TOOL_ID;
 
 #include "interfaces/presenters/toolpresenters/ibrushtoolpresenter.hpp"
-const BrushId IBrushToolPresenter::DefaultBrushes::Basic  = IBrushModel::CoreBrushes::BasicBrush;
+const BrushId IBrushToolPresenterAux::DefaultBrushes::Basic  = GlobalConstants::CoreBrushes::BasicBrush;
 
-const BrushId IBrushToolPresenter::DEFAULT_BRUSH = DefaultBrushes::Basic;
+const BrushId IBrushToolPresenterAux::DEFAULT_BRUSH = IBrushToolPresenterAux::DefaultBrushes::Basic;
 
 #include "interfaces/presenters/assets/ibrushpresenter.hpp"
-#include "interfaces/presenters/assets/moc_ibrushpresenter.cpp"
+#include "interfaces/presenters/assets/moc_ibrushpresenteraux.cpp"
+
+// Make sure to include all header-only ADDLE_COMMON_EXPORT classes, so that
+// their symbols are defined on libcommon.dll
+
+#include "exceptions/commandlineexceptions.hpp"
+#include "exceptions/fileexceptions.hpp"
+#include "exceptions/formatexceptions.hpp"
+#include "exceptions/initializeexceptions.hpp"
+#include "exceptions/servicelocatorexceptions.hpp"
+
+#include "utilities/canvas/brushpainterinfo.hpp"
+#include "utilities/configuration/baseserviceconfiguration.hpp"
+#include "utilities/model/documentbuilder.hpp"
+#include "utilities/model/importexportinfo.hpp"
+#include "utilities/model/layerbuilder.hpp"
+
+#include "utilities/presenter/propertydecoration.hpp"

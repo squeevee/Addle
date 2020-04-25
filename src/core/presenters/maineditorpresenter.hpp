@@ -1,6 +1,7 @@
 #ifndef MAINEDITORPRESENTER_HPP
 #define MAINEDITORPRESENTER_HPP
 
+#include "compat.hpp"
 #include <QFutureWatcher>
 #include <QObject>
 #include <QList>
@@ -33,7 +34,7 @@ class IMeasureToolPresenter;
 
 class LoadDocumentTask;
 
-class MainEditorPresenter : public QObject, public virtual IMainEditorPresenter
+class ADDLE_CORE_EXPORT MainEditorPresenter : public QObject, public virtual IMainEditorPresenter
 {
     Q_OBJECT
     Q_PROPERTY(

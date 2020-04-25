@@ -9,6 +9,8 @@
 #ifndef SERVICELOCATOR_HPP
 #define SERVICELOCATOR_HPP
 
+#include "compat.hpp"
+
 #include <typeindex>
 #include <typeinfo>
 #include <type_traits>
@@ -44,7 +46,7 @@
  * is expected to be used infrequently by persistent objects. Be mindful of
  * situations where this may be too expensive.
  */
-class ServiceLocator : public IServiceLocator
+class ADDLE_COMMON_EXPORT ServiceLocator : public IServiceLocator
 {
 public:
     /**

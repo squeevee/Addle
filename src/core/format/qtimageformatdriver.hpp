@@ -1,24 +1,31 @@
 #ifndef QTIMAGEFORMATDRIVER_HPP
 #define QTIMAGEFORMATDRIVER_HPP
 
+#include "compat.hpp"
 #include "interfaces/format/iformatdriver.hpp"
 
 // An image format driver that uses Qt's image processing functionality as its
 // backend
-class QtImageFormatDriver : public virtual IFormatDriver
+class ADDLE_CORE_EXPORT QtImageFormatDriver : public virtual IFormatDriver
 {
 public:
-    QtImageFormatDriver(const char* qtFormatName)
-        : _qtFormatName(qtFormatName)
+    QtImageFormatDriver(FormatId id, const char* name)
+        : _id(id), _name(name)
     {
     }
     virtual ~QtImageFormatDriver() = default;
+
+    bool supportsImport() const { return true; }
+    bool supportsExport() const { return false; }
+
+    FormatId getId() const { return _id; }
 
     IFormatModel* importModel(QIODevice& device, ImportExportInfo info);
     void exportModel(IFormatModel* model, QIODevice& device, ImportExportInfo info);
 
 private:
-    const char* _qtFormatName;
+    const FormatId _id;
+    const char* _name;
 };
 
 #endif // QTIMAGEFORMATDRIVER_HPP

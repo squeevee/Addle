@@ -23,6 +23,7 @@
 // const BrushSizePresetHelper::PxPresetHelper BrushSizePresetHelper::_instance_px = PxPresetHelper();
 // const BrushSizePresetHelper::PercentPresetHelper BrushSizePresetHelper::_instance_percent = PercentPresetHelper();
 
+using namespace IBrushToolPresenterAux;
 
 void BrushToolPresenter::initialize(IMainEditorPresenter* owner)
 {

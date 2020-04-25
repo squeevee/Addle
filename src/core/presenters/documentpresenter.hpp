@@ -1,12 +1,13 @@
 #ifndef DOCUMENTPRESENTER_HPP
 #define DOCUMENTPRESENTER_HPP
 
+#include "compat.hpp"
 #include <QList>
 #include <QObject>
 #include "interfaces/presenters/idocumentpresenter.hpp"
 #include "utilities/initializehelper.hpp"
 
-class DocumentPresenter : public QObject, public IDocumentPresenter
+class ADDLE_CORE_EXPORT DocumentPresenter : public QObject, public IDocumentPresenter
 {
     Q_OBJECT
 public:

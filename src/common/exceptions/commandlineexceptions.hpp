@@ -11,7 +11,7 @@
 #include "baseaddleexception.hpp"
 
 DECL_RUNTIME_ERROR(CommandLineException)
-class CommandLineException : public BaseAddleException
+class ADDLE_COMMON_EXPORT CommandLineException : public BaseAddleException
 {
 public:
     CommandLineException(
@@ -33,7 +33,7 @@ protected:
 };
 
 DECL_RUNTIME_ERROR(CommandLineParserException)
-class CommandLineParserException : public CommandLineException
+class ADDLE_COMMON_EXPORT CommandLineParserException : public CommandLineException
 {
     ADDLE_EXCEPTION_BOILERPLATE(CommandLineParserException)
 
@@ -55,7 +55,7 @@ public:
 };
 
 DECL_RUNTIME_ERROR(MultipleStartModesException)
-class MultipleStartModesException : public CommandLineException
+class ADDLE_COMMON_EXPORT MultipleStartModesException : public CommandLineException
 {
     ADDLE_EXCEPTION_BOILERPLATE(MultipleStartModesException)
 public: 

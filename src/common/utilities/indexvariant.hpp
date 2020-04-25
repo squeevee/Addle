@@ -1,6 +1,8 @@
 #ifndef INDEXVARIANT_HPP
 #define INDEXVARIANT_HPP
 
+#include "compat.hpp"
+
 #include <QHash>
 #include <QMetaType>
 #include <QVariant>
@@ -18,7 +20,7 @@
  * @note Use direct conversions between QVariant and IndexVariant, not meta
  * conversions.
  */
-class IndexVariant
+class ADDLE_COMMON_EXPORT IndexVariant
 {
 public:
     IndexVariant() = default;
@@ -97,7 +99,7 @@ inline bool operator!=(const QVariant& lhs, const IndexVariant& rhs)
     return !(lhs == rhs);
 }
 
-uint qHash(const IndexVariant& var, uint seed = 0);
+inline uint qHash(const IndexVariant& var, uint seed = 0) { return var.getHash(seed); }
 
 Q_DECLARE_METATYPE(IndexVariant)
 

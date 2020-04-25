@@ -1,6 +1,7 @@
 #ifndef DOCUMENT_HPP
 #define DOCUMENT_HPP
 
+#include "compat.hpp"
 #include <QObject>
 #include <QList>
 #include <QString>
@@ -11,7 +12,7 @@
 
 #include "utilities/initializehelper.hpp"
 
-class Document : public QObject, public IDocument
+class ADDLE_CORE_EXPORT Document : public QObject, public IDocument
 {
     Q_OBJECT
 public:

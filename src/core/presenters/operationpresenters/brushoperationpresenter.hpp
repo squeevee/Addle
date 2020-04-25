@@ -1,12 +1,13 @@
 #ifndef BRUSHOPERATIONPRESENTER_HPP
 #define BRUSHOPERATIONPRESENTER_HPP
 
+#include "compat.hpp"
 #include <QObject>
 
 #include "interfaces/presenters/operationpresenters/ibrushoperationpresenter.hpp"
 #include "interfaces/editing/irasterdiff.hpp"
 
-class BrushOperationPresenter : public QObject, public IBrushOperationPresenter
+class ADDLE_CORE_EXPORT BrushOperationPresenter : public QObject, public IBrushOperationPresenter
 {
     Q_OBJECT
 public: 
