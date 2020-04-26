@@ -17,7 +17,7 @@ public:
     : FormatId(key, {
         { QStringLiteral("mimeType"), mimeType },
         { QStringLiteral("modelType"), TypeInfoRef(modelType) },
-        { QStringLiteral("fileExtensions"), (QStringList){ fileExtension } },
+        { QStringLiteral("fileExtensions"), QStringList({ fileExtension }) },
         { QStringLiteral("fileSignature"), fileSignature }
     })
     {

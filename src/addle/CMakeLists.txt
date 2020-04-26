@@ -16,8 +16,11 @@ target_link_libraries(addle Qt5::Core core common widgetsgui )
 if (WIN32)
     add_custom_command (
         TARGET addle POST_BUILD
-        COMMAND cp
-        ARGS ${LIBRARY_OUTPUT_PATH}/*.dll ${EXECUTABLE_OUTPUT_PATH}
+        COMMAND ${CMAKE_COMMAND} -E copy
+			$<TARGET_FILE:common>
+			$<TARGET_FILE:core>
+			$<TARGET_FILE:widgetsgui>
+			${EXECUTABLE_OUTPUT_PATH}
     )
 
     if (CMAKE_BUILD_TYPE STREQUAL "Release")
