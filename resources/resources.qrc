@@ -3,28 +3,51 @@
 
 <qresource>
     <!-- Icons -->
-    <file>icons/brush.png</file>
-    <file>icons/copy.png</file>
-    <file>icons/eraser.png</file>
-    <file>icons/eyedrop.png</file>
-    <file>icons/fill.png</file>
-    <file>icons/measure.png</file>
-    <file>icons/navigate.png</file>
-    <file>icons/new.png</file>
-    <file>icons/open.png</file>
-    <file>icons/paste.png</file>
-    <file>icons/redo.png</file>
-    <file>icons/reset_view.png</file>
-    <file>icons/save.png</file>
-    <file>icons/select.png</file>
-    <file>icons/shapes.png</file>
-    <file>icons/stickers.png</file>
-    <file>icons/text_en.png</file>
-    <file>icons/turntable_cw.png</file>
-    <file>icons/turntable_ccw.png</file>
-    <file>icons/undo.png</file>
-    <file>icons/zoom_in.png</file>
-    <file>icons/zoom_out.png</file>
+    <file>icons/+dark/brush-tool.png</file>
+    <file>icons/+dark/copy.png</file>
+    <file>icons/+dark/eraser-tool.png</file>
+    <file>icons/+dark/eyedrop-tool.png</file>
+    <file>icons/+dark/fill-tool.png</file>
+    <file>icons/+dark/measure-tool.png</file>
+    <file>icons/+dark/navigate-tool.png</file>
+    <file>icons/+dark/new.png</file>
+    <file>icons/+dark/open.png</file>
+    <file>icons/+dark/paste.png</file>
+    <file>icons/+dark/redo.png</file>
+    <file>icons/+dark/reset_view.png</file>
+    <file>icons/+dark/save.png</file>
+    <file>icons/+dark/select-tool.png</file>
+    <file>icons/+dark/shapes-tool.png</file>
+    <file>icons/+dark/stickers-tool.png</file>
+    <file>icons/+dark/text-tool.png</file>
+    <file>icons/+dark/turntable_cw.png</file>
+    <file>icons/+dark/turntable_ccw.png</file>
+    <file>icons/+dark/undo.png</file>
+    <file>icons/+dark/zoom_in.png</file>
+    <file>icons/+dark/zoom_out.png</file>
+
+    <file>icons/+light/brush-tool.png</file>
+    <file>icons/+light/copy.png</file>
+    <file>icons/+light/eraser-tool.png</file>
+    <file>icons/+light/eyedrop-tool.png</file>
+    <file>icons/+light/fill-tool.png</file>
+    <file>icons/+light/measure-tool.png</file>
+    <file>icons/+light/navigate-tool.png</file>
+    <file>icons/+light/new.png</file>
+    <file>icons/+light/open.png</file>
+    <file>icons/+light/paste.png</file>
+    <file>icons/+light/redo.png</file>
+    <file>icons/+light/reset_view.png</file>
+    <file>icons/+light/save.png</file>
+    <file>icons/+light/select-tool.png</file>
+    <file>icons/+light/shapes-tool.png</file>
+    <file>icons/+light/stickers-tool.png</file>
+    <file>icons/+light/text-tool.png</file>
+    <file>icons/+light/turntable_cw.png</file>
+    <file>icons/+light/turntable_ccw.png</file>
+    <file>icons/+light/undo.png</file>
+    <file>icons/+light/zoom_in.png</file>
+    <file>icons/+light/zoom_out.png</file>
 
     <!-- Palettes -->
     <file>palettes/crayolacolors.xml</file>

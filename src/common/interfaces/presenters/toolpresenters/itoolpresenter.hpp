@@ -6,7 +6,6 @@
 #include <QIcon>
 #include <QCursor>
 #include "../idocumentpresenter.hpp"
-#include "../ipropertydecoratedpresenter.hpp"
 
 #include "idtypes/toolid.hpp"
 
@@ -15,7 +14,6 @@
 
 class IMainEditorPresenter;
 class IToolPresenter
-    : public virtual IPropertyDecoratedPresenter
 {
 public:
     virtual ~IToolPresenter() = default;

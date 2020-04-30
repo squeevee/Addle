@@ -11,9 +11,7 @@ void NavigateToolPresenter::initialize(IMainEditorPresenter* owner)
     _initHelper.initializeBegin();
 
     ToolPresenterBase::initialize_p(owner);
-
-    _propertyDecorationHelper.initializeEnumProperty<NavigateOperationOptions>("navigateOperation");
-
+    
     _initHelper.initializeEnd();
 }
 

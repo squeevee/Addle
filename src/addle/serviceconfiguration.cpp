@@ -34,6 +34,7 @@
 
 #include "core/rendering/renderstack.hpp"
 
+#include "core/services/appearanceservice.hpp"
 #include "core/services/applicationservice.hpp"
 #include "core/services/formatservice.hpp"
 //#include "core/services/taskservice.hpp"
@@ -75,6 +76,7 @@ void ServiceConfiguration::configure()
     CONFIG_AUTOFACTORY_BY_TYPE(IRenderStack, RenderStack);
 
     // # Services
+    CONFIG_AUTOFACTORY_BY_TYPE(IAppearanceService, AppearanceService);
     CONFIG_AUTOFACTORY_BY_TYPE(IApplicationService, ApplicationService);
     CONFIG_AUTOFACTORY_BY_TYPE(IFormatService, FormatService);
     //CONFIG_AUTOFACTORY_BY_TYPE(ITaskService, TaskService);

@@ -3,7 +3,7 @@
 #include "navigatetooloptionsbar.hpp"
 
 #include "widgetsgui/utilities/widgetproperties.hpp"
-#include "widgetsgui/utilities/decorationhelper.hpp"
+#include "utilities/qtextensions/translation.hpp"
 #include "utilities/qtextensions/qobject.hpp"
 
 #include "utilities/presenter/propertybinding.hpp"
@@ -12,19 +12,17 @@ NavigateToolOptionsBar::NavigateToolOptionsBar(INavigateToolPresenter& presenter
     : ToolOptionBarBase(presenter, parent),
     _presenter(presenter)
 {
-    DecorationHelper decorHelper_navigateOperation(
-        INavigateToolPresenter::Meta::Properties::navigateOperation,
-        _presenter
-    );
 
     _optionGroup_navigateOperation = new OptionGroup(this);
 
     _action_navigateOperation_gripPan = new OptionAction(NavigateOperationOptions::gripPan, this);
-    decorHelper_navigateOperation.decorateOption(_action_navigateOperation_gripPan);
+    _action_navigateOperation_gripPan->setText(tr("gripPan.text"));
+    _action_navigateOperation_gripPan->setToolTip(tr("gripPan.toolTip"));
     _optionGroup_navigateOperation->addOption(_action_navigateOperation_gripPan);
 
     _action_navigateOperation_gripPivot = new OptionAction(NavigateOperationOptions::gripPivot, this);
-    decorHelper_navigateOperation.decorateOption(_action_navigateOperation_gripPivot);
+    _action_navigateOperation_gripPivot->setText(tr("gripPivot.text"));
+    _action_navigateOperation_gripPivot->setToolTip(tr("gripPivot.toolTip"));
     _optionGroup_navigateOperation->addOption(_action_navigateOperation_gripPivot);
 
     new PropertyBinding(

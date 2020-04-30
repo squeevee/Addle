@@ -22,6 +22,7 @@ set (
     presenters/toolpresenters/navigatetoolpresenter.cpp
     presenters/toolpresenters/brushtoolpresenter.cpp
     rendering/renderstack.cpp
+    services/appearanceservice.cpp
     services/applicationservice.cpp
     services/formatservice.cpp
     format/qtimageformatdriver.cpp

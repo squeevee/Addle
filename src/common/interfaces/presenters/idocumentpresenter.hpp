@@ -7,7 +7,6 @@
 
 #include "iraiseerrorpresenter.hpp"
 #include "ihavetoolspresenter.hpp"
-#include "ipropertydecoratedpresenter.hpp"
 
 #include "interfaces/models/idocument.hpp"
 

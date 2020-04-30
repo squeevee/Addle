@@ -9,7 +9,6 @@
 #include <QStringBuilder>
 
 #include "../helpers/mousehelper.hpp"
-#include "../helpers/propertydecorationhelper.hpp"
 
 #include "interfaces/presenters/toolpresenters/itoolpresenter.hpp"
 
@@ -23,7 +22,7 @@ class ADDLE_CORE_EXPORT ToolPresenterBase : public QObject, public virtual ITool
     Q_OBJECT
 public:
     ToolPresenterBase()
-        : _mouseHelper(*this), _propertyDecorationHelper(this)
+        : _mouseHelper(*this)
     {
         connect(this, &ToolPresenterBase::selectionChanged, this, &ToolPresenterBase::onSelectionChanged); // woof.
     }
@@ -41,10 +40,6 @@ public:
         return _mainEditorPresenter->getCurrentToolPresenter() == this;
     }
 
-    PropertyDecoration getPropertyDecoration(const char* propertyName) const
-    { 
-        return _propertyDecorationHelper.getPropertyDecoration(propertyName);
-    }
 
     virtual bool event(QEvent* e);
 
@@ -81,8 +76,6 @@ protected:
     QString _name;
 
     MouseHelper _mouseHelper;
-
-    PropertyDecorationHelper _propertyDecorationHelper;
 
 private slots:
 

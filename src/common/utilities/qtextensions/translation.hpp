@@ -10,6 +10,28 @@
 // should also be fail-safe with at least one human-readable version specified
 // in source code.
 
-ADDLE_COMMON_EXPORT QString fallback_translate(const char* context, const char* key, const QString fallback);
+inline QString fallback_translate(const char* context, const char* key, const QString fallback)
+{
+    QString translation = QCoreApplication::translate(context, key);
+    if (translation == QString(key))
+        return fallback;
+    else
+        return translation;
+}
+
+inline QString template_translate(const char* context, const char* keyTemplate, QStringList args)
+{
+    QString key = keyTemplate;
+    for (QString arg : args)
+    {
+        key = key.arg(arg);
+    }
+    return QCoreApplication::translate(context, qUtf8Printable(key));
+}
+
+inline QString template_translate(const char* context, const char* keyTemplate, QString arg)
+{
+    return template_translate(context, keyTemplate, QStringList({arg}));
+}
 
 #endif // qtextensions__TRANSLATION_H

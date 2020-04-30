@@ -1,21 +1,20 @@
 #include "brushtooloptionsbar.hpp"
 
 #include "utilities/presenter/propertybinding.hpp"
-#include "widgetsgui/utilities/decorationhelper.hpp"
 #include "widgetsgui/utilities/widgetproperties.hpp"
+#include "utilities/qtextensions/translation.hpp"
+
+#include "globalconstants.hpp"
 
 BrushToolOptionsBar::BrushToolOptionsBar(IBrushToolPresenter& presenter, QWidget* parent)
     : ToolOptionBarBase(presenter, parent),
     _presenter(presenter)
 {
-    DecorationHelper brush_decorHelper(
-        IBrushLikeToolPresenter::Meta::Properties::brush,
-        _presenter
-    );
     _optionGroup_brush = new OptionGroup(this);
 
-    _action_brush_basic = new OptionAction(IBrushToolPresenterAux::DefaultBrushes::Basic, this);
-    brush_decorHelper.decorateOption(_action_brush_basic);
+    _action_brush_basic = new OptionAction(GlobalConstants::CoreBrushes::BasicBrush, this);
+    _action_brush_basic->setText(tr("basic-brush.text"));
+    _action_brush_basic->setToolTip(tr("basic-brush.toolTip"));
     _optionGroup_brush->addOption(_action_brush_basic);
 
     //_action_brush_aliasedCircle = _actionGroup_brush->createAction(IBrushToolPresenter::DefaultBrushes::AliasedCircle);

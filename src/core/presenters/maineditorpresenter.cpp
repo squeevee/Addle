@@ -73,18 +73,18 @@ void MainEditorPresenter::initialize(Mode mode)
         }
     };
 
-    _propertyDecorationHelper.setIconPool({
-        { DefaultTools::BRUSH, QIcon(":/icons/brush.png") },
-        { DefaultTools::NAVIGATE, QIcon(":/icons/navigate.png") }
-    });
+    // _propertyDecorationHelper.setIconPool({
+    //     { DefaultTools::BRUSH, QIcon(":/icons/brush.png") },
+    //     { DefaultTools::NAVIGATE, QIcon(":/icons/navigate.png") }
+    // });
 
-    _propertyDecorationHelper.initializeIdProperty<ToolId>(
-        "currentTool",
-        {
-            DefaultTools::BRUSH,
-            DefaultTools::NAVIGATE
-        }
-    );
+    // _propertyDecorationHelper.initializeIdProperty<ToolId>(
+    //     "currentTool",
+    //     {
+    //         DefaultTools::BRUSH,
+    //         DefaultTools::NAVIGATE
+    //     }
+    // );
 
     _loadDocumentTask = new LoadDocumentTask(this);
     connect(_loadDocumentTask, &AsyncTask::completed, this, &MainEditorPresenter::onLoadDocumentCompleted);

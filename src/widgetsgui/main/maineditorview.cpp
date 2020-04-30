@@ -5,6 +5,7 @@
 
 #include "servicelocator.hpp"
 
+#include "interfaces/services/iappearanceservice.hpp"
 #include <QCoreApplication>
 
 #include <QSignalBlocker>
@@ -82,7 +83,7 @@ void MainEditorView::setupUi()
     _zoomRotateWidget->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
 
     _action_open = new QAction(this);
-    _action_open->setIcon(QIcon(":/icons/open.png"));
+    _action_open->setIcon(ADDLE_ICON("open"));
     connect(_action_open, &QAction::triggered, this, &MainEditorView::onAction_open);
 
     _optionGroup_toolSelection = new OptionGroup(this);
@@ -94,16 +95,16 @@ void MainEditorView::setupUi()
     );
 
     _action_new = new QAction(this);
-    _action_new->setIcon(QIcon(":/icons/new.png"));
+    _action_new->setIcon(ADDLE_ICON("new"));
     connect_interface(_action_new, SIGNAL(triggered()), _presenter, SLOT(newDocument()));
 
     _action_undo = new QAction(this);
-    _action_undo->setIcon(QIcon(":/icons/undo.png"));
+    _action_undo->setIcon(ADDLE_ICON("undo"));
     _action_undo->setEnabled(_presenter->canUndo());
     connect_interface(_action_undo, SIGNAL(triggered()), _presenter, SLOT(undo()));
 
     _action_redo = new QAction(this);
-    _action_redo->setIcon(QIcon(":/icons/redo.png"));
+    _action_redo->setIcon(ADDLE_ICON("redo"));
     _action_redo->setEnabled(_presenter->canRedo());
     connect_interface(_action_redo, SIGNAL(triggered()), _presenter, SLOT(redo()));
     
@@ -132,26 +133,26 @@ void MainEditorView::setupUi()
         &_optionsToolBar_navigate
     );
 
-    _toolBar_editorToolSelection->addAction(new QAction(QIcon(":/icons/select.png"), "", this));
+    _toolBar_editorToolSelection->addAction(new QAction(ADDLE_ICON("select-tool"), "", this));
 
     _toolBar_editorToolSelection->addSeparator();
 
 
     _toolBar_editorToolSelection->addAction(_action_selectBrushTool);
-    _toolBar_editorToolSelection->addAction(new QAction(QIcon(":/icons/eraser.png"), "", this));
-    _toolBar_editorToolSelection->addAction(new QAction(QIcon(":/icons/fill.png"), "", this));
+    _toolBar_editorToolSelection->addAction(new QAction(ADDLE_ICON("eraser-tool"), "", this));
+    _toolBar_editorToolSelection->addAction(new QAction(ADDLE_ICON("fill-tool"), "", this));
 
     _toolBar_editorToolSelection->addSeparator();
 
-    _toolBar_editorToolSelection->addAction(new QAction(QIcon(":/icons/text_en.png"), "", this));
-    _toolBar_editorToolSelection->addAction(new QAction(QIcon(":/icons/shapes.png"), "", this));
-    _toolBar_editorToolSelection->addAction(new QAction(QIcon(":/icons/stickers.png"), "", this));
+    _toolBar_editorToolSelection->addAction(new QAction(ADDLE_ICON("text-tool"), "", this));
+    _toolBar_editorToolSelection->addAction(new QAction(ADDLE_ICON("shapes-tool"), "", this));
+    _toolBar_editorToolSelection->addAction(new QAction(ADDLE_ICON("stickers-tool"), "", this));
 
     _toolBar_editorToolSelection->addSeparator();
 
     _toolBar_editorToolSelection->addAction(_action_selectNavigateTool);
-    _toolBar_editorToolSelection->addAction(new QAction(QIcon(":/icons/eyedrop.png"), "", this));
-    _toolBar_editorToolSelection->addAction(new QAction(QIcon(":/icons/measure.png"), "", this));
+    _toolBar_editorToolSelection->addAction(new QAction(ADDLE_ICON("eyedrop-tool"), "", this));
+    _toolBar_editorToolSelection->addAction(new QAction(ADDLE_ICON("measure-tool"), "", this));
 }
 
 void MainEditorView::onUndoStateChanged()

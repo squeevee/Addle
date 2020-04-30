@@ -17,7 +17,7 @@
 #include "utilities/asynctask.hpp"
 #include "utilities/presenter/propertycache.hpp"
 
-#include "helpers/propertydecorationhelper.hpp"
+// #include "helpers/propertydecorationhelper.hpp"
 
 class IMainEditorView;
 
@@ -50,7 +50,7 @@ class ADDLE_CORE_EXPORT MainEditorPresenter : public QObject, public virtual IMa
     )
 public:
     MainEditorPresenter()
-        : _propertyDecorationHelper(this),
+        : //_propertyDecorationHelper(this),
         _undoStackHelper(*this)
     {
         _isEmptyCache.calculateBy(&MainEditorPresenter::isEmpty_p, this);
@@ -118,12 +118,12 @@ signals:
 signals:
     void raiseError(QSharedPointer<IErrorPresenter> error);
 
-    // # IPropertyDecoratedPresenter
+    // # IDecoratedPresenter
 public:
-    PropertyDecoration getPropertyDecoration(const char* propertyName) const
-    { 
-        return _propertyDecorationHelper.getPropertyDecoration(propertyName);
-    }
+    // PropertyDecoration getPropertyDecoration(const char* propertyName) const
+    // { 
+    //     return _propertyDecorationHelper.getPropertyDecoration(propertyName);
+    // }
 
 private slots:
     void onLoadDocumentCompleted();
@@ -162,7 +162,7 @@ private:
 
     LoadDocumentTask* _loadDocumentTask;
 
-    PropertyDecorationHelper _propertyDecorationHelper;
+    // PropertyDecorationHelper _propertyDecorationHelper;
     UndoStackHelper _undoStackHelper;
 };
 

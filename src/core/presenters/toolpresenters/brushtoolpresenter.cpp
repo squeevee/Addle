@@ -38,10 +38,6 @@ void BrushToolPresenter::initialize(IMainEditorPresenter* owner)
         //ServiceLocator::makeShared<IBrushPresenter>(DefaultBrushes::Square)
     });
 
-    _propertyDecorationHelper.initializeIdProperty<BrushId>(
-        "brush",
-        _brushAssetsHelper.getAssetIds()
-    );
 
     _hoverPreview = new HoverPreview(*this);
 

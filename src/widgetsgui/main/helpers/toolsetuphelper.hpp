@@ -3,12 +3,15 @@
 
 #include <QToolBar>
 
-#include "widgetsgui/utilities/decorationhelper.hpp"
+
+#include "interfaces/services/iappearanceservice.hpp"
 #include "widgetsgui/utilities/optionaction.hpp"
 #include "widgetsgui/utilities/optiongroup.hpp"
 
 #include "../maineditorview.hpp"
 #include "interfaces/presenters/imaineditorpresenter.hpp"
+
+#include "utilities/qtextensions/translation.hpp"
 
 class ToolSetupHelper
 {
@@ -20,8 +23,7 @@ public:
         )
         : _owner(owner),
         _selectGroup(selectGroup),
-        _mainEditorPresenter(mainEditorPresenter),
-        _select_decorHelper("currentTool", mainEditorPresenter)
+        _mainEditorPresenter(mainEditorPresenter)
     {
     }
 
@@ -36,7 +38,9 @@ public:
         PresenterType* presenter = dynamic_cast<PresenterType*>(_mainEditorPresenter.getToolPresenter(tool));
 
         OptionAction* selectAction = new OptionAction(tool, _owner);
-        _select_decorHelper.decorateOption(selectAction);
+        selectAction->setText(template_translate("MainEditorPresenter", "%1.text", { tool.getKey() }));
+        selectAction->setToolTip(template_translate("MainEditorPresenter", "%1.toolTip", { tool.getKey() }));
+        selectAction->setIcon(ADDLE_ICON(tool.getKey()));
         *selectActionptr = selectAction;
 
         _selectGroup->addOption(selectAction);
@@ -59,8 +63,6 @@ public:
     }
 
 private:
-    DecorationHelper _select_decorHelper;
-
     MainEditorView* _owner;
     QToolBar* _selectToolBar;
     OptionGroup* _selectGroup;

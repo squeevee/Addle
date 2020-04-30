@@ -135,5 +135,3 @@ const BrushId IBrushToolPresenterAux::DEFAULT_BRUSH = IBrushToolPresenterAux::De
 #include "utilities/model/documentbuilder.hpp"
 #include "utilities/model/importexportinfo.hpp"
 #include "utilities/model/layerbuilder.hpp"
-
-#include "utilities/presenter/propertydecoration.hpp"

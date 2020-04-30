@@ -15,7 +15,6 @@
 #include "ierrorpresenter.hpp"
 #include "ihavetoolspresenter.hpp"
 #include "iraiseerrorpresenter.hpp"
-#include "ipropertydecoratedpresenter.hpp"
 
 class ILayerPresenter;
 class IMainEditorView;
@@ -49,8 +48,7 @@ class IMainEditorPresenter
     : public virtual IHaveDocumentPresenter,
     public virtual IHaveToolsPresenter,
     public virtual IHaveUndoStackPresenter,
-    public virtual IRaiseErrorPresenter,
-    public virtual IPropertyDecoratedPresenter
+    public virtual IRaiseErrorPresenter
 {
 public:
     INTERFACE_META(IMainEditorPresenter);
