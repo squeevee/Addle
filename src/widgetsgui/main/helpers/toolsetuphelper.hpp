@@ -3,8 +3,8 @@
 
 #include <QToolBar>
 
-
-#include "interfaces/services/iappearanceservice.hpp"
+#include "utilities/addle_icon.hpp"
+#include "utilities/addle_text.hpp"
 #include "widgetsgui/utilities/optionaction.hpp"
 #include "widgetsgui/utilities/optiongroup.hpp"
 
@@ -38,8 +38,8 @@ public:
         PresenterType* presenter = dynamic_cast<PresenterType*>(_mainEditorPresenter.getToolPresenter(tool));
 
         OptionAction* selectAction = new OptionAction(tool, _owner);
-        selectAction->setText(template_translate("MainEditorPresenter", "%1.text", { tool.getKey() }));
-        selectAction->setToolTip(template_translate("MainEditorPresenter", "%1.toolTip", { tool.getKey() }));
+        selectAction->setText(ADDLE_TEXT(QStringLiteral("tools.%1.text").arg(tool.getKey())));
+        selectAction->setToolTip(ADDLE_TEXT(QStringLiteral("tools.%1.toolTip").arg(tool.getKey())));
         selectAction->setIcon(ADDLE_ICON(tool.getKey()));
         *selectActionptr = selectAction;
 

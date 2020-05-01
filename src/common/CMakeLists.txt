@@ -1,9 +1,11 @@
 find_package(Qt5 REQUIRED COMPONENTS Core Gui)
 
 set (CMAKE_AUTOMOC ON)
+set ( CMAKE_AUTORCC ON )
 
 set (common_sources
     ${INTERFACES}
+    
     staticdefinitions.cpp
     exceptions/baseaddleexception.cpp
     utilities/asynctask.cpp
@@ -16,6 +18,8 @@ set (common_sources
     utilities/presenter/propertybinding.cpp
     utilities/presenter/propertyobserver.cpp
     utilities/render/rendersubstack.cpp
+
+    ../../resources/resources.qrc
 )
 
 add_definitions(-DADDLE_EXPORTING_COMMON)

@@ -2,6 +2,9 @@
 <RCC version="1.0">
 
 <qresource>
+    <!-- I18n -->
+    <file>i18n/+en_US/text.json</file>
+
     <!-- Icons -->
     <file>icons/+dark/brush-tool.png</file>
     <file>icons/+dark/copy.png</file>

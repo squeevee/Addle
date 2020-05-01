@@ -15,8 +15,6 @@ public:
     virtual QIcon icon(QString identifier) const = 0;
 };
 
-#define ADDLE_ICON(identifier) ServiceLocator::get<IAppearanceService>().icon(identifier)
-
 DECL_MAKEABLE(IAppearanceService);
 
 #endif // IAPPEARANCESERVICE_HPP

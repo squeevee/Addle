@@ -8,6 +8,7 @@
 #include <QtDebug>
 
 #include <QApplication>
+#include <QTranslator>
 #include <vector>
 #include <memory>
 
@@ -35,6 +36,10 @@ int main(int argc, char *argv[])
 
     QApplication a(argc, argv);
     a.setApplicationVersion(GlobalConstants::ADDLE_VERSION);
+
+    QTranslator translator;
+    translator.load(QString(":/translations/en_US.qm"));
+    a.installTranslator(&translator);
 
 #ifdef ADDLE_DEBUG
     qDebug() << qUtf8Printable(QCoreApplication::translate(

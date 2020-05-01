@@ -5,7 +5,8 @@
 
 #include "servicelocator.hpp"
 
-#include "interfaces/services/iappearanceservice.hpp"
+#include "utilities/addle_icon.hpp"
+#include "utilities/addle_text.hpp"
 #include <QCoreApplication>
 
 #include <QSignalBlocker>
@@ -49,11 +50,11 @@ void MainEditorView::setupUi()
     QMainWindow::setMenuBar(_menuBar);
 
     _toolBar_documentActions = new QToolBar(this);
-    _toolBar_documentActions->setWindowTitle(tr("document-actions"));
+    _toolBar_documentActions->setWindowTitle(ADDLE_TEXT("ui.document-actions.title"));
     QMainWindow::addToolBar(Qt::ToolBarArea::TopToolBarArea, _toolBar_documentActions);
 
     _toolBar_editorToolSelection = new QToolBar(this);
-    _toolBar_editorToolSelection->setWindowTitle(tr("tool-selection"));
+    _toolBar_editorToolSelection->setWindowTitle(ADDLE_TEXT("ui.tool-selection.title"));
     QMainWindow::addToolBar(Qt::ToolBarArea::LeftToolBarArea, _toolBar_editorToolSelection);
 
     new PropertyBinding(
@@ -84,6 +85,7 @@ void MainEditorView::setupUi()
 
     _action_open = new QAction(this);
     _action_open->setIcon(ADDLE_ICON("open"));
+    _action_open->setToolTip(ADDLE_TEXT("ui.open.toolTip"));
     connect(_action_open, &QAction::triggered, this, &MainEditorView::onAction_open);
 
     _optionGroup_toolSelection = new OptionGroup(this);
@@ -96,15 +98,18 @@ void MainEditorView::setupUi()
 
     _action_new = new QAction(this);
     _action_new->setIcon(ADDLE_ICON("new"));
+    _action_new->setToolTip(ADDLE_TEXT("ui.new.toolTip"));
     connect_interface(_action_new, SIGNAL(triggered()), _presenter, SLOT(newDocument()));
 
     _action_undo = new QAction(this);
     _action_undo->setIcon(ADDLE_ICON("undo"));
+    _action_undo->setToolTip(ADDLE_TEXT("ui.undo.toolTip"));
     _action_undo->setEnabled(_presenter->canUndo());
     connect_interface(_action_undo, SIGNAL(triggered()), _presenter, SLOT(undo()));
 
     _action_redo = new QAction(this);
     _action_redo->setIcon(ADDLE_ICON("redo"));
+    _action_redo->setToolTip(ADDLE_TEXT("ui.redo.toolTip"));
     _action_redo->setEnabled(_presenter->canRedo());
     connect_interface(_action_redo, SIGNAL(triggered()), _presenter, SLOT(redo()));
     

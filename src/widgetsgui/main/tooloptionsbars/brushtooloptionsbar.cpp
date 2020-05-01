@@ -2,7 +2,7 @@
 
 #include "utilities/presenter/propertybinding.hpp"
 #include "widgetsgui/utilities/widgetproperties.hpp"
-#include "utilities/qtextensions/translation.hpp"
+#include "utilities/addle_text.hpp"
 
 #include "globalconstants.hpp"
 
@@ -13,8 +13,8 @@ BrushToolOptionsBar::BrushToolOptionsBar(IBrushToolPresenter& presenter, QWidget
     _optionGroup_brush = new OptionGroup(this);
 
     _action_brush_basic = new OptionAction(GlobalConstants::CoreBrushes::BasicBrush, this);
-    _action_brush_basic->setText(tr("basic-brush.text"));
-    _action_brush_basic->setToolTip(tr("basic-brush.toolTip"));
+    _action_brush_basic->setText(ADDLE_TEXT("brushes.basic-brush.text"));
+    _action_brush_basic->setToolTip(ADDLE_TEXT("brushes.basic-brush.toolTip"));
     _optionGroup_brush->addOption(_action_brush_basic);
 
     //_action_brush_aliasedCircle = _actionGroup_brush->createAction(IBrushToolPresenter::DefaultBrushes::AliasedCircle);

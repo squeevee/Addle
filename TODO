@@ -200,3 +200,6 @@ get format drivers by id
 after button up from basic brush tool, don't show a hover preview until the mouse
 moves so the preview is not being overdrawn. Possibly have it not draw on click
 again.
+
+text.json keys have kebab-case camelcase and underscore-separated lower-case.
+they should probably be unified

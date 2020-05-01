@@ -37,6 +37,7 @@
 #include "core/services/appearanceservice.hpp"
 #include "core/services/applicationservice.hpp"
 #include "core/services/formatservice.hpp"
+#include "core/services/i18nservice.hpp"
 //#include "core/services/taskservice.hpp"
 
 #include "core/format/qtimageformatdriver.hpp"
@@ -79,6 +80,7 @@ void ServiceConfiguration::configure()
     CONFIG_AUTOFACTORY_BY_TYPE(IAppearanceService, AppearanceService);
     CONFIG_AUTOFACTORY_BY_TYPE(IApplicationService, ApplicationService);
     CONFIG_AUTOFACTORY_BY_TYPE(IFormatService, FormatService);
+    CONFIG_AUTOFACTORY_BY_TYPE(II18nService, I18nService);
     //CONFIG_AUTOFACTORY_BY_TYPE(ITaskService, TaskService);
 
     // # Tasks

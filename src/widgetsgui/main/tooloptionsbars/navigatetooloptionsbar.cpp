@@ -3,8 +3,8 @@
 #include "navigatetooloptionsbar.hpp"
 
 #include "widgetsgui/utilities/widgetproperties.hpp"
-#include "utilities/qtextensions/translation.hpp"
 #include "utilities/qtextensions/qobject.hpp"
+#include "utilities/addle_text.hpp"
 
 #include "utilities/presenter/propertybinding.hpp"
 
@@ -16,13 +16,13 @@ NavigateToolOptionsBar::NavigateToolOptionsBar(INavigateToolPresenter& presenter
     _optionGroup_navigateOperation = new OptionGroup(this);
 
     _action_navigateOperation_gripPan = new OptionAction(NavigateOperationOptions::gripPan, this);
-    _action_navigateOperation_gripPan->setText(tr("gripPan.text"));
-    _action_navigateOperation_gripPan->setToolTip(tr("gripPan.toolTip"));
+    _action_navigateOperation_gripPan->setText(ADDLE_TEXT("tools.navigate-tool.gripPan.text"));
+    _action_navigateOperation_gripPan->setToolTip(ADDLE_TEXT("tools.navigate-tool.gripPan.toolTip"));
     _optionGroup_navigateOperation->addOption(_action_navigateOperation_gripPan);
 
     _action_navigateOperation_gripPivot = new OptionAction(NavigateOperationOptions::gripPivot, this);
-    _action_navigateOperation_gripPivot->setText(tr("gripPivot.text"));
-    _action_navigateOperation_gripPivot->setToolTip(tr("gripPivot.toolTip"));
+    _action_navigateOperation_gripPivot->setText(ADDLE_TEXT("tools.navigate-tool.gripPivot.text"));
+    _action_navigateOperation_gripPivot->setToolTip(ADDLE_TEXT("tools.navigate-tool.gripPivot.toolTip"));
     _optionGroup_navigateOperation->addOption(_action_navigateOperation_gripPivot);
 
     new PropertyBinding(
