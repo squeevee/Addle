@@ -17,9 +17,11 @@ set (
     presenters/maineditorpresenter.cpp
     presenters/viewportpresenter.cpp
     presenters/assets/brushpresenter.cpp
+    presenters/helpers/brushiconhelper.cpp
     presenters/operationpresenters/brushoperationpresenter.cpp
     presenters/toolpresenters/toolpresenterbase.cpp
     presenters/toolpresenters/navigatetoolpresenter.cpp
+    presenters/toolpresenters/sizeselectionpresenter.cpp
     presenters/toolpresenters/brushtoolpresenter.cpp
     rendering/renderstack.cpp
     services/appearanceservice.cpp

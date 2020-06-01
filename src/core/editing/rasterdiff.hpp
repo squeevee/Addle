@@ -26,7 +26,7 @@ public:
     void blockingUncompress() { }
 
 private: 
-    static const int PIXEL_WIDTH = 4;
+    static const int PIXEL_DEPTH = 4;
 
     QWeakPointer<IRasterSurface> _destination;
 

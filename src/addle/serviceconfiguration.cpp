@@ -30,6 +30,7 @@
 #include "core/presenters/assets/brushpresenter.hpp"
 #include "core/presenters/toolpresenters/navigatetoolpresenter.hpp"
 #include "core/presenters/toolpresenters/brushtoolpresenter.hpp"
+#include "core/presenters/toolpresenters/sizeselectionpresenter.hpp"
 #include "core/presenters/operationpresenters/brushoperationpresenter.hpp"
 
 #include "core/rendering/renderstack.hpp"
@@ -72,6 +73,7 @@ void ServiceConfiguration::configure()
     // ## Tool presenters
     CONFIG_AUTOFACTORY_BY_TYPE(INavigateToolPresenter, NavigateToolPresenter);
     CONFIG_AUTOFACTORY_BY_TYPE(IBrushToolPresenter, BrushToolPresenter);
+    CONFIG_AUTOFACTORY_BY_TYPE(ISizeSelectionPresenter, SizeSelectionPresenter);
 
     // # Rendering
     CONFIG_AUTOFACTORY_BY_TYPE(IRenderStack, RenderStack);

@@ -3,6 +3,7 @@
 
 #include "compat.hpp"
 
+#include "isizeselectionpresenter.hpp"
 #include "ibrushliketoolpresenter.hpp"
 #include "interfaces/traits/initialize_trait.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
@@ -26,6 +27,8 @@ public:
     virtual ~IBrushToolPresenter() = default;
 
     virtual void initialize(IMainEditorPresenter* owner) = 0;
+
+    virtual ISizeSelectionPresenter& sizeSelection() = 0;
 };
 
 DECL_MAKEABLE(IBrushToolPresenter)

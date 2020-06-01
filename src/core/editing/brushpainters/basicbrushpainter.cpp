@@ -7,13 +7,7 @@
 
 const BrushId BasicBrushPainter::ID = GlobalConstants::CoreBrushes::BasicBrush;
 
-const BrushPainterInfo BasicBrushPainter::INFO = BrushPainterInfo(
-    /* isSizeInvariant: */ false,
-    /* isColorInvariant: */ false,
-    /* isPixelAliased: */ false,
-    /* minSize: */ DEFAULT_MINIMUM_SIZE,
-    /* maxSize: */ DEFAULT_MAXIMUM_SIZE
-);
+const BrushPainterInfo BasicBrushPainter::INFO = BrushPainterInfo::defaultValues();
 
 void BasicBrushPainter::initialize(QColor color, double size, QSharedPointer<IRasterSurface> buffer)
 {

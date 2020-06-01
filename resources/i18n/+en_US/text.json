@@ -9,7 +9,12 @@
     "tools": {
         "brush-tool": {
             "text": "Brush Tool",
-            "toolTip": "Paint on the canvas."
+            "toolTip": "Paint on the canvas.",
+
+            "size-selection": {
+                "text": "Size",
+                "toolTip": "Select the size of the current brush"
+            }
         },
 
         "navigate-tool": {

@@ -8,6 +8,7 @@ set (
     canvas/canvasscene.cpp
     canvas/layeritem.cpp
     main/maineditorview.cpp
+    main/sizeselector.cpp
     main/viewportscrollwidget.cpp
     main/viewport.cpp
     main/zoomrotatewidget.cpp

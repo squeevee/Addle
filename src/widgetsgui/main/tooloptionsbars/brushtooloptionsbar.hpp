@@ -7,6 +7,7 @@
 #include "interfaces/presenters/assets/ibrushpresenter.hpp"
 #include "interfaces/presenters/toolpresenters/ibrushtoolpresenter.hpp"
 #include "tooloptionbarbase.hpp"
+#include "../sizeselector.hpp"
 
 class ADDLE_WIDGETSGUI_EXPORT BrushToolOptionsBar : public ToolOptionBarBase 
 {
@@ -22,6 +23,8 @@ public:
     //QAction* _action_brush_aliasedCircle;
     //QAction* _action_brush_square;
     OptionGroup* _optionGroup_brush;
+
+    SizeSelectButton* _button_sizeSelect;
 
     //QAction* _brush_size;
     //OptionGroup* _optionGroup_size;

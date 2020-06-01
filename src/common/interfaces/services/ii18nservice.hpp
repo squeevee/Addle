@@ -10,7 +10,9 @@
 // (moc-time) hard-coded strings in source. I find this to be inflexible, and a
 // massive unneeded entanglement, so we're going to rough it with a simple JSON
 // string catalog. 
-// If this proves to be insufficient, we may consider porting to garbageslam/spirit-pe
+// If this proves to be insufficient, we may consider using garbageslam/spirit-pe
+// or KDE Localization, which offer richer features but also appear to work better
+// with an out-of-source text model than Qt does.
 // I may also subclass QTranslator to serve as a Qt-compatible wrapper for this
 // service -- i.e., if we end up using UIC or something where such a thing would
 // be convenient

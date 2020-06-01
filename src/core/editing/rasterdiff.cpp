@@ -18,7 +18,7 @@ void RasterDiff::initialize(
 
     auto s_destination = _destination.toStrongRef();
 
-    int bufferLength = _area.width() * _area.height() * PIXEL_WIDTH;
+    int bufferLength = _area.width() * _area.height() * PIXEL_DEPTH;
     
     _uncompressed = QByteArray(bufferLength, 0x00);
     {
@@ -38,13 +38,13 @@ void RasterDiff::initialize(
 
         if (surfaceReader.area().isNull()) return;
         
-        //assert surfaceReader.pixelWidth() == PIXEL_WIDTH
+        //assert surfaceReader.pixelWidth() == PIXEL_DEPTH
         const int padTop = surfaceReader.area().top() - _area.top();
         const int height = surfaceReader.area().height();
 
-        const int padLeft = (surfaceReader.area().left() - _area.left()) * PIXEL_WIDTH;
-        const int readerWidth = surfaceReader.area().width() * PIXEL_WIDTH;
-        const int fullWidth = _area.width() * PIXEL_WIDTH;
+        const int padLeft = (surfaceReader.area().left() - _area.left()) * PIXEL_DEPTH;
+        const int readerWidth = surfaceReader.area().width() * PIXEL_DEPTH;
+        const int fullWidth = _area.width() * PIXEL_DEPTH;
 
         int line = 0;
 
@@ -72,10 +72,10 @@ void RasterDiff::apply()
     auto s_destination = _destination.toStrongRef();
 
     RasterBitWriter writer = s_destination->getBitWriter(_area);
-    //assert surfaceReader.pixelWidth() == PIXEL_WIDTH
+    //assert surfaceReader.pixelWidth() == PIXEL_DEPTH
     
     {
-        const int width = _area.width() * PIXEL_WIDTH;
+        const int width = _area.width() * PIXEL_DEPTH;
         const int height = _area.height();
 
         int line = 0;

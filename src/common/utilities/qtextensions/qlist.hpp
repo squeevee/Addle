@@ -51,7 +51,7 @@ public:
 };
 
 template<typename OutType, typename InType>
-QList<OutType> qListCast(const QList<InType>& inList)
+inline QList<OutType> qListCast(const QList<InType>& inList)
 {
     QList<OutType> outList;
     outList.reserve(inList.size());
@@ -63,7 +63,7 @@ QList<OutType> qListCast(const QList<InType>& inList)
 }
 
 template<typename OutType, typename InType>
-QList<QSharedPointer<OutType>> qSharedPointerListCast(const QList<QSharedPointer<InType>>& inList)
+inline QList<QSharedPointer<OutType>> qSharedPointerListCast(const QList<QSharedPointer<InType>>& inList)
 {
     QList<QSharedPointer<OutType>> outList;
     outList.reserve(inList.size());
@@ -73,6 +73,25 @@ QList<QSharedPointer<OutType>> qSharedPointerListCast(const QList<QSharedPointer
     }
     return outList;
 }
+
+// template<typename T>
+// inline QList<T> arrayToQList(T arr[], std::size_t length)
+// {
+//     QList<T> outList;
+//     outList.reserve(length);
+//     for (int i = 0; i < length; i++)
+//     {
+//         outList[i] = arr[i];
+//     }
+
+//     return outList;
+// }
+
+// template<typename T, std::size_t N>
+// inline QList<T> arrayToQList(T arr[N])
+// {
+//     return arrayToQList(arr, N);
+// }
 
 /*
 

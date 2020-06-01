@@ -201,5 +201,24 @@ after button up from basic brush tool, don't show a hover preview until the mous
 moves so the preview is not being overdrawn. Possibly have it not draw on click
 again.
 
-text.json keys have kebab-case camelcase and underscore-separated lower-case.
+text.json keys have kebab-case camelCase and snake_case.
 they should probably be unified
+
+
+Distinguish between brush painter and brush engine. Perhaps brush painter should 
+essentially be a data class with access to an abstract brush engine interface,
+and a common implementation. The brush engines would be stateless singletons --
+maybe a bit strange after all the work I put in to making them stateful, but the
+real point of that exercise was to enable ServiceLocator to make and get by
+PersistentId. All the state would be accessible it just wouldn't be class members.
+
+There would still be the matter of brush engines with unique state properties,
+but there are plenty of reasonable ways to store abstract/arbitrary data as long 
+as you don't need to be able to interpret it arbitrarily.
+
+This would necessitate a distinction between BrushId and a new 
+BrushEngineId, but I think that's manageable and this would also distill brush 
+drawing logic which would make the inheritance question cleaner.
+
+Related: perhaps BrushPainter should be able to push/pop its state, similar to how
+QPainter does.

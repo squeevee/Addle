@@ -6,6 +6,7 @@
 #include "interfaces/presenters/toolpresenters/ibrushtoolpresenter.hpp"
 #include "interfaces/presenters/operationpresenters/ibrushoperationpresenter.hpp"
 
+#include "../helpers/brushiconhelper.hpp"
 #include "../helpers/toolwithassetshelper.hpp"
 
 #include "interfaces/rendering/irenderstep.hpp"
@@ -42,6 +43,8 @@ public:
 
     void initialize(IMainEditorPresenter* owner);
 
+    ISizeSelectionPresenter& sizeSelection();
+
     ToolId getId() { return IBrushToolPresenterAux::ID; }
 
     QList<QSharedPointer<IAssetPresenter>> getAllAssets() { _initHelper.check(); return _brushAssetsHelper.getAllAssets(); }
@@ -70,14 +73,18 @@ protected:
 
 private slots:
     void onSelectedLayerChanged(QWeakPointer<ILayerPresenter> layer);
+    void onSizeChanged(double size);
 
 private:
-    class HoverPreview;
+    void updateSizeSelection();
+
+    ISizeSelectionPresenter* _sizeSelection = nullptr;
 
     IMainEditorPresenter* _mainEditorPresenter;
     
     QSharedPointer<IBrushPainter> _brushPainter;
 
+    class HoverPreview;
     HoverPreview* _hoverPreview;
 
     ToolWithAssetsHelper<IBrushPresenter, BrushId> _brushAssetsHelper;
