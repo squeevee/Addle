@@ -1,12 +1,13 @@
 #ifndef SIZESELECTIONPRESENTER_HPP
 #define SIZESELECTIONPRESENTER_HPP
 
+#include "compat.hpp"
 #include <QObject>
 #include "interfaces/presenters/toolpresenters/isizeselectionpresenter.hpp"
 
 #include <QMap>
 
-class SizeSelectionPresenter : public QObject, public ISizeSelectionPresenter
+class ADDLE_CORE_EXPORT SizeSelectionPresenter : public QObject, public ISizeSelectionPresenter
 {
     Q_OBJECT
 public:

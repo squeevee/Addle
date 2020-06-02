@@ -1,12 +1,13 @@
 #ifndef I18NSERVICE_HPP
 #define I18NSERVICE_HPP
 
+#include "compat.hpp"
 #include "interfaces/services/ii18nservice.hpp"
 
 #include <QJsonDocument>
 #include <QLocale>
 
-class I18nService : public II18nService
+class ADDLE_CORE_EXPORT I18nService : public II18nService
 {
 public:
     I18nService();
