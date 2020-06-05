@@ -22,4 +22,20 @@ static inline QRect coarseBoundRect(QRectF rect)
     );
 }
 
+static inline QRect coarseBoundRect(QPointF pos, double size)
+{
+    double halfSize = size / 2;
+
+    return coarseBoundRect(
+        QRectF(pos - QPointF(halfSize, halfSize), QSizeF(size, size))
+    );
+}
+
+static inline bool near(QPointF p1, QPointF p2, double range)
+{
+    const double a = p1.x() - p2.x();
+    const double b = p1.y() - p2.y();
+    return (a * a) + (b * b) <= (range * range);
+}
+
 #endif // MATHUTILS_HPP

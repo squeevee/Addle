@@ -20,15 +20,10 @@ public:
     BrushToolOptionsBar(IBrushToolPresenter& presenter, QWidget* parent);
 
     OptionAction* _action_brush_basic;
-    //QAction* _action_brush_aliasedCircle;
-    //QAction* _action_brush_square;
+    OptionAction* _action_brush_soft;
     OptionGroup* _optionGroup_brush;
 
     SizeSelectButton* _button_sizeSelect;
-
-    //QAction* _brush_size;
-    //OptionGroup* _optionGroup_size;
-
 private:
     IBrushToolPresenter& _presenter;
 };

@@ -21,6 +21,11 @@ const BrushId GlobalConstants::CoreBrushes::BasicBrush = BrushId(
     GlobalConstants::CoreBrushEngines::PathEngine
 );
 
+const BrushId GlobalConstants::CoreBrushes::SoftBrush = BrushId(
+    "soft-brush",
+    GlobalConstants::CoreBrushEngines::RasterEngine
+);
+
 #include "idtypes/persistentid.hpp"
 #include "idtypes/brushengineid.hpp"
 STATIC_PERSISTENT_ID_BOILERPLATE(BrushEngineId)
@@ -128,6 +133,7 @@ const ToolId IMainEditorPresenterAux::DefaultTools::MEASURE  = IMeasureToolPrese
 
 #include "interfaces/presenters/toolpresenters/ibrushtoolpresenter.hpp"
 const BrushId IBrushToolPresenterAux::DefaultBrushes::Basic  = GlobalConstants::CoreBrushes::BasicBrush;
+const BrushId IBrushToolPresenterAux::DefaultBrushes::Soft  = GlobalConstants::CoreBrushes::SoftBrush;
 
 const BrushId IBrushToolPresenterAux::DEFAULT_BRUSH = IBrushToolPresenterAux::DefaultBrushes::Basic;
 

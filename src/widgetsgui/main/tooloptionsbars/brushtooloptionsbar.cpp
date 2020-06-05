@@ -22,8 +22,14 @@ BrushToolOptionsBar::BrushToolOptionsBar(IBrushToolPresenter& presenter, QWidget
     _action_brush_basic->setToolTip(ADDLE_TEXT("brushes.basic-brush.toolTip"));
     _optionGroup_brush->addOption(_action_brush_basic);
 
-    //_action_brush_aliasedCircle = _actionGroup_brush->createAction(IBrushToolPresenter::DefaultBrushes::AliasedCircle);
-    //_action_brush_square = _actionGroup_brush->createAction(IBrushToolPresenter::DefaultBrushes::Square);
+    QToolBar::addAction(_action_brush_basic);
+
+    _action_brush_soft = new OptionAction(GlobalConstants::CoreBrushes::SoftBrush, this);
+    _action_brush_soft->setText(ADDLE_TEXT("brushes.brush-soft.text"));
+    _action_brush_soft->setToolTip(ADDLE_TEXT("brushes.brush-soft.toolTip"));
+    _optionGroup_brush->addOption(_action_brush_soft);
+
+    QToolBar::addAction(_action_brush_soft);
 
     new PropertyBinding(
         _optionGroup_brush,
@@ -32,7 +38,6 @@ BrushToolOptionsBar::BrushToolOptionsBar(IBrushToolPresenter& presenter, QWidget
         IBrushLikeToolPresenter::Meta::Properties::brush
     );
 
-    QToolBar::addAction(_action_brush_basic);
     //QToolBar::addAction(_action_brush_aliasedCircle);
     //QToolBar::addAction(_action_brush_square);
 

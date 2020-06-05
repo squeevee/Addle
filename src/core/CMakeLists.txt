@@ -6,6 +6,7 @@ set (
     SOURCES
     definitions.cpp
     editing/brushengines/pathbrushengine.cpp
+    editing/brushengines/rasterbrushengine.cpp
     editing/rasterdiff.cpp
     editing/rastersurface.cpp
     models/document.cpp

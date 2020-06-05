@@ -14,6 +14,8 @@
 #include "interfaces/models/ibrushmodel.hpp"
 
 #include "core/editing/brushengines/pathbrushengine.hpp"
+#include "core/editing/brushengines/rasterbrushengine.hpp"
+
 #include "core/editing/rasterdiff.hpp"
 #include "core/editing/rastersurface.hpp"
 
@@ -51,6 +53,7 @@ void ServiceConfiguration::configure()
 {
 
     CONFIG_AUTOFACTORY_BY_ID(IBrushEngine, PathBrushEngine::ID, PathBrushEngine);
+    CONFIG_AUTOFACTORY_BY_ID(IBrushEngine, RasterBrushEngine::ID, RasterBrushEngine);
 
     CONFIG_AUTOFACTORY_BY_TYPE(IRasterDiff, RasterDiff);
 
@@ -105,6 +108,7 @@ void ServiceConfiguration::configure()
 
     //CONFIG_AUTOFACTORY_BY_ID(IBrushPainter, GlobalConstants::CoreBrushes::BasicBrush, BasicBrushPainter);
     CONFIG_CUSTOMFACTORY_BY_ID(IBrushModel, GlobalConstants::CoreBrushes::BasicBrush, std::bind(&BrushModel::fromId, GlobalConstants::CoreBrushes::BasicBrush));
+    CONFIG_CUSTOMFACTORY_BY_ID(IBrushModel, GlobalConstants::CoreBrushes::SoftBrush, std::bind(&BrushModel::fromId, GlobalConstants::CoreBrushes::SoftBrush));
 
 
 }

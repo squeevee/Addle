@@ -16,13 +16,12 @@ public:
 
     BrushEngineId id() const { return ID; }
 
-    BrushInfo info(const IBrushModel& model) const { return BrushInfo(); }
+    BrushInfo info(const IBrushModel& model) const { return BrushInfo::fromDefaults(); }
 
     QPainterPath indicatorShape(const BrushStroke& painter) const;
     void paint(BrushStroke& painter) const;
 
 private:
-
     QRect boundingRect(QPointF pos, double size) const;
 };
 

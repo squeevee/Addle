@@ -16,6 +16,7 @@ namespace IBrushToolPresenterAux
     struct ADDLE_COMMON_EXPORT DefaultBrushes
     {
         static const BrushId Basic;
+        static const BrushId Soft;
     };
 
     ADDLE_COMMON_EXPORT extern const BrushId DEFAULT_BRUSH; // DefaultBrushes::SmoothCircle

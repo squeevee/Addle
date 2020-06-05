@@ -3,6 +3,10 @@
         "basic-brush": {
             "text": "Basic Brush",
             "toolTip": "A basic circular brush."
+        },
+        "brush-soft": {
+            "text" : "Soft Brush",
+            "toolTip": "A circular brush with a moderately soft edge."
         }
     },
 

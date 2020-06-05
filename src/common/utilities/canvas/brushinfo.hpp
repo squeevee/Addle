@@ -81,6 +81,8 @@ public:
 
     QList<double> getPreferredSizes() const { return _data ? _data->preferredSizes : QList<double>(); }
 
+    static BrushInfo fromDefaults() { return BrushInfo(BrushInfoBuilder()); }
+
 private:
     QSharedDataPointer<BrushInfoInner> _data;
 };

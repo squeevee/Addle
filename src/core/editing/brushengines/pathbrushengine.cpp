@@ -14,15 +14,6 @@ QPainterPath PathBrushEngine::indicatorShape(const BrushStroke& painter) const
     return QPainterPath();
 }
 
-QRect PathBrushEngine::boundingRect(QPointF pos, double size) const
-{
-    double halfSize = size / 2;
-
-    return coarseBoundRect(
-        QRectF(pos - QPointF(halfSize, halfSize), QSizeF(size, size))
-    );
-}
-
 void PathBrushEngine::paint(BrushStroke& brushStroke) const
 {
     if (brushStroke.positions().isEmpty()) return;
@@ -31,7 +22,7 @@ void PathBrushEngine::paint(BrushStroke& brushStroke) const
     {
         const QPointF pos = brushStroke.positions().last();
         const double size = brushStroke.getSize();
-        const QRect nibBound = boundingRect(pos, brushStroke.getSize());
+        const QRect nibBound = coarseBoundRect(pos, brushStroke.getSize());
 
         const double halfSize = size / 2;
         //QPainterPath path(pos);
@@ -59,7 +50,7 @@ void PathBrushEngine::paint(BrushStroke& brushStroke) const
         const double size = brushStroke.getSize();
         const QRect lastNibBound = brushStroke.engineState()["lastNibBound"].toRect();
 
-        QRect nibBound = boundingRect(pos, size);
+        QRect nibBound = coarseBoundRect(pos, size);
         QRect bound = nibBound.united(lastNibBound);
 
         QPainterPath path(brushStroke.positions().first());
