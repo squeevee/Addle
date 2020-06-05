@@ -5,7 +5,7 @@ set ( CMAKE_AUTOMOC ON)
 set (
     SOURCES
     definitions.cpp
-    editing/brushpainters/basicbrushpainter.cpp
+    editing/brushengines/pathbrushengine.cpp
     editing/rasterdiff.cpp
     editing/rastersurface.cpp
     models/document.cpp

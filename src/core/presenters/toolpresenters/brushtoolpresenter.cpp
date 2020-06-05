@@ -15,10 +15,12 @@
 #include "interfaces/rendering/irenderstack.hpp"
 #include "utilities/canvas/canvasmouseevent.hpp"
 
-#include "interfaces/editing/ibrushpainter.hpp"
+#include "utilities/canvas/brushstroke.hpp"
 #include "interfaces/presenters/imaineditorpresenter.hpp"
 
 #include "interfaces/editing/irastersurface.hpp"
+
+#include "interfaces/editing/ibrushengine.hpp"
 
 // #include "../helpers/brushsizepresethelper.hpp"
 // const BrushSizePresetHelper::PxPresetHelper BrushSizePresetHelper::_instance_px = PxPresetHelper();
@@ -86,39 +88,40 @@ void BrushToolPresenter::onEngage()
     _hoverPreview->isVisible_cache.recalculate();
     _hoverPreview->setPosition(_mouseHelper.getLatestPosition());
 
-    _brushPainter = ServiceLocator::makeShared<IBrushPainter>(
+    _brushStroke = QSharedPointer<BrushStroke>(new BrushStroke(
         _brushAssetsHelper.getSelectedAsset(),
         Qt::blue,
-        size
-    );
+        size,
+        ServiceLocator::makeShared<IRasterSurface>()
+    ));
 
     auto s_layerPresenter = _mainEditorPresenter->getSelectedLayer().toStrongRef();
-    s_layerPresenter->getRenderStack().push(_brushPainter->getBuffer()->getRenderStep());
+    s_layerPresenter->getRenderStack().push(_brushStroke->getBuffer()->getRenderStep());
 
-    // _brushPaintTask->setBrushPainter(_brushPainter);
-    // _brushPaintTask->enqueue(_mouseHelper.getFirstPosition());
-    _brushPainter->startFrom(_mouseHelper.getFirstPosition());
+    _brushStroke->moveTo(_mouseHelper.getFirstPosition());
+    currentEngine().paint(*_brushStroke);
 }
 
 void BrushToolPresenter::onMove()
 {
-    _brushPainter->moveTo(_mouseHelper.getLatestPosition());
+    _brushStroke->moveTo(_mouseHelper.getLatestPosition());
+    currentEngine().paint(*_brushStroke);
     _hoverPreview->setPosition(_mouseHelper.getLatestPosition());
 }
 
 void BrushToolPresenter::onDisengage()
 {
     auto s_layerPresenter = _mainEditorPresenter->getSelectedLayer().toStrongRef();
-    s_layerPresenter->getRenderStack().remove(_brushPainter->getBuffer()->getRenderStep());
+    s_layerPresenter->getRenderStack().remove(_brushStroke->getBuffer()->getRenderStep());
     
     auto operation = ServiceLocator::makeShared<IBrushOperationPresenter>(
-        _brushPainter,
+        _brushStroke,
         _mainEditorPresenter->getSelectedLayer()
     );
 
     _mainEditorPresenter->push(operation);
 
-    _brushPainter.clear();
+    _brushStroke.clear();
     _hoverPreview->isVisible_cache.recalculate();
 }
 
@@ -139,8 +142,8 @@ void BrushToolPresenter::onSelectedLayerChanged(QWeakPointer<ILayerPresenter> la
 
 void BrushToolPresenter::onSizeChanged(double size)
 {
-    if (_brushPainter)
-        _brushPainter->setSize(size);
+    if (_brushStroke)
+        _brushStroke->setSize(size);
     
     _hoverPreview->isVisible_cache.recalculate();
     _hoverPreview->updateBrush();
@@ -156,7 +159,7 @@ void BrushToolPresenter::updateSizeSelection()
         return;
     }
 
-    auto presets = ServiceLocator::get<IBrushModel>(_brushAssetsHelper.getSelectedAsset()).getPainterInfo().getPreferredSizes();
+    auto presets = ServiceLocator::get<IBrushModel>(_brushAssetsHelper.getSelectedAsset()).info().getPreferredSizes();
     // streamline this
 
     if (presets.isEmpty())
@@ -167,23 +170,23 @@ void BrushToolPresenter::updateSizeSelection()
     _sizeSelection->setPresets(presets);
     _sizeSelection->selectPreset(0); // temp
 
-    {
-        QSharedPointer<IBrushPainter> iconPainter = ServiceLocator::makeShared<IBrushPainter>(
-            _brushAssetsHelper.getSelectedAsset()
-        );
+    // {
+    //     QSharedPointer<BrushStroke> iconPainter = ServiceLocator::makeShared<BrushStroke>(
+    //         _brushAssetsHelper.getSelectedAsset()
+    //     );
 
-        QList<QIcon> presetIcons;
+    //     QList<QIcon> presetIcons;
 
-        for (double preset : presets)
-        {
-            iconPainter->setSize(preset);
+    //     for (double preset : presets)
+    //     {
+    //         iconPainter->setSize(preset);
 
-            BrushIconHelper iconHelper(iconPainter);
-            presetIcons.append(iconHelper.icon());
-        }
+    //         BrushIconHelper iconHelper(iconPainter);
+    //         presetIcons.append(iconHelper.icon());
+    //     }
 
-        _sizeSelection->setPresetIcons(presetIcons);
-    }
+    //     _sizeSelection->setPresetIcons(presetIcons);
+    // }
 }
 
 BrushToolPresenter::HoverPreview::HoverPreview(BrushToolPresenter& owner)
@@ -204,16 +207,16 @@ void BrushToolPresenter::HoverPreview::updateBrush()
 {
     if (!isVisible_cache.getValue())
     {
-        _brushPainter.clear();
+        _brushStroke.clear();
         return;
     }
 
-    _brushPainter = ServiceLocator::makeShared<IBrushPainter>(
+    _brushStroke = QSharedPointer<BrushStroke>(new BrushStroke(
         _owner._brushAssetsHelper.getSelectedAsset(),
         Qt::blue, 
         _owner._sizeSelection->get(),
         _surface
-    );
+    ));
     paint();
 }
 
@@ -261,8 +264,11 @@ void BrushToolPresenter::HoverPreview::onVisibleChanged(bool visible)
 void BrushToolPresenter::HoverPreview::paint()
 {
     if (!isVisible_cache.getValue()) return;
-    if (!_brushPainter) return;
+    if (!_brushStroke) return;
     
+    _brushStroke->clear();
+    _brushStroke->moveTo(_position);
     _surface->clear();
-    _brushPainter->startFrom(_position);
+
+    _owner.currentEngine().paint(*_brushStroke);
 }

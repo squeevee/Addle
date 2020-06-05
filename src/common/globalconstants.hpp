@@ -32,6 +32,12 @@ namespace GlobalConstants
 
     extern ADDLE_COMMON_EXPORT const QColor DefaultBackgroundColor;
 
+    namespace CoreBrushEngines
+    {
+        extern ADDLE_COMMON_EXPORT const BrushEngineId PathEngine;
+        extern ADDLE_COMMON_EXPORT const BrushEngineId RasterEngine;
+    };
+
     namespace CoreBrushes
     {
         extern ADDLE_COMMON_EXPORT const BrushId BasicBrush;

@@ -10,10 +10,13 @@
 #include "../helpers/toolwithassetshelper.hpp"
 
 #include "interfaces/rendering/irenderstep.hpp"
+#include "interfaces/editing/ibrushengine.hpp"
 
 #include "utilities/presenter/propertycache.hpp"
 
 #include "utilities/asynctask.hpp"
+
+#include "servicelocator.hpp"
 #include <QQueue>
 
 class ADDLE_CORE_EXPORT BrushToolPresenter : public ToolPresenterBase, public virtual IBrushToolPresenter
@@ -78,11 +81,17 @@ private slots:
 private:
     void updateSizeSelection();
 
+    inline IBrushEngine& currentEngine()
+    {   
+        const BrushEngineId engineId = ServiceLocator::get<IBrushModel>(_brushAssetsHelper.getSelectedAsset()).engineId();
+        return ServiceLocator::get<IBrushEngine>(engineId);
+    }
+
     ISizeSelectionPresenter* _sizeSelection = nullptr;
 
     IMainEditorPresenter* _mainEditorPresenter;
     
-    QSharedPointer<IBrushPainter> _brushPainter;
+    QSharedPointer<BrushStroke> _brushStroke;
 
     class HoverPreview;
     HoverPreview* _hoverPreview;
@@ -112,7 +121,7 @@ private:
     QPointF _position;
 
     QSharedPointer<IRasterSurface> _surface;
-    QSharedPointer<IBrushPainter> _brushPainter;
+    QSharedPointer<BrushStroke> _brushStroke;
 
     BrushToolPresenter& _owner;
 };

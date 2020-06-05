@@ -7,11 +7,24 @@
 ServiceLocator* ServiceLocator::_instance = nullptr;
 
 #include "globalconstants.hpp"
+
+const BrushEngineId GlobalConstants::CoreBrushEngines::PathEngine = BrushEngineId(
+    "path-engine"
+);
+
+const BrushEngineId GlobalConstants::CoreBrushEngines::RasterEngine = BrushEngineId(
+    "raster-engine"
+);
+
 const BrushId GlobalConstants::CoreBrushes::BasicBrush = BrushId(
-    "basic-brush"
+    "basic-brush",
+    GlobalConstants::CoreBrushEngines::PathEngine
 );
 
 #include "idtypes/persistentid.hpp"
+#include "idtypes/brushengineid.hpp"
+STATIC_PERSISTENT_ID_BOILERPLATE(BrushEngineId)
+
 #include "idtypes/brushid.hpp"
 STATIC_PERSISTENT_ID_BOILERPLATE(BrushId)
 
@@ -130,7 +143,7 @@ const BrushId IBrushToolPresenterAux::DEFAULT_BRUSH = IBrushToolPresenterAux::De
 #include "exceptions/initializeexceptions.hpp"
 #include "exceptions/servicelocatorexceptions.hpp"
 
-#include "utilities/canvas/brushpainterinfo.hpp"
+#include "utilities/canvas/brushinfo.hpp"
 #include "utilities/configuration/baseserviceconfiguration.hpp"
 #include "utilities/model/documentbuilder.hpp"
 #include "utilities/model/importexportinfo.hpp"

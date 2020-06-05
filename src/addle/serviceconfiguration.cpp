@@ -13,13 +13,13 @@
 
 #include "interfaces/models/ibrushmodel.hpp"
 
-#include "core/editing/brushpainters/basicbrushpainter.hpp"
+#include "core/editing/brushengines/pathbrushengine.hpp"
 #include "core/editing/rasterdiff.hpp"
 #include "core/editing/rastersurface.hpp"
 
 #include "core/models/layer.hpp"
 #include "core/models/document.hpp"
-#include "core/models/brushmodels/corebrushmodel.hpp"
+#include "core/models/brushmodel.hpp"
 
 #include "core/presenters/maineditorpresenter.hpp"
 #include "core/presenters/documentpresenter.hpp"
@@ -49,6 +49,9 @@
 
 void ServiceConfiguration::configure()
 {
+
+    CONFIG_AUTOFACTORY_BY_ID(IBrushEngine, PathBrushEngine::ID, PathBrushEngine);
+
     CONFIG_AUTOFACTORY_BY_TYPE(IRasterDiff, RasterDiff);
 
     // ## Surfaces
@@ -100,6 +103,8 @@ void ServiceConfiguration::configure()
     // # Views
     CONFIG_AUTOFACTORY_BY_TYPE(IMainEditorView, MainEditorView);
 
-    CONFIG_AUTOFACTORY_BY_ID(IBrushPainter, GlobalConstants::CoreBrushes::BasicBrush, BasicBrushPainter);
-    CONFIG_CUSTOMFACTORY_BY_ID(IBrushModel, GlobalConstants::CoreBrushes::BasicBrush, &CoreBrushModel::make<BasicBrushPainter>);
+    //CONFIG_AUTOFACTORY_BY_ID(IBrushPainter, GlobalConstants::CoreBrushes::BasicBrush, BasicBrushPainter);
+    CONFIG_CUSTOMFACTORY_BY_ID(IBrushModel, GlobalConstants::CoreBrushes::BasicBrush, std::bind(&BrushModel::fromId, GlobalConstants::CoreBrushes::BasicBrush));
+
+
 }

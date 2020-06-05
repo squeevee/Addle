@@ -6,7 +6,7 @@
 #include "interfaces/traits/initialize_trait.hpp"
 #include "interfaces/traits/makeable_trait.hpp"
 
-class IBrushPainter;
+class BrushStroke;
 class ILayerPresenter;
 class IBrushOperationPresenter : public IUndoOperationPresenter
 {
@@ -14,7 +14,7 @@ public:
     virtual ~IBrushOperationPresenter() = default;
 
     virtual void initialize(
-        QWeakPointer<IBrushPainter> painter,
+        QWeakPointer<BrushStroke> painter,
         QWeakPointer<ILayerPresenter> layer
     ) = 0;
 

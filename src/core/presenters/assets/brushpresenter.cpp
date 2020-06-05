@@ -8,7 +8,7 @@ void BrushPresenter::initialize(IBrushModel& model)
     _initHelper.initializeBegin();
 
     _model = &model;
-    _id = _model->getId();
+    _id = _model->id();
 
     _initHelper.initializeEnd();
 }

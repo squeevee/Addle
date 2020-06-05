@@ -16,6 +16,7 @@ public:
 
     PersistentId getId() { return getBrushId(); }
     BrushId getBrushId() { _initHelper.check(); return _id; }
+    virtual IBrushModel& model() const { _initHelper.check(); return *_model; }
     
     SizeOption getSize() { return SizeOption::_25px; } //todo
     double getCustomPixelSize() { return 0; } //

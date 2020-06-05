@@ -7,6 +7,8 @@
 #include "idtypes/brushid.hpp"
 #include "iassetpresenter.hpp"
 
+#include "interfaces/models/ibrushmodel.hpp"
+
 #include "interfaces/traits/initialize_trait.hpp"
 #include "interfaces/traits/makeable_trait.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
@@ -25,6 +27,7 @@ public:
     virtual void initialize(BrushId id) = 0;
 
     virtual BrushId getBrushId() = 0;
+    virtual IBrushModel& model() const = 0;
     
     virtual SizeOption getSize() = 0;
     virtual double getCustomPixelSize() = 0;

@@ -1,20 +1,20 @@
-#ifndef BRUSHPAINTERINFO_HPP
-#define BRUSHPAINTERINFO_HPP
+#ifndef BRUSHINFO_HPP
+#define BRUSHINFO_HPP
 
 #include "compat.hpp"
 #include <QSharedData>
 
-class ADDLE_COMMON_EXPORT BrushPainterInfoBuilder
+class ADDLE_COMMON_EXPORT BrushInfoBuilder
 {
 public:
-    inline BrushPainterInfoBuilder& setSizeInvariant(bool value) { isSizeInvariant = value; return *this; }
-    inline BrushPainterInfoBuilder& setColorInvariant(bool value) { isColorInvariant = value; return *this; }
-    inline BrushPainterInfoBuilder& setPixelAliased(bool value) { isPixelAliased = value; return *this; }
+    inline BrushInfoBuilder& setSizeInvariant(bool value) { isSizeInvariant = value; return *this; }
+    inline BrushInfoBuilder& setColorInvariant(bool value) { isColorInvariant = value; return *this; }
+    inline BrushInfoBuilder& setPixelAliased(bool value) { isPixelAliased = value; return *this; }
 
-    inline BrushPainterInfoBuilder& setMinSize(double value) { minSize = value; return *this; }
-    inline BrushPainterInfoBuilder& setMaxSize(double value) { minSize = value; return *this; }
+    inline BrushInfoBuilder& setMinSize(double value) { minSize = value; return *this; }
+    inline BrushInfoBuilder& setMaxSize(double value) { minSize = value; return *this; }
 
-    inline BrushPainterInfoBuilder& setPreferredSizes(QList<double> value, bool strict = false) { preferredSizes = value; strictSizing = strict; return *this; }
+    inline BrushInfoBuilder& setPreferredSizes(QList<double> value, bool strict = false) { preferredSizes = value; strictSizing = strict; return *this; }
     
 private:
     bool isSizeInvariant = false;
@@ -27,14 +27,14 @@ private:
     QList<double> preferredSizes;
     bool strictSizing = false;
 
-    friend class BrushPainterInfo;
+    friend class BrushInfo;
 };
 
-class ADDLE_COMMON_EXPORT BrushPainterInfo
+class ADDLE_COMMON_EXPORT BrushInfo
 {
-    struct BrushPainterInfoInner : QSharedData
+    struct BrushInfoInner : QSharedData
     {
-        BrushPainterInfoInner(const BrushPainterInfoBuilder& builder)
+        BrushInfoInner(const BrushInfoBuilder& builder)
             : isSizeInvariant(builder.isSizeInvariant),
             isColorInvariant(builder.isColorInvariant),
             isPixelAliased(builder.isPixelAliased),
@@ -54,21 +54,23 @@ class ADDLE_COMMON_EXPORT BrushPainterInfo
         QList<double> preferredSizes;
     };
 public:
-    BrushPainterInfo() = default;
-    BrushPainterInfo(const BrushPainterInfoBuilder& builder)
-        : _data(new BrushPainterInfoInner(builder))
+    BrushInfo() = default;
+    BrushInfo(const BrushInfoBuilder& builder)
+        : _data(new BrushInfoInner(builder))
     {
     }
 
-    BrushPainterInfo(const BrushPainterInfo& other)
+    BrushInfo(const BrushInfo& other)
         : _data(other._data)
     {
     }
 
-    BrushPainterInfo(BrushPainterInfo&& other)
+    BrushInfo(BrushInfo&& other)
     {
         _data.swap(other._data);
     }
+
+    bool isNullInfo() const { return !_data; }
 
     bool isSizeInvariant() const { return _data ? _data->isSizeInvariant : false; }
     bool isColorInvariant() const { return _data ? _data->isColorInvariant : false; }
@@ -79,13 +81,8 @@ public:
 
     QList<double> getPreferredSizes() const { return _data ? _data->preferredSizes : QList<double>(); }
 
-    static BrushPainterInfo defaultValues()
-    {
-        return BrushPainterInfo(BrushPainterInfoBuilder());
-    }
-
 private:
-    QSharedDataPointer<BrushPainterInfoInner> _data;
+    QSharedDataPointer<BrushInfoInner> _data;
 };
 
-#endif // BRUSHPAINTERINFO_HPP
+#endif // BRUSHINFO_HPP

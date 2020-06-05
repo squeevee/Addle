@@ -14,7 +14,7 @@ public:
     virtual ~BrushOperationPresenter() = default;
 
     void initialize(
-        QWeakPointer<IBrushPainter> brushPainter,
+        QWeakPointer<BrushStroke> BrushStroke,
         QWeakPointer<ILayerPresenter> layer
     );
 

@@ -7,7 +7,7 @@
 #include <QIconEngine>
 #include <QPixmap>
 
-#include "interfaces/editing/ibrushpainter.hpp"
+//#include "interfaces/editing/ibrushpainter.hpp"
 #include "idtypes/brushid.hpp"
 
 // This could probably be made smarter by subclassing QIconEngine, but
@@ -16,14 +16,14 @@
 
 class BrushIconHelper
 {
-public:
-    BrushIconHelper(QSharedPointer<IBrushPainter> painter);
-    virtual ~BrushIconHelper() = default;
+// public:
+//     BrushIconHelper(QSharedPointer<IBrushPainter> painter);
+//     virtual ~BrushIconHelper() = default;
 
-    QIcon icon() const;
+//     QIcon icon() const;
 
-private:
-    mutable QSharedPointer<IBrushPainter> _painter;
+// private:
+//     mutable QSharedPointer<IBrushPainter> _painter;
 };
 
 #endif // BRUSHICONHELPER_HPP
