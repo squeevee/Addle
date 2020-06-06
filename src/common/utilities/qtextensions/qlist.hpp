@@ -2,6 +2,8 @@
 #define qtextensions__QLIST_HPP
 
 #include <initializer_list>
+#include <type_traits>
+
 #include <QList>
 #include <QHash>
 #include <QPair>
@@ -74,24 +76,25 @@ inline QList<QSharedPointer<OutType>> qSharedPointerListCast(const QList<QShared
     return outList;
 }
 
-// template<typename T>
-// inline QList<T> arrayToQList(T arr[], std::size_t length)
-// {
-//     QList<T> outList;
-//     outList.reserve(length);
-//     for (int i = 0; i < length; i++)
-//     {
-//         outList[i] = arr[i];
-//     }
+template<typename T>
+inline QList<T> arrayToQList(const T arr[], std::size_t length)
+{
+    QList<T> outList;
+    outList.reserve(length);
+    for (int i = 0; i < length; i++)
+    {
+        outList.append(arr[i]);
+    }
 
-//     return outList;
-// }
+    return outList;
+}
 
-// template<typename T, std::size_t N>
-// inline QList<T> arrayToQList(T arr[N])
-// {
-//     return arrayToQList(arr, N);
-// }
+
+template<typename T, std::size_t N>
+inline QList<T> arrayToQList(const T (&arr)[N])
+{
+    return arrayToQList(arr, N);
+}
 
 /*
 

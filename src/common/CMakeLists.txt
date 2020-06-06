@@ -13,7 +13,7 @@ set (common_sources
     utilities/indexvariant.cpp
     utilities/typeinforef.cpp
     utilities/unhandledexceptionrouter.cpp
-    utilities/canvas/brushstroke.cpp
+    utilities/editing/brushstroke.cpp
     utilities/image/rasterbithandles.cpp
     utilities/image/rasterpainthandle.cpp
     utilities/presenter/propertybinding.cpp

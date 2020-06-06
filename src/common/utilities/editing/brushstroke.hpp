@@ -4,7 +4,7 @@
 #include "compat.hpp"
 
 #include "interfaces/models/ibrushmodel.hpp"
-#include "utilities/canvas/brushinfo.hpp"
+#include "utilities/editing/brushinfo.hpp"
 
 #include <QObject>
 
@@ -26,6 +26,7 @@ public:
         QSharedPointer<IRasterSurface> buffer = QSharedPointer<IRasterSurface>()
     );
     
+    inline BrushId id() const { return _id; }
     inline IBrushModel& brush() const { return _brush; }
     inline QSharedPointer<IRasterSurface> getBuffer() const { return _buffer; }
 
@@ -50,12 +51,15 @@ public:
     QVariantHash engineState() const;
     QVariantHash& engineState();
 
+    void paint();
+
 // signals:
 //     // ?
 //     virtual void colorChanged(QColor color);
 //     virtual void sizeChanged(QColor color);
 
 private:
+    BrushId _id;
     IBrushModel& _brush;
     QSharedPointer<IRasterSurface> _buffer;
 

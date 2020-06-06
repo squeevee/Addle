@@ -1,29 +1,52 @@
 #ifndef BRUSHICONHELPER_HPP
 #define BRUSHICONHELPER_HPP
 
+#include <QIconEngine>
+
+#include <QObject>
+#include <QPointer>
 #include <QSharedPointer>
 
-#include <QIcon>
-#include <QIconEngine>
-#include <QPixmap>
-
-//#include "interfaces/editing/ibrushpainter.hpp"
 #include "idtypes/brushid.hpp"
+#include "utilities/editing/brushstroke.hpp"
+#include "interfaces/editing/irastersurface.hpp"
 
-// This could probably be made smarter by subclassing QIconEngine, but
-// that presents a slight challenge in pairing high-level Addle stuff with
-// low-level QtGui stuff in a safe way. It's not currently a priority.
-
-class BrushIconHelper
+class BrushIconHelper : public QObject
 {
-// public:
-//     BrushIconHelper(QSharedPointer<IBrushPainter> painter);
-//     virtual ~BrushIconHelper() = default;
+    Q_OBJECT
+public:
+    BrushIconHelper(QObject* parent = nullptr);
+    virtual ~BrushIconHelper() = default;
 
-//     QIcon icon() const;
+    QIcon icon(BrushId brush, QColor color, double size) const;
 
-// private:
-//     mutable QSharedPointer<IBrushPainter> _painter;
+    void setBackground(QColor background) { _background = background; }
+    
+public:
+    class BrushIconEngine : public QIconEngine
+    {
+    public:
+        BrushIconEngine(QPointer<const BrushIconHelper> helper, BrushId brush, QColor color, double size);
+
+        virtual ~BrushIconEngine() = default;
+
+        void addFile(const QString& fileName, const QSize& size, QIcon::Mode mode, QIcon::State state) override {}
+        void addPixmap(const QPixmap& pixmap, QIcon::Mode mode, QIcon::State state) override {}
+
+        QIconEngine* clone() const override { return new BrushIconEngine(_helper, _brushStroke.id(), _brushStroke.color(), _brushStroke.getSize()); }
+        void paint(QPainter* painter, const QRect& rect, QIcon::Mode mode, QIcon::State state);
+
+    private:
+        QPointer<const BrushIconHelper> _helper;
+        BrushStroke _brushStroke;
+    };
+
+    mutable QSharedPointer<IRasterSurface> _surface;
+    
+    QColor _background;
+
+    friend class BrushIconEngine;
 };
+
 
 #endif // BRUSHICONHELPER_HPP

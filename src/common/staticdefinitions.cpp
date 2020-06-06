@@ -149,7 +149,7 @@ const BrushId IBrushToolPresenterAux::DEFAULT_BRUSH = IBrushToolPresenterAux::De
 #include "exceptions/initializeexceptions.hpp"
 #include "exceptions/servicelocatorexceptions.hpp"
 
-#include "utilities/canvas/brushinfo.hpp"
+#include "utilities/editing/brushinfo.hpp"
 #include "utilities/configuration/baseserviceconfiguration.hpp"
 #include "utilities/model/documentbuilder.hpp"
 #include "utilities/model/importexportinfo.hpp"

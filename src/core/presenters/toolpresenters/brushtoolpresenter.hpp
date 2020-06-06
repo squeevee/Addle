@@ -37,10 +37,10 @@ class ADDLE_CORE_EXPORT BrushToolPresenter : public ToolPresenterBase, public vi
 public:
     BrushToolPresenter()
         : _brushAssetsHelper(*this, IBrushToolPresenterAux::DEFAULT_BRUSH),
-        //_previewVisibleCache(*this, ),
         _initHelper(this)
     {
         _icon = QIcon(":/icons/brush.png");
+        _brushAssetsHelper.onChange(std::bind(&BrushToolPresenter::updateSizeSelection, this));
     }
     virtual ~BrushToolPresenter() = default;
 
@@ -81,12 +81,6 @@ private slots:
 private:
     void updateSizeSelection();
 
-    inline IBrushEngine& currentEngine()
-    {   
-        const BrushEngineId engineId = ServiceLocator::get<IBrushModel>(_brushAssetsHelper.getSelectedAsset()).engineId();
-        return ServiceLocator::get<IBrushEngine>(engineId);
-    }
-
     ISizeSelectionPresenter* _sizeSelection = nullptr;
 
     IMainEditorPresenter* _mainEditorPresenter;
@@ -98,6 +92,8 @@ private:
 
     ToolWithAssetsHelper<IBrushPresenter, BrushId> _brushAssetsHelper;
     InitializeHelper<BrushToolPresenter> _initHelper;
+
+    BrushIconHelper _iconHelper;
 
     friend class HoverPreview;
 };

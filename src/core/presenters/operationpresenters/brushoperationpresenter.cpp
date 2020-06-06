@@ -2,7 +2,7 @@
 #include "servicelocator.hpp"
 
 #include "interfaces/editing/irastersurface.hpp"
-#include "utilities/canvas/brushstroke.hpp"
+#include "utilities/editing/brushstroke.hpp"
 #include "interfaces/models/ilayer.hpp"
 #include "interfaces/presenters/ilayerpresenter.hpp"
 #include "interfaces/editing/irasterdiff.hpp"

@@ -7,8 +7,8 @@
 
 #include "idtypes/brushengineid.hpp"
 
-#include "utilities/canvas/brushinfo.hpp"
-#include "utilities/canvas/brushstroke.hpp"
+#include "utilities/editing/brushinfo.hpp"
+#include "utilities/editing/brushstroke.hpp"
 
 #include "interfaces/traits/by_id_traits.hpp"
 

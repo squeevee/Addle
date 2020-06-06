@@ -2,6 +2,7 @@
 #define TOOLWITHASSETSHELPER_HPP
 
 #include <type_traits>
+#include <functional>
 
 #include "utilities/qtextensions/qlist.hpp"
 #include "interfaces/presenters/toolpresenters/itoolwithassetspresenter.hpp"
@@ -44,6 +45,11 @@ public:
         _upcastPresenterList = qSharedPointerListCast<IAssetPresenter>(_presenterList);
     }
 
+    void onChange(std::function<void()> callback)
+    {
+        _onChange.append(callback);
+    }
+
     QList<QSharedPointer<IAssetPresenter>> getAllAssets()
     {
         return _upcastPresenterList;
@@ -74,6 +80,8 @@ public:
         if (selection != _selected && _assets.contains(selection))
         {
             _selected = selection;
+            for (auto callback : _onChange)
+                callback();
             emit _owner.selectedAssetChanged(_selected);
         }
     }
@@ -92,6 +100,8 @@ private:
 
     QList<QSharedPointer<IAssetPresenter>> _upcastPresenterList;
     QList<QSharedPointer<PresenterType>> _presenterList;
+
+    QList<std::function<void()>> _onChange;
 
     IToolWithAssetsPresenter& _owner;
 };

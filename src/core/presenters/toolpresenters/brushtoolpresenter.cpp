@@ -7,6 +7,7 @@
 
 #include "utilities/unhandledexceptionrouter.hpp"
 #include "utilities/qtextensions/qobject.hpp"
+#include "utilities/qtextensions/qlist.hpp"
 
 #include "brushtoolpresenter.hpp"
 #include "servicelocator.hpp"
@@ -15,7 +16,7 @@
 #include "interfaces/rendering/irenderstack.hpp"
 #include "utilities/canvas/canvasmouseevent.hpp"
 
-#include "utilities/canvas/brushstroke.hpp"
+#include "utilities/editing/brushstroke.hpp"
 #include "interfaces/presenters/imaineditorpresenter.hpp"
 
 #include "interfaces/editing/irastersurface.hpp"
@@ -100,13 +101,13 @@ void BrushToolPresenter::onEngage()
     s_layerPresenter->getRenderStack().push(_brushStroke->getBuffer()->getRenderStep());
 
     _brushStroke->moveTo(_mouseHelper.getFirstPosition());
-    currentEngine().paint(*_brushStroke);
+    _brushStroke->paint();
 }
 
 void BrushToolPresenter::onMove()
 {
     _brushStroke->moveTo(_mouseHelper.getLatestPosition());
-    currentEngine().paint(*_brushStroke);
+    _brushStroke->paint();
     _hoverPreview->setPosition(_mouseHelper.getLatestPosition());
 }
 
@@ -145,6 +146,12 @@ void BrushToolPresenter::onSizeChanged(double size)
 {
     if (_brushStroke)
         _brushStroke->setSize(size);
+
+    _sizeSelection->setIcon(_iconHelper.icon(
+        _brushAssetsHelper.getSelectedAsset(),
+        Qt::blue,
+        size
+    ));
     
     _hoverPreview->isVisible_cache.recalculate();
     _hoverPreview->updateBrush();
@@ -165,29 +172,26 @@ void BrushToolPresenter::updateSizeSelection()
 
     if (presets.isEmpty())
     {
-        presets = { 4.0, 7.0, 12.0, 25.0, 50.0, 100.0 };
+        presets = arrayToQList(IBrushToolPresenterAux::DEFAULT_SIZES);
     }
 
     _sizeSelection->setPresets(presets);
     _sizeSelection->selectPreset(0); // temp
 
-    // {
-    //     QSharedPointer<BrushStroke> iconPainter = ServiceLocator::makeShared<BrushStroke>(
-    //         _brushAssetsHelper.getSelectedAsset()
-    //     );
+    _iconHelper.setBackground(Qt::white);
 
-    //     QList<QIcon> presetIcons;
+    QList<QIcon> presetIcons;
 
-    //     for (double preset : presets)
-    //     {
-    //         iconPainter->setSize(preset);
+    for (double preset : presets)
+    {
+        presetIcons.append(_iconHelper.icon(
+            _brushAssetsHelper.getSelectedAsset(),
+            Qt::blue,
+            preset
+        ));
+    }
 
-    //         BrushIconHelper iconHelper(iconPainter);
-    //         presetIcons.append(iconHelper.icon());
-    //     }
-
-    //     _sizeSelection->setPresetIcons(presetIcons);
-    // }
+    _sizeSelection->setPresetIcons(presetIcons);
 }
 
 BrushToolPresenter::HoverPreview::HoverPreview(BrushToolPresenter& owner)
@@ -271,5 +275,5 @@ void BrushToolPresenter::HoverPreview::paint()
     _brushStroke->moveTo(_position);
     _surface->clear();
 
-    _owner.currentEngine().paint(*_brushStroke);
+    _brushStroke->paint();
 }

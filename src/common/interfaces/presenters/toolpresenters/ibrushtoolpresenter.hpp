@@ -19,6 +19,22 @@ namespace IBrushToolPresenterAux
         static const BrushId Soft;
     };
 
+    static constexpr double DEFAULT_SIZES[] = { 
+        4.0,
+        7.0,
+        12.0,
+        18.0,
+        25.0,
+        36.0,
+        50.0,
+        75.0,
+        100.0,
+        150.0,
+        200.0,
+        300.0,
+        500.0 
+    };
+
     ADDLE_COMMON_EXPORT extern const BrushId DEFAULT_BRUSH; // DefaultBrushes::SmoothCircle
 }
 

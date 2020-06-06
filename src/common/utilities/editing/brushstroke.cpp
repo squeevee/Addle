@@ -1,11 +1,13 @@
 #include "brushstroke.hpp"
 #include "servicelocator.hpp"
 
+#include "interfaces/editing/ibrushengine.hpp"
+
 BrushStroke::BrushStroke(BrushId id,
         QColor color,
         double size,
         QSharedPointer<IRasterSurface> buffer)
-    : _brush(ServiceLocator::get<IBrushModel>(id)), _buffer(buffer)
+    : _id(id), _brush(ServiceLocator::get<IBrushModel>(id)), _buffer(buffer)
 {
     _painterStates.push(PainterState(color, size));
 }
@@ -80,4 +82,9 @@ QVariantHash BrushStroke::engineState() const
 QVariantHash& BrushStroke::engineState()
 {
     return _painterStates.top().engineState;
+}
+
+void BrushStroke::paint()
+{
+    ServiceLocator::get<IBrushEngine>(_brush.engineId()).paint(*this);
 }

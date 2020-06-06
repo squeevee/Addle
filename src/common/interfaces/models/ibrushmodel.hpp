@@ -4,7 +4,7 @@
 #include "idtypes/brushid.hpp"
 #include "idtypes/brushengineid.hpp"
 
-#include "utilities/canvas/brushinfo.hpp"
+#include "utilities/editing/brushinfo.hpp"
 #include "interfaces/traits/by_id_traits.hpp"
 
 class IBrushModel

@@ -5,7 +5,7 @@
 #include "utilities/mathutils.hpp"
 
 #include "interfaces/editing/irastersurface.hpp"
-#include "utilities/canvas/brushstroke.hpp"
+#include "utilities/editing/brushstroke.hpp"
 
 #include <QRadialGradient>
 
