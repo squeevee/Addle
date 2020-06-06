@@ -6,7 +6,7 @@
 #include "utilities/presenter/propertycache.hpp"
 
 #include <QPointF>
-#include <QLinkedList>
+#include <list>
 
 /**
  * Tracks mouse state for a tool presenter
@@ -31,7 +31,7 @@ public:
         _latestPosition = pos;
 
         _positions.clear();
-        _positions.append(pos);
+        _positions.push_back(pos);
 
         return true;
     }
@@ -44,7 +44,7 @@ public:
         _previousPosition = _latestPosition;
         _latestPosition = pos;
 
-        _positions.append(pos);
+        _positions.push_back(pos);
 
         return true;
     }
@@ -64,13 +64,13 @@ public:
     inline QPointF getPreviousPosition() { return _previousPosition; }
     inline QPointF getLatestPosition() { return _latestPosition; }
 
-    inline QLinkedList<QPointF> getPositions() { return _positions; }
+    inline std::list<QPointF> getPositions() { return _positions; }
 
 private:
 
     bool _engaged = false;
 
-    QLinkedList<QPointF> _positions;
+    std::list<QPointF> _positions;
 
     QPointF _firstPosition;
     QPointF _previousPosition;
