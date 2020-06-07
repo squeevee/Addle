@@ -68,6 +68,8 @@ ViewPort::ViewPort(IViewPortPresenter* presenter)
     );
 
     setDocument(_mainEditorPresenter->getDocumentPresenter());
+
+    _presenter->setHasFocus(hasFocus());
 }
 
 void ViewPort::resizeEvent(QResizeEvent *event)
@@ -117,4 +119,14 @@ void ViewPort::setDocument(IDocumentPresenter* documentPresenter)
 
     _canvasScene = new CanvasScene(*_canvasPresenter, this);
     setScene(_canvasScene);
+}
+
+void ViewPort::focusInEvent(QFocusEvent* focusEvent)
+{
+    _presenter->setHasFocus(true);
+}
+
+void ViewPort::focusOutEvent(QFocusEvent* focusEvent)
+{
+    _presenter->setHasFocus(false);
 }

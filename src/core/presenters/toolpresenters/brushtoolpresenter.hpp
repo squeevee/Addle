@@ -77,6 +77,7 @@ protected:
 private slots:
     void onSelectedLayerChanged(QWeakPointer<ILayerPresenter> layer);
     void onSizeChanged(double size);
+    void onCanvasHasMouseChanged(bool hasMouse);
 
 private:
     void updateSizeSelection();
@@ -94,6 +95,7 @@ private:
     InitializeHelper<BrushToolPresenter> _initHelper;
 
     BrushIconHelper _iconHelper;
+    bool _grace = false;
 
     friend class HoverPreview;
 };

@@ -16,6 +16,7 @@
 
 #include "interfaces/presenters/imaineditorpresenter.hpp"
 #include "interfaces/presenters/iviewportpresenter.hpp"
+#include "interfaces/presenters/icanvaspresenter.hpp"
 
 class ADDLE_CORE_EXPORT ToolPresenterBase : public QObject, public virtual IToolPresenter
 {
@@ -67,6 +68,7 @@ protected:
 
     IMainEditorPresenter* _mainEditorPresenter;
     IViewPortPresenter* _viewPortPresenter;
+    ICanvasPresenter* _canvasPresenter;
 
     QIcon _icon;
     QCursor _defaultCursor;

@@ -25,6 +25,9 @@ protected:
     void resizeEvent(QResizeEvent* event);
     void moveEvent(QMoveEvent *event);
 
+    void focusInEvent(QFocusEvent* focusEvent);
+    void focusOutEvent(QFocusEvent* focusEvent);
+
 private slots:
     void setDocument(IDocumentPresenter* documentPresenter);
     void onTransformsChanged();

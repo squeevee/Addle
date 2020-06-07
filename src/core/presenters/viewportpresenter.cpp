@@ -118,6 +118,16 @@ bool ViewPortPresenter::canNavigate_p()
     return !_mainEditorPresenter->isEmpty();
 }
 
+void ViewPortPresenter::setHasFocus(bool value)
+{
+    _initHelper.check();
+    if (_hasFocus != value)
+    {
+        _hasFocus = value;
+        emit focusChanged(_hasFocus);
+    }
+}
+
 void ViewPortPresenter::setZoom(double zoom)
 {
     _initHelper.check();

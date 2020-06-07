@@ -25,11 +25,17 @@ public:
 
     bool event(QEvent* e);
 
+    bool hasMouse() const override { return _hasMouse; }
+    void setHasMouse(bool value);
+
 signals:
     void cursorChanged(QCursor cursor);
     void statusTipChanged(QString statusTip);
 
+    void hasMouseChanged(bool);
+
 private:
+    bool _hasMouse = false;
 
     IMainEditorPresenter* _mainEditorPresenter;
     InitializeHelper<CanvasPresenter> _initHelper;

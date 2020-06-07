@@ -10,6 +10,7 @@ void ToolPresenterBase::initialize_p(IMainEditorPresenter* mainEditorPresenter)
 
     _mainEditorPresenter = mainEditorPresenter;
     _viewPortPresenter = _mainEditorPresenter->getViewPortPresenter();
+    _canvasPresenter = _mainEditorPresenter->getCanvasPresenter();
 
     _initHelper.initializeEnd();
 }

@@ -136,8 +136,13 @@ public:
 public:
     bool canNavigate() { _initHelper.check(); return _canNavigateCache.getValue(); }
 
+    bool hasFocus() const { _initHelper.check(); return _hasFocus; }
+    void setHasFocus(bool value);
+
 signals:
     void canNavigateChanged(bool);
+
+    void focusChanged(bool focus);
 
 private:
     bool canNavigate_p();
@@ -259,6 +264,8 @@ private:
     PropertyCache<bool> _canNavigateCache;
     PropertyCache<bool> _canZoomInCache;
     PropertyCache<bool> _canZoomOutCache;
+
+    bool _hasFocus = false;
 
     //The rotation of the viewport in degrees
     double _rotation = 0.0;

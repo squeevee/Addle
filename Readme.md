@@ -25,7 +25,7 @@ Addle's features will also be extensible via plugins, using a Python API.
 
 Support is currently prioritized for desktop Linux and Windows.
 
-Hopefully, in the future support can be extended to OS X and other desktop systems supported by Qt. A mobile-optimized UI, with support for Android, iOS, and other mobile operating systems is also on the table, but will be a low priority for the time being. Addle being lightweight, some degree of support may be extended to embedded or legacy systems (insofar as such support might be useful).
+Hopefully, in the future support can be extended to OS X and other desktop systems supported by Qt. A mobile-optimized UI, with support for Android, iOS, and other mobile operating systems is also on the table, but will be a low priority for the time being. A version of Addle for web (via wasm) is also on the table but low priority. Addle being lightweight, some degree of support may be extended to embedded or legacy systems (insofar as such support might be useful).
 ## Contribution
 
 The official repository is on GitHub at https://github.com/squeevee/Addle

@@ -28,3 +28,12 @@ bool CanvasPresenter::event(QEvent* e)
 
     return QObject::event(e);
 }
+
+void CanvasPresenter::setHasMouse(bool value)
+{
+    if (_hasMouse != value)
+    {
+        _hasMouse = value;
+        emit hasMouseChanged(_hasMouse);
+    }
+}

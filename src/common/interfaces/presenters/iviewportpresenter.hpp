@@ -65,8 +65,13 @@ public:
 public:
     virtual bool canNavigate() = 0;
 
+    virtual bool hasFocus() const = 0;
+    virtual void setHasFocus(bool value) = 0;
+
 signals:
     virtual void canNavigateChanged(bool) = 0;
+
+    virtual void focusChanged(bool focus) = 0;
 
     // # Scrolling / positioning
 public:

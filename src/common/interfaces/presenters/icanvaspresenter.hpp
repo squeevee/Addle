@@ -18,9 +18,14 @@ public:
     virtual QCursor getCursor() = 0;
     virtual QString getStatusTip() = 0;
 
+    virtual bool hasMouse() const = 0;
+    virtual void setHasMouse(bool value) = 0;
+
 signals:
     virtual void cursorChanged(QCursor cursor) = 0;
     virtual void statusTipChanged(QString statusTip) = 0;
+
+    virtual void hasMouseChanged(bool value) = 0;
 };
 
 DECL_MAKEABLE(ICanvasPresenter);

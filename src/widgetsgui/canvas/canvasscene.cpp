@@ -76,3 +76,19 @@ void CanvasScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* mouseEvent)
         qobject_interface_cast(&_presenter)->event(&canvasMouseEvent) && canvasMouseEvent.isAccepted()
     );
 }
+
+bool CanvasScene::event(QEvent* e)
+{
+    switch (e->type())
+    {
+    case QEvent::Enter:
+        _presenter.setHasMouse(true);
+        break;
+
+    case QEvent::Leave:
+        _presenter.setHasMouse(false);
+        break;
+    }
+
+    return QGraphicsScene::event(e);
+}

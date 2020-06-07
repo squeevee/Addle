@@ -51,6 +51,7 @@ void BrushToolPresenter::initialize(IMainEditorPresenter* owner)
 
     connect_interface(_mainEditorPresenter, SIGNAL(selectedLayerChanged(QWeakPointer<ILayerPresenter>)), this, SLOT(onSelectedLayerChanged(QWeakPointer<ILayerPresenter>)));
     connect_interface(_sizeSelection, SIGNAL(changed(double)), this, SLOT(onSizeChanged(double)));
+    connect_interface(_canvasPresenter, SIGNAL(hasMouseChanged(bool)), this, SLOT(onCanvasHasMouseChanged(bool)));
 
     _initHelper.initializeEnd();
 }
@@ -71,6 +72,11 @@ bool BrushToolPresenter::event(QEvent* e)
             && !_mouseHelper.isEngaged())
         {
             _hoverPreview->setPosition(canvasMouseEvent->pos());
+            if (_grace)
+            {
+                _grace = false;
+                _hoverPreview->isVisible_cache.recalculate();
+            }
             return true;
         }
     }
@@ -86,6 +92,8 @@ void BrushToolPresenter::onEngage()
 
     if (qIsNaN(size) || size == 0)
         return;
+
+    _grace = false;
 
     _hoverPreview->isVisible_cache.recalculate();
     _hoverPreview->setPosition(_mouseHelper.getLatestPosition());
@@ -124,6 +132,8 @@ void BrushToolPresenter::onDisengage()
     _mainEditorPresenter->push(operation);
 
     _brushStroke.clear();
+
+    _grace = true;
     _hoverPreview->isVisible_cache.recalculate();
 }
 
@@ -194,6 +204,11 @@ void BrushToolPresenter::updateSizeSelection()
     _sizeSelection->setPresetIcons(presetIcons);
 }
 
+void BrushToolPresenter::onCanvasHasMouseChanged(bool hasMouse)
+{
+    _hoverPreview->isVisible_cache.recalculate();
+}
+
 BrushToolPresenter::HoverPreview::HoverPreview(BrushToolPresenter& owner)
     : isVisible_cache(std::bind(&BrushToolPresenter::HoverPreview::calc_visible, this)),
     _owner(owner)
@@ -210,11 +225,11 @@ BrushToolPresenter::HoverPreview::~HoverPreview()
 
 void BrushToolPresenter::HoverPreview::updateBrush()
 {
-    if (!isVisible_cache.getValue())
-    {
-        _brushStroke.clear();
-        return;
-    }
+    // if (!isVisible_cache.getValue())
+    // {
+    //     _brushStroke.clear();
+    //     return;
+    // }
 
     _brushStroke = QSharedPointer<BrushStroke>(new BrushStroke(
         _owner._brushAssetsHelper.getSelectedAsset(),
@@ -235,10 +250,15 @@ bool BrushToolPresenter::HoverPreview::calc_visible()
 {
     return _owner.isSelected()
         && !_owner._mouseHelper.isEngaged()
+
         && _owner._mainEditorPresenter->getSelectedLayer()
+
         && !qIsNaN(_owner._sizeSelection->get())
-        && _owner._sizeSelection->get() != 0;
-        // TODO: and viewport has focus
+        && _owner._sizeSelection->get() != 0
+
+        && _owner._canvasPresenter->hasMouse()
+        && !_owner._grace;
+        /*&& _owner._viewPortPresenter->hasFocus()*/
 }
 
 void BrushToolPresenter::HoverPreview::onVisibleChanged(bool visible)

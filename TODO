@@ -6,9 +6,6 @@ be added arbitrarily without disrupting the viewport
 
 misc:
 
-when porting to Windows, make sure to specify cmake version 3.4 and add the
-property WINDOWS_EXPORT_ALL_SYMBOLS to the shared object modules.
-
 style: enum capitalization, BaseXXX or XXXBase?, initialize_p
 
 Zoom slider: notches, and snapping to presets.
@@ -35,16 +32,7 @@ classes
 error-wrap, but also combine some functionality between the 
 unhandledexceptionrouter and the debug message handler
 
-Icons need some kind of configurable interface
-
 style: namespaces!!! (we'll support plugins eventually, might as well be courteous)
-
-trim down readme. it doesn't need to be so rambly
-
-Use QPainterPath subtraction to avoid overpainting in brush operations --
-a brush operation should probably be separate from (derived from?) other kinds
-of raster operations but also maintain some common interfacing and
-functionality.
 
 Tool options bars will need some more work.
 
@@ -67,11 +55,8 @@ supporting and related classes.
 reusable (shared?) cache of viewport info for view items that draw themselves
 with respect to the viewport. Maybe with a QWidget pointer to the ViewPort as a 
 handle to check against, during the paint call.
-
-property decorations should be more metadata-ish and less interface-ish
-The thing about property decorations is that they're generally static, and often
-automatically generated string keys for reference against a translation table.
-But the trouble is not always.
+^ Giving graphics framework-based view access to their viewports probably does
+not represent enough of a performance hit to warrant much action here.
 
 InitHelper:
 
@@ -84,7 +69,7 @@ InitHelper:
 
 Widgets gui focus issues
 
-style: Models should have Model in their names.
+style: Models should have Model in their names. ?
 
 Raster Surface lazy clear
 + async safety
@@ -175,9 +160,6 @@ the proper init function.
 
 Anyway, tackle that when we're tightening up constness
 
-Despite it all, BasicBrush still has anit-aliasing artifacts at the endpoints of
-moveTo paints. fix this
-
 chuck QImage::offset() into more of the API
 
 make renderstack auto-remove steps as they're deleted
@@ -191,7 +173,6 @@ counterexample I keep thinking of.)
 
 combine the raster bit reader and writer?
 
-Move core tools into global constants
 All Addle code should be in Addle namespace, and global constants will not have
 a sub-namespace 
 
@@ -208,3 +189,32 @@ probably already mentioned this but utilities/canvas directory needs refactoring
 
 Format stuff needs basically an overhaul I know, but consider making
 FormatId a template class rather than tracking model type at runtime
+
+Raster brush engine is hard-wired for the one soft brush, so (obviously) deal
+with that.
+
+Maybe make common utilities that formalize core brush engines' parameters (and
+states?) into more of an API. Make some kind of "interface" class that marhsals
+with the QVariantHash and exposes statically named and typed properties, perhaps
+performs some degree of validation logic.
+
+^ combine this with BrushId builder(s) to more conveniently build brush
+id's with complex metadata.
+
+It'd be nice to have some kind of generic validator for QVariantHash (and/or 
+QDataStream, QJsonDocument), in the vein of an XML Schema validator, with rich
+error output and possibly even some conformity enforcement. But unless someone
+else has made one (MIT-compatible), I don't think it is worth the considerable
+undertaking of making one myself.
+
+Soft brush serverely overdraws its feathering. GIMP seems to avoid this problem 
+by having the brush's alpha dropoff along a more deliberate curve. I'll have to
+take some measurements and see if I can't emulate the same effect. Maybe peek their
+code if need be.
+
+Soft brush also has an artifact where part of the feathering is clipped sometimes.
+
+I might need to make "basic brush" use the raster engine until PathBrushEngine
+becomes more performant. A combination of the rectangle search tree idea and 
+a simple periodic flattening might work to make the brush faster in almost all
+cases, and minimize (though not totally avoid) overdraw.

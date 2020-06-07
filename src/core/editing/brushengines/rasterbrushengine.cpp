@@ -18,9 +18,10 @@ QPainterPath RasterBrushEngine::indicatorShape(const BrushStroke& painter) const
 
 void RasterBrushEngine::paint(BrushStroke& brushStroke) const
 {
-    const QPointF pos = brushStroke.positions().last();
-    const double size = brushStroke.getSize();
-    const double interval = size * 0.1; // TODO
+    QPointF pos = brushStroke.positions().last();
+    QColor color = brushStroke.color();
+    double size = brushStroke.getSize();
+    double interval = size * 0.1; // TODO
 
     QRect bound = coarseBoundRect(pos, size);
 
@@ -29,7 +30,7 @@ void RasterBrushEngine::paint(BrushStroke& brushStroke) const
         auto handle = brushStroke.getBuffer()->getPaintHandle(bound);
         QPainter& painter = handle.getPainter();
 
-        paintGradient(painter, pos, brushStroke.color(), size);
+        paintGradient(painter, pos, color, size);
     }
     else
     {
@@ -47,7 +48,7 @@ void RasterBrushEngine::paint(BrushStroke& brushStroke) const
         for (int i = 0; i < steps; i++)
         {
             qreal f = 1.0 - (interval * (i + 1) / line.length());
-            paintGradient(painter, line.pointAt(f), brushStroke.color(), size);
+            paintGradient(painter, line.pointAt(f), color, size);
         }
     }
 
@@ -59,7 +60,10 @@ void RasterBrushEngine::paintGradient(QPainter& painter, QPointF pos, QColor col
     painter.setRenderHint(QPainter::Antialiasing, true);
     
     QRadialGradient grad(pos, size / 2);
-    grad.setStops({ { 0.5, color }, { 1.0, Qt::transparent } });
+    grad.setStops({ 
+        { 0, color },
+        { 1.0, Qt::transparent } 
+    });
 
     painter.setPen(Qt::NoPen);
     painter.setBrush(grad);
