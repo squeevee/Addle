@@ -6,13 +6,14 @@
 
 #include "interfaces/models/ibrushmodel.hpp"
 
+#include "compat.hpp"
 #include "utilities/qtextensions/qmeta.hpp"
 
 #define RASTER_PARAM_MODE "mode"
 #define RASTER_PARAM_HARDNESS "hardness"
 #define RASTER_PARAM_SPACING "spacing"
 
-class RasterEngineParams final
+class ADDLE_COMMON_EXPORT RasterEngineParams final
 {
     Q_GADGET
 public:

@@ -7,11 +7,13 @@
 #include <QPointer>
 #include <QSharedPointer>
 
+#include "compat.hpp"
+
 #include "idtypes/brushid.hpp"
 #include "utilities/editing/brushstroke.hpp"
 #include "interfaces/editing/irastersurface.hpp"
 
-class BrushIconHelper : public QObject
+class ADDLE_CORE_EXPORT BrushIconHelper : public QObject
 {
     Q_OBJECT
 public:

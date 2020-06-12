@@ -202,3 +202,6 @@ Soft brush also has an artifact where part of the feathering is clipped sometime
 
 EVENTUALLY: simplify / modularize / optimize path brush engine's anti-aliasing
 repair logic.
+
+Raster engine: figure out an easing function that can be adjusted for different
+hardnesses

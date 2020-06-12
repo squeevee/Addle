@@ -2,10 +2,11 @@
 #define RASTERBRUSHENGINE_HPP
 
 #include "interfaces/editing/ibrushengine.hpp"
+#include "compat.hpp"
 
 class RasterEngineParams;
 
-class RasterBrushEngine : public IBrushEngine
+class ADDLE_CORE_EXPORT RasterBrushEngine : public IBrushEngine
 {
 public:
     static const BrushEngineId ID;
