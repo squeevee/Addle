@@ -178,20 +178,11 @@ a sub-namespace
 
 get format drivers by id 
 
-after button up from basic brush tool, don't show a hover preview until the mouse
-moves so the preview is not being overdrawn. Possibly have it not draw on click
-again.
-
 text.json keys have kebab-case camelCase and snake_case.
 they should probably be unified
 
-probably already mentioned this but utilities/canvas directory needs refactoring
-
 Format stuff needs basically an overhaul I know, but consider making
 FormatId a template class rather than tracking model type at runtime
-
-Raster brush engine is hard-wired for the one soft brush, so (obviously) deal
-with that.
 
 Maybe make common utilities that formalize core brush engines' parameters (and
 states?) into more of an API. Make some kind of "interface" class that marhsals
@@ -207,14 +198,7 @@ error output and possibly even some conformity enforcement. But unless someone
 else has made one (MIT-compatible), I don't think it is worth the considerable
 undertaking of making one myself.
 
-Soft brush serverely overdraws its feathering. GIMP seems to avoid this problem 
-by having the brush's alpha dropoff along a more deliberate curve. I'll have to
-take some measurements and see if I can't emulate the same effect. Maybe peek their
-code if need be.
-
 Soft brush also has an artifact where part of the feathering is clipped sometimes.
 
-I might need to make "basic brush" use the raster engine until PathBrushEngine
-becomes more performant. A combination of the rectangle search tree idea and 
-a simple periodic flattening might work to make the brush faster in almost all
-cases, and minimize (though not totally avoid) overdraw.
+EVENTUALLY: simplify / modularize / optimize path brush engine's anti-aliasing
+repair logic.

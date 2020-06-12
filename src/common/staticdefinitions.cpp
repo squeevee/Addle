@@ -8,6 +8,9 @@ ServiceLocator* ServiceLocator::_instance = nullptr;
 
 #include "globalconstants.hpp"
 
+#include "interfaces/editing/rasterengineparams.hpp"
+#include "interfaces/editing/moc_rasterengineparams.cpp"
+
 const BrushEngineId GlobalConstants::CoreBrushEngines::PathEngine = BrushEngineId(
     "path-engine"
 );
@@ -23,7 +26,12 @@ const BrushId GlobalConstants::CoreBrushes::BasicBrush = BrushId(
 
 const BrushId GlobalConstants::CoreBrushes::SoftBrush = BrushId(
     "soft-brush",
-    GlobalConstants::CoreBrushEngines::RasterEngine
+    GlobalConstants::CoreBrushEngines::RasterEngine,
+    {
+        { "mode", "Gradient" },
+        { "hardness", 1.0 },
+        { "spacing", 0.12 }
+    }
 );
 
 #include "idtypes/persistentid.hpp"

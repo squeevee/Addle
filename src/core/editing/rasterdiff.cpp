@@ -26,7 +26,7 @@ void RasterDiff::initialize(
             reinterpret_cast<uchar*>(_uncompressed.data()), 
             _area.width(),
             _area.height(),
-            QImage::Format_ARGB32_Premultiplied
+            QImage::Format_ARGB32
         );
         QPainter painter(&mergedBuffer);
         painter.translate(-_area.topLeft());

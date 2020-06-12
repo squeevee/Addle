@@ -1,4 +1,5 @@
 #include "rastersurface.hpp"
+#include <QtDebug>
 
 void RasterSurface::initialize(
         QRect area,
@@ -11,7 +12,8 @@ void RasterSurface::initialize(
 
     if (_area.isValid())
     {
-        _buffer = QImage(area.size(), QImage::Format_ARGB32_Premultiplied);
+        _buffer = QImage(area.size(), QImage::Format_ARGB32);
+        _buffer.fill(Qt::transparent);
         _bufferOffset = _area.topLeft();
         _area = area;
     }
@@ -28,8 +30,8 @@ void RasterSurface::initialize(
     const QWriteLocker lock(&_lock);
     _initHelper.initializeBegin();
 
-    if (image.format() != QImage::Format_ARGB32_Premultiplied)
-        image.convertTo(QImage::Format_ARGB32_Premultiplied);
+    if (image.format() != QImage::Format_ARGB32)
+        image.convertTo(QImage::Format_ARGB32);
     _buffer = image;
     _area = QRect(offset, image.size());
     _initHelper.initializeEnd();
@@ -73,6 +75,7 @@ void RasterSurface::clear()
 
 void RasterSurface::allocate(QRect allocArea)
 {
+    //qDebug() << allocArea;
     if (!_area.isValid())
     {
         if (_buffer.size().isNull())
@@ -82,7 +85,7 @@ void RasterSurface::allocate(QRect allocArea)
             _area = allocArea;
             _bufferOffset = _area.topLeft();
 
-            _buffer = QImage(_area.size(), QImage::Format_ARGB32_Premultiplied);
+            _buffer = QImage(_area.size(), QImage::Format_ARGB32);
             _buffer.fill(Qt::transparent);
             return;
         }
@@ -126,7 +129,7 @@ void RasterSurface::allocate(QRect allocArea)
     bufferArea = QRect(left, top, right - left + 1, bottom - top + 1);
 
     const QImage oldBuffer = _buffer;
-    _buffer = QImage(bufferArea.size(), QImage::Format_ARGB32_Premultiplied);
+    _buffer = QImage(bufferArea.size(), QImage::Format_ARGB32);
     _buffer.fill(Qt::transparent);
 
     QPainter painter(&_buffer);

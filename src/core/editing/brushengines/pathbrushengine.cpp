@@ -7,6 +7,8 @@
 #include <QtDebug>
 #include "utilities/mathutils.hpp"
 
+#include <QColor>
+
 const BrushEngineId PathBrushEngine::ID = GlobalConstants::CoreBrushEngines::PathEngine;
 
 QPainterPath PathBrushEngine::indicatorShape(const BrushStroke& painter) const
@@ -18,14 +20,16 @@ void PathBrushEngine::paint(BrushStroke& brushStroke) const
 {
     if (brushStroke.positions().isEmpty()) return;
 
-    if (brushStroke.positions().size() == 1)
+    const QPointF pos = brushStroke.positions().last();
+    const double size = brushStroke.getSize();
+
+    if (size == 0 || qIsNaN(size)) return;
+
+    if (!brushStroke.isMarkedPainted())
     {
-        const QPointF pos = brushStroke.positions().last();
-        const double size = brushStroke.getSize();
-        const QRect nibBound = coarseBoundRect(pos, brushStroke.getSize());
+        const QRect nibBound = coarseBoundRect(pos, size);
 
         const double halfSize = size / 2;
-        //QPainterPath path(pos);
 
         auto handle = brushStroke.getBuffer()->getPaintHandle(nibBound);
         QPainter& painter = handle.getPainter();
@@ -42,47 +46,95 @@ void PathBrushEngine::paint(BrushStroke& brushStroke) const
             QSizeF(size, size)
         ));
 
-        brushStroke.engineState()["lastNibBound"] = nibBound;
+        brushStroke.setBound(nibBound);
+        brushStroke.markPainted();
     }
     else 
     {
-        const QPointF pos = brushStroke.positions().last();
-        const double size = brushStroke.getSize();
-        const QRect lastNibBound = brushStroke.engineState()["lastNibBound"].toRect();
-        // const QImage flattened = brushStroke.engineState()["flattened"].value<QImage>();
+        const QRect lastNibBound = brushStroke.lastPaintedBound();
 
         QRect nibBound = coarseBoundRect(pos, size);
         QRect bound = nibBound.united(lastNibBound);
 
-        QPainterPath path(brushStroke.positions().first());
-        QList<QPointF> posList = brushStroke.positions();
-        for (auto i = posList.begin() + 1; i != posList.end(); ++i)
+        QPainterPath path(*(brushStroke.positions().rbegin() + 1));
+        path.lineTo(brushStroke.positions().last());
+
+        QRect alphaBound;
+        QImage destAlpha;
+
         {
-            path.lineTo(*i);
+            auto bitReader = brushStroke.getBuffer()->getBitReader(bound);
+            alphaBound = bitReader.area();
+
+            destAlpha = QImage(alphaBound.size(), QImage::Format_Alpha8);
+            destAlpha.fill(Qt::transparent);
+
+            for (int line = 0; line < alphaBound.height(); line++)
+            {
+                const QRgb* s = reinterpret_cast<const QRgb*>(bitReader.scanLine(line));
+                uchar* d = destAlpha.scanLine(line);
+
+                for (int x = 0; x < alphaBound.width(); x++)
+                {
+                    *d = qAlpha(*s);
+
+                    d++;
+                    s++;
+                }
+            }
         }
 
-        auto handle = brushStroke.getBuffer()->getPaintHandle(bound);
-        QPainter& painter = handle.getPainter();
+        QImage sourceAlpha;
 
-        painter.setRenderHint(QPainter::Antialiasing, true);
-        painter.setCompositionMode(QPainter::CompositionMode_Source);
-        painter.setClipRect(bound);
-        painter.setPen(QPen(
-            brushStroke.color(),
-            size,
-            Qt::SolidLine,
-            Qt::RoundCap,
-            Qt::RoundJoin
-        ));
-        painter.setBackground(Qt::transparent);
+        {
+            auto paintHandle = brushStroke.getBuffer()->getPaintHandle(bound);
+            
+            sourceAlpha = QImage(alphaBound.size(), QImage::Format_Alpha8);
+            sourceAlpha.fill(Qt::transparent);
 
-        painter.eraseRect(bound);
-        // if (!flattened.isNull() && bound.intersects(QRect(flattened.offset(), flattened.size())))
-        // {
-        //     painter.drawImage(flattened.offset(), flattened);
-        // }
-        painter.drawPath(path);
+            QPainter alphaPainter(&sourceAlpha);
+            alphaPainter.translate(-alphaBound.topLeft());
 
-        brushStroke.engineState()["lastNibBound"] = nibBound;
+            for (QPainter* painter : { &paintHandle.getPainter(), &alphaPainter })
+            {
+                painter->setRenderHint(QPainter::Antialiasing, true);
+                //painter->setClipRect(bound);
+                painter->setPen(QPen(
+                    brushStroke.color(),
+                    size,
+                    Qt::SolidLine,
+                    Qt::RoundCap,
+                    Qt::RoundJoin
+                ));
+
+                painter->drawPath(path);
+            }
+        }
+
+        {
+            auto bitWriter = brushStroke.getBuffer()->getBitWriter(alphaBound);
+            
+            for (int line = 0; line < alphaBound.height(); line++)
+            {
+                const uchar* a = sourceAlpha.scanLine(line);
+                const uchar* b = destAlpha.scanLine(line);
+                QRgb* d = reinterpret_cast<QRgb*>(bitWriter.scanLine(line));
+
+                for (int x = 0; x < alphaBound.width(); x++)
+                {
+                    const uchar alpha = qMax(*a, *b);
+
+                    if (alpha == 0) *d = 0;
+                    *d = qRgba(qRed(*d), qGreen(*d), qBlue(*d), alpha);
+
+                    d++;
+                    a++;
+                    b++;
+                }
+            }
+        }
+
+        brushStroke.setBound(nibBound);
+        brushStroke.markPainted();
     }
 }

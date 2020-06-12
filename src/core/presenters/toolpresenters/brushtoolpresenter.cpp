@@ -202,6 +202,8 @@ void BrushToolPresenter::updateSizeSelection()
     }
 
     _sizeSelection->setPresetIcons(presetIcons);
+
+    _sizeSelection->set(60);
 }
 
 void BrushToolPresenter::onCanvasHasMouseChanged(bool hasMouse)

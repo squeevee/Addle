@@ -3,6 +3,8 @@
 
 #include "interfaces/editing/ibrushengine.hpp"
 
+class RasterEngineParams;
+
 class RasterBrushEngine : public IBrushEngine
 {
 public:
@@ -18,7 +20,8 @@ public:
     void paint(BrushStroke& painter) const;
 
 private:
-    static void paintGradient(QPainter& painter, QPointF pos, QColor color, double size);
+    static void paint_p(QPainter& painter, const RasterEngineParams& params, QPointF pos, QColor color, double size);
+    static void paintGradient(QPainter& painter, QPointF pos, QColor color, double size, double hardness);
 };
 
 #endif // RASTERBRUSHENGINE_HPP

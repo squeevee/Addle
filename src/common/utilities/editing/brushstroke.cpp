@@ -3,6 +3,8 @@
 
 #include "interfaces/editing/ibrushengine.hpp"
 
+#include "utilities/mathutils.hpp"
+
 BrushStroke::BrushStroke(BrushId id,
         QColor color,
         double size,
@@ -49,6 +51,17 @@ void BrushStroke::setSize(double size)
     _painterStates.top().size = size;
 }
 
+
+QRect BrushStroke::bound() const
+{
+    return _painterStates.top().bound;
+}
+
+void BrushStroke::setBound(QRect bound)
+{
+    _painterStates.top().bound = bound;
+}
+
 bool BrushStroke::isPreview() const
 {
     return _painterStates.top().isPreview;
@@ -66,12 +79,58 @@ QList<QPointF> BrushStroke::positions() const
 
 void BrushStroke::moveTo(QPointF pos)
 {
+    double length = 0;
+    if (!_painterStates.top().positions.isEmpty())
+        length = distance(_painterStates.top().positions.last(), pos);
+
     _painterStates.top().positions.append(pos);
+    _painterStates.top().length += length;
 }
 
 void BrushStroke::clear()
 {
     _painterStates.top().positions.clear();
+    _painterStates.top().length = 0;
+
+    _painterStates.top().lastPositionPainted = QPointF();
+    _painterStates.top().lastLengthPainted = 0;
+    _painterStates.top().markedPainted = false;
+}
+
+double BrushStroke::length() const
+{
+    return _painterStates.top().length;
+}
+
+
+QPointF BrushStroke::lastPositionPainted() const
+{
+    return _painterStates.top().lastPositionPainted;
+}
+
+double BrushStroke::lastLengthPainted() const
+{
+    return _painterStates.top().lastLengthPainted;
+}
+
+QRect BrushStroke::lastPaintedBound() const
+{
+    return _painterStates.top().lastPaintedBound;
+}
+
+bool BrushStroke::isMarkedPainted() const 
+{
+    return _painterStates.top().markedPainted;
+}
+
+void BrushStroke::markPainted()
+{
+    if (_painterStates.top().positions.isEmpty()) return;
+
+    _painterStates.top().lastPositionPainted = _painterStates.top().positions.last();
+    _painterStates.top().lastLengthPainted = _painterStates.top().length;
+    _painterStates.top().lastPaintedBound = _painterStates.top().bound;
+    _painterStates.top().markedPainted = true;
 }
 
 QVariantHash BrushStroke::engineState() const

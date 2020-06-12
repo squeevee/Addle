@@ -5,11 +5,23 @@
 #include "utilities/mathutils.hpp"
 
 #include "interfaces/editing/irastersurface.hpp"
+#include "interfaces/editing/rasterengineparams.hpp"
 #include "utilities/editing/brushstroke.hpp"
+
+#include "servicelocator.hpp"
+
+#include <cmath>
 
 #include <QRadialGradient>
 
 const BrushEngineId RasterBrushEngine::ID = GlobalConstants::CoreBrushEngines::RasterEngine;
+
+static double gradientTaper(double t, double hardness)
+{
+    return t < 0.5 ?
+        2 * t * t :
+        1 - pow(-2 * t + 2, 2) / 2;
+}
 
 QPainterPath RasterBrushEngine::indicatorShape(const BrushStroke& painter) const
 {
@@ -18,52 +30,95 @@ QPainterPath RasterBrushEngine::indicatorShape(const BrushStroke& painter) const
 
 void RasterBrushEngine::paint(BrushStroke& brushStroke) const
 {
+    RasterEngineParams params(ServiceLocator::get<IBrushModel>(brushStroke.id()));
+
     QPointF pos = brushStroke.positions().last();
-    QColor color = brushStroke.color();
     double size = brushStroke.getSize();
-    double interval = size * 0.1; // TODO
+    QColor color = brushStroke.color();
 
     QRect bound = coarseBoundRect(pos, size);
-
-    if (brushStroke.positions().size() <= 1 || !brushStroke.engineState().contains("lastPositionDrawn"))
+    
+    if (brushStroke.positions().size() == 1)
     {
         auto handle = brushStroke.getBuffer()->getPaintHandle(bound);
         QPainter& painter = handle.getPainter();
 
-        paintGradient(painter, pos, color, size);
+        paint_p(painter, params, pos, color, size);
     }
     else
     {
-        QPointF lastPosDrawn = brushStroke.engineState()["lastPositionDrawn"].toPointF();
-        if (near(pos, lastPosDrawn, interval)) return;
-
-        bound = bound.united(coarseBoundRect(lastPosDrawn, size));
+        double spacing = params.spacing() * size;
+        if (brushStroke.lengthSincePaint() < spacing) return;
+        
+        bound = bound.united(brushStroke.lastPaintedBound());
 
         auto handle = brushStroke.getBuffer()->getPaintHandle(bound);
         QPainter& painter = handle.getPainter();
 
-        const QLineF line(pos, lastPosDrawn);
-        int steps = ceil(line.length() / interval);
+        int steps = ceil(distance(brushStroke.lastPositionPainted(), pos) / spacing);
 
-        for (int i = 0; i < steps; i++)
+        if (steps == 1)
         {
-            qreal f = 1.0 - (interval * (i + 1) / line.length());
-            paintGradient(painter, line.pointAt(f), color, size);
+            paint_p(painter, params, pos, color, size);
+        }
+        else 
+        {
+            const QLineF line(brushStroke.lastPositionPainted(), pos);
+            for (int i = 0; i < steps; i++)
+            {
+                const qreal t = (qreal)(i + 1) / steps;
+                paint_p(painter, params, line.pointAt(t), color, size);
+            }
         }
     }
 
-    brushStroke.engineState()["lastPositionDrawn"] = pos;
+    brushStroke.setBound(bound);
+    brushStroke.markPainted();
 }
 
-void RasterBrushEngine::paintGradient(QPainter& painter, QPointF pos, QColor color, double size)
+void RasterBrushEngine::paint_p(
+        QPainter& painter,
+        const RasterEngineParams& params,
+        QPointF pos,
+        QColor color,
+        double size
+    )
+{
+    switch (params.mode())
+    {
+    case RasterEngineParams::Gradient:
+        paintGradient(painter, pos, color, size, params.hardness());
+        break;
+    }
+}
+
+void RasterBrushEngine::paintGradient(
+        QPainter& painter,
+        QPointF pos,
+        QColor color,
+        double size,
+        double hardness
+    )
 {
     painter.setRenderHint(QPainter::Antialiasing, true);
-    
+
     QRadialGradient grad(pos, size / 2);
-    grad.setStops({ 
-        { 0, color },
-        { 1.0, Qt::transparent } 
-    });
+    grad.setColorAt(0, color);
+
+    const int steps = qMin((int)(size / 4), 25);
+    if (steps >= 3)
+    {
+        for (int i = 0; i < steps; i++)
+        {
+            const double t = (double)(i + 1) / (steps + 1);
+
+            QColor stop = color;
+            stop.setAlphaF((1 - gradientTaper(t, hardness)) * color.alphaF());
+            grad.setColorAt(t, stop);
+        }
+    }
+
+    grad.setColorAt(1.0, Qt::transparent);
 
     painter.setPen(Qt::NoPen);
     painter.setBrush(grad);

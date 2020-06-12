@@ -1,4 +1,5 @@
 #include "rasterbithandles.hpp"
+#include <QtDebug>
 
 #include "interfaces/editing/irastersurface.hpp"
 

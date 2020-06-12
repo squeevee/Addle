@@ -41,9 +41,24 @@ public:
     double getSize() const;
     void setSize(double size);
     
+    QRect bound() const;
+    void setBound(QRect bound);
+
     QList<QPointF> positions() const;
     void clear();
     void moveTo(QPointF pos);
+
+    double length() const;
+
+    QPointF lastPositionPainted() const;
+
+    double lastLengthPainted() const;
+    inline double lengthSincePaint() const { return length() - lastLengthPainted(); }
+
+    QRect lastPaintedBound() const;
+    
+    bool isMarkedPainted() const;
+    void markPainted();
 
     bool isPreview() const;
     void setPreview(bool isPreview);
@@ -74,7 +89,17 @@ private:
         QColor color;
         double size = 0;
 
+        QRect bound;
+
         QList<QPointF> positions;
+
+        double length = 0;
+
+        bool markedPainted = false;
+        QPointF lastPositionPainted;
+        double lastLengthPainted = 0;
+
+        QRect lastPaintedBound;
 
         bool isPreview = false;
         QVariantHash engineState;
