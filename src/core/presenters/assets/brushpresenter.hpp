@@ -46,10 +46,15 @@ public:
 // signals:
 //     void sizeChanged(SizeOption size);
 
+private slots:
+    void onSizeSelectionScaleChanged();
+
 private:
     // SizeOption _size;
     // double _customPixelSize;
     // double _customPercentSize;
+
+    void updateSizeSelectionIcons();
 
     BrushId _id;
     IBrushModel* _model;

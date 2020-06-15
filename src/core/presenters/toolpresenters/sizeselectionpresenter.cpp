@@ -57,3 +57,12 @@ void SizeSelectionPresenter::selectPreset(int index)
     emit changed(_size);
     emit selectedPresetChanged(_selectedPreset);
 }
+
+void SizeSelectionPresenter::setScale(double scale)
+{
+    if (_scale != scale)
+    {
+        _scale = scale;
+        emit scaleChanged(_scale);
+    }
+}

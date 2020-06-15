@@ -92,6 +92,7 @@ private slots:
     void onSelectedLayerChanged(QWeakPointer<ILayerPresenter> layer);
     void onSizeChanged(double size);
     void onCanvasHasMouseChanged(bool hasMouse);
+    void onViewPortZoomChanged(double zoom);
 
 private:
     // void updateSizeSelection();

@@ -25,6 +25,9 @@ public:
     void setPresetIcons(QList<QIcon> icons);
     QList<QIcon> presetIcons() const { return _presetIcons; }
 
+    double scale() const { return _scale; }
+    void setScale(double scale);
+
 public slots:
     void setPresets(QList<double> presets);
 
@@ -39,7 +42,10 @@ signals:
     void iconChanged(QIcon icon);
     void presetIconsChanged(QList<QIcon> icons);
 
+    void scaleChanged(double scale);
+
 private:
+    double _scale = 1;
     double _size = qQNaN();
     int _selectedPreset = -1;
     

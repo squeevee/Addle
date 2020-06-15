@@ -23,6 +23,8 @@ public:
     QIcon icon(BrushId brush, QColor color, double size) const;
 
     void setBackground(QColor background) { _background = background; }
+
+    void setScale(double scale) { _scale = scale; }
     
 public:
     class BrushIconEngine : public QIconEngine
@@ -46,6 +48,7 @@ public:
     mutable QSharedPointer<IRasterSurface> _surface;
     
     QColor _background;
+    double _scale;
 
     friend class BrushIconEngine;
 };

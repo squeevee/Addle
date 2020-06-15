@@ -66,6 +66,7 @@ void BrushToolPresenter::initialize(IMainEditorPresenter* owner)
     // connect_interface(_sizeSelection, SIGNAL(changed(double)), this, SLOT(onSizeChanged(double)));
     connect_interface(_canvasPresenter, SIGNAL(hasMouseChanged(bool)), this, SLOT(onCanvasHasMouseChanged(bool)));
     connect_interface(_brushSelection.get(), SIGNAL(selectionChanged(QList<PersistentId>)), this, SLOT(onBrushSelectionChanged()));
+    connect_interface(_mainEditorPresenter->getViewPortPresenter(), SIGNAL(zoomChanged(double)), this, SLOT(onViewPortZoomChanged(double)));
 
     _initHelper.initializeEnd();
 }
@@ -179,6 +180,11 @@ void BrushToolPresenter::onBrushSelectionChanged()
         SLOT(onSizeChanged(double))
     );
 
+    {
+        double zoom = _mainEditorPresenter->getViewPortPresenter()->getZoom();
+        selectedBrushPresenter()->sizeSelection().setScale(zoom);
+    }
+
     _hoverPreview->isVisible_cache.recalculate();
     _hoverPreview->updateBrush();
 
@@ -243,6 +249,13 @@ void BrushToolPresenter::onSizeChanged(double size)
 void BrushToolPresenter::onCanvasHasMouseChanged(bool hasMouse)
 {
     _hoverPreview->isVisible_cache.recalculate();
+}
+
+void BrushToolPresenter::onViewPortZoomChanged(double zoom)
+{
+    auto brushPresenter = selectedBrushPresenter();
+    if (brushPresenter)
+        brushPresenter->sizeSelection().setScale(zoom);
 }
 
 BrushToolPresenter::HoverPreview::HoverPreview(BrushToolPresenter& owner)

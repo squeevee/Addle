@@ -11,6 +11,8 @@
 #include "utilities/editing/brushstroke.hpp"
 #include "utilities/render/renderutils.hpp"
 
+#include "utilities/mathutils.hpp"
+
 BrushIconHelper::BrushIconHelper(QObject* parent)
     : QObject(parent)
 {
@@ -36,8 +38,16 @@ void BrushIconHelper::BrushIconEngine::paint(QPainter* painter, const QRect& rec
     if (!_helper) return;
 
     const double size = _brushStroke.getSize();
+    const double scale = _helper->_scale;
 
     QPointF center;
+    const QRectF scaledRect = QRectF(
+        QPointF(),
+        QSizeF(rect.width() / scale, rect.height() / scale)
+    );
+
+    // qDebug() << "rect" << rect;
+    // qDebug() << "scaledRect" << scaledRect;
 
     // This position algorithm assumes that the brush will look good if treated
     // as a circle with r = 1/2 size. Naturally, as brush appearances become
@@ -48,20 +58,20 @@ void BrushIconHelper::BrushIconEngine::paint(QPainter* painter, const QRect& rec
     // won't break with an eccentric rectangle. I don't anticipate this being a
     // problem.
 
-    if (size <= qMin(rect.width(), rect.height()))
+    if (size <= qMin(scaledRect.width(), scaledRect.height()))
     {
         // The brush is small enough to fit entirely within the icon, so it
         // will be centered in the icon.
 
-        center = QRectF(rect).center();
+        center = scaledRect.center();
     }
-    else if (size / 2 <= qMin(rect.width(), rect.height()))
+    else if (size / 2 <= qMin(scaledRect.width(), scaledRect.height()))
     {
         // A sector of the brush can fit within the icon, so the bounding
         // square of the brush circle will be aligned to the top-left corner
         // of the icon.
 
-        center = QRectF(rect.topLeft(), QSize(size, size)).center();
+        center = QRectF(scaledRect.topLeft(), QSize(size, size)).center();
     }
     else 
     {
@@ -80,7 +90,7 @@ void BrushIconHelper::BrushIconEngine::paint(QPainter* painter, const QRect& rec
         // use QLineF to extend a line from D perpendicular to AB, and take its 
         // endpoint.
 
-        QLineF ab(rect.topRight() + QPoint(0, 1), rect.bottomLeft() + QPoint(1, 0));
+        QLineF ab(scaledRect.topRight(), scaledRect.bottomLeft());
         qreal ad_l = ab.length() / 2;
         qreal r = size / 2;
         qreal dc_l = sqrt(r * r - ad_l * ad_l);
@@ -103,5 +113,13 @@ void BrushIconHelper::BrushIconEngine::paint(QPainter* painter, const QRect& rec
     // TODO: adjust background color for contrast if needed
 
     painter->fillRect(rect, _helper->_background);
-    render(_helper->_surface->getRenderStep(), rect, painter);
+
+    painter->save();
+
+    painter->setRenderHint(QPainter::Antialiasing, true);
+    painter->translate(rect.topLeft());
+    painter->scale(scale, scale);
+    render(_helper->_surface->getRenderStep(), coarseBoundRect(scaledRect), painter);
+
+    painter->restore();
 }
