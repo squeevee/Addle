@@ -4,7 +4,7 @@
 #include <QtGlobal>
 
 #include "presethelper.hpp"
-#include "interfaces/presenters/assets/ibrushpresenter.hpp"
+#include "interfaces/presenters/assetpresenters/ibrushpresenter.hpp"
 
 class BrushSizePresetHelper
 {

@@ -13,14 +13,28 @@
 #include "interfaces/traits/makeable_trait.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 
-#include "ibrushpresenteraux.hpp"
+namespace IBrushPresenterAux
+{
+    static constexpr double DEFAULT_SIZES[] = { 
+        4.0,
+        7.0,
+        12.0,
+        21.0,
+        36.0,
+        60.0,
+        100.0,
+        180.0,
+        320.0,
+        600.0 
+    };
+}
 
 // Brushes 
+class ISizeSelectionPresenter;
 class IBrushModel;
 class IBrushPresenter : public IAssetPresenter
 {
 public:
-    typedef IBrushPresenterAux::SizeOption SizeOption;
     virtual ~IBrushPresenter() = default;
     
     virtual void initialize(IBrushModel& model) = 0;
@@ -28,18 +42,11 @@ public:
 
     virtual BrushId getBrushId() = 0;
     virtual IBrushModel& model() const = 0;
-    
-    virtual SizeOption getSize() = 0;
-    virtual double getCustomPixelSize() = 0;
-    virtual double getCustomPercentSize() = 0;
 
-public slots:
-    virtual void setSize(SizeOption size) = 0;
-    virtual void setCustomPixelSize(double customPixels) = 0;
-    virtual void setCustomPercentSize(double customPercentage) = 0;
+    virtual ISizeSelectionPresenter& sizeSelection() = 0;
 
-signals:
-    virtual void sizeChanged(SizeOption size) = 0;
+    virtual double size() = 0;
+    virtual void setSize(double size) = 0;
 };
 
 DECL_IMPLEMENTED_AS_QOBJECT(IBrushPresenter)

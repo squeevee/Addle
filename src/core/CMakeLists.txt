@@ -20,6 +20,7 @@ set (
     presenters/assets/brushpresenter.cpp
     presenters/helpers/brushiconhelper.cpp
     presenters/operationpresenters/brushoperationpresenter.cpp
+    presenters/toolpresenters/assetselectionpresenter.cpp
     presenters/toolpresenters/toolpresenterbase.cpp
     presenters/toolpresenters/navigatetoolpresenter.cpp
     presenters/toolpresenters/sizeselectionpresenter.cpp

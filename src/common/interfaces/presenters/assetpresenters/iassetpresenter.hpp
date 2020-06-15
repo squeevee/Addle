@@ -5,7 +5,6 @@
 #include <QSharedPointer>
 #include "idtypes/persistentid.hpp"
 
-class IToolWithAssetsPresenter;
 class IAssetPresenter
 {
 public:
@@ -13,8 +12,8 @@ public:
 
     virtual PersistentId getId() = 0;
 
-    virtual IToolWithAssetsPresenter* getOwnerTool() = 0;
-    virtual void setOwnerTool(IToolWithAssetsPresenter* owner) = 0;
+    // virtual IToolWithAssetsPresenter* getOwnerTool() = 0;
+    // virtual void setOwnerTool(IToolWithAssetsPresenter* owner) = 0;
 
     virtual void selectInTool() = 0;
 };

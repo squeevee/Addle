@@ -1,4 +1,5 @@
 #include "sizeselectionpresenter.hpp"
+#include <QtDebug>
 
 QList<double> SizeSelectionPresenter::presets() const { return _presets; }
 double SizeSelectionPresenter::get() const { return _size; }
@@ -20,6 +21,7 @@ void SizeSelectionPresenter::setPresets(QList<double> presets)
 {
     _presets = presets;
     
+
     int index = 0;
     _presetsIndex.clear();
     for (double preset : _presets)
@@ -30,12 +32,14 @@ void SizeSelectionPresenter::setPresets(QList<double> presets)
 
     emit presetsChanged(_presets);
 
+    _presetHelper.setPresets(_presets);
+
     selectPreset(-1);
 }
 
 void SizeSelectionPresenter::set(double size)
 {
-    _selectedPreset = -1; // Helper to find nearest preset
+    _selectedPreset = _presetHelper.nearest(size, 0.01);
     _size = size;
 
     emit changed(_size);

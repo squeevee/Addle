@@ -205,3 +205,5 @@ repair logic.
 
 Raster engine: figure out an easing function that can be adjusted for different
 hardnesses
+
+error messaging on PropertyBinding

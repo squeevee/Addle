@@ -77,7 +77,7 @@ inline QList<QSharedPointer<OutType>> qSharedPointerListCast(const QList<QShared
 }
 
 template<typename T>
-inline QList<T> arrayToQList(const T arr[], std::size_t length)
+inline QList<T> qListFromArray(const T arr[], std::size_t length)
 {
     QList<T> outList;
     outList.reserve(length);
@@ -91,9 +91,9 @@ inline QList<T> arrayToQList(const T arr[], std::size_t length)
 
 
 template<typename T, std::size_t N>
-inline QList<T> arrayToQList(const T (&arr)[N])
+inline QList<T> qListFromArray(const T (&arr)[N])
 {
-    return arrayToQList(arr, N);
+    return qListFromArray(arr, N);
 }
 
 /*

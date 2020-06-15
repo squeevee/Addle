@@ -11,6 +11,7 @@
 #define QTEXCEPTIONS__QOBJECT_HPP
 
 #include <QObject>
+#include <QPointer>
 
 #include "interfaces/traits/qobject_trait.hpp"
 
@@ -91,8 +92,7 @@ inline QMetaObject::Connection connect_interface(
 
     const QObject* qreceiver = dynamic_cast<const QObject*>(receiver);
 
-    //todo: you can't virtually inherit QObject, so static_cast should probably
-    //work here.
+
     //dynamic assert
 
     return QObject::connect(sender, signal, qreceiver, slot, type);
@@ -124,8 +124,7 @@ inline QMetaObject::Connection connect_interface2(
     const QObject* qsender = dynamic_cast<const QObject*>(sender);
     const QObject* qreceiver = dynamic_cast<const QObject*>(receiver);
 
-    //todo: you can't virtually inherit QObject, so static_cast should probably
-    //work here.
+
     //dynamic asserts
 
     return QObject::connect(qsender, signal, qreceiver, slot);

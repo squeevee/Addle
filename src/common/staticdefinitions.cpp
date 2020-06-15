@@ -145,9 +145,6 @@ const BrushId IBrushToolPresenterAux::DefaultBrushes::Soft  = GlobalConstants::C
 
 const BrushId IBrushToolPresenterAux::DEFAULT_BRUSH = IBrushToolPresenterAux::DefaultBrushes::Basic;
 
-#include "interfaces/presenters/assets/ibrushpresenter.hpp"
-#include "interfaces/presenters/assets/moc_ibrushpresenteraux.cpp"
-
 // Make sure to include all header-only ADDLE_COMMON_EXPORT classes, so that
 // their symbols are defined on libcommon.dll
 

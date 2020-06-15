@@ -10,9 +10,7 @@
 #include "interfaces/presenters/iraiseerrorpresenter.hpp"
 
 #include "interfaces/presenters/toolpresenters/inavigatetoolpresenter.hpp"
-#include "interfaces/presenters/toolpresenters/ibrushliketoolpresenter.hpp"
-#include "interfaces/presenters/assets/ibrushpresenter.hpp"
-#include "interfaces/presenters/toolpresenters/itoolwithassetspresenter.hpp"
+#include "interfaces/presenters/assetpresenters/ibrushpresenter.hpp"
 
 #include "utilities/indexvariant.hpp"
 #include "idtypes/persistentid.hpp"
@@ -29,7 +27,7 @@ inline void registerQMetaTypes()
     qRegisterMetaType<QSharedPointer<IErrorPresenter>>();
     
     qRegisterMetaType<INavigateToolPresenter::NavigateOperationOptions>("NavigateOperationOptions");
-    qRegisterMetaType<IBrushPresenter::SizeOption>("SizeOption");
+    // qRegisterMetaType<IBrushPresenter::SizeOption>("SizeOption");
     qRegisterMetaType<QSharedPointer<IAssetPresenter>>();
 
     qRegisterMetaType<PersistentId>();

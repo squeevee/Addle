@@ -1,12 +1,11 @@
 #ifndef ISELECTTOOLPRESENTER_HPP
 #define ISELECTTOOLPRESENTER_HPP
 
-#include "isimilarregiontoolpresenter.hpp"
 #include "interfaces/traits/initialize_trait.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 #include "interfaces/traits/makeable_trait.hpp"
 
-class ISelectToolPresenter : public virtual ISimilarRegionToolPresenter
+class ISelectToolPresenter
 {
 public:
     enum SelectStyleOptions {

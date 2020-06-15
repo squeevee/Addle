@@ -1,13 +1,12 @@
 #ifndef IERASERTOOLPRESENTER_HPP
 #define IERASERTOOLPRESENTER_HPP
 
-#include "ibrushliketoolpresenter.hpp"
 #include "interfaces/traits/initialize_trait.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 #include "interfaces/traits/makeable_trait.hpp"
 
 
-class IEraserToolPresenter : public virtual IBrushLikeToolPresenter
+class IEraserToolPresenter
 {
 public:
     static const ToolId ERASER_TOOL_ID;

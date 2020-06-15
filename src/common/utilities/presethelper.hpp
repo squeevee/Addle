@@ -10,6 +10,10 @@
 //We're using STL for this helper class because Qt does not provide a direct
 //equivalent to std::set
 
+// TODO: this class is OBSOLETE
+// use PresetHelper2, then when all references to this class are gone, rename 
+// PresetHelper2 to PresetHelper
+
 template<typename PresetType, typename ValueType>
 class PresetHelper
 {

@@ -5,7 +5,7 @@
 #include "idtypes/toolid.hpp"
 #include <QObject>
 
-// Separte file for the benefit of AutoMoc
+// Separte file from INavigateToolPresenter for the benefit of AutoMoc
 
 namespace INavigateToolPresenterAux
 {

@@ -7,6 +7,7 @@ set (
     canvas/docbackgrounditem.cpp
     canvas/canvasscene.cpp
     canvas/layeritem.cpp
+    main/assetselector.cpp
     main/maineditorview.cpp
     main/sizeselector.cpp
     main/viewportscrollwidget.cpp

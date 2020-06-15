@@ -3,11 +3,14 @@
 
 #include "compat.hpp"
 
-#include "isizeselectionpresenter.hpp"
-#include "ibrushliketoolpresenter.hpp"
+#include "itoolpresenter.hpp"
+
+#include "idtypes/brushid.hpp"
+
 #include "interfaces/traits/initialize_trait.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 #include "interfaces/traits/makeable_trait.hpp"
+#include "interfaces/traits/metaobjectinfo.hpp"
 
 namespace IBrushToolPresenterAux
 {
@@ -19,31 +22,34 @@ namespace IBrushToolPresenterAux
         static const BrushId Soft;
     };
 
-    static constexpr double DEFAULT_SIZES[] = { 
-        4.0,
-        7.0,
-        12.0,
-        21.0,
-        36.0,
-        60.0,
-        100.0,
-        180.0,
-        320.0,
-        600.0 
-    };
-
     ADDLE_COMMON_EXPORT extern const BrushId DEFAULT_BRUSH; // DefaultBrushes::Basic
 }
 
-class IBrushToolPresenter : public virtual IBrushLikeToolPresenter
+class IMainEditorPresenter;
+class IAssetSelectionPresenter;
+class IBrushPresenter;
+class IBrushToolPresenter : public virtual IToolPresenter
 {
 public:
+    INTERFACE_META(IBrushToolPresenter)
+
     virtual ~IBrushToolPresenter() = default;
 
     virtual void initialize(IMainEditorPresenter* owner) = 0;
 
-    virtual ISizeSelectionPresenter& sizeSelection() = 0;
+    virtual IAssetSelectionPresenter& brushSelection() = 0;
+
+    virtual void selectBrush(BrushId id) = 0;
+    virtual BrushId selectedBrush() = 0;
+
+    virtual QSharedPointer<IBrushPresenter> selectedBrushPresenter() = 0;
+signals:
+    virtual void brushChanged(BrushId brush) = 0;
 };
+
+DECL_INTERFACE_META_PROPERTIES(IBrushToolPresenter,
+    DECL_INTERFACE_PROPERTY(selectedBrush)
+)
 
 DECL_MAKEABLE(IBrushToolPresenter)
 DECL_IMPLEMENTED_AS_QOBJECT(IBrushToolPresenter)

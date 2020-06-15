@@ -23,6 +23,11 @@
 
 #include "interfaces/editing/ibrushengine.hpp"
 
+#include "interfaces/presenters/assetpresenters/ibrushpresenter.hpp"
+#include "interfaces/presenters/toolpresenters/isizeselectionpresenter.hpp"
+
+#include <QSharedPointer>
+
 // #include "../helpers/brushsizepresethelper.hpp"
 // const BrushSizePresetHelper::PxPresetHelper BrushSizePresetHelper::_instance_px = PxPresetHelper();
 // const BrushSizePresetHelper::PercentPresetHelper BrushSizePresetHelper::_instance_percent = PercentPresetHelper();
@@ -36,31 +41,40 @@ void BrushToolPresenter::initialize(IMainEditorPresenter* owner)
     _mainEditorPresenter = owner;
     ToolPresenterBase::initialize_p(owner);
 
-    _brushAssetsHelper.setAssetList({
-        ServiceLocator::makeShared<IBrushPresenter>(DefaultBrushes::Basic),
-        ServiceLocator::makeShared<IBrushPresenter>(DefaultBrushes::Soft)
-        //ServiceLocator::makeShared<IBrushPresenter>(DefaultBrushes::AliasedCircle),
-        //ServiceLocator::makeShared<IBrushPresenter>(DefaultBrushes::Square)
-    });
+    // _brushAssetsHelper.setAssetList({
+    //     ServiceLocator::makeShared<IBrushPresenter>(DefaultBrushes::Basic),
+    //     ServiceLocator::makeShared<IBrushPresenter>(DefaultBrushes::Soft)
+    //     //ServiceLocator::makeShared<IBrushPresenter>(DefaultBrushes::AliasedCircle),
+    //     //ServiceLocator::makeShared<IBrushPresenter>(DefaultBrushes::Square)
+    // });
 
-    _sizeSelection = ServiceLocator::make<ISizeSelectionPresenter>();
+    // _sizeSelection = ServiceLocator::make<ISizeSelectionPresenter>();
+
+    _brushSelection = ServiceLocator::makeUnique<IAssetSelectionPresenter>(
+        QList<QSharedPointer<IAssetPresenter>>({
+            ServiceLocator::makeShared<IBrushPresenter>(DefaultBrushes::Basic),
+            ServiceLocator::makeShared<IBrushPresenter>(DefaultBrushes::Soft)
+        }),
+        false
+    );
 
     _hoverPreview = new HoverPreview(*this);
 
-    updateSizeSelection();
+    // updateSizeSelection();
 
     connect_interface(_mainEditorPresenter, SIGNAL(selectedLayerChanged(QWeakPointer<ILayerPresenter>)), this, SLOT(onSelectedLayerChanged(QWeakPointer<ILayerPresenter>)));
-    connect_interface(_sizeSelection, SIGNAL(changed(double)), this, SLOT(onSizeChanged(double)));
+    // connect_interface(_sizeSelection, SIGNAL(changed(double)), this, SLOT(onSizeChanged(double)));
     connect_interface(_canvasPresenter, SIGNAL(hasMouseChanged(bool)), this, SLOT(onCanvasHasMouseChanged(bool)));
+    connect_interface(_brushSelection.get(), SIGNAL(selectionChanged(QList<PersistentId>)), this, SLOT(onBrushSelectionChanged()));
 
     _initHelper.initializeEnd();
 }
 
-ISizeSelectionPresenter& BrushToolPresenter::sizeSelection()
-{
-    //assert initialized
-    return *_sizeSelection;
-}
+// ISizeSelectionPresenter& BrushToolPresenter::sizeSelection()
+// {
+//     //assert initialized
+//     return *_sizeSelection;
+// }
 
 bool BrushToolPresenter::event(QEvent* e)
 {
@@ -86,12 +100,11 @@ bool BrushToolPresenter::event(QEvent* e)
 
 void BrushToolPresenter::onEngage()
 {
-    double size = qQNaN();
-    if (_sizeSelection)
-        size = _sizeSelection->get();
+    auto brushPresenter = selectedBrushPresenter();
+    if (!brushPresenter) return;
 
-    if (qIsNaN(size) || size == 0)
-        return;
+    double size = brushPresenter->size();
+    if (qIsNaN(size) || size == 0) return;
 
     _grace = false;
 
@@ -99,7 +112,7 @@ void BrushToolPresenter::onEngage()
     _hoverPreview->setPosition(_mouseHelper.getLatestPosition());
 
     _brushStroke = QSharedPointer<BrushStroke>(new BrushStroke(
-        _brushAssetsHelper.getSelectedAsset(),
+        selectedBrush(),
         Qt::blue,
         size,
         ServiceLocator::makeShared<IRasterSurface>()
@@ -152,59 +165,80 @@ void BrushToolPresenter::onSelectedLayerChanged(QWeakPointer<ILayerPresenter> la
     _hoverPreview->isVisible_cache.recalculate();
 }
 
+void BrushToolPresenter::onBrushSelectionChanged()
+{
+    if (_connection_onSizeChanged)
+        QObject::disconnect(_connection_onSizeChanged);
+
+    BrushId id = _brushSelection->selectedId();
+
+    _connection_onSizeChanged = connect_interface(
+        &selectedBrushPresenter()->sizeSelection(),
+        SIGNAL(changed(double)),
+        this,
+        SLOT(onSizeChanged(double))
+    );
+
+    _hoverPreview->isVisible_cache.recalculate();
+    _hoverPreview->updateBrush();
+
+    emit brushChanged(id);
+}
+
 void BrushToolPresenter::onSizeChanged(double size)
 {
     if (_brushStroke)
         _brushStroke->setSize(size);
 
-    _sizeSelection->setIcon(_iconHelper.icon(
-        _brushAssetsHelper.getSelectedAsset(),
+    selectedBrushPresenter()->sizeSelection().setIcon(_iconHelper.icon(
+        selectedBrush(),
         Qt::blue,
         size
     ));
     
+    _hoverPreview->setSize(size);
     _hoverPreview->isVisible_cache.recalculate();
     _hoverPreview->updateBrush();
 }
 
-void BrushToolPresenter::updateSizeSelection()
-{
-    if (_brushAssetsHelper.getSelectedAsset().isNull())
-    {
-        if(!_sizeSelection->presets().isEmpty())
-            _sizeSelection->setPresets(QList<double>());
+// void BrushToolPresenter::updateSizeSelection()
+// {
+//     if (_brushAssetsHelper.getSelectedAsset().isNull())
+//     {
+//         if(!_sizeSelection->presets().isEmpty())
+//             _sizeSelection->setPresets(QList<double>());
         
-        return;
-    }
+//         return;
+//     }
 
-    auto presets = ServiceLocator::get<IBrushModel>(_brushAssetsHelper.getSelectedAsset()).info().getPreferredSizes();
-    // streamline this
+//     auto presets = ServiceLocator::get<IBrushModel>(_brushAssetsHelper.getSelectedAsset()).info().getPreferredSizes();
+//     // streamline this
 
-    if (presets.isEmpty())
-    {
-        presets = arrayToQList(IBrushToolPresenterAux::DEFAULT_SIZES);
-    }
+//     if (presets.isEmpty())
+//     {
+//         presets = arrayToQList(IBrushToolPresenterAux::DEFAULT_SIZES);
+//     }
 
-    _sizeSelection->setPresets(presets);
-    _sizeSelection->selectPreset(0); // temp
+//     _sizeSelection->setPresets(presets);
+//     _sizeSelection->selectPreset(0); // temp
 
-    _iconHelper.setBackground(Qt::white);
+//     _iconHelper.setBackground(Qt::white);
 
-    QList<QIcon> presetIcons;
+//     QList<QIcon> presetIcons;
 
-    for (double preset : presets)
-    {
-        presetIcons.append(_iconHelper.icon(
-            _brushAssetsHelper.getSelectedAsset(),
-            Qt::blue,
-            preset
-        ));
-    }
+//     for (double preset : presets)
+//     {
+//         presetIcons.append(_iconHelper.icon(
+//             _brushAssetsHelper.getSelectedAsset(),
+//             Qt::blue,
+//             preset
+//         ));
+//     }
 
-    _sizeSelection->setPresetIcons(presetIcons);
+//     _sizeSelection->setPresetIcons(presetIcons);
 
-    _sizeSelection->set(60);
-}
+//     _sizeSelection->set(60);
+// }
 
 void BrushToolPresenter::onCanvasHasMouseChanged(bool hasMouse)
 {
@@ -227,6 +261,7 @@ BrushToolPresenter::HoverPreview::~HoverPreview()
 
 void BrushToolPresenter::HoverPreview::updateBrush()
 {
+    if (!_owner._initHelper.isInitialized()) return;
     // if (!isVisible_cache.getValue())
     // {
     //     _brushStroke.clear();
@@ -234,9 +269,9 @@ void BrushToolPresenter::HoverPreview::updateBrush()
     // }
 
     _brushStroke = QSharedPointer<BrushStroke>(new BrushStroke(
-        _owner._brushAssetsHelper.getSelectedAsset(),
+        _owner.selectedBrush(),
         Qt::blue, 
-        _owner._sizeSelection->get(),
+        _size,
         _surface
     ));
     paint();
@@ -248,15 +283,24 @@ void BrushToolPresenter::HoverPreview::setPosition(QPointF position)
     paint();
 }
 
+void BrushToolPresenter::HoverPreview::setSize(double size)
+{
+    _size = size;
+    paint();
+}
+
 bool BrushToolPresenter::HoverPreview::calc_visible()
 {
-    return _owner.isSelected()
+    return _owner._initHelper.isInitialized()
+        && _owner.isSelected()
+        && _owner.selectedBrush()
+
         && !_owner._mouseHelper.isEngaged()
 
         && _owner._mainEditorPresenter->getSelectedLayer()
 
-        && !qIsNaN(_owner._sizeSelection->get())
-        && _owner._sizeSelection->get() != 0
+        && !qIsNaN(_size)
+        && _size > 0
 
         && _owner._canvasPresenter->hasMouse()
         && !_owner._grace;
