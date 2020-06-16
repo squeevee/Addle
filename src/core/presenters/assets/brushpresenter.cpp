@@ -18,6 +18,12 @@ void BrushPresenter::initialize(IBrushModel& model)
 
     _sizeSelection = ServiceLocator::makeUnique<ISizeSelectionPresenter>();
 
+    QList<double> presets = _model->info().getPreferredSizes();
+    if (presets.isEmpty())
+        presets = qListFromArray(IBrushPresenterAux::DEFAULT_SIZES);
+
+    _sizeSelection->setPresets(presets);
+
     connect_interface(_sizeSelection.get(), SIGNAL(scaleChanged(double)), this, SLOT(onSizeSelectionScaleChanged()));
     
     updateSizeSelectionIcons();
@@ -44,14 +50,8 @@ void BrushPresenter::updateSizeSelectionIcons()
     _iconHelper.setBackground(Qt::white);
     _iconHelper.setScale(_sizeSelection->scale());
 
-    QList<double> presets = _model->info().getPreferredSizes();
-    if (presets.isEmpty())
-        presets = qListFromArray(IBrushPresenterAux::DEFAULT_SIZES);
-
-    _sizeSelection->setPresets(presets);
-
     QList<QIcon> icons;
-    for(double preset : presets)
+    for(double preset : _sizeSelection->presets())
     {
         icons.append(_iconHelper.icon(_id, Qt::blue, preset));
     }
