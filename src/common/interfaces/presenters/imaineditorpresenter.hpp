@@ -16,6 +16,7 @@
 #include "ihavetoolspresenter.hpp"
 #include "iraiseerrorpresenter.hpp"
 
+class IPalettePresenter;
 class ILayerPresenter;
 class IMainEditorView;
 class ICanvasPresenter;
@@ -70,6 +71,8 @@ public:
     virtual QWeakPointer<ILayerPresenter> getSelectedLayer() = 0;
     virtual void selectLayer(QWeakPointer<ILayerPresenter> layer) = 0;
     virtual void selectLayerAt(int index) = 0;
+
+    virtual QSharedPointer<IPalettePresenter> palette() const = 0;
     
     typedef IMainEditorPresenterAux::DefaultTools DefaultTools;
 

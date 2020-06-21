@@ -92,6 +92,22 @@ protected:
         std::type_index index(typeid(Interface));
         ServiceLocator::_instance->_factoriesByType[index] = factory;
     }
+
+    template<class Interface, class IdType>
+    void registerObjectById(Interface* object, IdType id)
+    {
+        ServiceLocator::_instance->_persistentObjectsById[
+            qMakePair(id, std::type_index(typeid(Interface)))
+        ] = object;
+    }
+
+    template<class Interface, class IdType, typename... ArgTypes>
+    void buildPersistentObject(IdType id, ArgTypes... initArgs)
+    {
+        Interface* object = ServiceLocator::_instance->make_p<Interface>();
+        object->initialize(initArgs...);
+        registerObjectById(object, id);
+    }
 };
 
 #endif // BASESERVICECONFIGURATION_HPP

@@ -79,6 +79,8 @@ public:
     IDocumentPresenter* getDocumentPresenter() { return _documentPresenter; }
     bool isEmpty() { return _isEmptyCache.getValue(); }
 
+    QSharedPointer<IPalettePresenter> palette() const { return _palette; };
+
 signals:
     void documentPresenterChanged(IDocumentPresenter* documentPresenter);
     void selectedLayerChanged(QWeakPointer<ILayerPresenter> layer);
@@ -164,6 +166,8 @@ private:
 
     // PropertyDecorationHelper _propertyDecorationHelper;
     UndoStackHelper _undoStackHelper;
+
+    QSharedPointer<IPalettePresenter> _palette;
 };
 
 class LoadDocumentTask : public AsyncTask

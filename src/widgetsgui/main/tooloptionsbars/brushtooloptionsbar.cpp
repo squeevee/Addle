@@ -12,6 +12,8 @@
 #include "utilities/addle_text.hpp"
 #include "globalconstants.hpp"
 
+#include "widgetsgui/utilities/popupbutton.hpp"
+
 #include "interfaces/presenters/toolpresenters/iassetselectionpresenter.hpp"
 
 BrushToolOptionsBar::BrushToolOptionsBar(IBrushToolPresenter& presenter, QWidget* parent)
@@ -28,8 +30,8 @@ BrushToolOptionsBar::BrushToolOptionsBar(IBrushToolPresenter& presenter, QWidget
     QToolBar::addAction(_action_brush_basic);
 
     _action_brush_soft = new OptionAction(GlobalConstants::CoreBrushes::SoftBrush, this);
-    _action_brush_soft->setText(ADDLE_TEXT("brushes.brush-soft.text"));
-    _action_brush_soft->setToolTip(ADDLE_TEXT("brushes.brush-soft.toolTip"));
+    _action_brush_soft->setText(ADDLE_TEXT("brushes.soft-brush.text"));
+    _action_brush_soft->setToolTip(ADDLE_TEXT("brushes.soft-brush.toolTip"));
     _optionGroup_brush->addOption(_action_brush_soft);
 
     QToolBar::addAction(_action_brush_soft);
@@ -41,20 +43,31 @@ BrushToolOptionsBar::BrushToolOptionsBar(IBrushToolPresenter& presenter, QWidget
         IBrushToolPresenter::Meta::Properties::selectedBrush
     );
 
+    _brushSelector = new AssetSelector(_presenter.brushSelection(), this);
+    _button_brushSelector = new PopupButton(this);
+    _button_brushSelector->setPopup(_brushSelector);
+    connect(_brushSelector, &AssetSelector::changed, _button_brushSelector, &PopupButton::closePopup);
+
+    _button_brushSelector->setText("Brushes...");
+
+    QToolBar::addWidget(_button_brushSelector);
+
+    // QToolBar::addWidget(_brushSelector);
+
     //QToolBar::addAction(_action_brush_aliasedCircle);
     //QToolBar::addAction(_action_brush_square);
 
     QToolBar::addSeparator();
 
-
     _sizeSelector = new SizeSelector(this);
-    _button_sizeSelect = new SizeSelectButton(_sizeSelector, this);
+    _button_sizeSelector = new PopupButton(this);
+    _button_sizeSelector->setPopup(_sizeSelector);
+    connect(_sizeSelector, &SizeSelector::changed, _button_sizeSelector, &PopupButton::closePopup);
 
-
-
-    QToolBar::addWidget(_button_sizeSelect);
-    _button_sizeSelect->setText(ADDLE_TEXT("tools.brush-tool.size-selection.text"));
-    _button_sizeSelect->setToolTip(ADDLE_TEXT("tools.brush-tool.size-selection.toolTip"));
+    _button_sizeSelector->setText(ADDLE_TEXT("tools.brush-tool.size-selection.text"));
+    _button_sizeSelector->setToolTip(ADDLE_TEXT("tools.brush-tool.size-selection.toolTip"));
+    
+    QToolBar::addWidget(_button_sizeSelector);
 
     connect_interface(&_presenter,
         SIGNAL(brushChanged(BrushId)),

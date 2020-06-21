@@ -3,8 +3,10 @@
 
 #include "compat.hpp"
 
+#include <list>
 #include <QObject>
 #include <QHash>
+#include <QSet>
 #include "utilities/initializehelper.hpp"
 
 #include "interfaces/presenters/toolpresenters/iassetselectionpresenter.hpp"
@@ -44,11 +46,23 @@ public:
     QList<QSharedPointer<IAssetPresenter>> assets() { _initHelper.check(); return _assets; }
     void setAssets(QList<QSharedPointer<IAssetPresenter>> assets);
 
+    QSharedPointer<IAssetPresenter> assetById(PersistentId id) { _initHelper.check(); return _assets_ById.value(id); }
+    
+    QSet<PersistentId> favorites() { _initHelper.check(); return _favorites;}
+    void setFavorites(QSet<PersistentId> favorites);
+
+    void addFavorite(PersistentId id);
+    void removeFavorite(PersistentId id);
+
+    //QList<PersistentId> recent();
+
 signals:
     void selectionChanged(QList<PersistentId> selection);
     void assetsChanged(QList<PersistentId> ids);
+    void favoritesChanged(QSet<PersistentId> favorites);
 
 public:
+    void pushRecent(PersistentId id);
 
     bool _canMultiSelect;
 
@@ -58,6 +72,12 @@ public:
 
     QList<PersistentId> _selectedIds;
     QList<QSharedPointer<IAssetPresenter>> _selection;
+
+    QSet<PersistentId> _favorites;
+
+    std::list<PersistentId> _recent;
+    QHash<PersistentId, std::list<PersistentId>::iterator> _recentIndex;
+    QList<PersistentId> _recentCache;
 
     InitializeHelper<AssetSelectionPresenter> _initHelper;
 };

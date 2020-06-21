@@ -8,7 +8,9 @@
 #include "interfaces/presenters/toolpresenters/ibrushtoolpresenter.hpp"
 #include "tooloptionbarbase.hpp"
 #include "../sizeselector.hpp"
+#include "../assetselector.hpp"
 
+class PopupButton;
 class ADDLE_WIDGETSGUI_EXPORT BrushToolOptionsBar : public ToolOptionBarBase 
 {
     Q_OBJECT 
@@ -23,8 +25,11 @@ public:
     OptionAction* _action_brush_soft;
     OptionGroup* _optionGroup_brush;
 
+    AssetSelector* _brushSelector;
+    PopupButton* _button_brushSelector;
+
     SizeSelector* _sizeSelector;
-    SizeSelectButton* _button_sizeSelect;
+    PopupButton* _button_sizeSelector;
 
 private slots:
     void onBrushChanged();

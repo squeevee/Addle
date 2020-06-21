@@ -112,4 +112,9 @@ private: \
 Q_DECLARE_METATYPE(PersistentId);
 Q_DECLARE_TYPEINFO(PersistentId, Q_MOVABLE_TYPE);
 
+inline uint qHash(const PersistentId& id, uint seed = 0)
+{
+    return qHash(id._data, seed);
+}
+
 #endif // PERSISTENTID_HPP

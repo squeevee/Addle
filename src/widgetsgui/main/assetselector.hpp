@@ -10,16 +10,22 @@ class AssetSelector : public QWidget
 {
     Q_OBJECT
 public:
-    AssetSelector(QWidget* parent = nullptr);
+    AssetSelector(IAssetSelectionPresenter& presenter, QWidget* parent = nullptr);
     virtual ~AssetSelector() = default;
 
+signals: 
+    void changed();
+
+private slots:
+    void onSelectionChanged();
+
 private:
-    QWeakPointer<IAssetSelectionPresenter> _presenter;
+    IAssetSelectionPresenter& _presenter;
 
     QListWidget* _list;
 
-    QHash<double, QListWidgetItem*> _items;
-    QHash<QListWidgetItem*, double> _itemValues;
+    QHash<PersistentId, QListWidgetItem*> _items;
+    QHash<QListWidgetItem*, QSharedPointer<IAssetPresenter>> _itemValues;
 };
 
 #endif // ASSETSELECTOR_HPP

@@ -30,6 +30,10 @@
 #include <QFile>
 #include <QImage>
 
+#include "interfaces/presenters/ipalettepresenter.hpp"
+#include "interfaces/models/ipalette.hpp"
+#include "globalconstants.hpp"
+
 using namespace IMainEditorPresenterAux;
 
 MainEditorPresenter::~MainEditorPresenter()
@@ -88,6 +92,10 @@ void MainEditorPresenter::initialize(Mode mode)
 
     _loadDocumentTask = new LoadDocumentTask(this);
     connect(_loadDocumentTask, &AsyncTask::completed, this, &MainEditorPresenter::onLoadDocumentCompleted);
+
+    _palette = ServiceLocator::makeShared<IPalettePresenter>(
+        std::ref(ServiceLocator::get<IPalette>(GlobalConstants::CorePalettes::TestPalette))
+    ); // wow that's crunchy :)
 }
 
 IMainEditorView* MainEditorPresenter::getView()

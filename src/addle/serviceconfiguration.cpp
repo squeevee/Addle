@@ -22,6 +22,7 @@
 #include "core/models/layer.hpp"
 #include "core/models/document.hpp"
 #include "core/models/brushmodel.hpp"
+#include "core/models/palette.hpp"
 
 #include "core/presenters/maineditorpresenter.hpp"
 #include "core/presenters/documentpresenter.hpp"
@@ -29,6 +30,7 @@
 #include "core/presenters/viewportpresenter.hpp"
 #include "core/presenters/errorpresenter.hpp"
 #include "core/presenters/layerpresenter.hpp"
+#include "core/presenters/palettepresenter.hpp"
 #include "core/presenters/assets/brushpresenter.hpp"
 #include "core/presenters/toolpresenters/assetselectionpresenter.hpp"
 #include "core/presenters/toolpresenters/navigatetoolpresenter.hpp"
@@ -49,6 +51,9 @@
 //#include "core/tasks/loaddocumentfiletask.hpp"
 
 #include "widgetsgui/main/maineditorview.hpp"
+
+#include "core/models/corebrushbuilders.hpp"
+#include "core/models/corepalettebuilders.hpp"
 
 void ServiceConfiguration::configure()
 {
@@ -73,6 +78,7 @@ void ServiceConfiguration::configure()
     CONFIG_AUTOFACTORY_BY_TYPE(ILayerPresenter, LayerPresenter);
     CONFIG_AUTOFACTORY_BY_TYPE(IDocumentPresenter, DocumentPresenter);
     CONFIG_AUTOFACTORY_BY_TYPE(IBrushOperationPresenter, BrushOperationPresenter);
+    CONFIG_AUTOFACTORY_BY_TYPE(IPalettePresenter, PalettePresenter);
 
     // ## Asset presenters
     CONFIG_AUTOFACTORY_BY_TYPE(IBrushPresenter, BrushPresenter);
@@ -109,8 +115,15 @@ void ServiceConfiguration::configure()
     CONFIG_AUTOFACTORY_BY_TYPE(IMainEditorView, MainEditorView);
 
     //CONFIG_AUTOFACTORY_BY_ID(IBrushPainter, GlobalConstants::CoreBrushes::BasicBrush, BasicBrushPainter);
-    CONFIG_CUSTOMFACTORY_BY_ID(IBrushModel, GlobalConstants::CoreBrushes::BasicBrush, std::bind(&BrushModel::fromId, GlobalConstants::CoreBrushes::BasicBrush));
-    CONFIG_CUSTOMFACTORY_BY_ID(IBrushModel, GlobalConstants::CoreBrushes::SoftBrush, std::bind(&BrushModel::fromId, GlobalConstants::CoreBrushes::SoftBrush));
+    //CONFIG_CUSTOMFACTORY_BY_ID(IBrushModel, GlobalConstants::CoreBrushes::BasicBrush, std::bind(&BrushModel::fromId, GlobalConstants::CoreBrushes::BasicBrush));
+    //CONFIG_CUSTOMFACTORY_BY_ID(IBrushModel, GlobalConstants::CoreBrushes::SoftBrush, std::bind(&BrushModel::fromId, GlobalConstants::CoreBrushes::SoftBrush));
 
+    CONFIG_AUTOFACTORY_BY_TYPE(IBrushModel, BrushModel);
 
+    buildPersistentObject<IBrushModel>(GlobalConstants::CoreBrushes::BasicBrush, CoreBrushBuilders::basic);
+    buildPersistentObject<IBrushModel>(GlobalConstants::CoreBrushes::SoftBrush, CoreBrushBuilders::soft);
+
+    CONFIG_AUTOFACTORY_BY_TYPE(IPalette, Palette);
+
+    buildPersistentObject<IPalette>(GlobalConstants::CorePalettes::TestPalette, CorePaletteBuilders::test);
 }

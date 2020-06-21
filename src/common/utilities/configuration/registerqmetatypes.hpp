@@ -18,6 +18,7 @@
 #include "idtypes/toolid.hpp"
 #include "idtypes/formatid.hpp"
 #include "utilities/canvas/canvasmouseevent.hpp"
+#include "utilities/model/brushbuilder.hpp"
 
 inline void registerQMetaTypes()
 {

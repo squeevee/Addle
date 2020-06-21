@@ -112,15 +112,16 @@ void BrushToolPresenter::onEngage()
     _hoverPreview->isVisible_cache.recalculate();
     _hoverPreview->setPosition(_mouseHelper.getLatestPosition());
 
+    auto brushSurface = ServiceLocator::makeShared<IRasterSurface>();
     _brushStroke = QSharedPointer<BrushStroke>(new BrushStroke(
         selectedBrush(),
         Qt::blue,
         size,
-        ServiceLocator::makeShared<IRasterSurface>()
+        brushSurface
     ));
 
     auto s_layerPresenter = _mainEditorPresenter->getSelectedLayer().toStrongRef();
-    s_layerPresenter->getRenderStack().push(_brushStroke->getBuffer()->getRenderStep());
+    s_layerPresenter->getRenderStack().push(brushSurface->getRenderStep());
 
     _brushStroke->moveTo(_mouseHelper.getFirstPosition());
     _brushStroke->paint();
@@ -128,6 +129,8 @@ void BrushToolPresenter::onEngage()
 
 void BrushToolPresenter::onMove()
 {
+    if (!_brushStroke) return;
+
     _brushStroke->moveTo(_mouseHelper.getLatestPosition());
     _brushStroke->paint();
     _hoverPreview->setPosition(_mouseHelper.getLatestPosition());
@@ -135,8 +138,19 @@ void BrushToolPresenter::onMove()
 
 void BrushToolPresenter::onDisengage()
 {
-    auto s_layerPresenter = _mainEditorPresenter->getSelectedLayer().toStrongRef();
-    s_layerPresenter->getRenderStack().remove(_brushStroke->getBuffer()->getRenderStep());
+    if (!_brushStroke) return;
+
+    {
+        QSharedPointer<IRasterSurface> previewBuffer;
+        QSharedPointer<IRenderStep> previewRenderStep;
+        if ((previewBuffer = _brushStroke->getBuffer())
+             && (previewRenderStep = previewBuffer->getRenderStep())
+        )
+        {
+            auto s_layerPresenter = _mainEditorPresenter->getSelectedLayer().toStrongRef();
+            s_layerPresenter->getRenderStack().remove(previewRenderStep);
+        }
+    }
     
     auto operation = ServiceLocator::makeShared<IBrushOperationPresenter>(
         _brushStroke,
@@ -196,11 +210,11 @@ void BrushToolPresenter::onSizeChanged(double size)
     if (_brushStroke)
         _brushStroke->setSize(size);
 
-    selectedBrushPresenter()->sizeSelection().setIcon(_iconHelper.icon(
-        selectedBrush(),
-        Qt::blue,
-        size
-    ));
+    // selectedBrushPresenter()->sizeSelection().setIcon(_iconHelper.icon(
+    //     selectedBrush(),
+    //     Qt::blue,
+    //     size
+    // ));
     
     _hoverPreview->setSize(size);
     _hoverPreview->isVisible_cache.recalculate();

@@ -11,6 +11,22 @@ ServiceLocator* ServiceLocator::_instance = nullptr;
 #include "interfaces/editing/rasterengineparams.hpp"
 #include "interfaces/editing/moc_rasterengineparams.cpp"
 
+#include "idtypes/persistentid.hpp"
+#include "idtypes/brushengineid.hpp"
+STATIC_PERSISTENT_ID_BOILERPLATE(BrushEngineId)
+
+#include "idtypes/brushid.hpp"
+STATIC_PERSISTENT_ID_BOILERPLATE(BrushId)
+
+#include "idtypes/paletteid.hpp"
+STATIC_PERSISTENT_ID_BOILERPLATE(PaletteId)
+
+#include "idtypes/formatid.hpp"
+STATIC_PERSISTENT_ID_BOILERPLATE(FormatId)
+
+#include "idtypes/toolid.hpp"
+STATIC_PERSISTENT_ID_BOILERPLATE(ToolId)
+
 const BrushEngineId GlobalConstants::CoreBrushEngines::PathEngine = BrushEngineId(
     "path-engine"
 );
@@ -20,32 +36,16 @@ const BrushEngineId GlobalConstants::CoreBrushEngines::RasterEngine = BrushEngin
 );
 
 const BrushId GlobalConstants::CoreBrushes::BasicBrush = BrushId(
-    "basic-brush",
-    GlobalConstants::CoreBrushEngines::PathEngine
+    "basic-brush"
 );
 
 const BrushId GlobalConstants::CoreBrushes::SoftBrush = BrushId(
-    "soft-brush",
-    GlobalConstants::CoreBrushEngines::RasterEngine,
-    {
-        { "mode", "Gradient" },
-        { "hardness", 1.0 },
-        { "spacing", 0.12 }
-    }
+    "soft-brush"
 );
 
-#include "idtypes/persistentid.hpp"
-#include "idtypes/brushengineid.hpp"
-STATIC_PERSISTENT_ID_BOILERPLATE(BrushEngineId)
-
-#include "idtypes/brushid.hpp"
-STATIC_PERSISTENT_ID_BOILERPLATE(BrushId)
-
-#include "idtypes/formatid.hpp"
-STATIC_PERSISTENT_ID_BOILERPLATE(FormatId)
-
-#include "idtypes/toolid.hpp"
-STATIC_PERSISTENT_ID_BOILERPLATE(ToolId)
+const PaletteId GlobalConstants::CorePalettes::TestPalette = PaletteId(
+    "test-palette"
+);
 
 #include "utilities/canvas/canvasmouseevent.hpp"
 int CanvasMouseEvent::_type = QEvent::User;

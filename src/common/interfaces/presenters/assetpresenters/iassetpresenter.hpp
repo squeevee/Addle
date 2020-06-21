@@ -15,6 +15,9 @@ public:
     // virtual IToolWithAssetsPresenter* getOwnerTool() = 0;
     // virtual void setOwnerTool(IToolWithAssetsPresenter* owner) = 0;
 
+    virtual QString name() = 0;
+    virtual QIcon icon() = 0;
+
     virtual void selectInTool() = 0;
 };
 

@@ -9,14 +9,17 @@ set (
     editing/brushengines/rasterbrushengine.cpp
     editing/rasterdiff.cpp
     editing/rastersurface.cpp
+    models/brushmodel.cpp
     models/document.cpp
     models/layer.cpp
+    models/palette.cpp
     presenters/canvaspresenter.cpp
     presenters/documentpresenter.cpp
     presenters/errorpresenter.cpp
     presenters/layerpresenter.cpp
     presenters/maineditorpresenter.cpp
     presenters/viewportpresenter.cpp
+    presenters/palettepresenter.cpp
     presenters/assets/brushpresenter.cpp
     presenters/helpers/brushiconhelper.cpp
     presenters/operationpresenters/brushoperationpresenter.cpp

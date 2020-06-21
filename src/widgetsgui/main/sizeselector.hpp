@@ -40,29 +40,5 @@ private:
     QHash<QListWidgetItem*, double> _itemValues;
 };
 
-class SizeSelectButton : public QToolButton
-{
-    Q_OBJECT
-public: 
-    SizeSelectButton(
-        SizeSelector* selector = nullptr,
-        QWidget* parent = nullptr
-    );
-    virtual ~SizeSelectButton() = default;
-
-    void setSelector(SizeSelector* selector);
-    void setPresenter(QWeakPointer<ISizeSelectionPresenter> presenter);
-
-private slots:
-    void setIcon_slot(QIcon icon) { setIcon(icon); }
-
-private:
-    SizeSelector* _sizeSelector;
-    QWeakPointer<ISizeSelectionPresenter> _presenter;
-    QMenu* _menu;
-
-    QMetaObject::Connection _connection_closeMenu;
-    QMetaObject::Connection _connection_setIcon;
-};
 
 #endif // SIZESELECTOR_HPP

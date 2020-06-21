@@ -31,6 +31,8 @@
 #include "tooloptionsbars/brushtooloptionsbar.hpp"
 #include "tooloptionsbars/navigatetooloptionsbar.hpp"
 
+#include "paletteview.hpp"
+
 void MainEditorView::initialize(IMainEditorPresenter* presenter)
 {
     _initHelper.initializeBegin();
@@ -158,6 +160,14 @@ void MainEditorView::setupUi()
     _toolBar_editorToolSelection->addAction(_action_selectNavigateTool);
     _toolBar_editorToolSelection->addAction(new QAction(ADDLE_ICON("eyedrop-tool"), "", this));
     _toolBar_editorToolSelection->addAction(new QAction(ADDLE_ICON("measure-tool"), "", this));
+
+    _palette = new PaletteView(this);
+    _palette->setPresenter(_presenter->palette().toWeakRef());
+
+    _paletteDock = new QDockWidget(this);
+    _paletteDock->setWidget(_palette);
+
+    addDockWidget(Qt::BottomDockWidgetArea, _paletteDock);
 }
 
 void MainEditorView::onUndoStateChanged()

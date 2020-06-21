@@ -9,6 +9,7 @@ set (
     canvas/layeritem.cpp
     main/assetselector.cpp
     main/maineditorview.cpp
+    main/paletteview.cpp
     main/sizeselector.cpp
     main/viewportscrollwidget.cpp
     main/viewport.cpp
@@ -16,9 +17,11 @@ set (
     main/tooloptionsbars/brushtooloptionsbar.cpp
     main/tooloptionsbars/navigatetooloptionsbar.cpp
     main/tooloptionsbars/tooloptionbarbase.cpp
+    utilities/colorwell.cpp
     utilities/guiutils.cpp
     utilities/graphicsmouseeventblocker.cpp
     utilities/optiongroup.cpp
+    utilities/popupbutton.cpp
     utilities/zoomslider.cpp
 )
 

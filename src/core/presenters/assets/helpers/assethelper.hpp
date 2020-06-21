@@ -1,6 +1,0 @@
-#ifndef ASSETHELPER_HPP
-#define ASSETHELPER_HPP
-
-//todo
-
-#endif // ASSETHELPER_HPP

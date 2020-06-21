@@ -70,6 +70,18 @@ public:
         _data.swap(other._data);
     }
 
+    BrushInfo& operator=(const BrushInfo& other)
+    {
+        _data = other._data;
+        return *this;
+    }
+
+    BrushInfo& operator=(BrushInfo&& other)
+    {
+        _data.swap(other._data);
+        return *this;
+    }
+
     bool isNullInfo() const { return !_data; }
 
     bool isSizeInvariant() const { return _data ? _data->isSizeInvariant : false; }

@@ -50,21 +50,22 @@ public:
         {
             row.resize(size.width());
         }
+        _data->size = size;
     }
 
     inline void insert(QPoint position, const T& value)
     {
-        _data->contents[y][x] = value;
+        _data->contents[position.y()][position.x()] = value;
     }
 
     inline const T& at(QPoint position) const
     {
-        return _data->contents[y][x];
+        return _data->contents[position.y()][position.x()];
     }
 
     inline T& rAt(QPoint position)
     {
-        return _data->contents[y][x];
+        return _data->contents[position.y()][position.x()];
     }
 
     //TODO: probably want some rectangular operations
@@ -74,6 +75,21 @@ public:
         // Rearrange rows and columns
         // Resize up and to the left
         // Translation / reflection / discrete rotation
+
+    inline QSize size() const
+    {
+        return _data->size;
+    }
+
+    inline int width() const
+    {
+        return _data->size.width();
+    }
+
+    inline int height() const
+    {
+        return _data->size.height();
+    }
 
 private:
     QSharedDataPointer<RectangularArrayData> _data;

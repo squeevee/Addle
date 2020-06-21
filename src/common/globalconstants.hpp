@@ -2,8 +2,10 @@
 #define GLOBALCONSTANTS_HPP
 
 #include "compat.hpp"
+#include "idtypes/brushengineid.hpp"
 #include "idtypes/brushid.hpp"
 #include "idtypes/formatid.hpp"
+#include "idtypes/paletteid.hpp"
 
 #include <QColor>
 
@@ -50,6 +52,10 @@ namespace GlobalConstants
         extern ADDLE_COMMON_EXPORT const FormatId PNG;
     }
 
+    namespace CorePalettes
+    {
+        extern ADDLE_COMMON_EXPORT const PaletteId TestPalette;
+    }
 }
 
 #endif // GLOBALCONSTANTS_HPP

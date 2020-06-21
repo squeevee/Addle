@@ -20,27 +20,30 @@ public:
     BrushIconHelper(QObject* parent = nullptr);
     virtual ~BrushIconHelper() = default;
 
-    QIcon icon(BrushId brush, QColor color, double size) const;
+    QIcon icon(BrushId brush, QColor color, double size, double scale) const;
+    QIcon icon(BrushId brush, QColor color) const;
 
     void setBackground(QColor background) { _background = background; }
-
-    void setScale(double scale) { _scale = scale; }
     
 public:
     class BrushIconEngine : public QIconEngine
     {
     public:
-        BrushIconEngine(QPointer<const BrushIconHelper> helper, BrushId brush, QColor color, double size);
+        BrushIconEngine(QPointer<const BrushIconHelper> helper, BrushId brush, QColor color, double size, double scale);
+        BrushIconEngine(QPointer<const BrushIconHelper> helper, BrushId brush, QColor color);
 
         virtual ~BrushIconEngine() = default;
 
         void addFile(const QString& fileName, const QSize& size, QIcon::Mode mode, QIcon::State state) override {}
         void addPixmap(const QPixmap& pixmap, QIcon::Mode mode, QIcon::State state) override {}
 
-        QIconEngine* clone() const override { return new BrushIconEngine(_helper, _brushStroke.id(), _brushStroke.color(), _brushStroke.getSize()); }
+        QIconEngine* clone() const override;
         void paint(QPainter* painter, const QRect& rect, QIcon::Mode mode, QIcon::State state);
 
     private:
+        bool _autoSize = false;
+        double _scale;
+
         QPointer<const BrushIconHelper> _helper;
         BrushStroke _brushStroke;
     };
@@ -48,7 +51,6 @@ public:
     mutable QSharedPointer<IRasterSurface> _surface;
     
     QColor _background;
-    double _scale;
 
     friend class BrushIconEngine;
 };

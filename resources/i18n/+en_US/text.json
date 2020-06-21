@@ -4,7 +4,7 @@
             "text": "Basic Brush",
             "toolTip": "A basic circular brush."
         },
-        "brush-soft": {
+        "soft-brush": {
             "text" : "Soft Brush",
             "toolTip": "A circular brush with a moderately soft edge."
         }

@@ -422,10 +422,6 @@ private:
             "Interface must be gettable by id."
         );
         static_assert(
-            std::is_same<typename is_makeable_by_id<Interface>::IdType, IdType>::value,
-            "Interface must be makeable by id of type IdType"
-        );
-        static_assert(
             std::is_base_of<PersistentId, IdType>::value,
             "IdType must be PersistentId"
         );

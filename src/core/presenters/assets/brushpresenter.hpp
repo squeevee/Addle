@@ -23,6 +23,9 @@ public:
     PersistentId getId() { return getBrushId(); }
     BrushId getBrushId() { _initHelper.check(); return _id; }
     virtual IBrushModel& model() const { _initHelper.check(); return *_model; }
+
+    QString name();
+    QIcon icon();
     
     // SizeOption getSize() { return SizeOption::_25px; } //todo
     // double getCustomPixelSize() { return 0; } //
@@ -55,6 +58,8 @@ private:
     // double _customPercentSize;
 
     void updateSizeSelectionIcons();
+
+    QIcon _assetIcon;
 
     BrushId _id;
     IBrushModel* _model;
