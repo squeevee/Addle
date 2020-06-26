@@ -11,14 +11,14 @@ ColorWell::ColorWell(QWidget* parent)
     _color = Qt::transparent;
 }
 
-bool ColorWell::event(QEvent* e)
+void ColorWell::mousePressEvent(QMouseEvent* event)
 {
-
-    return QWidget::event(e);
+    emit clicked();
 }
+
 QSize ColorWell::sizeHint() const
 {
-    return QSize(25, 25);
+    return QSize(16, 16);
 }
 
 void ColorWell::setColor(QColor color)

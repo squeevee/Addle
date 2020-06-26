@@ -6,7 +6,7 @@
 #include "interfaces/traits/initialize_trait.hpp"
 
 #include "utilities/model/colorinfo.hpp"
-#include "utilities/rectangulararray.hpp"
+#include "utilities/qmultiarray.hpp"
 
 class IPalette;
 class IPalettePresenter
@@ -17,7 +17,7 @@ public:
     virtual void initialize(IPalette& model) = 0;
 
     virtual IPalette& model() const = 0;
-    virtual RectangularArray<ColorInfo> colors() const = 0;
+    virtual QMultiArray<ColorInfo, 2> colors() const = 0;
 };
 
 DECL_EXPECTS_INITIALIZE(IPalettePresenter);

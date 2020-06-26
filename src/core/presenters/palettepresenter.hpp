@@ -19,7 +19,7 @@ public:
 
     IPalette& model() const { _initHelper.check(); return *_model; }
 
-    RectangularArray<ColorInfo> colors() const { _initHelper.check(); return _model->colors(); }
+    QMultiArray<ColorInfo, 2> colors() const { _initHelper.check(); return _model->colors(); }
 
 private:
     IPalette* _model;

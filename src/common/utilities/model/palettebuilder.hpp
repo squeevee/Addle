@@ -4,14 +4,14 @@
 #include <QSharedData>
 
 #include "colorinfo.hpp"
-#include "utilities/rectangulararray.hpp"
+#include "utilities/qmultiarray.hpp"
 
 class PaletteBuilder
 {
     struct PaletteBuilderData : QSharedData
     {
         PaletteId id;
-        RectangularArray<ColorInfo> colors;
+        QMultiArray<ColorInfo, 2> colors;
     };
 
 public:
@@ -43,7 +43,7 @@ public:
         return *this;
     }
 
-    inline RectangularArray<ColorInfo> colors() const { return _data->colors; }
+    inline QMultiArray<ColorInfo, 2> colors() const { return _data->colors; }
 
 private:
     QSharedDataPointer<PaletteBuilderData> _data;

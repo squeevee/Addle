@@ -209,4 +209,16 @@ hardnesses
 error messaging on PropertyBinding
 
 combine SizeSelector and AssetSelector? effectively make size presets into a 
-type of assets?
+type of assets? Or alternatively make AssetSelector more generalized.
+
+# Const-correctness checklist:
+
+- ServiceLocator should be extended to handle getting and making const vs non-
+  const types.
+- All member functions of interfaces should be declared `const` where
+  appropriate. And of course, all implementations should follow.
+- Some kind of property wrapper for lazily-initialized values should permit
+  those values to be populated from within a const function (see above)
+- **qAsConst() must be employed on all range-based for loops over implicitly
+  shared collection types to avoid lots and lots of unneeded copying** -- wowie (:
+

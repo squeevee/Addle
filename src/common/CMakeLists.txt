@@ -1,4 +1,5 @@
 find_package(Qt5 REQUIRED COMPONENTS Core Gui)
+find_package(Boost REQUIRED COMPONENTS headers)
 
 set (CMAKE_AUTOMOC ON)
 set ( CMAKE_AUTORCC ON )

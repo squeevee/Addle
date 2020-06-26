@@ -10,14 +10,14 @@ public:
     ColorWell(QWidget* parent = nullptr);
     virtual ~ColorWell() = default; 
 
-    bool event(QEvent* e) override;
-
     QSize sizeHint() const override;
 
     void setColor(QColor color);
 
 protected:
     void paintEvent(QPaintEvent* e) override;
+    
+    void mousePressEvent(QMouseEvent* e) override;
 
 signals:
     bool clicked();

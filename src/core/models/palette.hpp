@@ -17,8 +17,8 @@ public:
 
     void initialize(const PaletteBuilder& builder);
 
-    RectangularArray<ColorInfo> colors() const { _initHelper.check(); return _colors; }
-    void setColors(RectangularArray<ColorInfo> colors);
+    QMultiArray<ColorInfo, 2> colors() const { _initHelper.check(); return _colors; }
+    void setColors(QMultiArray<ColorInfo, 2> colors);
 
 signals: 
     void colorsChanged();
@@ -26,7 +26,7 @@ signals:
 private:
     PaletteId _id;
 
-    RectangularArray<ColorInfo> _colors;
+    QMultiArray<ColorInfo, 2> _colors;
 
     InitializeHelper<Palette> _initHelper;
 };

@@ -10,7 +10,7 @@ void Palette::initialize(const PaletteBuilder& builder)
     _initHelper.initializeEnd();
 }
 
-void Palette::setColors(RectangularArray<ColorInfo> colors)
+void Palette::setColors(QMultiArray<ColorInfo, 2> colors)
 {
     _initHelper.check();
     

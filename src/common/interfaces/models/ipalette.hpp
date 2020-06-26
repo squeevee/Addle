@@ -1,7 +1,7 @@
 #ifndef ICOLORPALETTE_HPP
 #define ICOLORPALETTE_HPP
 
-#include "utilities/rectangulararray.hpp"
+#include "utilities/qmultiarray.hpp"
 #include <QColor>
 
 #include "interfaces/traits/qobject_trait.hpp"
@@ -22,8 +22,8 @@ public:
 
     virtual void initialize(const PaletteBuilder& builder) = 0;
 
-    virtual RectangularArray<ColorInfo> colors() const = 0;
-    virtual void setColors(RectangularArray<ColorInfo> colors) = 0;
+    virtual QMultiArray<ColorInfo, 2> colors() const = 0;
+    virtual void setColors(QMultiArray<ColorInfo, 2> colors) = 0;
 
 signals: 
     virtual void colorsChanged() = 0;

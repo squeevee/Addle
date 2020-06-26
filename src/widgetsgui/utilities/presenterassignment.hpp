@@ -27,7 +27,7 @@ public:
     }
 
     PresenterAssignment(QWeakPointer<PresenterType> presenter)
-        : _presenter(presenter.data()),
+        : _presenter(presenter.toStrongRef().data()),
         _safe([=]() -> bool { return !presenter.isNull(); })
     {
     }
