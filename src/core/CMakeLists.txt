@@ -19,15 +19,16 @@ set (
     presenters/layerpresenter.cpp
     presenters/maineditorpresenter.cpp
     presenters/viewportpresenter.cpp
-    presenters/palettepresenter.cpp
     presenters/assets/brushpresenter.cpp
+    presenters/colorselectionpresenter.cpp
+    presenters/palettepresenter.cpp
     presenters/helpers/brushiconhelper.cpp
-    presenters/operationpresenters/brushoperationpresenter.cpp
-    presenters/toolpresenters/assetselectionpresenter.cpp
-    presenters/toolpresenters/toolpresenterbase.cpp
-    presenters/toolpresenters/navigatetoolpresenter.cpp
-    presenters/toolpresenters/sizeselectionpresenter.cpp
-    presenters/toolpresenters/brushtoolpresenter.cpp
+    presenters/operations/brushoperationpresenter.cpp
+    presenters/tools/assetselectionpresenter.cpp
+    presenters/tools/toolpresenterbase.cpp
+    presenters/tools/navigatetoolpresenter.cpp
+    presenters/tools/sizeselectionpresenter.cpp
+    presenters/tools/brushtoolpresenter.cpp
     rendering/renderstack.cpp
     services/appearanceservice.cpp
     services/applicationservice.cpp

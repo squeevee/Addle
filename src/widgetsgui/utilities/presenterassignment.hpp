@@ -32,6 +32,11 @@ public:
     {
     }
 
+    PresenterAssignment(QSharedPointer<PresenterType> presenter)
+        : PresenterAssignment(presenter.toWeakRef())
+    {
+    }
+
     // TransientPresenterAssignment(QPointer<PresenterType> presenter)
     //     : _presenter(presenter.data()),
     //     _safe([=]() -> bool { return !presenter.isNull(); })

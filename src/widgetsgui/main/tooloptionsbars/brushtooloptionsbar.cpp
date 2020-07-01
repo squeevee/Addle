@@ -14,7 +14,7 @@
 
 #include "widgetsgui/utilities/popupbutton.hpp"
 
-#include "interfaces/presenters/toolpresenters/iassetselectionpresenter.hpp"
+#include "interfaces/presenters/tools/iassetselectionpresenter.hpp"
 
 BrushToolOptionsBar::BrushToolOptionsBar(IBrushToolPresenter& presenter, QWidget* parent)
     : ToolOptionBarBase(presenter, parent),

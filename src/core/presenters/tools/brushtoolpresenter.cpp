@@ -23,8 +23,8 @@
 
 #include "interfaces/editing/ibrushengine.hpp"
 
-#include "interfaces/presenters/assetpresenters/ibrushpresenter.hpp"
-#include "interfaces/presenters/toolpresenters/isizeselectionpresenter.hpp"
+#include "interfaces/presenters/assets/ibrushpresenter.hpp"
+#include "interfaces/presenters/tools/isizeselectionpresenter.hpp"
 
 #include <QSharedPointer>
 

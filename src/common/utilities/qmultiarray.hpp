@@ -183,8 +183,7 @@ public:
     inline typename std::enable_if<N == 2, void>::type
     insert(index x, index y, const element& value) { _data->arr[x][y] = value; }
 
-    template <typename IndexList>
-    inline const element& at(const IndexList& indices) const { return _data->arr(indices); }
+    inline const element& at(const QList<index>& indices) const { return _data->arr(indices); }
     
     inline typename std::enable_if<N == 2, const element&>::type
     at(QPoint pos) const { return _data->arr[pos.x()][pos.y()]; }
@@ -194,6 +193,30 @@ public:
 
     inline reference operator[](index i) { return _data->arr[i]; }
     inline const_reference operator[](index i) const { return _data->arr[i]; }
+
+    inline bool boundContains(const QList<index>& indices) const
+    {
+        for (auto i : indices)
+        {
+            if (i < 0) return false;
+            if (i >= _data->arr.shape()[i]) return false;
+        }
+        return true;
+    }
+
+    inline typename std::enable_if<N == 2, bool>::type
+    boundContains(QPoint pos) const
+    {
+        return pos.x() >= 0 && pos.x() < width()
+            && pos.y() >= 0 && pos.y() < height();
+    }
+
+    inline typename std::enable_if<N == 2, bool>::type
+    boundContains(int x, int y) const
+    {
+        return x >= 0 && x < width()
+            && y >= 0 && y < height();
+    }
 
 private:
     QSharedDataPointer<QMultiArrayData> _data;
@@ -208,7 +231,7 @@ public:
         using index_range = boost::multi_array_types::index_range;
 
     public:
-        typedef typename boost::multi_array_ref<T, 2>::const_array_view<1>::type row_type;
+        typedef typename boost::multi_array_ref<T, 2>::template const_array_view<1>::type row_type;
 
         iterator() = default;
         iterator(const iterator&) = default;
@@ -249,6 +272,58 @@ public:
 
 private:
     const QMultiArray<T, 2, Allocator> _arr;
+};
+
+template<typename T, class Allocator = std::allocator<T>>
+class MutableRowViewer
+{
+public:
+    class iterator
+    {
+        using index_range = boost::multi_array_types::index_range;
+
+    public:
+        typedef typename boost::multi_array_ref<T, 2>::template array_view<1>::type row_type;
+
+        iterator() = default;
+        iterator(const iterator&) = default;
+
+        inline bool operator==(const iterator& x) const { return _arr_impl == x._arr_impl && _index == x._index; }
+        inline bool operator!=(const iterator& x) const { return !(*this == x); }
+
+        inline row_type operator*() const { return (*_arr_impl)[boost::indices[index_range()][_index]]; }
+
+        inline iterator& operator++() { ++_index; return *this; }
+
+    private:
+        iterator(boost::multi_array<T, 2, Allocator>& arr_impl, int index)
+            : _arr_impl(&arr_impl), _index(index)
+        {
+        }
+        
+        boost::multi_array<T, 2, Allocator>* _arr_impl = nullptr;
+        int _index = 0;
+
+        friend class MutableRowViewer;
+    };
+
+    MutableRowViewer(QMultiArray<T, 2, Allocator>& arr)
+        : _arr(arr)
+    {
+    }
+
+    iterator begin() const
+    {
+        return iterator(_arr.array(), 0);
+    }
+
+    iterator end() const
+    {
+        return iterator(_arr.array(), _arr.height());
+    }
+
+private:
+    QMultiArray<T, 2, Allocator>& _arr;
 };
 
 #endif // QMULTIARRAY_HPP

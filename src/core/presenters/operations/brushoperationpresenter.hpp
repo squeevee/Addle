@@ -4,7 +4,7 @@
 #include "compat.hpp"
 #include <QObject>
 
-#include "interfaces/presenters/operationpresenters/ibrushoperationpresenter.hpp"
+#include "interfaces/presenters/operations/ibrushoperationpresenter.hpp"
 #include "interfaces/editing/irasterdiff.hpp"
 
 class ADDLE_CORE_EXPORT BrushOperationPresenter : public QObject, public IBrushOperationPresenter

@@ -10,7 +10,7 @@
 
 #include "../helpers/mousehelper.hpp"
 
-#include "interfaces/presenters/toolpresenters/itoolpresenter.hpp"
+#include "interfaces/presenters/tools/itoolpresenter.hpp"
 
 #include "utilities/initializehelper.hpp"
 

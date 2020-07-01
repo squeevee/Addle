@@ -18,7 +18,7 @@
 
 #include "viewport.hpp"
 
-#include "interfaces/presenters/toolpresenters/itoolpresenter.hpp"
+#include "interfaces/presenters/tools/itoolpresenter.hpp"
 #include "interfaces/services/iapplicationsservice.hpp"
 #include "utilities/qtextensions/qobject.hpp"
 
@@ -31,7 +31,7 @@
 #include "tooloptionsbars/brushtooloptionsbar.hpp"
 #include "tooloptionsbars/navigatetooloptionsbar.hpp"
 
-#include "paletteview.hpp"
+#include "colorselector.hpp"
 
 void MainEditorView::initialize(IMainEditorPresenter* presenter)
 {
@@ -161,13 +161,9 @@ void MainEditorView::setupUi()
     _toolBar_editorToolSelection->addAction(new QAction(ADDLE_ICON("eyedrop-tool"), "", this));
     _toolBar_editorToolSelection->addAction(new QAction(ADDLE_ICON("measure-tool"), "", this));
 
-    _palette = new PaletteView(this);
-    _palette->setPresenter(_presenter->palette().toWeakRef());
+    _colorSelector = new ColorSelector(_presenter->colorSelection(), this);
 
-    _paletteDock = new QDockWidget(this);
-    _paletteDock->setWidget(_palette);
-
-    addDockWidget(Qt::BottomDockWidgetArea, _paletteDock);
+    addDockWidget(Qt::BottomDockWidgetArea, _colorSelector);
 }
 
 void MainEditorView::onUndoStateChanged()

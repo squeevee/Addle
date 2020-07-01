@@ -8,6 +8,7 @@ set (
     canvas/canvasscene.cpp
     canvas/layeritem.cpp
     main/assetselector.cpp
+    main/colorselector.cpp
     main/maineditorview.cpp
     main/paletteview.cpp
     main/sizeselector.cpp

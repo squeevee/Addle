@@ -5,7 +5,7 @@
 // #include <functional>
 
 // #include "utilities/qtextensions/qlist.hpp"
-// #include "interfaces/presenters/toolpresenters/itoolwithassetspresenter.hpp"
+// #include "interfaces/presenters/tools/itoolwithassetspresenter.hpp"
 
 // template<class PresenterType, class IdType>
 // class ToolWithAssetsHelper

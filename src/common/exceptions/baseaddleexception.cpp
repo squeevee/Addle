@@ -14,6 +14,7 @@ BaseAddleException::BaseAddleException(const QString& what)
     updateWhat();
 }
 
+
 void BaseAddleException::debugRaise(const char* function, const char* file, const int line)
 {
     Location loc;

@@ -26,7 +26,7 @@ class NavigateToolOptionsBar;
 class ViewPort;
 class ViewPortScrollWidget;
 class ZoomRotateWidget;
-class PaletteView;
+class ColorSelector;
 
 class ADDLE_WIDGETSGUI_EXPORT MainEditorView : public QMainWindow, public virtual IMainEditorView
 {
@@ -113,8 +113,7 @@ private:
 
     QToolBar* _optionsToolBar_currentTool = nullptr;
 
-    PaletteView* _palette;
-    QDockWidget* _paletteDock;
+    ColorSelector* _colorSelector;
 
     InitializeHelper<MainEditorView> _initHelper;
 

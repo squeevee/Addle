@@ -43,8 +43,8 @@ const BrushId GlobalConstants::CoreBrushes::SoftBrush = BrushId(
     "soft-brush"
 );
 
-const PaletteId GlobalConstants::CorePalettes::TestPalette = PaletteId(
-    "test-palette"
+const PaletteId GlobalConstants::CorePalettes::BasicPalette = PaletteId(
+    "basic-palette"
 );
 
 #include "utilities/canvas/canvasmouseevent.hpp"
@@ -76,53 +76,53 @@ const FormatId GlobalConstants::CoreFormats::JPEG = FormatId(
     QByteArrayLiteral("\xFF\xD8\xFF")
 );
 
-#include "interfaces/presenters/toolpresenters/iselecttoolpresenter.hpp"
+#include "interfaces/presenters/tools/iselecttoolpresenter.hpp"
 const ToolId ISelectToolPresenter::SELECT_TOOL_ID = ToolId(
     "select-tool"
 );
 
-#include "interfaces/presenters/toolpresenters/ibrushtoolpresenter.hpp"
+#include "interfaces/presenters/tools/ibrushtoolpresenter.hpp"
 const ToolId IBrushToolPresenterAux::ID = ToolId(
     "brush-tool"
 );
 
-#include "interfaces/presenters/toolpresenters/ierasertoolpresenter.hpp"
+#include "interfaces/presenters/tools/ierasertoolpresenter.hpp"
 const ToolId IEraserToolPresenter::ERASER_TOOL_ID = ToolId(
     "eraser-tool"
 );
 
-#include "interfaces/presenters/toolpresenters/ifilltoolpresenter.hpp"
+#include "interfaces/presenters/tools/ifilltoolpresenter.hpp"
 const ToolId IFillToolPresenter::FILL_TOOL_ID = ToolId(
     "fill-tool"
 );
 
-#include "interfaces/presenters/toolpresenters/itexttoolpresenter.hpp"
+#include "interfaces/presenters/tools/itexttoolpresenter.hpp"
 const ToolId ITextToolPresenter::TEXT_TOOL_ID = ToolId(
     "text-tool"
 );
 
-#include "interfaces/presenters/toolpresenters/ishapestoolpresenter.hpp"
+#include "interfaces/presenters/tools/ishapestoolpresenter.hpp"
 const ToolId IShapesToolPresenter::SHAPES_TOOL_ID = ToolId(
     "shapes-tool"
 );
 
-#include "interfaces/presenters/toolpresenters/istickerstoolpresenter.hpp"
+#include "interfaces/presenters/tools/istickerstoolpresenter.hpp"
 const ToolId IStickersToolPresenter::STICKERS_TOOL_ID = ToolId(
     "stickers-tool"
 );
 
-#include "interfaces/presenters/toolpresenters/ieyedroptoolpresenter.hpp"
+#include "interfaces/presenters/tools/ieyedroptoolpresenter.hpp"
 const ToolId IEyedropToolPresenter::EYEDROP_TOOL_ID = ToolId(
     "eyedrop-tool"
 );
 
-#include "interfaces/presenters/toolpresenters/inavigatetoolpresenter.hpp"
-#include "interfaces/presenters/toolpresenters/moc_inavigatetoolpresenteraux.cpp"
+#include "interfaces/presenters/tools/inavigatetoolpresenter.hpp"
+#include "interfaces/presenters/tools/moc_inavigatetoolpresenteraux.cpp"
 const ToolId INavigateToolPresenterAux::ID = ToolId(
     "navigate-tool"
 );
 
-#include "interfaces/presenters/toolpresenters/imeasuretoolpresenter.hpp"
+#include "interfaces/presenters/tools/imeasuretoolpresenter.hpp"
 const ToolId IMeasureToolPresenter::MEASURE_TOOL_ID = ToolId(
     "measure-tool"
 );
@@ -139,11 +139,13 @@ const ToolId IMainEditorPresenterAux::DefaultTools::EYEDROP  = IEyedropToolPrese
 const ToolId IMainEditorPresenterAux::DefaultTools::NAVIGATE = INavigateToolPresenterAux::ID;
 const ToolId IMainEditorPresenterAux::DefaultTools::MEASURE  = IMeasureToolPresenter::MEASURE_TOOL_ID;
 
-#include "interfaces/presenters/toolpresenters/ibrushtoolpresenter.hpp"
+#include "interfaces/presenters/tools/ibrushtoolpresenter.hpp"
 const BrushId IBrushToolPresenterAux::DefaultBrushes::Basic  = GlobalConstants::CoreBrushes::BasicBrush;
 const BrushId IBrushToolPresenterAux::DefaultBrushes::Soft  = GlobalConstants::CoreBrushes::SoftBrush;
 
 const BrushId IBrushToolPresenterAux::DEFAULT_BRUSH = IBrushToolPresenterAux::DefaultBrushes::Basic;
+
+const ColorInfo GlobalConstants::Transparent = ColorInfo(Qt::transparent, "Transparent"); //i18n?
 
 // Make sure to include all header-only ADDLE_COMMON_EXPORT classes, so that
 // their symbols are defined on libcommon.dll

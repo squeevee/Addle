@@ -3,7 +3,7 @@
 
 #include <QSharedPointer>
 
-#include "interfaces/presenters/operationpresenters/iundooperationpresenter.hpp"
+#include "interfaces/presenters/operations/iundooperationpresenter.hpp"
 
 #include "interfaces/traits/qobject_trait.hpp"
 

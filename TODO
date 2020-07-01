@@ -208,8 +208,9 @@ hardnesses
 
 error messaging on PropertyBinding
 
-combine SizeSelector and AssetSelector? effectively make size presets into a 
-type of assets? Or alternatively make AssetSelector more generalized.
+Make a adapter/interface to fit a presenter onto QListWidget (or QListView --
+most of the feature differences are overkill but if we're making an abstraction,
+kinda might as well)
 
 # Const-correctness checklist:
 
@@ -222,3 +223,4 @@ type of assets? Or alternatively make AssetSelector more generalized.
 - **qAsConst() must be employed on all range-based for loops over implicitly
   shared collection types to avoid lots and lots of unneeded copying** -- wowie (:
 
+Absolutely only one file for interface traits.

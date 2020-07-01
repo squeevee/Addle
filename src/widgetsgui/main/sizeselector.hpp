@@ -9,7 +9,7 @@
 
 #include "widgetsgui/utilities/presenterassignment.hpp"
 
-#include "interfaces/presenters/toolpresenters/isizeselectionpresenter.hpp"
+#include "interfaces/presenters/tools/isizeselectionpresenter.hpp"
 
 class QListWidget;
 class QListWidgetItem;

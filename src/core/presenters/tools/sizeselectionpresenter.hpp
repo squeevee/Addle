@@ -3,7 +3,7 @@
 
 #include "compat.hpp"
 #include <QObject>
-#include "interfaces/presenters/toolpresenters/isizeselectionpresenter.hpp"
+#include "interfaces/presenters/tools/isizeselectionpresenter.hpp"
 
 #include "utilities/presethelper2.hpp"
 

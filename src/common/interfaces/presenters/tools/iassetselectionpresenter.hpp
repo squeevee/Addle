@@ -4,7 +4,7 @@
 #include "interfaces/traits/makeable_trait.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 #include "interfaces/traits/initialize_trait.hpp"
-#include "../assetpresenters/iassetpresenter.hpp"
+#include "../assets/iassetpresenter.hpp"
 
 #include <QList>
 

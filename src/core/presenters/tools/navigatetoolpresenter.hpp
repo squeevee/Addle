@@ -3,7 +3,7 @@
 
 #include "compat.hpp"
 #include "toolpresenterbase.hpp"
-#include "interfaces/presenters/toolpresenters/inavigatetoolpresenter.hpp"
+#include "interfaces/presenters/tools/inavigatetoolpresenter.hpp"
 #include "interfaces/presenters/iviewportpresenter.hpp"
 
 class ADDLE_CORE_EXPORT NavigateToolPresenter : public ToolPresenterBase, public virtual INavigateToolPresenter

@@ -25,6 +25,9 @@ public:
     virtual QMultiArray<ColorInfo, 2> colors() const = 0;
     virtual void setColors(QMultiArray<ColorInfo, 2> colors) = 0;
 
+    virtual bool contains(QColor color) const = 0;
+    virtual ColorInfo infoFor(QColor color) const = 0;
+
 signals: 
     virtual void colorsChanged() = 0;
 };

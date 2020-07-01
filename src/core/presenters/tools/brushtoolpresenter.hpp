@@ -3,15 +3,15 @@
 
 #include "compat.hpp"
 #include "toolpresenterbase.hpp"
-#include "interfaces/presenters/toolpresenters/ibrushtoolpresenter.hpp"
-#include "interfaces/presenters/operationpresenters/ibrushoperationpresenter.hpp"
+#include "interfaces/presenters/tools/ibrushtoolpresenter.hpp"
+#include "interfaces/presenters/operations/ibrushoperationpresenter.hpp"
 
 #include "../helpers/brushiconhelper.hpp"
 #include "../helpers/toolwithassetshelper.hpp"
 
 #include "interfaces/rendering/irenderstep.hpp"
 #include "interfaces/editing/ibrushengine.hpp"
-#include "interfaces/presenters/toolpresenters/iassetselectionpresenter.hpp"
+#include "interfaces/presenters/tools/iassetselectionpresenter.hpp"
 
 #include "utilities/presenter/propertycache.hpp"
 

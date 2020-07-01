@@ -9,8 +9,8 @@
 #include "interfaces/models/idocument.hpp"
 #include "interfaces/presenters/iraiseerrorpresenter.hpp"
 
-#include "interfaces/presenters/toolpresenters/inavigatetoolpresenter.hpp"
-#include "interfaces/presenters/assetpresenters/ibrushpresenter.hpp"
+#include "interfaces/presenters/tools/inavigatetoolpresenter.hpp"
+#include "interfaces/presenters/assets/ibrushpresenter.hpp"
 
 #include "utilities/indexvariant.hpp"
 #include "idtypes/persistentid.hpp"

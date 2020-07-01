@@ -7,6 +7,8 @@
 #include "idtypes/formatid.hpp"
 #include "idtypes/paletteid.hpp"
 
+#include "utilities/model/colorinfo.hpp"
+
 #include <QColor>
 
 namespace GlobalConstants
@@ -54,8 +56,10 @@ namespace GlobalConstants
 
     namespace CorePalettes
     {
-        extern ADDLE_COMMON_EXPORT const PaletteId TestPalette;
+        extern ADDLE_COMMON_EXPORT const PaletteId BasicPalette;
     }
+
+    extern const ADDLE_COMMON_EXPORT ColorInfo Transparent;
 }
 
 #endif // GLOBALCONSTANTS_HPP

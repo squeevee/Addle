@@ -3,7 +3,7 @@
 
 #include <QList>
 
-#include "../assetpresenters/ishapepresenter.hpp"
+#include "../assets/ishapepresenter.hpp"
 #include "itoolpresenter.hpp"
 #include "interfaces/traits/initialize_trait.hpp"
 #include "interfaces/traits/qobject_trait.hpp"

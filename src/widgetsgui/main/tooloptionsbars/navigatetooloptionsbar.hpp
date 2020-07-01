@@ -6,7 +6,7 @@
 
 #include "widgetsgui/utilities/optionaction.hpp"
 #include "widgetsgui/utilities/optiongroup.hpp"
-#include "interfaces/presenters/toolpresenters/inavigatetoolpresenter.hpp"
+#include "interfaces/presenters/tools/inavigatetoolpresenter.hpp"
 #include "tooloptionbarbase.hpp"
 
 class ADDLE_WIDGETSGUI_EXPORT NavigateToolOptionsBar : public ToolOptionBarBase 

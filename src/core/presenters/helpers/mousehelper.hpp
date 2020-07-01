@@ -1,7 +1,7 @@
 #ifndef MOUSEHELPER_HPP
 #define MOUSEHELPER_HPP
 
-#include "interfaces/presenters/toolpresenters/itoolpresenter.hpp"
+#include "interfaces/presenters/tools/itoolpresenter.hpp"
 
 #include "utilities/presenter/propertycache.hpp"
 

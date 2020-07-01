@@ -20,10 +20,11 @@
 
 #include "interfaces/presenters/iviewportpresenter.hpp"
 #include "interfaces/presenters/icanvaspresenter.hpp"
+#include "interfaces/presenters/icolorselectionpresenter.hpp"
 
-#include "interfaces/presenters/toolpresenters/itoolpresenter.hpp"
-#include "interfaces/presenters/toolpresenters/ibrushtoolpresenter.hpp"
-#include "interfaces/presenters/toolpresenters/inavigatetoolpresenter.hpp"
+#include "interfaces/presenters/tools/itoolpresenter.hpp"
+#include "interfaces/presenters/tools/ibrushtoolpresenter.hpp"
+#include "interfaces/presenters/tools/inavigatetoolpresenter.hpp"
 
 #include "interfaces/views/imaineditorview.hpp"
 
@@ -93,9 +94,14 @@ void MainEditorPresenter::initialize(Mode mode)
     _loadDocumentTask = new LoadDocumentTask(this);
     connect(_loadDocumentTask, &AsyncTask::completed, this, &MainEditorPresenter::onLoadDocumentCompleted);
 
-    _palette = ServiceLocator::makeShared<IPalettePresenter>(
-        std::ref(ServiceLocator::get<IPalette>(GlobalConstants::CorePalettes::TestPalette))
-    ); // wow that's crunchy :)
+    _palettes = { 
+        ServiceLocator::makeShared<IPalettePresenter>(
+            std::ref(ServiceLocator::get<IPalette>(GlobalConstants::CorePalettes::BasicPalette))
+        ) // wow that's crunchy :)
+    };
+
+    _colorSelection = ServiceLocator::make<IColorSelectionPresenter>(_palettes);
+    _colorSelection->setPalette(_palettes.first());
 }
 
 IMainEditorView* MainEditorPresenter::getView()
@@ -123,6 +129,11 @@ IViewPortPresenter* MainEditorPresenter::getViewPortPresenter()
         _viewPortPresenter = ServiceLocator::make<IViewPortPresenter>(this);
     }
     return _viewPortPresenter;
+}
+
+IColorSelectionPresenter& MainEditorPresenter::colorSelection()
+{
+    return *_colorSelection;
 }
 
 void MainEditorPresenter::setDocumentPresenter(IDocumentPresenter* documentPresenter)

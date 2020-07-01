@@ -15,6 +15,8 @@
 #include <typeinfo>
 #include <type_traits>
 #include <memory>
+#include <functional>
+
 #include <QHash>
 #include <QMultiHash>
 #include <QMutex>

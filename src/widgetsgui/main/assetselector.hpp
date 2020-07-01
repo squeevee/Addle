@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <QListWidget>
 
-#include "interfaces/presenters/toolpresenters/iassetselectionpresenter.hpp"
+#include "interfaces/presenters/tools/iassetselectionpresenter.hpp"
 
 class AssetSelector : public QWidget
 {

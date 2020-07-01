@@ -66,6 +66,7 @@ public:
 
     ICanvasPresenter* getCanvasPresenter();
     IViewPortPresenter* getViewPortPresenter();
+    IColorSelectionPresenter& colorSelection();
 
     QWeakPointer<ILayerPresenter> getSelectedLayer() { return _selectedLayer; }
     void selectLayer(QWeakPointer<ILayerPresenter> layer);
@@ -78,8 +79,6 @@ public:
 
     IDocumentPresenter* getDocumentPresenter() { return _documentPresenter; }
     bool isEmpty() { return _isEmptyCache.getValue(); }
-
-    QSharedPointer<IPalettePresenter> palette() const { return _palette; };
 
 signals:
     void documentPresenterChanged(IDocumentPresenter* documentPresenter);
@@ -141,6 +140,8 @@ private:
     IViewPortPresenter* _viewPortPresenter = nullptr;
     ICanvasPresenter* _canvasPresenter = nullptr;
 
+    IColorSelectionPresenter* _colorSelection = nullptr;
+
     IDocumentPresenter* _documentPresenter = nullptr;
     PropertyCache<bool> _isEmptyCache;
 
@@ -167,7 +168,7 @@ private:
     // PropertyDecorationHelper _propertyDecorationHelper;
     UndoStackHelper _undoStackHelper;
 
-    QSharedPointer<IPalettePresenter> _palette;
+    QList<QSharedPointer<IPalettePresenter>> _palettes;
 };
 
 class LoadDocumentTask : public AsyncTask

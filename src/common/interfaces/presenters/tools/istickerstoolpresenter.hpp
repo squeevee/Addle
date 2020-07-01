@@ -3,7 +3,7 @@
 
 #include <QList>
 
-#include "../assetpresenters/istickerpresenter.hpp"
+#include "../assets/istickerpresenter.hpp"
 #include "interfaces/traits/initialize_trait.hpp"
 #include "interfaces/traits/qobject_trait.hpp"
 #include "interfaces/traits/makeable_trait.hpp"

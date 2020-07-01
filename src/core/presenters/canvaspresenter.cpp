@@ -1,7 +1,7 @@
 #include "canvaspresenter.hpp"
 
 #include "interfaces/presenters/imaineditorpresenter.hpp"
-#include "interfaces/presenters/toolpresenters/itoolpresenter.hpp"
+#include "interfaces/presenters/tools/itoolpresenter.hpp"
 
 #include "utilities/qtextensions/qobject.hpp"
 #include "utilities/canvas/canvasmouseevent.hpp"

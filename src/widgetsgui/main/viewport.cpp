@@ -17,7 +17,7 @@
 #include "utilities/mathutils.hpp"
 
 #include "interfaces/presenters/imaineditorpresenter.hpp"
-#include "interfaces/presenters/toolpresenters/itoolpresenter.hpp"
+#include "interfaces/presenters/tools/itoolpresenter.hpp"
 
 #include "widgetsgui/utilities/graphicsmouseeventblocker.hpp"
 #include "utilities/presenter/propertybinding.hpp"

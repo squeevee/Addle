@@ -30,13 +30,14 @@
 #include "core/presenters/viewportpresenter.hpp"
 #include "core/presenters/errorpresenter.hpp"
 #include "core/presenters/layerpresenter.hpp"
+#include "core/presenters/colorselectionpresenter.hpp"
 #include "core/presenters/palettepresenter.hpp"
 #include "core/presenters/assets/brushpresenter.hpp"
-#include "core/presenters/toolpresenters/assetselectionpresenter.hpp"
-#include "core/presenters/toolpresenters/navigatetoolpresenter.hpp"
-#include "core/presenters/toolpresenters/brushtoolpresenter.hpp"
-#include "core/presenters/toolpresenters/sizeselectionpresenter.hpp"
-#include "core/presenters/operationpresenters/brushoperationpresenter.hpp"
+#include "core/presenters/tools/assetselectionpresenter.hpp"
+#include "core/presenters/tools/navigatetoolpresenter.hpp"
+#include "core/presenters/tools/brushtoolpresenter.hpp"
+#include "core/presenters/tools/sizeselectionpresenter.hpp"
+#include "core/presenters/operations/brushoperationpresenter.hpp"
 
 #include "core/rendering/renderstack.hpp"
 
@@ -73,6 +74,7 @@ void ServiceConfiguration::configure()
     // # Presenters
     CONFIG_AUTOFACTORY_BY_TYPE(IMainEditorPresenter, MainEditorPresenter);
     CONFIG_AUTOFACTORY_BY_TYPE(ICanvasPresenter, CanvasPresenter);
+    CONFIG_AUTOFACTORY_BY_TYPE(IColorSelectionPresenter, ColorSelectionPresenter);
     CONFIG_AUTOFACTORY_BY_TYPE(IViewPortPresenter, ViewPortPresenter);
     CONFIG_AUTOFACTORY_BY_TYPE(IErrorPresenter, ErrorPresenter);
     CONFIG_AUTOFACTORY_BY_TYPE(ILayerPresenter, LayerPresenter);
@@ -125,5 +127,5 @@ void ServiceConfiguration::configure()
 
     CONFIG_AUTOFACTORY_BY_TYPE(IPalette, Palette);
 
-    buildPersistentObject<IPalette>(GlobalConstants::CorePalettes::TestPalette, CorePaletteBuilders::test);
+    buildPersistentObject<IPalette>(GlobalConstants::CorePalettes::BasicPalette, CorePaletteBuilders::basic);
 }

@@ -9,7 +9,7 @@
 #include <QSet>
 #include "utilities/initializehelper.hpp"
 
-#include "interfaces/presenters/toolpresenters/iassetselectionpresenter.hpp"
+#include "interfaces/presenters/tools/iassetselectionpresenter.hpp"
 
 class ADDLE_CORE_EXPORT AssetSelectionPresenter : public QObject, public IAssetSelectionPresenter
 {
