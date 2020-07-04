@@ -9,7 +9,7 @@ ToolOptionBarBase::ToolOptionBarBase(IToolPresenter& presenter, QWidget* parent)
 {
     connect_interface(
         &_presenter,
-        SIGNAL(selectionChanged(bool)),
+        SIGNAL(isSelectedChanged(bool)),
         this,
         SLOT(onSelectedChanged(bool))
     );

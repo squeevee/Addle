@@ -4,6 +4,9 @@
 #include "interfaces/models/ibrushmodel.hpp"
 
 //#include "interfaces/editing/operations/ibrushoperation.hpp"
+#include "interfaces/presenters/imaineditorpresenter.hpp"
+#include "interfaces/presenters/icanvaspresenter.hpp"
+#include "interfaces/presenters/iviewportpresenter.hpp"
 
 #include "utilities/unhandledexceptionrouter.hpp"
 #include "utilities/qtextensions/qobject.hpp"
@@ -25,30 +28,27 @@
 
 #include "interfaces/presenters/assets/ibrushpresenter.hpp"
 #include "interfaces/presenters/tools/isizeselectionpresenter.hpp"
+#include "interfaces/presenters/icolorselectionpresenter.hpp"
+
+#include "interfaces/presenters/operations/ibrushoperationpresenter.hpp"
 
 #include <QSharedPointer>
 
-// #include "../helpers/brushsizepresethelper.hpp"
-// const BrushSizePresetHelper::PxPresetHelper BrushSizePresetHelper::_instance_px = PxPresetHelper();
-// const BrushSizePresetHelper::PercentPresetHelper BrushSizePresetHelper::_instance_percent = PercentPresetHelper();
-
 using namespace IBrushToolPresenterAux;
 
-void BrushToolPresenter::initialize(IMainEditorPresenter* owner)
+void BrushToolPresenter::initialize(IMainEditorPresenter* owner,
+        ICanvasPresenter* canvasPresenter,
+        IViewPortPresenter* viewPortPresenter,
+        IColorSelectionPresenter* colorSelection,
+        Mode mode
+    )
 {
     _initHelper.initializeBegin();
 
-    _mainEditorPresenter = owner;
-    ToolPresenterBase::initialize_p(owner);
-
-    // _brushAssetsHelper.setAssetList({
-    //     ServiceLocator::makeShared<IBrushPresenter>(DefaultBrushes::Basic),
-    //     ServiceLocator::makeShared<IBrushPresenter>(DefaultBrushes::Soft)
-    //     //ServiceLocator::makeShared<IBrushPresenter>(DefaultBrushes::AliasedCircle),
-    //     //ServiceLocator::makeShared<IBrushPresenter>(DefaultBrushes::Square)
-    // });
-
-    // _sizeSelection = ServiceLocator::make<ISizeSelectionPresenter>();
+    _mainEditor = owner;
+    _canvas = canvasPresenter;
+    _viewPort = viewPortPresenter;
+    _colorSelection = colorSelection;
 
     _brushSelection = ServiceLocator::makeUnique<IAssetSelectionPresenter>(
         QList<QSharedPointer<IAssetPresenter>>({
@@ -58,24 +58,37 @@ void BrushToolPresenter::initialize(IMainEditorPresenter* owner)
         false
     );
 
-    _hoverPreview = new HoverPreview(*this);
+    _hoverPreview = std::unique_ptr<HoverPreview>(new HoverPreview(*this));
 
-    // updateSizeSelection();
-
-    connect_interface(_mainEditorPresenter, SIGNAL(selectedLayerChanged(QWeakPointer<ILayerPresenter>)), this, SLOT(onSelectedLayerChanged(QWeakPointer<ILayerPresenter>)));
-    // connect_interface(_sizeSelection, SIGNAL(changed(double)), this, SLOT(onSizeChanged(double)));
-    connect_interface(_canvasPresenter, SIGNAL(hasMouseChanged(bool)), this, SLOT(onCanvasHasMouseChanged(bool)));
+    connect_interface(_mainEditor, SIGNAL(selectedLayerChanged(QWeakPointer<ILayerPresenter>)), this, SLOT(onSelectedLayerChanged(QWeakPointer<ILayerPresenter>)));
+    connect_interface(_canvas, SIGNAL(hasMouseChanged(bool)), this, SLOT(onCanvasHasMouseChanged(bool)));
     connect_interface(_brushSelection.get(), SIGNAL(selectionChanged(QList<PersistentId>)), this, SLOT(onBrushSelectionChanged()));
-    connect_interface(_mainEditorPresenter->getViewPortPresenter(), SIGNAL(zoomChanged(double)), this, SLOT(onViewPortZoomChanged(double)));
+    connect_interface(_viewPort, SIGNAL(zoomChanged(double)), this, SLOT(onViewPortZoomChanged(double)));
+    connect_interface(_colorSelection, SIGNAL(color1Changed(ColorInfo)), this, SLOT(onColorChanged(ColorInfo)));
+
 
     _initHelper.initializeEnd();
 }
 
-// ISizeSelectionPresenter& BrushToolPresenter::sizeSelection()
-// {
-//     //assert initialized
-//     return *_sizeSelection;
-// }
+ToolId BrushToolPresenter::getId()
+{
+    _initHelper.check();
+    switch(_mode)
+    {
+    case Mode::Brush:
+        return IBrushToolPresenterAux::BRUSH_ID;
+    case Mode::Eraser:
+        return IBrushToolPresenterAux::ERASER_ID;
+    default:
+        return ToolId();
+    }
+}
+
+void BrushToolPresenter::onSelectedChanged(bool selected)
+{
+    _initHelper.check();
+    _hoverPreview->isVisible_cache.recalculate();
+}
 
 bool BrushToolPresenter::event(QEvent* e)
 {
@@ -92,19 +105,79 @@ bool BrushToolPresenter::event(QEvent* e)
                 _grace = false;
                 _hoverPreview->isVisible_cache.recalculate();
             }
+            e->accept();
             return true;
         }
     }
 
-    return ToolPresenterBase::event(e);
+    _mouseHelper.event(e);
+    return e->isAccepted() || QObject::event(e);
+}
+
+void BrushToolPresenter::onBrushSelectionChanged()
+{
+    if (_connection_onSizeChanged)
+        QObject::disconnect(_connection_onSizeChanged);
+
+    _connection_onSizeChanged = connect_interface(
+        &selectedBrushPresenter()->sizeSelection(),
+        SIGNAL(changed(double)),
+        this,
+        SLOT(onSizeChanged(double))
+    );
+
+    selectedBrushPresenter()->setPreviewScale(_mainEditor->getViewPortPresenter()->getZoom());
+    selectedBrushPresenter()->setPreviewColor(_mainEditor->colorSelection().color1().color());
+
+    _hoverPreview->isVisible_cache.recalculate();
+    emit brushChanged(selectedBrush());
+}
+
+void BrushToolPresenter::onSizeChanged(double size)
+{
+    if (_brushStroke)
+        _brushStroke->setSize(size);
+
+    _hoverPreview->isVisible_cache.recalculate();
+}
+
+void BrushToolPresenter::onColorChanged(ColorInfo info)
+{
+    if (_brushStroke)
+        _brushStroke->setColor(info.color());
+
+    if (selectedBrushPresenter())
+        selectedBrushPresenter()->setPreviewColor(info.color());
+
+    _hoverPreview->isVisible_cache.recalculate();
+}
+
+void BrushToolPresenter::onCanvasHasMouseChanged(bool hasMouse)
+{
+    _hoverPreview->isVisible_cache.recalculate();
+}
+
+void BrushToolPresenter::onSelectedLayerChanged(QWeakPointer<ILayerPresenter> layer)
+{
+    _hoverPreview->isVisible_cache.recalculate();
+}
+
+void BrushToolPresenter::onViewPortZoomChanged(double zoom)
+{
+    if (selectedBrushPresenter())
+        selectedBrushPresenter()->setPreviewScale(zoom);
 }
 
 void BrushToolPresenter::onEngage()
 {
-    auto brushPresenter = selectedBrushPresenter();
-    if (!brushPresenter) return;
+    if (!selectedBrush()) return;
 
-    double size = brushPresenter->size();
+    auto brush = selectedBrushPresenter();
+    auto layer = _mainEditor->getSelectedLayer().toStrongRef();
+
+    if (!layer) return;
+
+    double size = brush->size();
     if (qIsNaN(size) || size == 0) return;
 
     _grace = false;
@@ -112,16 +185,17 @@ void BrushToolPresenter::onEngage()
     _hoverPreview->isVisible_cache.recalculate();
     _hoverPreview->setPosition(_mouseHelper.getLatestPosition());
 
+    QColor color = _colorSelection->color1().color();
+
     auto brushSurface = ServiceLocator::makeShared<IRasterSurface>();
     _brushStroke = QSharedPointer<BrushStroke>(new BrushStroke(
-        selectedBrush(),
-        Qt::blue,
+        brush->getBrushId(),
+        color,
         size,
         brushSurface
     ));
 
-    auto s_layerPresenter = _mainEditorPresenter->getSelectedLayer().toStrongRef();
-    s_layerPresenter->getRenderStack().push(brushSurface->getRenderStep());
+    layer->getRenderStack().push(brushSurface->getRenderStep());
 
     _brushStroke->moveTo(_mouseHelper.getFirstPosition());
     _brushStroke->paint();
@@ -139,6 +213,8 @@ void BrushToolPresenter::onMove()
 void BrushToolPresenter::onDisengage()
 {
     if (!_brushStroke) return;
+    auto layer = _mainEditor->getSelectedLayer().toStrongRef();
+    if (!layer) return;
 
     {
         QSharedPointer<IRasterSurface> previewBuffer;
@@ -147,17 +223,16 @@ void BrushToolPresenter::onDisengage()
              && (previewRenderStep = previewBuffer->getRenderStep())
         )
         {
-            auto s_layerPresenter = _mainEditorPresenter->getSelectedLayer().toStrongRef();
-            s_layerPresenter->getRenderStack().remove(previewRenderStep);
+            layer->getRenderStack().remove(previewRenderStep);
         }
     }
     
     auto operation = ServiceLocator::makeShared<IBrushOperationPresenter>(
         _brushStroke,
-        _mainEditorPresenter->getSelectedLayer()
+        layer
     );
 
-    _mainEditorPresenter->push(operation);
+    _mainEditor->push(operation);
 
     _brushStroke.clear();
 
@@ -165,204 +240,92 @@ void BrushToolPresenter::onDisengage()
     _hoverPreview->isVisible_cache.recalculate();
 }
 
-void BrushToolPresenter::onSelected()
-{
-    _hoverPreview->isVisible_cache.recalculate();
-}
-
-void BrushToolPresenter::onDeselected()
-{
-    _hoverPreview->isVisible_cache.recalculate();
-}
-
-void BrushToolPresenter::onSelectedLayerChanged(QWeakPointer<ILayerPresenter> layer)
-{
-    _hoverPreview->isVisible_cache.recalculate();
-}
-
-void BrushToolPresenter::onBrushSelectionChanged()
-{
-    if (_connection_onSizeChanged)
-        QObject::disconnect(_connection_onSizeChanged);
-
-    BrushId id = _brushSelection->selectedId();
-
-    _connection_onSizeChanged = connect_interface(
-        &selectedBrushPresenter()->sizeSelection(),
-        SIGNAL(changed(double)),
-        this,
-        SLOT(onSizeChanged(double))
-    );
-
-    {
-        double zoom = _mainEditorPresenter->getViewPortPresenter()->getZoom();
-        selectedBrushPresenter()->sizeSelection().setScale(zoom);
-    }
-
-    _hoverPreview->isVisible_cache.recalculate();
-    _hoverPreview->updateBrush();
-
-    emit brushChanged(id);
-}
-
-void BrushToolPresenter::onSizeChanged(double size)
-{
-    if (_brushStroke)
-        _brushStroke->setSize(size);
-
-    // selectedBrushPresenter()->sizeSelection().setIcon(_iconHelper.icon(
-    //     selectedBrush(),
-    //     Qt::blue,
-    //     size
-    // ));
-    
-    _hoverPreview->setSize(size);
-    _hoverPreview->isVisible_cache.recalculate();
-    _hoverPreview->updateBrush();
-}
-
-// void BrushToolPresenter::updateSizeSelection()
-// {
-//     if (_brushAssetsHelper.getSelectedAsset().isNull())
-//     {
-//         if(!_sizeSelection->presets().isEmpty())
-//             _sizeSelection->setPresets(QList<double>());
-        
-//         return;
-//     }
-
-//     auto presets = ServiceLocator::get<IBrushModel>(_brushAssetsHelper.getSelectedAsset()).info().getPreferredSizes();
-//     // streamline this
-
-//     if (presets.isEmpty())
-//     {
-//         presets = arrayToQList(IBrushToolPresenterAux::DEFAULT_SIZES);
-//     }
-
-//     _sizeSelection->setPresets(presets);
-//     _sizeSelection->selectPreset(0); // temp
-
-//     _iconHelper.setBackground(Qt::white);
-
-//     QList<QIcon> presetIcons;
-
-//     for (double preset : presets)
-//     {
-//         presetIcons.append(_iconHelper.icon(
-//             _brushAssetsHelper.getSelectedAsset(),
-//             Qt::blue,
-//             preset
-//         ));
-//     }
-
-//     _sizeSelection->setPresetIcons(presetIcons);
-
-//     _sizeSelection->set(60);
-// }
-
-void BrushToolPresenter::onCanvasHasMouseChanged(bool hasMouse)
-{
-    _hoverPreview->isVisible_cache.recalculate();
-}
-
-void BrushToolPresenter::onViewPortZoomChanged(double zoom)
-{
-    auto brushPresenter = selectedBrushPresenter();
-    if (brushPresenter)
-        brushPresenter->sizeSelection().setScale(zoom);
-}
-
 BrushToolPresenter::HoverPreview::HoverPreview(BrushToolPresenter& owner)
     : isVisible_cache(std::bind(&BrushToolPresenter::HoverPreview::calc_visible, this)),
     _owner(owner)
 {
-    isVisible_cache.onChange(&BrushToolPresenter::HoverPreview::onVisibleChanged, this);
-
-    _surface = ServiceLocator::makeShared<IRasterSurface>();
-    updateBrush();
+    isVisible_cache.onChange(&BrushToolPresenter::HoverPreview::update, this);
+    isVisible_cache.initialize(false);
 }
 
-BrushToolPresenter::HoverPreview::~HoverPreview()
+void BrushToolPresenter::HoverPreview::update()
 {
-}
+    _owner._initHelper.check();
 
-void BrushToolPresenter::HoverPreview::updateBrush()
-{
-    if (!_owner._initHelper.isInitialized()) return;
-    // if (!isVisible_cache.getValue())
-    // {
-    //     _brushStroke.clear();
-    //     return;
-    // }
+    BrushId id = _owner.selectedBrush();
+    if (!id) return;
 
-    _brushStroke = QSharedPointer<BrushStroke>(new BrushStroke(
-        _owner.selectedBrush(),
-        Qt::blue, 
-        _size,
-        _surface
-    ));
+    QColor color = _owner._colorSelection->color1().color();
+    double size = _owner.selectedBrushPresenter()->size();
+
+    if (_brushStroke && _brushStroke->id() == id)
+    {
+        _brushStroke->setSize(size);
+        _brushStroke->setColor(color);
+    }
+    else if (isVisible_cache.getValue())
+    {
+        if (!_surface) _surface = ServiceLocator::makeShared<IRasterSurface>();
+
+        _brushStroke = std::unique_ptr<BrushStroke>(new BrushStroke(
+            id,
+            color, 
+            size,
+            _surface
+        ));
+    }
+
+    if (_surface)
+    {
+        if (_layer && (!isVisible_cache.getValue() || _layer != _owner._mainEditor->getSelectedLayer()))
+        {
+            _layer->getRenderStack().remove(_surface->getRenderStep());
+            _layer = nullptr;
+        }
+
+        if (isVisible_cache.getValue() && _layer != _owner._mainEditor->getSelectedLayer())
+        {
+            _layer = _owner._mainEditor->getSelectedLayer().toStrongRef();
+            _layer->getRenderStack().push(_surface->getRenderStep());
+        }   
+    }
+
     paint();
 }
 
 void BrushToolPresenter::HoverPreview::setPosition(QPointF position)
 {
-    _position = position;
-    paint();
-}
+    _owner._initHelper.check();
 
-void BrushToolPresenter::HoverPreview::setSize(double size)
-{
-    _size = size;
+    _position = position;
     paint();
 }
 
 bool BrushToolPresenter::HoverPreview::calc_visible()
 {
     return _owner._initHelper.isInitialized()
-        && _owner.isSelected()
+    
+        && _owner._selectHelper.isSelected()
         && _owner.selectedBrush()
+        && _owner.selectedBrushPresenter()
 
         && !_owner._mouseHelper.isEngaged()
 
-        && _owner._mainEditorPresenter->getSelectedLayer()
+        && _owner._mainEditor->getSelectedLayer()
 
-        && !qIsNaN(_size)
-        && _size > 0
+        && !qIsNaN(_owner.selectedBrushPresenter()->size())
+        && _owner.selectedBrushPresenter()->size() > 0
 
-        && _owner._canvasPresenter->hasMouse()
+        && _owner._canvas->hasMouse()
+
         && !_owner._grace;
-        /*&& _owner._viewPortPresenter->hasFocus()*/
-}
-
-void BrushToolPresenter::HoverPreview::onVisibleChanged(bool visible)
-{
-    if (visible)
-    {
-        auto layerPresenter = _owner._mainEditorPresenter->getSelectedLayer();
-        if (layerPresenter)
-        {
-            auto s_layerPresenter = layerPresenter.toStrongRef();
-
-            s_layerPresenter->getRenderStack().push(_surface->getRenderStep());
-        }
-        paint();
-    }
-    else 
-    {
-        auto layerPresenter = _owner._mainEditorPresenter->getSelectedLayer();
-        if (layerPresenter)
-        {
-            auto s_layerPresenter = layerPresenter.toStrongRef();
-
-            s_layerPresenter->getRenderStack().remove(_surface->getRenderStep());
-        }
-    }
 }
 
 void BrushToolPresenter::HoverPreview::paint()
 {
+    _owner._initHelper.check();
+
     if (!isVisible_cache.getValue()) return;
-    if (!_brushStroke) return;
     
     _brushStroke->clear();
     _brushStroke->moveTo(_position);

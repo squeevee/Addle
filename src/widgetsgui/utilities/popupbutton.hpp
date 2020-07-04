@@ -18,9 +18,6 @@ public:
 public slots:
     void closePopup();
 
-private slots:
-    void setIcon_slot(QIcon icon) { setIcon(icon); }
-
 private:
     QWidgetAction* _action = nullptr;
     QWidget* _popup = nullptr;

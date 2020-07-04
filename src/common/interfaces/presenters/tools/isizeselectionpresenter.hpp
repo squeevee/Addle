@@ -6,26 +6,38 @@
 
 #include "interfaces/traits/qobject_trait.hpp"
 #include "interfaces/traits/makeable_trait.hpp"
+#include "interfaces/traits/initialize_trait.hpp"
 
 class ISizeSelectionPresenter
 {
 public:
+    class IconProvider
+    {
+    public:
+        virtual ~IconProvider() = default;
+        virtual QIcon icon(double size) const = 0;
+    };
+
     virtual ~ISizeSelectionPresenter() = default;
 
+    virtual void initialize(QSharedPointer<IconProvider> iconProvider = nullptr) = 0;
     virtual QList<double> presets() const = 0;
 
     virtual double get() const = 0;
 
     virtual int selectedPreset() const = 0;
 
-    virtual void setIcon(QIcon icon) = 0;
     virtual QIcon icon() const = 0;
-
-    virtual void setPresetIcons(QList<QIcon> icons) = 0;
     virtual QList<QIcon> presetIcons() const = 0;
 
-    virtual double scale() const = 0;
-    virtual void setScale(double scale) = 0;
+    virtual double min() const = 0;
+    virtual void setMin(double min) = 0;
+
+    virtual double max() const = 0;
+    virtual void setMax(double max) = 0;
+
+    virtual bool strictSizing() const = 0;
+    virtual void setStrictSizing(bool strict) = 0;
 
 public slots:
     virtual void setPresets(QList<double> presets) = 0;
@@ -34,14 +46,13 @@ public slots:
     virtual void selectPreset(int index) = 0;
 
 signals:
+    virtual void iconsChanged() = 0;
     virtual void changed(double size) = 0;
     virtual void selectedPresetChanged(int index) = 0;
     virtual void presetsChanged(QList<double> presets) = 0;
-
-    virtual void iconChanged(QIcon icon) = 0;
-    virtual void presetIconsChanged(QList<QIcon> icons) = 0;
 };
 
+DECL_EXPECTS_INITIALIZE(ISizeSelectionPresenter);
 DECL_IMPLEMENTED_AS_QOBJECT(ISizeSelectionPresenter);
 DECL_MAKEABLE(ISizeSelectionPresenter);
 

@@ -11,6 +11,7 @@
 
 #include "idtypes/brushid.hpp"
 #include "utilities/editing/brushstroke.hpp"
+#include "interfaces/presenters/tools/isizeselectionpresenter.hpp"
 #include "interfaces/editing/irastersurface.hpp"
 
 class ADDLE_CORE_EXPORT BrushIconHelper : public QObject
@@ -20,17 +21,25 @@ public:
     BrushIconHelper(QObject* parent = nullptr);
     virtual ~BrushIconHelper() = default;
 
-    QIcon icon(BrushId brush, QColor color, double size, double scale) const;
-    QIcon icon(BrushId brush, QColor color) const;
+    QIcon icon() const;
+    QIcon varySize(double size) const;
+    //QIcon varyColor(QColor color) const;
+    QIcon varyBrush(BrushId brush) const;
 
+    void setBrush(BrushId brush) { _brush = brush;}
+    void setColor(QColor color) { _color = color; }
+
+    void setScale(double scale) { _scale = scale; }
     void setBackground(QColor background) { _background = background; }
-    
-public:
+
+    QSharedPointer<ISizeSelectionPresenter::IconProvider> sizeIconProvider();
+
+private:
     class BrushIconEngine : public QIconEngine
     {
     public:
-        BrushIconEngine(QPointer<const BrushIconHelper> helper, BrushId brush, QColor color, double size, double scale);
-        BrushIconEngine(QPointer<const BrushIconHelper> helper, BrushId brush, QColor color);
+        BrushIconEngine(QPointer<const BrushIconHelper> helper, BrushId brush, double size);
+        BrushIconEngine(QPointer<const BrushIconHelper> helper, BrushId brush);
 
         virtual ~BrushIconEngine() = default;
 
@@ -42,15 +51,35 @@ public:
 
     private:
         bool _autoSize = false;
-        double _scale;
 
         QPointer<const BrushIconHelper> _helper;
         BrushStroke _brushStroke;
     };
 
+    class SizeIconProvider : public ISizeSelectionPresenter::IconProvider
+    {
+    public:
+        SizeIconProvider(QPointer<const BrushIconHelper> helper)
+            : _helper(helper)
+        {
+        }
+        virtual ~SizeIconProvider() = default;
+
+        QIcon icon(double size) const;
+
+    private:
+        QPointer<const BrushIconHelper> _helper;
+    };
+
     mutable QSharedPointer<IRasterSurface> _surface;
-    
+
+    BrushId _brush;
+    QColor _color;
+
+    double _scale = 1.0;
     QColor _background;
+
+    QSharedPointer<ISizeSelectionPresenter::IconProvider> _sizeIconProvider;
 
     friend class BrushIconEngine;
 };

@@ -4,7 +4,6 @@
 #include "compat.hpp"
 
 #include "interfaces/models/ibrushmodel.hpp"
-#include "utilities/editing/brushinfo.hpp"
 
 #include <QObject>
 

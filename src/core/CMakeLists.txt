@@ -22,10 +22,9 @@ set (
     presenters/assets/brushpresenter.cpp
     presenters/colorselectionpresenter.cpp
     presenters/palettepresenter.cpp
-    presenters/helpers/brushiconhelper.cpp
     presenters/operations/brushoperationpresenter.cpp
+    presenters/helpers/brushiconhelper.cpp
     presenters/tools/assetselectionpresenter.cpp
-    presenters/tools/toolpresenterbase.cpp
     presenters/tools/navigatetoolpresenter.cpp
     presenters/tools/sizeselectionpresenter.cpp
     presenters/tools/brushtoolpresenter.cpp

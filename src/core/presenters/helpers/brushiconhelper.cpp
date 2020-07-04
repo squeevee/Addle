@@ -19,39 +19,54 @@ BrushIconHelper::BrushIconHelper(QObject* parent)
     _surface = ServiceLocator::makeShared<IRasterSurface>();
 }
 
-QIcon BrushIconHelper::icon(BrushId brush, QColor color, double size, double scale) const
+QIcon BrushIconHelper::icon() const
 {
-    return QIcon(new BrushIconEngine(QPointer<const BrushIconHelper>(this), brush, color, size, scale));
+    return QIcon(new BrushIconEngine(QPointer<const BrushIconHelper>(this), _brush));
 }
 
-QIcon BrushIconHelper::icon(BrushId brush, QColor color) const
+QIcon BrushIconHelper::varySize(double size) const
 {
-    return QIcon(new BrushIconEngine(QPointer<const BrushIconHelper>(this), brush, color));
+    return QIcon(new BrushIconEngine(QPointer<const BrushIconHelper>(this), _brush, size));
+}
+
+// QIcon BrushIconHelper::varyColor(QColor color) const
+// {
+//     return QIcon(new BrushIconEngine(QPointer<const BrushIconHelper>(this), _brush, color));
+// }
+
+QIcon BrushIconHelper::varyBrush(BrushId brush) const
+{
+    return QIcon(new BrushIconEngine(QPointer<const BrushIconHelper>(this), brush));
+}
+
+QSharedPointer<ISizeSelectionPresenter::IconProvider> BrushIconHelper::sizeIconProvider()
+{
+    if (!_sizeIconProvider)
+        _sizeIconProvider = QSharedPointer<ISizeSelectionPresenter::IconProvider>(
+            new SizeIconProvider(this)
+        );
+
+    return _sizeIconProvider;
 }
 
 BrushIconHelper::BrushIconEngine::BrushIconEngine(
     QPointer<const BrushIconHelper> helper,
     BrushId brush,
-    QColor color,
-    double size,
-    double scale
+    double size
 )
     : _helper(helper),
-    _brushStroke(brush, color, size, helper->_surface),
-    _scale(scale)
+    _brushStroke(brush, _helper->_color, size, helper->_surface)
 {
     _brushStroke.setPreview(true);
 }
 
 BrushIconHelper::BrushIconEngine::BrushIconEngine(
     QPointer<const BrushIconHelper> helper,
-    BrushId brush,
-    QColor color
+    BrushId brush
 )
     : _helper(helper),
-    _brushStroke(brush, color, 0, helper->_surface),
-    _autoSize(true),
-    _scale(1)
+    _brushStroke(brush, _helper->_color, 0, helper->_surface),
+    _autoSize(true)
 {
     _brushStroke.setPreview(true);
 }
@@ -59,9 +74,9 @@ BrushIconHelper::BrushIconEngine::BrushIconEngine(
 QIconEngine* BrushIconHelper::BrushIconEngine::clone() const
 { 
     if (_autoSize)
-        return new BrushIconEngine(_helper, _brushStroke.id(), _brushStroke.color());
+        return new BrushIconEngine(_helper, _brushStroke.id());
     else
-        return new BrushIconEngine(_helper, _brushStroke.id(), _brushStroke.color(), _brushStroke.getSize(), _scale);
+        return new BrushIconEngine(_helper, _brushStroke.id(), _brushStroke.getSize());
 }
 
 void BrushIconHelper::BrushIconEngine::paint(QPainter* painter, const QRect& rect, QIcon::Mode mode, QIcon::State state)
@@ -74,6 +89,7 @@ void BrushIconHelper::BrushIconEngine::paint(QPainter* painter, const QRect& rec
     QPointF center;
     QRectF canonicalRect;
     double size;
+    double scale = _helper->_scale;
 
     if (_autoSize)
     {
@@ -86,9 +102,11 @@ void BrushIconHelper::BrushIconEngine::paint(QPainter* painter, const QRect& rec
         size = _brushStroke.getSize();
         canonicalRect = QRectF(
             QPointF(),
-            QSizeF(rect.width() / _scale, rect.height() / _scale)
+            QSizeF(rect.width() / scale, rect.height() / scale)
         );
     }
+
+    _brushStroke.setColor(_helper->_color);
 
     // This position algorithm assumes that the brush will look good if treated
     // as a circle with r = 1/2 size. Naturally, as brush appearances become
@@ -163,8 +181,13 @@ void BrushIconHelper::BrushIconEngine::paint(QPainter* painter, const QRect& rec
 
     painter->setRenderHint(QPainter::Antialiasing, true);
     painter->translate(rect.topLeft());
-    painter->scale(_scale, _scale);
+    painter->scale(scale, scale);
     render(_helper->_surface->getRenderStep(), coarseBoundRect(canonicalRect), painter);
 
     painter->restore();
+}
+
+QIcon BrushIconHelper::SizeIconProvider::icon(double size) const
+{
+    return _helper ? _helper->varySize(size) : QIcon();
 }

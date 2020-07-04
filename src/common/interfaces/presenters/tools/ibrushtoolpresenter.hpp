@@ -14,7 +14,14 @@
 
 namespace IBrushToolPresenterAux
 {
-    ADDLE_COMMON_EXPORT extern const ToolId ID;
+    ADDLE_COMMON_EXPORT extern const ToolId BRUSH_ID;
+    ADDLE_COMMON_EXPORT extern const ToolId ERASER_ID;
+
+    enum Mode
+    {
+        Brush,
+        Eraser
+    };
 
     struct ADDLE_COMMON_EXPORT DefaultBrushes
     {
@@ -28,14 +35,24 @@ namespace IBrushToolPresenterAux
 class IMainEditorPresenter;
 class IAssetSelectionPresenter;
 class IBrushPresenter;
+class ICanvasPresenter;
+class IViewPortPresenter;
+class IColorSelectionPresenter;
 class IBrushToolPresenter : public virtual IToolPresenter
 {
 public:
     INTERFACE_META(IBrushToolPresenter)
 
+    typedef IBrushToolPresenterAux::Mode Mode;
+
     virtual ~IBrushToolPresenter() = default;
 
-    virtual void initialize(IMainEditorPresenter* owner) = 0;
+    virtual void initialize(IMainEditorPresenter* owner,
+        ICanvasPresenter* canvasPresenter,
+        IViewPortPresenter* viewPortPresenter,
+        IColorSelectionPresenter* colorSelection,
+        Mode mode
+    ) = 0;
 
     virtual IAssetSelectionPresenter& brushSelection() = 0;
 

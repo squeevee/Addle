@@ -11,6 +11,7 @@
 #include "../assetselector.hpp"
 
 class PopupButton;
+class SizeSelectorButton;
 class ADDLE_WIDGETSGUI_EXPORT BrushToolOptionsBar : public ToolOptionBarBase 
 {
     Q_OBJECT 
@@ -28,8 +29,7 @@ public:
     AssetSelector* _brushSelector;
     PopupButton* _button_brushSelector;
 
-    SizeSelector* _sizeSelector;
-    PopupButton* _button_sizeSelector;
+    SizeSelectorButton* _button_sizeSelector;
 
 private slots:
     void onBrushChanged();

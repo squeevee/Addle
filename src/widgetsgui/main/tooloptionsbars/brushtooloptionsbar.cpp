@@ -59,10 +59,8 @@ BrushToolOptionsBar::BrushToolOptionsBar(IBrushToolPresenter& presenter, QWidget
 
     QToolBar::addSeparator();
 
-    _sizeSelector = new SizeSelector(this);
-    _button_sizeSelector = new PopupButton(this);
-    _button_sizeSelector->setPopup(_sizeSelector);
-    connect(_sizeSelector, &SizeSelector::changed, _button_sizeSelector, &PopupButton::closePopup);
+    _button_sizeSelector = new SizeSelectorButton(this);
+    _button_sizeSelector->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 
     _button_sizeSelector->setText(ADDLE_TEXT("tools.brush-tool.size-selection.text"));
     _button_sizeSelector->setToolTip(ADDLE_TEXT("tools.brush-tool.size-selection.toolTip"));
@@ -83,7 +81,7 @@ BrushToolOptionsBar::BrushToolOptionsBar(IBrushToolPresenter& presenter, QWidget
                 _presenter.selectedBrushPresenter().toWeakRef()
             );
 
-            _sizeSelector->setPresenter(sizePresenter);
+            _button_sizeSelector->setPresenter(sizePresenter);
             //_button_sizeSelect->setPresenter(sizeSelectionPresenter);
         }
     }
@@ -96,6 +94,6 @@ void BrushToolOptionsBar::onBrushChanged()
         _presenter.selectedBrushPresenter().toWeakRef()
     );
 
-    _sizeSelector->setPresenter(sizePresenter);
+    _button_sizeSelector->setPresenter(sizePresenter);
     //_button_sizeSelect->setPresenter(sizeSelectionPresenter);
 }

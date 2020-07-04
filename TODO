@@ -224,3 +224,9 @@ kinda might as well)
   shared collection types to avoid lots and lots of unneeded copying** -- wowie (:
 
 Absolutely only one file for interface traits.
+
+Shared pool of temporary/disposable raster surfaces for various kinds of brush 
+previews?
+
+Brush icons of a certain exceeding size should have an additional hint that they
+are very big. (maybe a plus sign in the corner?)

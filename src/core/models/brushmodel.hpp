@@ -18,15 +18,35 @@ public:
 
     QIcon icon() const { _initHelper.check(); return _icon; }
 
-    BrushInfo info() const { _initHelper.check(); return _info; }
+    //BrushInfo info() const { _initHelper.check(); return _info; }
+
+    bool isSizeInvariant() const { return _isSizeInvariant; }
+    bool isPixelAliased() const { return _isPixelAliased; }
+    bool eraserMode() const { return _eraserMode; }
+
+    double minSize() const { return _minSize; }
+    double maxSize() const { return _maxSize; }
+    QList<double> preferredSizes() const { return _preferredSizes; }
+    bool strictSizing() const { return _strictSizing; }
+    double preferredStartingSize() const { return _preferredStartingSize; }
 
 private:
     BrushId _id;
     BrushEngineId _engineId;
-    BrushInfo _info;
+    //BrushInfo _info;
     QVariantHash _customEngineParameters;
 
     QIcon _icon; 
+
+    bool _isSizeInvariant;
+    bool _isPixelAliased;
+    bool _eraserMode;
+
+    double _minSize;
+    double _maxSize;
+    QList<double> _preferredSizes;
+    bool _strictSizing;
+    double _preferredStartingSize;
 
     InitializeHelper<BrushModel> _initHelper;
 };

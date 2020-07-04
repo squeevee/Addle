@@ -17,6 +17,8 @@
 #include "utilities/asynctask.hpp"
 #include "utilities/presenter/propertycache.hpp"
 
+#include "utilities/initializehelper.hpp"
+
 // #include "helpers/propertydecorationhelper.hpp"
 
 class IMainEditorView;
@@ -62,13 +64,13 @@ public:
 
     void initialize(Mode mode);
 
-    IMainEditorView* getView();
+    IMainEditorView* getView() { _initHelper.check(); return _view; }
 
-    ICanvasPresenter* getCanvasPresenter();
-    IViewPortPresenter* getViewPortPresenter();
-    IColorSelectionPresenter& colorSelection();
+    ICanvasPresenter* getCanvasPresenter() { _initHelper.check(); return _canvasPresenter; }
+    IViewPortPresenter* getViewPortPresenter() { _initHelper.check(); return _viewPortPresenter; }
+    IColorSelectionPresenter& colorSelection() { _initHelper.check(); return *_colorSelection; }
 
-    QWeakPointer<ILayerPresenter> getSelectedLayer() { return _selectedLayer; }
+    QWeakPointer<ILayerPresenter> getSelectedLayer() { _initHelper.check(); return _selectedLayer; }
     void selectLayer(QWeakPointer<ILayerPresenter> layer);
     void selectLayerAt(int index);
 
@@ -77,8 +79,8 @@ public:
 
     // # IHaveDocumentPresenter
 
-    IDocumentPresenter* getDocumentPresenter() { return _documentPresenter; }
-    bool isEmpty() { return _isEmptyCache.getValue(); }
+    IDocumentPresenter* getDocumentPresenter() { _initHelper.check(); return _documentPresenter; }
+    bool isEmpty() { _initHelper.check(); return _isEmptyCache.getValue(); }
 
 signals:
     void documentPresenterChanged(IDocumentPresenter* documentPresenter);
@@ -91,26 +93,26 @@ public slots:
 
     // # IHaveToolsPresenter
 public:
-    ToolId getCurrentTool() { return _currentTool; }
+    ToolId getCurrentTool() { _initHelper.check(); return _currentTool; }
     void selectTool(ToolId tool);
-    QList<ToolId> getTools() { return _tools.value(_mode); }
+    QList<ToolId> getTools() { _initHelper.check(); return _tools.value(_mode); }
 
-    IToolPresenter* getToolPresenter(ToolId id) { return _toolPresenters.value(id); }
-    IToolPresenter* getCurrentToolPresenter() { return _currentToolPresenter; }
+    IToolPresenter* getToolPresenter(ToolId id) { _initHelper.check(); return _toolPresenters.value(id); }
+    IToolPresenter* getCurrentToolPresenter() { _initHelper.check(); return _currentToolPresenter; }
 
 signals:
     void currentToolChanged(ToolId tool);
 
     // # IHaveUndoStackPresenter
 public:
-    bool canUndo() { return _undoStackHelper.canUndo(); }
-    bool canRedo() { return _undoStackHelper.canRedo(); }
+    bool canUndo() { _initHelper.check(); return _undoStackHelper.canUndo(); }
+    bool canRedo() { _initHelper.check(); return _undoStackHelper.canRedo(); }
 
     void push(QSharedPointer<IUndoOperationPresenter> undoable) { _undoStackHelper.push(undoable); }
 
 public slots: 
-    void undo() { _undoStackHelper.undo(); }
-    void redo() { _undoStackHelper.redo(); }
+    void undo() { _initHelper.check(); _undoStackHelper.undo(); }
+    void redo() { _initHelper.check(); _undoStackHelper.redo(); }
 
 signals: 
     void undoStateChanged();
@@ -169,6 +171,8 @@ private:
     UndoStackHelper _undoStackHelper;
 
     QList<QSharedPointer<IPalettePresenter>> _palettes;
+
+    InitializeHelper<MainEditorPresenter> _initHelper;
 };
 
 class LoadDocumentTask : public AsyncTask

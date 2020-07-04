@@ -94,6 +94,8 @@ public:
     inline PresenterType& operator*() const { return *_presenter; }
     inline PresenterType* operator->() const { return _presenter; }
 
+    inline PresenterType* data() const { return _presenter; }
+
     inline bool operator==(const PresenterAssignment<PresenterType>& other) const
     {
         return _presenter == other._presenter;

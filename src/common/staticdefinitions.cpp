@@ -82,12 +82,11 @@ const ToolId ISelectToolPresenter::SELECT_TOOL_ID = ToolId(
 );
 
 #include "interfaces/presenters/tools/ibrushtoolpresenter.hpp"
-const ToolId IBrushToolPresenterAux::ID = ToolId(
+const ToolId IBrushToolPresenterAux::BRUSH_ID = ToolId(
     "brush-tool"
 );
 
-#include "interfaces/presenters/tools/ierasertoolpresenter.hpp"
-const ToolId IEraserToolPresenter::ERASER_TOOL_ID = ToolId(
+const ToolId IBrushToolPresenterAux::ERASER_ID = ToolId(
     "eraser-tool"
 );
 
@@ -129,8 +128,8 @@ const ToolId IMeasureToolPresenter::MEASURE_TOOL_ID = ToolId(
 
 #include "interfaces/presenters/imaineditorpresenter.hpp"
 const ToolId IMainEditorPresenterAux::DefaultTools::SELECT   = ISelectToolPresenter::SELECT_TOOL_ID;
-const ToolId IMainEditorPresenterAux::DefaultTools::BRUSH    = IBrushToolPresenterAux::ID;
-const ToolId IMainEditorPresenterAux::DefaultTools::ERASER   = IEraserToolPresenter::ERASER_TOOL_ID;
+const ToolId IMainEditorPresenterAux::DefaultTools::BRUSH    = IBrushToolPresenterAux::BRUSH_ID;
+const ToolId IMainEditorPresenterAux::DefaultTools::ERASER   = IBrushToolPresenterAux::ERASER_ID;
 const ToolId IMainEditorPresenterAux::DefaultTools::FILL     = IFillToolPresenter::FILL_TOOL_ID;
 const ToolId IMainEditorPresenterAux::DefaultTools::TEXT     = ITextToolPresenter::TEXT_TOOL_ID;
 const ToolId IMainEditorPresenterAux::DefaultTools::SHAPES   = IShapesToolPresenter::SHAPES_TOOL_ID;
@@ -156,7 +155,6 @@ const ColorInfo GlobalConstants::Transparent = ColorInfo(Qt::transparent, "Trans
 #include "exceptions/initializeexceptions.hpp"
 #include "exceptions/servicelocatorexceptions.hpp"
 
-#include "utilities/editing/brushinfo.hpp"
 #include "utilities/configuration/baseserviceconfiguration.hpp"
 #include "utilities/model/documentbuilder.hpp"
 #include "utilities/model/importexportinfo.hpp"

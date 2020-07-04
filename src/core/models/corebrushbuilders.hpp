@@ -11,16 +11,19 @@ namespace CoreBrushBuilders
 
 const static BrushBuilder basic = BrushBuilder()
     .setId(GlobalConstants::CoreBrushes::BasicBrush)
-    .setEngine(GlobalConstants::CoreBrushEngines::PathEngine);
+    .setEngine(GlobalConstants::CoreBrushEngines::PathEngine)
+    .setPreferredStartingSize(7.0);
 
 const static BrushBuilder soft = BrushBuilder()
     .setId(GlobalConstants::CoreBrushes::SoftBrush)
     .setEngine(GlobalConstants::CoreBrushEngines::RasterEngine)
-    .setEngineParameters({
+    .setCustomEngineParameters({
         { "mode", "Gradient" },
         { "hardness", 1.0 },
         { "spacing", 0.12 }
-    });
+    })
+    .setMinSize(21.0)
+    .setPreferredStartingSize(60.0);
 }
 
 #endif // COREBRUSHBUILDERS_HPP

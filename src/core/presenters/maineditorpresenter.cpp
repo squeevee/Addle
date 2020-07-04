@@ -50,7 +50,21 @@ MainEditorPresenter::~MainEditorPresenter()
 
 void MainEditorPresenter::initialize(Mode mode)
 {
+    _initHelper.initializeBegin();
+    
     _mode = mode;
+
+    _viewPortPresenter = ServiceLocator::make<IViewPortPresenter>(this);
+    _canvasPresenter = ServiceLocator::make<ICanvasPresenter>(this);
+    
+    _palettes = { 
+        ServiceLocator::makeShared<IPalettePresenter>(
+            std::ref(ServiceLocator::get<IPalette>(GlobalConstants::CorePalettes::BasicPalette))
+        ) // wow that's crunchy :)
+    };
+
+    _colorSelection = ServiceLocator::make<IColorSelectionPresenter>(_palettes);
+    _colorSelection->setPalette(_palettes.first());
 
     _tools = {{
         Mode::Editor,
@@ -70,74 +84,45 @@ void MainEditorPresenter::initialize(Mode mode)
     _toolPresenters = {
         {
             DefaultTools::BRUSH,
-            _brushTool = ServiceLocator::make<IBrushToolPresenter>(this)
+            _brushTool = ServiceLocator::make<IBrushToolPresenter>(
+                this,
+                _canvasPresenter,
+                _viewPortPresenter,
+                _colorSelection,
+                IBrushToolPresenter::Mode::Brush
+            )
+        },
+        {
+            DefaultTools::ERASER,
+            _brushTool = ServiceLocator::make<IBrushToolPresenter>(
+                this,
+                _canvasPresenter,
+                _viewPortPresenter,
+                _colorSelection,
+                IBrushToolPresenter::Mode::Eraser
+            )
         },
         {
             DefaultTools::NAVIGATE,
-            _navigateTool = ServiceLocator::make<INavigateToolPresenter>(this)
+            _navigateTool = ServiceLocator::make<INavigateToolPresenter>(
+                this,
+                _canvasPresenter,
+                _viewPortPresenter
+            )
         }
     };
 
-    // _propertyDecorationHelper.setIconPool({
-    //     { DefaultTools::BRUSH, QIcon(":/icons/brush.png") },
-    //     { DefaultTools::NAVIGATE, QIcon(":/icons/navigate.png") }
-    // });
-
-    // _propertyDecorationHelper.initializeIdProperty<ToolId>(
-    //     "currentTool",
-    //     {
-    //         DefaultTools::BRUSH,
-    //         DefaultTools::NAVIGATE
-    //     }
-    // );
+    _view = ServiceLocator::make<IMainEditorView>(this);
 
     _loadDocumentTask = new LoadDocumentTask(this);
     connect(_loadDocumentTask, &AsyncTask::completed, this, &MainEditorPresenter::onLoadDocumentCompleted);
 
-    _palettes = { 
-        ServiceLocator::makeShared<IPalettePresenter>(
-            std::ref(ServiceLocator::get<IPalette>(GlobalConstants::CorePalettes::BasicPalette))
-        ) // wow that's crunchy :)
-    };
-
-    _colorSelection = ServiceLocator::make<IColorSelectionPresenter>(_palettes);
-    _colorSelection->setPalette(_palettes.first());
-}
-
-IMainEditorView* MainEditorPresenter::getView()
-{
-    if (!_view)
-    {
-        _view = ServiceLocator::make<IMainEditorView>(this);
-    }
-    return _view;
-}
-
-ICanvasPresenter* MainEditorPresenter::getCanvasPresenter()
-{
-    if (!_canvasPresenter)
-    {
-        _canvasPresenter = ServiceLocator::make<ICanvasPresenter>(this);
-    }
-    return _canvasPresenter;
-}
-
-IViewPortPresenter* MainEditorPresenter::getViewPortPresenter()
-{
-    if (!_viewPortPresenter)
-    {
-        _viewPortPresenter = ServiceLocator::make<IViewPortPresenter>(this);
-    }
-    return _viewPortPresenter;
-}
-
-IColorSelectionPresenter& MainEditorPresenter::colorSelection()
-{
-    return *_colorSelection;
+    _initHelper.initializeEnd();
 }
 
 void MainEditorPresenter::setDocumentPresenter(IDocumentPresenter* documentPresenter)
 {
+    _initHelper.check(); 
     _documentPresenter = documentPresenter;
 
     _selectedLayer = _documentPresenter->getLayers().first();
@@ -148,12 +133,14 @@ void MainEditorPresenter::setDocumentPresenter(IDocumentPresenter* documentPrese
 
 void MainEditorPresenter::setMode(Mode mode)
 {
+    _initHelper.check(); 
     _mode = mode;
     //emit
 }
 
 void MainEditorPresenter::newDocument()
 {
+    _initHelper.check(); 
     if (_mode == Editor && !isEmpty())
     {
         IMainEditorPresenter* newPresenter = ServiceLocator::make<IMainEditorPresenter>(_mode);
@@ -171,6 +158,7 @@ void MainEditorPresenter::newDocument()
 
 void MainEditorPresenter::loadDocument(QUrl url)
 {
+    _initHelper.check(); 
     if (_mode == Editor && !isEmpty())
     {
         IMainEditorPresenter* newPresenter = ServiceLocator::make<IMainEditorPresenter>(_mode);
@@ -189,11 +177,13 @@ void MainEditorPresenter::loadDocument(QUrl url)
 
 void MainEditorPresenter::onLoadDocumentCompleted()
 {
+    _initHelper.check(); 
     setDocumentPresenter(_loadDocumentTask->getDocumentPresenter());
 }
 
 void MainEditorPresenter::selectTool(ToolId tool)
 {
+    _initHelper.check(); 
     if (tool == _currentTool)
         return;
 
@@ -207,9 +197,9 @@ void MainEditorPresenter::selectTool(ToolId tool)
     IToolPresenter* previousTool = _currentToolPresenter;
     _currentToolPresenter = _toolPresenters.value(tool);
     emit currentToolChanged(_currentTool);
-    emit _currentToolPresenter->selectionChanged(true);
+    emit _currentToolPresenter->setSelected(true);
     if (previousTool)
-        emit previousTool->selectionChanged(false);
+        emit previousTool->setSelected(false);
 }
 
 void MainEditorPresenter::selectLayer(QWeakPointer<ILayerPresenter> layer)

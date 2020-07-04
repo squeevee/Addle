@@ -2,6 +2,8 @@
 
 #include "utilities/qtextensions/qobject.hpp"
 
+#include "utilities/presenter/propertybinding.hpp"
+
 #include <QtDebug>
 #include <QListWidget>
 #include <QListWidgetItem>
@@ -32,8 +34,8 @@ SizeSelector::SizeSelector(QWidget* parent)
     customPxLabel->setText("Custom (px)");
     layout->addWidget(customPxLabel, 1, 0);
 
-    QDoubleSpinBox* customPxSpinBox = new QDoubleSpinBox(this);
-    layout->addWidget(customPxSpinBox, 1, 1);
+    _customPxSpinBox = new QDoubleSpinBox(this);
+    layout->addWidget(_customPxSpinBox, 1, 1);
 
     updatePresets();
 }
@@ -65,7 +67,7 @@ void SizeSelector::updatePresets()
     for (double preset : _presenter->presets())
     {   
         QListWidgetItem* item = new QListWidgetItem(_list);
-        item->setText(QString::number(preset));
+        item->setText(QString("%1 px").arg(preset));
 
         _items[preset] = item;
         _itemValues[item] = preset;
@@ -84,7 +86,7 @@ void SizeSelector::updatePresets()
     if (_presenter->selectedPreset() != -1)
     {
         double selectedPreset = _presenter->get();
-        _items[selectedPreset]->setSelected(true);
+        _items.value(selectedPreset)->setSelected(true);
     }
 }
 
@@ -94,8 +96,70 @@ void SizeSelector::setPresenter(const PresenterAssignment<ISizeSelectionPresente
     _presenter = presenter;
     
     _presenter.connect(
-        SIGNAL(presetIconsChanged(QList<QIcon>)),
+        SIGNAL(presetsChanged(QList<double>)),
         this, SLOT(updatePresets()));
-    
+
+    _presenter.connect(
+        SIGNAL(iconsChanged()),
+        this, SLOT(update()));
+
+    if (_customPxBinding) delete _customPxBinding;
+
+    _customPxSpinBox->setMinimum(_presenter->min());
+    _customPxSpinBox->setMaximum(qMin(_presenter->max(), 6000.0));
+    if (_presenter->strictSizing())
+    {
+        _customPxSpinBox->setEnabled(false);
+        _customPxBinding = new PropertyBinding(_customPxSpinBox, "value",
+            qobject_interface_cast(_presenter.data()), "size",
+            PropertyBinding::ReadOnly);
+    }
+    else
+    {
+        _customPxSpinBox->setEnabled(true);
+        _customPxBinding = new PropertyBinding(_customPxSpinBox, "value",
+            qobject_interface_cast(_presenter.data()), "size",
+            PropertyBinding::ReadWrite);
+    }
+
     updatePresets();
+}
+
+SizeSelectorButton::SizeSelectorButton(QWidget* parent)
+    : PopupButton(parent)
+{
+    _sizeSelector = new SizeSelector();
+    
+    setPopup(_sizeSelector);
+    connect(_sizeSelector, &SizeSelector::changed, this, &PopupButton::closePopup);
+}
+
+void SizeSelectorButton::setPresenter(const PresenterAssignment<ISizeSelectionPresenter>& presenter)
+{
+    if (presenter == _presenter) return;
+
+    _sizeSelector->setPresenter(presenter);
+    _presenter = presenter;
+
+    _presenter.connect(
+        SIGNAL(changed(double)),
+        this, SLOT(onChange()));
+
+    _presenter.connect(
+        SIGNAL(iconsChanged()),
+        this, SLOT(update()));
+
+    onChange();
+}
+
+void SizeSelectorButton::onChange()
+{
+    QIcon icon;
+    if (_presenter)
+        icon = _presenter->icon();
+    setIcon(icon);
+
+    double value = _presenter->get();
+    if (!qIsNaN(value))
+        setText(QString("%1 px").arg(value));
 }

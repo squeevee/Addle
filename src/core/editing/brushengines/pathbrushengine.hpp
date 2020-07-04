@@ -16,7 +16,7 @@ public:
 
     BrushEngineId id() const { return ID; }
 
-    BrushInfo info(const IBrushModel& model) const { return BrushInfo::fromDefaults(); }
+    //BrushInfo info(const IBrushModel& model) const { return BrushInfo::fromDefaults(); }
 
     QPainterPath indicatorShape(const BrushStroke& painter) const;
     void paint(BrushStroke& painter) const;

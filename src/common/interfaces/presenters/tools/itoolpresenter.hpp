@@ -21,14 +21,11 @@ public:
     virtual IMainEditorPresenter* getOwner() = 0;
 
     virtual ToolId getId() = 0;
-    virtual bool isSelected() = 0;
 
-public slots:
-    virtual void select() = 0;
-
+    virtual bool isSelected() const = 0;
+    virtual void setSelected(bool isSelected) = 0;
 signals:
-    virtual void selectionChanging(bool willBeSelected) = 0;
-    virtual void selectionChanged(bool selected) = 0;
+    virtual void isSelectedChanged(bool isSelected) = 0;
 };
 
 DECL_IMPLEMENTED_AS_QOBJECT(IToolPresenter)

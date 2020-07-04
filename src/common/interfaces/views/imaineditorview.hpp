@@ -8,6 +8,8 @@
 #include "interfaces/traits/makeable_trait.hpp"
 
 class IMainEditorPresenter;
+class IViewPortPresenter;
+class ICanvasPresenter;
 class IMainEditorView: public virtual IMainView
 {
 public:

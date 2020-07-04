@@ -18,15 +18,32 @@ void BrushPresenter::initialize(IBrushModel& model)
     _model = &model;
     _id = _model->id();
 
-    _sizeSelection = ServiceLocator::makeUnique<ISizeSelectionPresenter>();
+    _iconHelper.setBrush(_id);
+    _iconHelper.setBackground(Qt::white);
 
-    QList<double> presets = _model->info().getPreferredSizes();
+    _sizeSelection = ServiceLocator::makeUnique<ISizeSelectionPresenter>(_iconHelper.sizeIconProvider());
+
+    QList<double> presets = _model->preferredSizes();
     if (presets.isEmpty())
-        presets = qListFromArray(IBrushPresenterAux::DEFAULT_SIZES);
-
+    {
+        for (double preset : IBrushPresenterAux::DEFAULT_SIZES)
+        {
+            if (preset >= _model->minSize() && preset <= _model->maxSize())
+                presets.append(preset);
+            // probably a way to do this in one line with iterators
+            // try it if you're feeling spicy.
+        }
+    }
     _sizeSelection->setPresets(presets);
+    
+    _sizeSelection->setMin(_model->minSize());
+    _sizeSelection->setMax(_model->maxSize());
+    _sizeSelection->setStrictSizing(_model->strictSizing());
 
-    connect_interface(_sizeSelection.get(), SIGNAL(scaleChanged(double)), this, SLOT(onSizeSelectionScaleChanged()));
+    if (!qIsNaN(_model->preferredStartingSize()))
+        _sizeSelection->set(_model->preferredStartingSize());
+    else
+        _sizeSelection->set(qBound(_model->minSize(), IBrushPresenterAux::DEFAULT_START_SIZE, _model->maxSize()));
     
     if (!_model->icon().isNull())
     {
@@ -34,11 +51,9 @@ void BrushPresenter::initialize(IBrushModel& model)
     }
     else 
     {
-        _assetIcon = _iconHelper.icon(_id, Qt::blue);
+        //_assetIcon = _iconHelper.icon(_id, Qt::blue);
     }
 
-    _iconHelper.setBackground(Qt::white);
-    updateSizeSelectionIcons();
     
     _initHelper.initializeEnd();
 }
@@ -52,23 +67,6 @@ void BrushPresenter::initialize(BrushId id)
     _initHelper.initializeEnd();
 }
 
-void BrushPresenter::onSizeSelectionScaleChanged()
-{
-    updateSizeSelectionIcons();
-}
-
-void BrushPresenter::updateSizeSelectionIcons()
-{
-    double scale = _sizeSelection->scale();
-
-    QList<QIcon> icons;
-    for(double preset : _sizeSelection->presets())
-    {
-        icons.append(_iconHelper.icon(_id, Qt::blue, preset, scale));
-    }
-    _sizeSelection->setPresetIcons(icons);
-}
-
 QIcon BrushPresenter::icon()
 {
     return _assetIcon;
@@ -77,4 +75,16 @@ QIcon BrushPresenter::icon()
 QString BrushPresenter::name()
 {
     return ADDLE_TEXT(QString("brushes.%1.text").arg(_id.getKey()));
+}
+
+void BrushPresenter::setPreviewColor(QColor color)
+{
+    _iconHelper.setColor(color);
+    if (_sizeSelection) emit _sizeSelection->iconsChanged();
+}
+
+void BrushPresenter::setPreviewScale(double scale)
+{
+    _iconHelper.setScale(scale);
+    if (_sizeSelection) emit _sizeSelection->iconsChanged();
 }

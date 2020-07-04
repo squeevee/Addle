@@ -7,7 +7,6 @@
 
 #include "idtypes/brushengineid.hpp"
 
-#include "utilities/editing/brushinfo.hpp"
 #include "utilities/editing/brushstroke.hpp"
 
 #include "interfaces/traits/by_id_traits.hpp"
@@ -19,8 +18,6 @@ public:
     virtual ~IBrushEngine() = default;
 
     virtual BrushEngineId id() const = 0;
-
-    virtual BrushInfo info(const IBrushModel& model) const = 0;
 
     virtual QPainterPath indicatorShape(const BrushStroke& painter) const = 0;
     virtual void paint(BrushStroke& painter) const = 0;

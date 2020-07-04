@@ -41,6 +41,9 @@ public:
     double size() { return _sizeSelection->get(); }
     void setSize(double size) { _sizeSelection->set(size); }
 
+    void setPreviewColor(QColor color);
+    void setPreviewScale(double scale);
+
 // public slots:
 //     void setSize(SizeOption size) {} //
 //     void setCustomPixelSize(double customPixels) {} //
@@ -49,15 +52,10 @@ public:
 // signals:
 //     void sizeChanged(SizeOption size);
 
-private slots:
-    void onSizeSelectionScaleChanged();
-
 private:
     // SizeOption _size;
     // double _customPixelSize;
     // double _customPercentSize;
-
-    void updateSizeSelectionIcons();
 
     QIcon _assetIcon;
 

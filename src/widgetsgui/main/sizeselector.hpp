@@ -8,11 +8,14 @@
 #include <QWeakPointer>
 
 #include "widgetsgui/utilities/presenterassignment.hpp"
+#include "widgetsgui/utilities/popupbutton.hpp"
 
 #include "interfaces/presenters/tools/isizeselectionpresenter.hpp"
 
+class QDoubleSpinBox;
 class QListWidget;
 class QListWidgetItem;
+class PropertyBinding;
 class SizeSelector : public QWidget
 {
     Q_OBJECT 
@@ -33,12 +36,29 @@ private:
     PresenterAssignment<ISizeSelectionPresenter> _presenter;
 
     QListWidget* _list;
+    QDoubleSpinBox* _customPxSpinBox;
 
-    QMetaObject::Connection _connection_iconsUpdated;
+    PropertyBinding* _customPxBinding = nullptr;
 
     QHash<double, QListWidgetItem*> _items;
     QHash<QListWidgetItem*, double> _itemValues;
 };
 
+class SizeSelectorButton : public PopupButton
+{
+    Q_OBJECT
+public:
+    SizeSelectorButton(QWidget* parent = nullptr);
+
+    void setPresenter(const PresenterAssignment<ISizeSelectionPresenter>& presenter);
+
+private slots:
+    void onChange();
+    
+private:
+
+    SizeSelector* _sizeSelector;
+    PresenterAssignment<ISizeSelectionPresenter> _presenter;
+};
 
 #endif // SIZESELECTOR_HPP

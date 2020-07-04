@@ -6,12 +6,16 @@
 
 using namespace INavigateToolPresenterAux;
 
-void NavigateToolPresenter::initialize(IMainEditorPresenter* owner)
+void NavigateToolPresenter::initialize(IMainEditorPresenter* owner,
+        ICanvasPresenter* canvasPresenter,
+        IViewPortPresenter* viewPort
+    )
 {
     _initHelper.initializeBegin();
-
-    ToolPresenterBase::initialize_p(owner);
     
+    _owner = owner;
+    _viewPort = viewPort;
+
     _initHelper.initializeEnd();
 }
 
@@ -27,10 +31,10 @@ void NavigateToolPresenter::onMove()
     switch (_operation)
     {
     case gripPan:
-        _viewPortPresenter->gripPan(_mouseHelper.getFirstPosition(), _mouseHelper.getLatestPosition());
+        _viewPort->gripPan(_mouseHelper.getFirstPosition(), _mouseHelper.getLatestPosition());
         break;
     case gripPivot:
-        _viewPortPresenter->gripPivot(_mouseHelper.getFirstPosition(), _mouseHelper.getLatestPosition());
+        _viewPort->gripPivot(_mouseHelper.getFirstPosition(), _mouseHelper.getLatestPosition());
         break;
     }
 }

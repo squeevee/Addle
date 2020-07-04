@@ -1,32 +1,31 @@
 #include "sizeselectionpresenter.hpp"
 #include <QtDebug>
 
-QList<double> SizeSelectionPresenter::presets() const { return _presets; }
-double SizeSelectionPresenter::get() const { return _size; }
-int SizeSelectionPresenter::selectedPreset() const { return _selectedPreset; }
-
-void SizeSelectionPresenter::setIcon(QIcon icon)
+void SizeSelectionPresenter::initialize(QSharedPointer<IconProvider> iconProvider)
 {
-    _icon = icon;
-    emit iconChanged(_icon);
+    _initHelper.initializeBegin();
+
+    _iconProvider = iconProvider;
+
+    _initHelper.initializeEnd();
 }
 
-void SizeSelectionPresenter::setPresetIcons(QList<QIcon> icons)
-{
-    _presetIcons = icons;
-    emit presetIconsChanged(_presetIcons);
-}
+QList<double> SizeSelectionPresenter::presets() const { _initHelper.check(); return _presets; }
+double SizeSelectionPresenter::get() const { _initHelper.check(); return _size; }
+int SizeSelectionPresenter::selectedPreset() const { _initHelper.check(); return _selectedPreset; }
 
 void SizeSelectionPresenter::setPresets(QList<double> presets)
-{
+{ 
+    _initHelper.check();
     _presets = presets;
-    
 
     int index = 0;
     _presetsIndex.clear();
+    _presetIcons.clear();
     for (double preset : _presets)
     {
         _presetsIndex[preset] = index;
+        if (_iconProvider) _presetIcons.append(_iconProvider->icon(preset));
         index++;
     }
 
@@ -38,9 +37,13 @@ void SizeSelectionPresenter::setPresets(QList<double> presets)
 }
 
 void SizeSelectionPresenter::set(double size)
-{
+{  
+    _initHelper.check();
+    size = qBound(_min, size, _max);
     _selectedPreset = _presetHelper.nearest(size, 0.01);
     _size = size;
+
+    updateIcon();
 
     emit changed(_size);
     emit selectedPresetChanged(_selectedPreset);
@@ -48,21 +51,24 @@ void SizeSelectionPresenter::set(double size)
 
 void SizeSelectionPresenter::selectPreset(int index)
 {
+    _initHelper.check();
     _selectedPreset = index;
     if (index == -1)
         _size = qQNaN();
     else 
         _size = _presets[index];
+    
+    updateIcon();
 
     emit changed(_size);
     emit selectedPresetChanged(_selectedPreset);
 }
 
-void SizeSelectionPresenter::setScale(double scale)
+void SizeSelectionPresenter::updateIcon()
 {
-    if (_scale != scale)
-    {
-        _scale = scale;
-        emit scaleChanged(_scale);
-    }
+    bool wasNull = _icon.isNull();
+    if (_iconProvider && !qIsNaN(_size) && _size > 0)
+        _icon = _iconProvider->icon(_size);
+
+    if (_icon.isNull() != wasNull) emit iconsChanged();
 }

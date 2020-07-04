@@ -27,6 +27,8 @@ namespace IBrushPresenterAux
         320.0,
         600.0 
     };
+
+    static constexpr double DEFAULT_START_SIZE = 12.0;
 }
 
 // Brushes 
@@ -47,6 +49,9 @@ public:
 
     virtual double size() = 0;
     virtual void setSize(double size) = 0;
+
+    virtual void setPreviewColor(QColor color) = 0;
+    virtual void setPreviewScale(double scale) = 0;
 };
 
 DECL_IMPLEMENTED_AS_QOBJECT(IBrushPresenter)

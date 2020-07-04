@@ -2,12 +2,8 @@
 #define BRUSHTOOLPRESENTER_HPP
 
 #include "compat.hpp"
-#include "toolpresenterbase.hpp"
 #include "interfaces/presenters/tools/ibrushtoolpresenter.hpp"
 #include "interfaces/presenters/operations/ibrushoperationpresenter.hpp"
-
-#include "../helpers/brushiconhelper.hpp"
-#include "../helpers/toolwithassetshelper.hpp"
 
 #include "interfaces/rendering/irenderstep.hpp"
 #include "interfaces/editing/ibrushengine.hpp"
@@ -16,13 +12,18 @@
 #include "utilities/presenter/propertycache.hpp"
 
 #include "utilities/asynctask.hpp"
+#include "utilities/model/colorinfo.hpp"
 
 #include "servicelocator.hpp"
 #include <QQueue>
 
+#include "toolhelpers/toolselecthelper.hpp"
+#include "utilities/initializehelper.hpp"
+#include "toolhelpers/mousehelper.hpp"
+
 #include <memory>
 
-class ADDLE_CORE_EXPORT BrushToolPresenter : public ToolPresenterBase, public virtual IBrushToolPresenter
+class ADDLE_CORE_EXPORT BrushToolPresenter : public QObject, public virtual IBrushToolPresenter
 {
     Q_OBJECT
     Q_PROPERTY(
@@ -33,61 +34,47 @@ class ADDLE_CORE_EXPORT BrushToolPresenter : public ToolPresenterBase, public vi
     )
 public:
     BrushToolPresenter()
-        : //_brushAssetsHelper(*this, IBrushToolPresenterAux::DEFAULT_BRUSH),
-        _initHelper(this)
+        : _selectHelper(*this)
     {
-        _icon = QIcon(":/icons/brush.png");
-        //_brushAssetsHelper.onChange(std::bind(&BrushToolPresenter::updateSizeSelection, this));
+        _mouseHelper.onEngage += std::bind(&BrushToolPresenter::onEngage, this);  
+        _mouseHelper.onMove += std::bind(&BrushToolPresenter::onMove, this);
+        _mouseHelper.onDisengage += std::bind(&BrushToolPresenter::onDisengage, this);
+        _selectHelper.onIsSelectedChanged += std::bind(&BrushToolPresenter::onSelectedChanged, this, std::placeholders::_1);
     }
     virtual ~BrushToolPresenter() = default;
 
-    void initialize(IMainEditorPresenter* owner);
+    void initialize(IMainEditorPresenter* owner,
+        ICanvasPresenter* canvasPresenter,
+        IViewPortPresenter* viewPortPresenter,
+        IColorSelectionPresenter* colorSelection,
+        Mode mode
+    );
 
-    // ISizeSelectionPresenter& sizeSelection();
+    IMainEditorPresenter* getOwner() { _initHelper.check(); return _mainEditor; }
+    ToolId getId();
 
-    ToolId getId() { return IBrushToolPresenterAux::ID; }
-
-    // QList<QSharedPointer<IAssetPresenter>> getAllAssets() { _initHelper.check(); return _brushAssetsHelper.getAllAssets(); }
-    // QSharedPointer<IAssetPresenter> getAssetPresenter(PersistentId id) { _initHelper.check(); return _brushAssetsHelper.getAssetPresenter(id); }
-
-    // PersistentId getSelectedAsset() { _initHelper.check(); return _brushAssetsHelper.getSelectedAsset(); }
-    // void selectAsset(PersistentId id) {_initHelper.check(); _brushAssetsHelper.selectAsset(id); }
-    // QSharedPointer<IAssetPresenter> getSelectedAssetPresenter() { _initHelper.check(); return _brushAssetsHelper.getSelectedAssetPresenter(); }
-
-    // BrushId getSelectedBrush() { _initHelper.check(); return _brushAssetsHelper.getSelectedAsset(); }
-    // QSharedPointer<IBrushPresenter> getSelectedBrushPresenter() { _initHelper.check(); return _brushAssetsHelper.getSelectedAssetPresenter(); }
-    
     IAssetSelectionPresenter& brushSelection() { _initHelper.check(); return *_brushSelection; }
-
-    void selectBrush(BrushId id)
-    {
-        brushSelection().select(id);
-    }
-
+    void selectBrush(BrushId id) { brushSelection().select(id); }
     BrushId selectedBrush()
     {
         return static_cast<BrushId>(brushSelection().selectedId());
     } 
-
     QSharedPointer<IBrushPresenter> selectedBrushPresenter()
     {
         return brushSelection().selectedPresenter().staticCast<IBrushPresenter>();
     }
 
-    virtual bool event(QEvent* e);
+    bool event(QEvent* e) override;
+
+    bool isSelected() const { return _selectHelper.isSelected(); }
+    void setSelected(bool isSelected) { _selectHelper.setSelected(isSelected); }
 
 signals:
     void brushChanged(BrushId brush);
-
-protected:
-    void onEngage();
-    void onMove();
-    void onDisengage();
-
-    void onSelected();
-    void onDeselected();
-
+    void isSelectedChanged(bool isSelected);
+    
 private slots:
+    void onColorChanged(ColorInfo info);
     void onBrushSelectionChanged();
     void onSelectedLayerChanged(QWeakPointer<ILayerPresenter> layer);
     void onSizeChanged(double size);
@@ -95,27 +82,33 @@ private slots:
     void onViewPortZoomChanged(double zoom);
 
 private:
-    // void updateSizeSelection();
-
-    // ISizeSelectionPresenter* _sizeSelection = nullptr;
-
-    IMainEditorPresenter* _mainEditorPresenter;
-    
-    QSharedPointer<BrushStroke> _brushStroke;
-
     class HoverPreview;
-    HoverPreview* _hoverPreview;
 
-    //ToolWithAssetsHelper<IBrushPresenter, BrushId> _brushAssetsHelper;
-    InitializeHelper<BrushToolPresenter> _initHelper;
+    void onEngage();
+    void onMove();
+    void onDisengage();
+    void onSelectedChanged(bool isSelected);
 
-    BrushIconHelper _iconHelper;
-    bool _grace = false;
+    bool _grace;
 
-    std::unique_ptr<IAssetSelectionPresenter> _brushSelection;
+    Mode _mode = (Mode)NULL;
 
     QMetaObject::Connection _connection_onSizeChanged;
 
+    IMainEditorPresenter* _mainEditor;
+    ICanvasPresenter* _canvas;
+    IViewPortPresenter* _viewPort;
+
+    QSharedPointer<BrushStroke> _brushStroke;
+    std::unique_ptr<IAssetSelectionPresenter> _brushSelection;
+    IColorSelectionPresenter* _colorSelection;
+
+    ToolSelectHelper _selectHelper;
+    MouseHelper _mouseHelper;
+
+    std::unique_ptr<HoverPreview> _hoverPreview;
+
+    InitializeHelper<BrushToolPresenter> _initHelper;
     friend class HoverPreview;
 };
 
@@ -123,24 +116,25 @@ class BrushToolPresenter::HoverPreview
 {
 public:
     HoverPreview(BrushToolPresenter& owner);
-    ~HoverPreview();
 
-    void updateBrush();
     void setPosition(QPointF);
-    void setSize(double size);
 
     PropertyCache<bool> isVisible_cache;
-
 private:
     bool calc_visible();
+
+    void update();
     void onVisibleChanged(bool);
+    
     void paint();
 
     QPointF _position;
-    double _size = 0;
+    double _size = qQNaN();
+
+    QSharedPointer<ILayerPresenter> _layer;
 
     QSharedPointer<IRasterSurface> _surface;
-    QSharedPointer<BrushStroke> _brushStroke;
+    std::unique_ptr<BrushStroke> _brushStroke;
 
     BrushToolPresenter& _owner;
 };

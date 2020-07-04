@@ -4,9 +4,13 @@
 #include "interfaces/presenters/tools/itoolpresenter.hpp"
 
 #include "utilities/presenter/propertycache.hpp"
+#include "utilities/canvas/canvasmouseevent.hpp"
 
+#include <QEvent>
 #include <QPointF>
 #include <list>
+
+#include "utilities/helpercallback.hpp"
 
 /**
  * Tracks mouse state for a tool presenter
@@ -15,9 +19,51 @@ class MouseHelper
 {
 public:
 
-    MouseHelper(IToolPresenter& presenter)
-        : _presenter(presenter)
+    inline void event(QEvent* e)
     {
+        e->ignore();
+        if (e->type() == CanvasMouseEvent::getType())
+        {
+            CanvasMouseEvent* canvasMouseEvent = static_cast<CanvasMouseEvent*>(e);
+
+            if (canvasMouseEvent->button() == Qt::RightButton)
+            {
+                // cancel tool operation
+                disengage();
+                e->accept();
+                return;
+            }
+
+            switch (canvasMouseEvent->action())
+            {
+            case CanvasMouseEvent::down:
+                if (engage(canvasMouseEvent->pos()))
+                {
+                    onEngage();
+                }
+                break;
+
+            case CanvasMouseEvent::move:
+                if (move(canvasMouseEvent->pos()))
+                {
+                    onMove();
+                }
+                break;
+
+            case CanvasMouseEvent::up:
+                if (move(canvasMouseEvent->pos()))
+                {
+                    onMove();
+                }
+                if (disengage())
+                {
+                    onDisengage();
+                }
+                break;
+            }
+
+            e->accept();
+        }
     }
 
     inline bool engage(QPointF pos)
@@ -66,6 +112,10 @@ public:
 
     inline std::list<QPointF> getPositions() { return _positions; }
 
+    HelperCallback onEngage;
+    HelperCallback onMove;
+    HelperCallback onDisengage;
+
 private:
 
     bool _engaged = false;
@@ -75,8 +125,6 @@ private:
     QPointF _firstPosition;
     QPointF _previousPosition;
     QPointF _latestPosition;
-
-    IToolPresenter& _presenter;
 
     QCursor _cursor;
     QCursor _engagedCursor;
