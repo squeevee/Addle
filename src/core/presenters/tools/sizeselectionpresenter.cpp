@@ -70,5 +70,5 @@ void SizeSelectionPresenter::updateIcon()
     if (_iconProvider && !qIsNaN(_size) && _size > 0)
         _icon = _iconProvider->icon(_size);
 
-    if (_icon.isNull() != wasNull) emit iconsChanged();
+    if (_icon.isNull() != wasNull) emit refreshPreviews();
 }

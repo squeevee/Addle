@@ -49,14 +49,25 @@ void BrushToolPresenter::initialize(IMainEditorPresenter* owner,
     _canvas = canvasPresenter;
     _viewPort = viewPortPresenter;
     _colorSelection = colorSelection;
+    
+    _previewProvider = QSharedPointer<const IBrushPresenter::PreviewInfoProvider>(
+        new BrushPreviewProvider(this)
+    );
 
     _brushSelection = ServiceLocator::makeUnique<IAssetSelectionPresenter>(
         QList<QSharedPointer<IAssetPresenter>>({
-            ServiceLocator::makeShared<IBrushPresenter>(DefaultBrushes::Basic),
-            ServiceLocator::makeShared<IBrushPresenter>(DefaultBrushes::Soft)
+            ServiceLocator::makeShared<IBrushPresenter>(DefaultBrushes::Basic, _previewProvider),
+            ServiceLocator::makeShared<IBrushPresenter>(DefaultBrushes::Soft, _previewProvider)
         }),
         false
     );
+
+    _brushSelection->setFavorites({ 
+        DefaultBrushes::Basic, 
+        DefaultBrushes::Soft 
+    });
+
+    _brushSelection->select(IBrushToolPresenterAux::DEFAULT_BRUSH);
 
     _hoverPreview = std::unique_ptr<HoverPreview>(new HoverPreview(*this));
 
@@ -65,7 +76,6 @@ void BrushToolPresenter::initialize(IMainEditorPresenter* owner,
     connect_interface(_brushSelection.get(), SIGNAL(selectionChanged(QList<PersistentId>)), this, SLOT(onBrushSelectionChanged()));
     connect_interface(_viewPort, SIGNAL(zoomChanged(double)), this, SLOT(onViewPortZoomChanged(double)));
     connect_interface(_colorSelection, SIGNAL(color1Changed(ColorInfo)), this, SLOT(onColorChanged(ColorInfo)));
-
 
     _initHelper.initializeEnd();
 }
@@ -126,8 +136,8 @@ void BrushToolPresenter::onBrushSelectionChanged()
         SLOT(onSizeChanged(double))
     );
 
-    selectedBrushPresenter()->setPreviewScale(_mainEditor->getViewPortPresenter()->getZoom());
-    selectedBrushPresenter()->setPreviewColor(_mainEditor->colorSelection().color1().color());
+    //selectedBrushPresenter()->setPreviewScale(_mainEditor->getViewPortPresenter()->getZoom());
+    //selectedBrushPresenter()->setPreviewColor(_mainEditor->colorSelection().color1().color());
 
     _hoverPreview->isVisible_cache.recalculate();
     emit brushChanged(selectedBrush());
@@ -146,9 +156,7 @@ void BrushToolPresenter::onColorChanged(ColorInfo info)
     if (_brushStroke)
         _brushStroke->setColor(info.color());
 
-    if (selectedBrushPresenter())
-        selectedBrushPresenter()->setPreviewColor(info.color());
-
+    refreshPreviews();
     _hoverPreview->isVisible_cache.recalculate();
 }
 
@@ -165,7 +173,9 @@ void BrushToolPresenter::onSelectedLayerChanged(QWeakPointer<ILayerPresenter> la
 void BrushToolPresenter::onViewPortZoomChanged(double zoom)
 {
     if (selectedBrushPresenter())
-        selectedBrushPresenter()->setPreviewScale(zoom);
+        selectedBrushPresenter()->sizeSelection().refreshPreviews();
+    
+    refreshPreviews();
 }
 
 void BrushToolPresenter::onEngage()
@@ -332,4 +342,16 @@ void BrushToolPresenter::HoverPreview::paint()
     _surface->clear();
 
     _brushStroke->paint();
+}
+
+double BrushPreviewProvider::scale() const 
+{
+    if (!_presenter || !_presenter->_initHelper.isInitialized()) return 1;
+    else return _presenter->_viewPort->getZoom();
+}
+
+QColor BrushPreviewProvider::color() const
+{
+    if (!_presenter || !_presenter->_initHelper.isInitialized()) return QColor();
+    else return _presenter->_mainEditor->colorSelection().color1().color();
 }

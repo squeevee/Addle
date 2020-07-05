@@ -4,6 +4,7 @@
 #include "compat.hpp"
 #include "interfaces/presenters/tools/ibrushtoolpresenter.hpp"
 #include "interfaces/presenters/operations/ibrushoperationpresenter.hpp"
+#include "interfaces/presenters/assets/ibrushpresenter.hpp"
 
 #include "interfaces/rendering/irenderstep.hpp"
 #include "interfaces/editing/ibrushengine.hpp"
@@ -72,6 +73,7 @@ public:
 signals:
     void brushChanged(BrushId brush);
     void isSelectedChanged(bool isSelected);
+    void refreshPreviews();
     
 private slots:
     void onColorChanged(ColorInfo info);
@@ -108,8 +110,11 @@ private:
 
     std::unique_ptr<HoverPreview> _hoverPreview;
 
+    QSharedPointer<const IBrushPresenter::PreviewInfoProvider> _previewProvider;
+
     InitializeHelper<BrushToolPresenter> _initHelper;
     friend class HoverPreview;
+    friend class BrushPreviewProvider;
 };
 
 class BrushToolPresenter::HoverPreview
@@ -137,6 +142,26 @@ private:
     std::unique_ptr<BrushStroke> _brushStroke;
 
     BrushToolPresenter& _owner;
+};
+
+class BrushPreviewProvider : public QObject, public IBrushPresenter::PreviewInfoProvider
+{
+    Q_OBJECT
+public:
+    BrushPreviewProvider(QPointer<BrushToolPresenter> presenter)
+        : _presenter(presenter)
+    {
+    }
+    virtual ~BrushPreviewProvider() = default;
+
+    double scale() const override;
+    QColor color() const override;
+
+signals:
+    void refresh();
+
+private:
+    QPointer<BrushToolPresenter> _presenter;
 };
 
 #endif // BRUSHTOOLPRESENTER_HPP

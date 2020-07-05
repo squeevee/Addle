@@ -1,4 +1,6 @@
 #include "assetselector.hpp"
+#include "utilities/qtextensions/qobject.hpp"
+#include "interfaces/presenters/assets/iassetpresenter.hpp"
 #include <QGridLayout>
 
 #include <QtDebug>
@@ -14,10 +16,10 @@ AssetSelector::AssetSelector(IAssetSelectionPresenter& presenter, QWidget* paren
     // _list->setFlow(QListView::LeftToRight);
     // _list->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
     // _list->setMaximumHeight(45);
-    // _list->setIconSize(QSize(16, 16));
+    _list->setIconSize(QSize(64, 64));
     layout->addWidget(_list);
 
-    connect(_list, &QListWidget::itemSelectionChanged, this, &AssetSelector::onSelectionChanged);
+    connect(_list, &QListWidget::itemSelectionChanged, this, &AssetSelector::onListSelectionChanged);
 
     for (auto asset : _presenter.assets())
     {
@@ -31,13 +33,11 @@ AssetSelector::AssetSelector(IAssetSelectionPresenter& presenter, QWidget* paren
         _list->addItem(item);
     }
 
-    for (auto selected : _presenter.selectedIds())
-    {
-        _items[selected]->setSelected(true);
-    }
+    connect_interface(&_presenter, SIGNAL(selectionChanged(QList<PersistentId>)), this, SLOT(onPresenterSelectionChanged()));
+    onPresenterSelectionChanged();
 }
 
-void AssetSelector::onSelectionChanged()
+void AssetSelector::onListSelectionChanged()
 {
     QList<PersistentId> selected;
     for (auto item : _list->selectedItems())
@@ -48,4 +48,12 @@ void AssetSelector::onSelectionChanged()
     _presenter.select(selected);
 
     emit changed();
+}
+
+void AssetSelector::onPresenterSelectionChanged()
+{
+    for (auto selected : _presenter.selectedIds())
+    {
+        _items.value(selected)->setSelected(true);
+    }
 }

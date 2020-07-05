@@ -55,7 +55,7 @@ BrushIconHelper::BrushIconEngine::BrushIconEngine(
     double size
 )
     : _helper(helper),
-    _brushStroke(brush, _helper->_color, size, helper->_surface)
+    _brushStroke(brush, _helper->color(), size, helper->_surface)
 {
     _brushStroke.setPreview(true);
 }
@@ -65,7 +65,7 @@ BrushIconHelper::BrushIconEngine::BrushIconEngine(
     BrushId brush
 )
     : _helper(helper),
-    _brushStroke(brush, _helper->_color, 0, helper->_surface),
+    _brushStroke(brush, _helper->color(), 0, helper->_surface),
     _autoSize(true)
 {
     _brushStroke.setPreview(true);
@@ -89,7 +89,7 @@ void BrushIconHelper::BrushIconEngine::paint(QPainter* painter, const QRect& rec
     QPointF center;
     QRectF canonicalRect;
     double size;
-    double scale = _helper->_scale;
+    double scale = _helper->scale();
 
     if (_autoSize)
     {
@@ -106,7 +106,7 @@ void BrushIconHelper::BrushIconEngine::paint(QPainter* painter, const QRect& rec
         );
     }
 
-    _brushStroke.setColor(_helper->_color);
+    _brushStroke.setColor(_helper->color());
 
     // This position algorithm assumes that the brush will look good if treated
     // as a circle with r = 1/2 size. Naturally, as brush appearances become
@@ -175,7 +175,7 @@ void BrushIconHelper::BrushIconEngine::paint(QPainter* painter, const QRect& rec
 
     // TODO: adjust background color for contrast if needed
 
-    painter->fillRect(rect, _helper->_background);
+    painter->fillRect(rect, _helper->background());
 
     painter->save();
 

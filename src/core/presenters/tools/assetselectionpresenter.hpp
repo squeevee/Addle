@@ -48,8 +48,8 @@ public:
 
     QSharedPointer<IAssetPresenter> assetById(PersistentId id) { _initHelper.check(); return _assets_ById.value(id); }
     
-    QSet<PersistentId> favorites() { _initHelper.check(); return _favorites;}
-    void setFavorites(QSet<PersistentId> favorites);
+    QList<PersistentId> favorites() { _initHelper.check(); return _favorites;}
+    void setFavorites(QList<PersistentId> favorites);
 
     void addFavorite(PersistentId id);
     void removeFavorite(PersistentId id);
@@ -59,8 +59,9 @@ public:
 signals:
     void selectionChanged(QList<PersistentId> selection);
     void assetsChanged(QList<PersistentId> ids);
-    void favoritesChanged(QSet<PersistentId> favorites);
+    void favoritesChanged(QList<PersistentId> favorites);
 
+    void refresh();
 public:
     void pushRecent(PersistentId id);
 
@@ -73,7 +74,7 @@ public:
     QList<PersistentId> _selectedIds;
     QList<QSharedPointer<IAssetPresenter>> _selection;
 
-    QSet<PersistentId> _favorites;
+    QList<PersistentId> _favorites;
 
     std::list<PersistentId> _recent;
     QHash<PersistentId, std::list<PersistentId>::iterator> _recentIndex;

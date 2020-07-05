@@ -11,6 +11,7 @@
 
 #include "idtypes/brushid.hpp"
 #include "utilities/editing/brushstroke.hpp"
+#include "interfaces/presenters/assets/ibrushpresenter.hpp"
 #include "interfaces/presenters/tools/isizeselectionpresenter.hpp"
 #include "interfaces/editing/irastersurface.hpp"
 
@@ -27,10 +28,7 @@ public:
     QIcon varyBrush(BrushId brush) const;
 
     void setBrush(BrushId brush) { _brush = brush;}
-    void setColor(QColor color) { _color = color; }
-
-    void setScale(double scale) { _scale = scale; }
-    void setBackground(QColor background) { _background = background; }
+    void setInfoProvider(QSharedPointer<const IBrushPresenter::PreviewInfoProvider> info) { _info = info; }
 
     QSharedPointer<ISizeSelectionPresenter::IconProvider> sizeIconProvider();
 
@@ -74,11 +72,12 @@ private:
     mutable QSharedPointer<IRasterSurface> _surface;
 
     BrushId _brush;
-    QColor _color;
 
-    double _scale = 1.0;
-    QColor _background;
+    inline double scale() const { return _info ? _info->scale() : 1; }
+    inline QColor color() const { return _info ? _info->color() : QColor(); }
+    inline QColor background() const { return Qt::white; }
 
+    QSharedPointer<const IBrushPresenter::PreviewInfoProvider> _info;
     QSharedPointer<ISizeSelectionPresenter::IconProvider> _sizeIconProvider;
 
     friend class BrushIconEngine;

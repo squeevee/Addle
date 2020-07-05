@@ -17,8 +17,8 @@ class ADDLE_CORE_EXPORT BrushPresenter : public QObject, public IBrushPresenter
     Q_OBJECT 
 public:
     BrushPresenter() : _initHelper(this) {}
-    void initialize(IBrushModel& model);
-    void initialize(BrushId id);
+    void initialize(IBrushModel& model, QSharedPointer<const PreviewInfoProvider> info = nullptr);
+    void initialize(BrushId id, QSharedPointer<const PreviewInfoProvider> info = nullptr);
 
     PersistentId getId() { return getBrushId(); }
     BrushId getBrushId() { _initHelper.check(); return _id; }
@@ -41,8 +41,7 @@ public:
     double size() { return _sizeSelection->get(); }
     void setSize(double size) { _sizeSelection->set(size); }
 
-    void setPreviewColor(QColor color);
-    void setPreviewScale(double scale);
+    void setPreviewInfo(QSharedPointer<const PreviewInfoProvider> info);
 
 // public slots:
 //     void setSize(SizeOption size) {} //
@@ -63,7 +62,6 @@ private:
     IBrushModel* _model;
 
     std::unique_ptr<ISizeSelectionPresenter> _sizeSelection;
-
     BrushIconHelper _iconHelper;
 
     InitializeHelper<BrushPresenter> _initHelper;

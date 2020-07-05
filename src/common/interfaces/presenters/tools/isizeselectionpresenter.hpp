@@ -46,10 +46,11 @@ public slots:
     virtual void selectPreset(int index) = 0;
 
 signals:
-    virtual void iconsChanged() = 0;
     virtual void changed(double size) = 0;
     virtual void selectedPresetChanged(int index) = 0;
     virtual void presetsChanged(QList<double> presets) = 0;
+
+    virtual void refreshPreviews() = 0;
 };
 
 DECL_EXPECTS_INITIALIZE(ISizeSelectionPresenter);

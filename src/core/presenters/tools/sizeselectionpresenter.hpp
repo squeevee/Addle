@@ -46,11 +46,12 @@ public slots:
     void selectPreset(int index);
 
 signals:
-    void iconsChanged();
     void changed(double size);
     void selectedPresetChanged(int index);
     void presetsChanged(QList<double> presets);
 
+    void refreshPreviews();
+    
 private:
     void updateIcon();
 

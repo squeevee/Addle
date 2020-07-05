@@ -109,7 +109,7 @@ void AssetSelectionPresenter::setAssets(QList<QSharedPointer<IAssetPresenter>> a
     }
 }    
 
-void AssetSelectionPresenter::setFavorites(QSet<PersistentId> favorites)
+void AssetSelectionPresenter::setFavorites(QList<PersistentId> favorites)
 {
     _initHelper.check();
     if (favorites != _favorites)
@@ -124,7 +124,7 @@ void AssetSelectionPresenter::addFavorite(PersistentId id)
     _initHelper.check();
     if (!_favorites.contains(id)) 
     {
-        _favorites.insert(id);
+        _favorites.append(id);
         emit favoritesChanged(_favorites);
     }
 }
@@ -134,7 +134,7 @@ void AssetSelectionPresenter::removeFavorite(PersistentId id)
     _initHelper.check();
     if (_favorites.contains(id)) 
     {
-        _favorites.remove(id);
+        _favorites.removeAll(id);
         emit favoritesChanged(_favorites);
     }
 }

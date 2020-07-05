@@ -9,6 +9,7 @@ set (
     canvas/layeritem.cpp
     main/assetselector.cpp
     main/colorselector.cpp
+    main/favoriteassetspicker.cpp
     main/maineditorview.cpp
     main/paletteview.cpp
     main/sizeselector.cpp

@@ -11,7 +11,7 @@
 #include "utilities/qtextensions/qobject.hpp"
 #include <QtDebug>
 
-void BrushPresenter::initialize(IBrushModel& model)
+void BrushPresenter::initialize(IBrushModel& model, QSharedPointer<const PreviewInfoProvider> info)
 {
     _initHelper.initializeBegin();
 
@@ -19,7 +19,7 @@ void BrushPresenter::initialize(IBrushModel& model)
     _id = _model->id();
 
     _iconHelper.setBrush(_id);
-    _iconHelper.setBackground(Qt::white);
+    _iconHelper.setInfoProvider(info);
 
     _sizeSelection = ServiceLocator::makeUnique<ISizeSelectionPresenter>(_iconHelper.sizeIconProvider());
 
@@ -51,18 +51,18 @@ void BrushPresenter::initialize(IBrushModel& model)
     }
     else 
     {
-        //_assetIcon = _iconHelper.icon(_id, Qt::blue);
+        _assetIcon = _iconHelper.icon();
     }
 
     
     _initHelper.initializeEnd();
 }
 
-void BrushPresenter::initialize(BrushId id)
+void BrushPresenter::initialize(BrushId id, QSharedPointer<const PreviewInfoProvider> info)
 {
     _initHelper.initializeBegin();
 
-    initialize(ServiceLocator::get<IBrushModel>(id));
+    initialize(ServiceLocator::get<IBrushModel>(id), info);
 
     _initHelper.initializeEnd();
 }
@@ -77,14 +77,7 @@ QString BrushPresenter::name()
     return ADDLE_TEXT(QString("brushes.%1.text").arg(_id.getKey()));
 }
 
-void BrushPresenter::setPreviewColor(QColor color)
+void BrushPresenter::setPreviewInfo(QSharedPointer<const PreviewInfoProvider> info)
 {
-    _iconHelper.setColor(color);
-    if (_sizeSelection) emit _sizeSelection->iconsChanged();
-}
-
-void BrushPresenter::setPreviewScale(double scale)
-{
-    _iconHelper.setScale(scale);
-    if (_sizeSelection) emit _sizeSelection->iconsChanged();
+    _iconHelper.setInfoProvider(info);
 }

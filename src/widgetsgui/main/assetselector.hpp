@@ -17,7 +17,8 @@ signals:
     void changed();
 
 private slots:
-    void onSelectionChanged();
+    void onListSelectionChanged();
+    void onPresenterSelectionChanged();
 
 private:
     IAssetSelectionPresenter& _presenter;

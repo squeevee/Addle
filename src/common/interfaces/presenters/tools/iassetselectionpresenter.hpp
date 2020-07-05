@@ -36,8 +36,8 @@ public:
 
     virtual QSharedPointer<IAssetPresenter> assetById(PersistentId id) = 0;
 
-    virtual QSet<PersistentId> favorites() = 0;
-    virtual void setFavorites(QSet<PersistentId> favorites) = 0;
+    virtual QList<PersistentId> favorites() = 0;
+    virtual void setFavorites(QList<PersistentId> favorites) = 0;
 
     virtual void addFavorite(PersistentId id) = 0;
     virtual void removeFavorite(PersistentId id) = 0;
@@ -47,7 +47,7 @@ public:
 signals:
     virtual void selectionChanged(QList<PersistentId> selection) = 0;
     virtual void assetsChanged(QList<PersistentId> ids) = 0;
-    virtual void favoritesChanged(QSet<PersistentId> favorites) = 0;
+    virtual void favoritesChanged(QList<PersistentId> favorites) = 0;
 };
 
 DECL_MAKEABLE(IAssetSelectionPresenter);

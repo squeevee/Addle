@@ -12,6 +12,7 @@
 
 class PopupButton;
 class SizeSelectorButton;
+class FavoriteAssetsPicker;
 class ADDLE_WIDGETSGUI_EXPORT BrushToolOptionsBar : public ToolOptionBarBase 
 {
     Q_OBJECT 
@@ -22,9 +23,11 @@ public:
 
     BrushToolOptionsBar(IBrushToolPresenter& presenter, QWidget* parent);
 
-    OptionAction* _action_brush_basic;
-    OptionAction* _action_brush_soft;
-    OptionGroup* _optionGroup_brush;
+    // OptionAction* _action_brush_basic;
+    // OptionAction* _action_brush_soft;
+    // OptionGroup* _optionGroup_brush;
+
+    FavoriteAssetsPicker* _favoriteBrushes;
 
     AssetSelector* _brushSelector;
     PopupButton* _button_brushSelector;
@@ -33,6 +36,7 @@ public:
 
 private slots:
     void onBrushChanged();
+    void onRefreshPreviews();
 
 private:
     IBrushToolPresenter& _presenter;

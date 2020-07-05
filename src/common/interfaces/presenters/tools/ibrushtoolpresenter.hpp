@@ -29,7 +29,13 @@ namespace IBrushToolPresenterAux
         static const BrushId Soft;
     };
 
+    struct ADDLE_COMMON_EXPORT DefaultErasers
+    {
+        static const BrushId Basic;
+    };
+
     ADDLE_COMMON_EXPORT extern const BrushId DEFAULT_BRUSH; // DefaultBrushes::Basic
+    ADDLE_COMMON_EXPORT extern const BrushId DEFAULT_ERASER;
 }
 
 class IMainEditorPresenter;
@@ -62,6 +68,7 @@ public:
     virtual QSharedPointer<IBrushPresenter> selectedBrushPresenter() = 0;
 signals:
     virtual void brushChanged(BrushId brush) = 0;
+    virtual void refreshPreviews() = 0;
 };
 
 DECL_INTERFACE_META_PROPERTIES(IBrushToolPresenter,

@@ -12,6 +12,8 @@
 #include "utilities/addle_text.hpp"
 #include "globalconstants.hpp"
 
+#include "../favoriteassetspicker.hpp"
+
 #include "widgetsgui/utilities/popupbutton.hpp"
 
 #include "interfaces/presenters/tools/iassetselectionpresenter.hpp"
@@ -20,28 +22,31 @@ BrushToolOptionsBar::BrushToolOptionsBar(IBrushToolPresenter& presenter, QWidget
     : ToolOptionBarBase(presenter, parent),
     _presenter(presenter)
 {
-    _optionGroup_brush = new OptionGroup(this);
+    // _optionGroup_brush = new OptionGroup(this);
 
-    _action_brush_basic = new OptionAction(GlobalConstants::CoreBrushes::BasicBrush, this);
-    _action_brush_basic->setText(ADDLE_TEXT("brushes.basic-brush.text"));
-    _action_brush_basic->setToolTip(ADDLE_TEXT("brushes.basic-brush.toolTip"));
-    _optionGroup_brush->addOption(_action_brush_basic);
+    // _action_brush_basic = new OptionAction(GlobalConstants::CoreBrushes::BasicBrush, this);
+    // _action_brush_basic->setText(ADDLE_TEXT("brushes.basic-brush.text"));
+    // _action_brush_basic->setToolTip(ADDLE_TEXT("brushes.basic-brush.toolTip"));
+    // _optionGroup_brush->addOption(_action_brush_basic);
 
-    QToolBar::addAction(_action_brush_basic);
+    // QToolBar::addAction(_action_brush_basic);
 
-    _action_brush_soft = new OptionAction(GlobalConstants::CoreBrushes::SoftBrush, this);
-    _action_brush_soft->setText(ADDLE_TEXT("brushes.soft-brush.text"));
-    _action_brush_soft->setToolTip(ADDLE_TEXT("brushes.soft-brush.toolTip"));
-    _optionGroup_brush->addOption(_action_brush_soft);
+    // _action_brush_soft = new OptionAction(GlobalConstants::CoreBrushes::SoftBrush, this);
+    // _action_brush_soft->setText(ADDLE_TEXT("brushes.soft-brush.text"));
+    // _action_brush_soft->setToolTip(ADDLE_TEXT("brushes.soft-brush.toolTip"));
+    // _optionGroup_brush->addOption(_action_brush_soft);
 
-    QToolBar::addAction(_action_brush_soft);
+    // QToolBar::addAction(_action_brush_soft);
 
-    new PropertyBinding(
-        _optionGroup_brush,
-        WidgetProperties::value,
-        qobject_interface_cast(&_presenter),
-        IBrushToolPresenter::Meta::Properties::selectedBrush
-    );
+    // new PropertyBinding(
+    //     _optionGroup_brush,
+    //     WidgetProperties::value,
+    //     qobject_interface_cast(&_presenter),
+    //     IBrushToolPresenter::Meta::Properties::selectedBrush
+    // );
+
+    _favoriteBrushes = new FavoriteAssetsPicker(_presenter.brushSelection(), this);
+    QToolBar::addWidget(_favoriteBrushes);
 
     _brushSelector = new AssetSelector(_presenter.brushSelection(), this);
     _button_brushSelector = new PopupButton(this);
@@ -85,6 +90,12 @@ BrushToolOptionsBar::BrushToolOptionsBar(IBrushToolPresenter& presenter, QWidget
             //_button_sizeSelect->setPresenter(sizeSelectionPresenter);
         }
     }
+
+    connect_interface(&_presenter,
+        SIGNAL(refreshPreviews()),
+        this, 
+        SLOT(onRefreshPreviews())
+    );
 }
 
 void BrushToolOptionsBar::onBrushChanged()
@@ -96,4 +107,10 @@ void BrushToolOptionsBar::onBrushChanged()
 
     _button_sizeSelector->setPresenter(sizePresenter);
     //_button_sizeSelect->setPresenter(sizeSelectionPresenter);
+}
+void BrushToolOptionsBar::onRefreshPreviews()
+{
+    _button_sizeSelector->update();
+    _brushSelector->update();
+    _favoriteBrushes->update();
 }

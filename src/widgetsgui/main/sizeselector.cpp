@@ -100,7 +100,7 @@ void SizeSelector::setPresenter(const PresenterAssignment<ISizeSelectionPresente
         this, SLOT(updatePresets()));
 
     _presenter.connect(
-        SIGNAL(iconsChanged()),
+        SIGNAL(refreshPreviews()),
         this, SLOT(update()));
 
     if (_customPxBinding) delete _customPxBinding;
@@ -146,7 +146,7 @@ void SizeSelectorButton::setPresenter(const PresenterAssignment<ISizeSelectionPr
         this, SLOT(onChange()));
 
     _presenter.connect(
-        SIGNAL(iconsChanged()),
+        SIGNAL(refreshPreviews()),
         this, SLOT(update()));
 
     onChange();
