@@ -46,6 +46,8 @@ namespace GlobalConstants
     {
         extern ADDLE_COMMON_EXPORT const BrushId BasicBrush;
         extern ADDLE_COMMON_EXPORT const BrushId SoftBrush;
+
+        extern ADDLE_COMMON_EXPORT const BrushId BasicEraser;
     };
 
     namespace CoreFormats

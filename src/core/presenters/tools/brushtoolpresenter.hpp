@@ -70,10 +70,14 @@ public:
     bool isSelected() const { return _selectHelper.isSelected(); }
     void setSelected(bool isSelected) { _selectHelper.setSelected(isSelected); }
 
+    QCursor cursor() { return QCursor(Qt::CrossCursor); }
+
 signals:
     void brushChanged(BrushId brush);
     void isSelectedChanged(bool isSelected);
     void refreshPreviews();
+
+    void cursorChanged(QCursor cursor); 
     
 private slots:
     void onColorChanged(ColorInfo info);

@@ -64,6 +64,8 @@ public:
     
     inline void initialize(PropertyType value)
     {
+        if (_initialized) return;
+
         _value = value;
         _initialized = true;
     }

@@ -24,6 +24,8 @@
 #include "widgetsgui/utilities/guiutils.hpp"
 #include "widgetsgui/canvas/canvasscene.hpp"
 
+#include "interfaces/presenters/icanvaspresenter.hpp"
+
 #include <QScrollBar>
 
 ViewPort::ViewPort(IViewPortPresenter* presenter)
@@ -70,6 +72,14 @@ ViewPort::ViewPort(IViewPortPresenter* presenter)
     setDocument(_mainEditorPresenter->getDocumentPresenter());
 
     _presenter->setHasFocus(hasFocus());
+
+    connect_interface(
+        _canvasPresenter,
+        SIGNAL(cursorChanged(QCursor)),
+        this,
+        SLOT(updateCursor())
+    );
+    updateCursor();
 }
 
 void ViewPort::resizeEvent(QResizeEvent *event)
@@ -129,4 +139,9 @@ void ViewPort::focusInEvent(QFocusEvent* focusEvent)
 void ViewPort::focusOutEvent(QFocusEvent* focusEvent)
 {
     _presenter->setHasFocus(false);
+}
+
+void ViewPort::updateCursor()
+{
+    setCursor(_canvasPresenter->getCursor());
 }

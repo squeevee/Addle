@@ -5,15 +5,15 @@
 AppearanceService::AppearanceService()
 {
     //kinda kludgy
-    isDarkTheme = qGuiApp->palette().window().color().lightnessF() <= 0.5;
+    _isDarkTheme = qGuiApp->palette().window().color().lightnessF() <= 0.5;
     
-    if (isDarkTheme)
-        iconSelector.setExtraSelectors({"dark"});
+    if (_isDarkTheme)
+        _selector.setExtraSelectors({"dark"});
     else 
-        iconSelector.setExtraSelectors({"light"});
+        _selector.setExtraSelectors({"light"});
 }
 
 QIcon AppearanceService::icon(QString identifier) const
 {
-    return QIcon(iconSelector.select(QStringLiteral(":/icons/%1.png").arg(identifier)));
+    return QIcon(_selector.select(QStringLiteral(":/icons/%1.png").arg(identifier)));
 }

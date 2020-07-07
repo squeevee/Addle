@@ -124,6 +124,7 @@ void ServiceConfiguration::configure()
 
     buildPersistentObject<IBrushModel>(GlobalConstants::CoreBrushes::BasicBrush, CoreBrushBuilders::basic);
     buildPersistentObject<IBrushModel>(GlobalConstants::CoreBrushes::SoftBrush, CoreBrushBuilders::soft);
+    buildPersistentObject<IBrushModel>(GlobalConstants::CoreBrushes::BasicEraser, CoreBrushBuilders::basicEraser);
 
     CONFIG_AUTOFACTORY_BY_TYPE(IPalette, Palette);
 

@@ -31,6 +31,7 @@ protected:
 private slots:
     void setDocument(IDocumentPresenter* documentPresenter);
     void onTransformsChanged();
+    void updateCursor();
 
 private:
     CanvasScene* _canvasScene;

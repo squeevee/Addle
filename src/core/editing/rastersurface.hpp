@@ -42,6 +42,9 @@ public:
         return _compositionMode;
     }
 
+    bool replaceMode() const { _initHelper.check(); return _replaceMode; }
+    void setReplaceMode(bool replace) { _initHelper.check(); _replaceMode = replace; }
+    
     void link(QSharedPointer<IRasterSurface> other) override
     { 
         const QWriteLocker lock(&_lock);
@@ -61,6 +64,9 @@ public:
     }
 
     void clear() override;
+
+    int alpha() const { _initHelper.check(); return _alpha; }
+    void setAlpha(int alpha) { _initHelper.check(); _alpha = alpha; emit changed(_area); }
 
     QSharedPointer<IRenderStep> getRenderStep() override;
 
@@ -98,6 +104,7 @@ protected:
 
 private: 
     void allocate(QRect allocArea);
+    void copyLinked();
 
     const int CHUNK_SIZE = 64;
 
@@ -107,6 +114,8 @@ private:
     QSharedPointer<IRenderStep> _renderStep;
 
     QPainter::CompositionMode _compositionMode = (QPainter::CompositionMode)NULL;
+    int _alpha = 0xFF;
+    bool _replaceMode = false;
 
     QImage _buffer;
     QPoint _bufferOffset;

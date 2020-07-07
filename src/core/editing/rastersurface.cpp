@@ -1,6 +1,8 @@
 #include "rastersurface.hpp"
 #include <QtDebug>
 
+#include "utilities/render/renderutils.hpp"
+
 void RasterSurface::initialize(
         QRect area,
         QPainter::CompositionMode compositionMode,
@@ -87,6 +89,7 @@ void RasterSurface::allocate(QRect allocArea)
 
             _buffer = QImage(_area.size(), QImage::Format_ARGB32);
             _buffer.fill(Qt::transparent);
+            copyLinked();
             return;
         }
         else
@@ -105,6 +108,7 @@ void RasterSurface::allocate(QRect allocArea)
                 _area = allocArea;
                 _bufferOffset = _area.topLeft();
                 _buffer.fill(Qt::transparent);
+                copyLinked();
                 return;
             }
             else 
@@ -128,17 +132,28 @@ void RasterSurface::allocate(QRect allocArea)
     QPoint drawOffset = _bufferOffset - QPoint(left, top);
     bufferArea = QRect(left, top, right - left + 1, bottom - top + 1);
 
+    _area = _area.united(allocArea);
+    _bufferOffset = QPoint(left, top);
+
     const QImage oldBuffer = _buffer;
     _buffer = QImage(bufferArea.size(), QImage::Format_ARGB32);
     _buffer.fill(Qt::transparent);
+    copyLinked();
+
+    QPainter painter(&_buffer);
+    painter.setCompositionMode(QPainter::CompositionMode_Source);
+    painter.eraseRect(QRect(drawOffset, oldBuffer.size())); // should clip instead?
+    painter.drawImage(drawOffset, oldBuffer);
+}
+
+void RasterSurface::copyLinked()
+{
+    if (!_linked) return;
 
     QPainter painter(&_buffer);
 
-    painter.setCompositionMode(QPainter::CompositionMode_Source);
-    painter.drawImage(drawOffset, oldBuffer);
-
-    _area = _area.united(allocArea);
-    _bufferOffset = QPoint(left, top);
+    painter.translate(-_bufferOffset);
+    render(_linked->getRenderStep(), QRect(_bufferOffset, _buffer.size()), &painter);
 }
 
 void RasterSurface::onPaintHandleDestroyed(const RasterPaintHandle& handle)
@@ -180,6 +195,19 @@ void RasterSurfaceRenderStep::onPush(RenderData& data)
 {
     // if _owner's composition mode is CompositionMode_Source, then add a mask
     // to RenderData covering _owner._area
+
+    if (!_owner._area.isValid()) return;
+
+    if (_owner._replaceMode)
+    {
+        QPainterPath p1;
+        p1.addRect(data.getArea());
+
+        QPainterPath p2;
+        p2.addRect(_owner._area);
+
+        data.getPainter()->setClipPath(p1.subtracted(p2), Qt::IntersectClip);
+    }
 }
 
 void RasterSurfaceRenderStep::onPop(RenderData& data)
@@ -191,6 +219,15 @@ void RasterSurfaceRenderStep::onPop(RenderData& data)
     QRect intersection = _owner._area.intersected(data.getArea());
 
     data.getPainter()->setCompositionMode(_owner._compositionMode);
+    data.getPainter()->setOpacity((double)_owner._alpha / 0xFF);
+
+    if (_owner._replaceMode)
+    {
+        QPainterPath p = data.getPainter()->clipPath();
+        p.addRect(_owner._area);
+        data.getPainter()->setClipPath(p.simplified(), Qt::ReplaceClip);
+    }
+
     data.getPainter()->drawImage(
         intersection, 
         _owner._buffer,

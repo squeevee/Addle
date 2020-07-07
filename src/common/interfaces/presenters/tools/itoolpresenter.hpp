@@ -24,8 +24,12 @@ public:
 
     virtual bool isSelected() const = 0;
     virtual void setSelected(bool isSelected) = 0;
+
+    virtual QCursor cursor() = 0;// const;
+
 signals:
     virtual void isSelectedChanged(bool isSelected) = 0;
+    virtual void cursorChanged(QCursor cursor) = 0;
 };
 
 DECL_IMPLEMENTED_AS_QOBJECT(IToolPresenter)

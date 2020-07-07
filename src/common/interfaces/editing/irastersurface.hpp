@@ -53,6 +53,9 @@ public:
 
     virtual void setCompositionMode(QPainter::CompositionMode mode) = 0;
     virtual QPainter::CompositionMode getCompositionMode() const = 0;
+    
+    virtual bool replaceMode() const = 0;
+    virtual void setReplaceMode(bool replace) = 0;
 
     virtual void link(QSharedPointer<IRasterSurface> other) = 0;
     virtual void unlink() = 0;
@@ -62,6 +65,9 @@ public:
     //virtual void render(QPainter& painter, QRect area) const = 0;
 
     virtual void clear() = 0;
+
+    virtual int alpha() const = 0;
+    virtual void setAlpha(int alpha) = 0;
 
     virtual QSharedPointer<IRenderStep> getRenderStep() = 0;
 

@@ -146,12 +146,12 @@ ColorSelectionIndicator::ColorSelectionIndicator(ColorSelector& owner)
     _well2 = new ColorWell(this);
     _well2->setFrameStyle(QFrame::Raised | QFrame::Box);
     _well2->setSize(QSize(32, 32));
-    _well2->move(4, 13);
+    _well2->move(18, 27);
 
     _well1 = new ColorWell(this);
     _well1->setFrameStyle(QFrame::Raised | QFrame::Box);
     _well1->setSize(QSize(34, 34));
-    _well1->move(16, 25);
+    _well1->move(4, 13);
 }
 
 QSize ColorSelectionIndicator::sizeHint() const

@@ -40,7 +40,7 @@ public:
     HelperArgCallback<bool> onIsSelectedChanged;
 
 private:
-    bool _isSelected;
+    bool _isSelected = false;
 
     IToolPresenter& _owner;
 };

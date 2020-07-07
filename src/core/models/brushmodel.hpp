@@ -23,12 +23,15 @@ public:
     bool isSizeInvariant() const { return _isSizeInvariant; }
     bool isPixelAliased() const { return _isPixelAliased; }
     bool eraserMode() const { return _eraserMode; }
+    bool copyMode() const { return _copyMode; }
 
     double minSize() const { return _minSize; }
     double maxSize() const { return _maxSize; }
     QList<double> preferredSizes() const { return _preferredSizes; }
     bool strictSizing() const { return _strictSizing; }
     double preferredStartingSize() const { return _preferredStartingSize; }
+
+    PreviewHints previewHints() const { return _previewHints; }
 
 private:
     BrushId _id;
@@ -41,12 +44,15 @@ private:
     bool _isSizeInvariant;
     bool _isPixelAliased;
     bool _eraserMode;
+    bool _copyMode;
 
     double _minSize;
     double _maxSize;
     QList<double> _preferredSizes;
     bool _strictSizing;
     double _preferredStartingSize;
+
+    PreviewHints _previewHints;
 
     InitializeHelper<BrushModel> _initHelper;
 };

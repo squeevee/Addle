@@ -20,7 +20,7 @@ public:
 
     IMainEditorPresenter* getMainEditorPresenter() { _initHelper.check(); return _mainEditorPresenter; }
 
-    QCursor getCursor() { return QCursor(); }
+    QCursor getCursor();
     QString getStatusTip() { return QString(); }
 
     bool event(QEvent* e);
@@ -34,8 +34,14 @@ signals:
 
     void hasMouseChanged(bool);
 
+private slots:
+    void onEditorToolChanged();
+    void onToolCursorChanged();
+
 private:
     bool _hasMouse = false;
+
+    QMetaObject::Connection _connection_toolCursor;
 
     IMainEditorPresenter* _mainEditorPresenter;
     InitializeHelper<CanvasPresenter> _initHelper;

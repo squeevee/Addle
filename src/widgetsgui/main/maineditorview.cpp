@@ -33,6 +33,8 @@
 
 #include "colorselector.hpp"
 
+#include <QtDebug>
+
 void MainEditorView::initialize(IMainEditorPresenter* presenter)
 {
     _initHelper.initializeBegin();
@@ -127,11 +129,16 @@ void MainEditorView::setupUi()
         _optionGroup_toolSelection
     );
 
-
     setupHelper.addTool(
         IMainEditorPresenter::DefaultTools::BRUSH,
         &_action_selectBrushTool,
         &_optionsToolBar_brush
+    );
+
+    setupHelper.addTool(
+        IMainEditorPresenter::DefaultTools::ERASER,
+        &_action_selectEraserTool,
+        &_optionsToolBar_eraser
     );
 
     setupHelper.addTool(
@@ -144,9 +151,8 @@ void MainEditorView::setupUi()
 
     _toolBar_editorToolSelection->addSeparator();
 
-
     _toolBar_editorToolSelection->addAction(_action_selectBrushTool);
-    _toolBar_editorToolSelection->addAction(new QAction(ADDLE_ICON("eraser-tool"), "", this));
+    _toolBar_editorToolSelection->addAction(_action_selectEraserTool);
     _toolBar_editorToolSelection->addAction(new QAction(ADDLE_ICON("fill-tool"), "", this));
 
     _toolBar_editorToolSelection->addSeparator();

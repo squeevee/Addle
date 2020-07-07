@@ -12,12 +12,15 @@ public:
     AppearanceService();
     virtual ~AppearanceService() = default;
 
+    bool isDarkTheme() const { return _isDarkTheme; }
+
     QIcon icon(QString identifier) const override;
 
-private: 
-    bool isDarkTheme = false;
+    const QFileSelector& selector() { return _selector; }
 
-    QFileSelector iconSelector;
+private: 
+    bool _isDarkTheme = false;
+    QFileSelector _selector;
 };
 
 #endif // APPEARANCESERVICE_HPP

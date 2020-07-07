@@ -6,6 +6,9 @@
 #include <QObject>
 #include <QPointer>
 #include <QSharedPointer>
+#include <QPixmap>
+
+#include <memory>
 
 #include "compat.hpp"
 
@@ -14,6 +17,9 @@
 #include "interfaces/presenters/assets/ibrushpresenter.hpp"
 #include "interfaces/presenters/tools/isizeselectionpresenter.hpp"
 #include "interfaces/editing/irastersurface.hpp"
+#include "interfaces/rendering/irenderstack.hpp"
+
+#include "utilities/render/checkerboard.hpp"
 
 class ADDLE_CORE_EXPORT BrushIconHelper : public QObject
 {
@@ -48,10 +54,20 @@ private:
         void paint(QPainter* painter, const QRect& rect, QIcon::Mode mode, QIcon::State state);
 
     private:
+        BrushIconEngine(const BrushIconEngine&) = default;
+        void paint_p(QSize frameSize);
+
         bool _autoSize = false;
 
         QPointer<const BrushIconHelper> _helper;
-        BrushStroke _brushStroke;
+        QSharedPointer<BrushStroke> _brushStroke; //concurrency?
+
+        QPixmap _cache;
+
+        double _cachedScale;
+        QColor _cachedColor;
+        QColor _cachedBackground;
+
     };
 
     class SizeIconProvider : public ISizeSelectionPresenter::IconProvider
@@ -69,7 +85,15 @@ private:
         QPointer<const BrushIconHelper> _helper;
     };
 
-    mutable QSharedPointer<IRasterSurface> _surface;
+    static QImage _pattern8;
+    static QImage _pattern64;
+
+    QSharedPointer<IRasterSurface> _underSurface;
+    QSharedPointer<IRasterSurface> _brushSurface; // make static
+    QSharedPointer<IRenderStack> _renderStack;
+    static CheckerBoard _checkerBoard;
+
+    void paint(QPainter* painter, const QRect& rect, BrushId brush);
 
     BrushId _brush;
 
@@ -79,6 +103,10 @@ private:
 
     QSharedPointer<const IBrushPresenter::PreviewInfoProvider> _info;
     QSharedPointer<ISizeSelectionPresenter::IconProvider> _sizeIconProvider;
+
+    // concurrency could ostensibly be a problem in this class, but I'm inclined
+    // to think none of these functions would naturally be invoked outside the
+    // UI thread -- maybe I want to add some asserts to enforce this
 
     friend class BrushIconEngine;
 };

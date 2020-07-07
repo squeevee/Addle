@@ -61,6 +61,10 @@
 
     <!-- Schemas -->
     <file>schemas/colorpalette.xsd</file>
+
+    <!-- Misc -->
+    <file>misc/pattern8.png</file>
+    <file>misc/pattern64.png</file>
 </qresource>
 
 </RCC>

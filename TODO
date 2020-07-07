@@ -230,3 +230,12 @@ previews?
 
 Brush icons of a certain exceeding size should have an additional hint that they
 are very big. (maybe a plus sign in the corner?)
+
+maybe change the navigate tool icon to a hand? That's a recognizable tool, and
+a decent representation of what the tool does? (of course it doesn't imply zoom
+so maybe it's fine as it)
+
+Eventually add a special viewport control similar to what Gwenview has, where 
+(when the navigate tool is selected) you can hover over the viewport and in the
+corner an abstract "mini-map" appears and can be used to drag the viewport around
+the canvas area.

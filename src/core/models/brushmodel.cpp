@@ -1,6 +1,8 @@
 #include "brushmodel.hpp"
 #include <QtDebug>
 
+#include "utilities/model/brushbuilder.hpp"
+
 void BrushModel::initialize(const BrushBuilder& builder)
 {
     _initHelper.initializeBegin();
@@ -14,6 +16,7 @@ void BrushModel::initialize(const BrushBuilder& builder)
     _isSizeInvariant = builder.isSizeInvariant();
     _isPixelAliased = builder.isPixelAliased();
     _eraserMode = builder.eraserMode();
+    _copyMode = builder.copyMode() || _eraserMode;
 
     _minSize = builder.minSize();
     _maxSize = builder.maxSize();
@@ -21,6 +24,8 @@ void BrushModel::initialize(const BrushBuilder& builder)
     _strictSizing = builder.strictSizing();
 
     _preferredStartingSize = builder.preferredStartingSize();
+
+    _previewHints = builder.previewHints();
 
     _initHelper.initializeEnd();
 }

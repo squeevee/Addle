@@ -43,6 +43,10 @@ const BrushId GlobalConstants::CoreBrushes::SoftBrush = BrushId(
     "soft-brush"
 );
 
+const BrushId GlobalConstants::CoreBrushes::BasicEraser = BrushId(
+    "basic-eraser"
+);
+
 const PaletteId GlobalConstants::CorePalettes::BasicPalette = PaletteId(
     "basic-palette"
 );
@@ -140,9 +144,13 @@ const ToolId IMainEditorPresenterAux::DefaultTools::MEASURE  = IMeasureToolPrese
 
 #include "interfaces/presenters/tools/ibrushtoolpresenter.hpp"
 const BrushId IBrushToolPresenterAux::DefaultBrushes::Basic  = GlobalConstants::CoreBrushes::BasicBrush;
-const BrushId IBrushToolPresenterAux::DefaultBrushes::Soft  = GlobalConstants::CoreBrushes::SoftBrush;
+const BrushId IBrushToolPresenterAux::DefaultBrushes::Soft   = GlobalConstants::CoreBrushes::SoftBrush;
 
 const BrushId IBrushToolPresenterAux::DEFAULT_BRUSH = IBrushToolPresenterAux::DefaultBrushes::Basic;
+
+const BrushId IBrushToolPresenterAux::DefaultErasers::Basic  = GlobalConstants::CoreBrushes::BasicEraser;
+
+const BrushId IBrushToolPresenterAux::DEFAULT_ERASER = IBrushToolPresenterAux::DefaultErasers::Basic;
 
 const ColorInfo GlobalConstants::Transparent = ColorInfo(Qt::transparent, "Transparent"); //i18n?
 

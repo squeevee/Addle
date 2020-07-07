@@ -8,15 +8,34 @@
 
 #include "servicelocator.hpp"
 
+#include "interfaces/models/ibrushmodel.hpp"
+#include "interfaces/services/iappearanceservice.hpp"
+
 #include "utilities/editing/brushstroke.hpp"
 #include "utilities/render/renderutils.hpp"
 
 #include "utilities/mathutils.hpp"
 
+QImage BrushIconHelper::_pattern8 = QImage();
+QImage BrushIconHelper::_pattern64 = QImage();
+
 BrushIconHelper::BrushIconHelper(QObject* parent)
     : QObject(parent)
 {
-    _surface = ServiceLocator::makeShared<IRasterSurface>();
+    _underSurface = ServiceLocator::makeShared<IRasterSurface>();
+    _brushSurface = ServiceLocator::makeShared<IRasterSurface>();
+    _renderStack = ServiceLocator::makeShared<IRenderStack>(
+        QList<QWeakPointer<IRenderStep>>({ 
+            _underSurface->getRenderStep().toWeakRef(),
+            _brushSurface->getRenderStep().toWeakRef()
+        })
+    );
+
+    if (_pattern8.isNull())
+        _pattern8.load(ServiceLocator::get<IAppearanceService>().selector().select(":/misc/pattern8.png"));
+
+    if (_pattern64.isNull())
+        _pattern64.load(ServiceLocator::get<IAppearanceService>().selector().select(":/misc/pattern64.png"));
 }
 
 QIcon BrushIconHelper::icon() const
@@ -55,9 +74,9 @@ BrushIconHelper::BrushIconEngine::BrushIconEngine(
     double size
 )
     : _helper(helper),
-    _brushStroke(brush, _helper->color(), size, helper->_surface)
+    _brushStroke(new BrushStroke(brush, _helper->color(), size, helper->_brushSurface))
 {
-    _brushStroke.setPreview(true);
+    _brushStroke->setPreview(true);
 }
 
 BrushIconHelper::BrushIconEngine::BrushIconEngine(
@@ -65,61 +84,86 @@ BrushIconHelper::BrushIconEngine::BrushIconEngine(
     BrushId brush
 )
     : _helper(helper),
-    _brushStroke(brush, _helper->color(), 0, helper->_surface),
+    _brushStroke(new BrushStroke(brush, _helper->color(), 0, helper->_brushSurface)),
     _autoSize(true)
 {
-    _brushStroke.setPreview(true);
+    _brushStroke->setPreview(true);
 }
 
 QIconEngine* BrushIconHelper::BrushIconEngine::clone() const
 { 
-    if (_autoSize)
-        return new BrushIconEngine(_helper, _brushStroke.id());
-    else
-        return new BrushIconEngine(_helper, _brushStroke.id(), _brushStroke.getSize());
+    return new BrushIconEngine(*this);
 }
 
 void BrushIconHelper::BrushIconEngine::paint(QPainter* painter, const QRect& rect, QIcon::Mode mode, QIcon::State state)
 {
-    Q_UNUSED(mode);
-    Q_UNUSED(state);
+    if(!_helper) return;
 
-    if (!_helper) return;
+    if (_cache.width() != rect.width() 
+        || _cache.height() != rect.height()
+        || _cachedColor != _helper->color()
+        || _cachedBackground != _helper->background()
+        || (!_autoSize && _cachedScale != _helper->scale()))
+    {
+        paint_p(rect.size());
+        
+        _cachedColor = _helper->color();
+        _cachedScale = _helper->scale();
+        _cachedBackground = _helper->background();
+    }
 
-    QPointF center;
-    QRectF canonicalRect;
+    painter->drawPixmap(rect, _cache);
+}
+
+void BrushIconHelper::BrushIconEngine::paint_p(QSize iconSize)
+{
+    if (!_helper) return; // assert
+
     double size;
-    double scale = _helper->scale();
+    double scale;
+    QPointF center;
+
+    IBrushModel::PreviewHints hints = ServiceLocator::get<IBrushModel>(_helper->_brush).previewHints();
+    bool copyMode = ServiceLocator::get<IBrushModel>(_helper->_brush).copyMode();
+
+    const QRect iconRect(QPoint(), iconSize);
+
+    double shortside = qMin(iconSize.width(), iconSize.height());
+
+    bool smallIcon = shortside < 24;
+    shortside = smallIcon ? shortside - 2 : shortside - 4;
 
     if (_autoSize)
     {
-        canonicalRect = QRectF(QPointF(), QSizeF(rect.width(), rect.height()));
-        size = qMin(canonicalRect.width(), canonicalRect.height());
-        _brushStroke.setSize(size);
+        scale = 1;
+        size = shortside;
+        _brushStroke->setSize(size);
     }
-    else 
+    else
     {
-        size = _brushStroke.getSize();
-        canonicalRect = QRectF(
-            QPointF(),
-            QSizeF(rect.width() / scale, rect.height() / scale)
-        );
+        scale = _helper->scale();
+        size = _brushStroke->getSize();
     }
 
-    _brushStroke.setColor(_helper->color());
+    QRectF frameRect(
+        QPointF(
+            (iconSize.width() - shortside) / 2,
+            (iconSize.height() - shortside) / 2
+        ),
+        QSizeF(shortside, shortside)
+    );
+
+    QRectF canonicalRect = QRectF(
+        frameRect.topLeft() / scale,
+        QSizeF(shortside, shortside) / scale
+    );
+
+    _brushStroke->setColor(_helper->color());
 
     // This position algorithm assumes that the brush will look good if treated
     // as a circle with r = 1/2 size. Naturally, as brush appearances become
     // more complex, this behavior will become more fine-tuned and customizable
     // with brush parameters.
-    //
-    // This algorithm gives best results if rect is a square, but (I think)
-    // won't break with an eccentric rectangle. I don't anticipate this being a
-    // problem.
-
-    // TODO: optimize so that when scaled and centered, the brush is drawn on
-    // the center of a surface pixel, and will (hopefully) appear more
-    // symmetrical.
 
     if (_autoSize || size <= qMin(canonicalRect.width(), canonicalRect.height()))
     {
@@ -167,24 +211,60 @@ void BrushIconHelper::BrushIconEngine::paint(QPainter* painter, const QRect& rec
         center = dc.p2();
     }
 
-    _helper->_surface->clear();
+    _cache = QPixmap(iconSize);
+    QPainter painter(&_cache);
 
-    _brushStroke.clear();
-    _brushStroke.moveTo(center);
-    _brushStroke.paint();
+    _helper->_underSurface->clear();
+    if (hints & IBrushModel::Subtractive)
+    {
+        auto surfaceHandle = _helper->_underSurface->getPaintHandle(coarseBoundRect(canonicalRect));
+        
+        surfaceHandle.getPainter().setPen(Qt::NoPen);
+
+        if (smallIcon)
+            surfaceHandle.getPainter().setBrush(QBrush(_pattern8));
+        else 
+            surfaceHandle.getPainter().setBrush(QBrush(_pattern64));
+            
+        surfaceHandle.getPainter().setBrushOrigin(canonicalRect.center());
+        surfaceHandle.getPainter().drawRect(coarseBoundRect(canonicalRect));
+    }
+
+    if (copyMode) _helper->_brushSurface->link(_helper->_underSurface);
+    
+    _helper->_brushSurface->clear();
+    _brushStroke->clear();
+    _brushStroke->moveTo(center);
+    _brushStroke->paint();
+
+    _helper->_brushSurface->unlink();
 
     // TODO: adjust background color for contrast if needed
 
-    painter->fillRect(rect, _helper->background());
+    painter.setRenderHint(QPainter::Antialiasing, true);
 
-    painter->save();
+    // if (_helper->background().alpha() < 0xFF)
+    // {
+    //     if (smallIcon)
+    //         _helper->_checkerBoard.setWidth(4);
+    //     else
+    //         _helper->_checkerBoard.setWidth(12);
 
-    painter->setRenderHint(QPainter::Antialiasing, true);
-    painter->translate(rect.topLeft());
-    painter->scale(scale, scale);
-    render(_helper->_surface->getRenderStep(), coarseBoundRect(canonicalRect), painter);
+    //     _helper->_checkerBoard.setOrigin(iconRect.center());
+    //     _helper->_checkerBoard.paint(painter, iconRect);
+    // }
 
-    painter->restore();
+    painter.fillRect(iconRect, _helper->background());
+    painter.setClipRect(frameRect);
+    //painter.translate(frameRect.topLeft());
+
+    if (!_autoSize)
+    {
+        painter.scale(scale, scale);
+    }
+
+    _helper->_renderStack->render(RenderData(iconRect, &painter));
+    //render(_helper->_brushSurface->getRenderStep(), coarseBoundRect(canonicalRect), &painter);
 }
 
 QIcon BrushIconHelper::SizeIconProvider::icon(double size) const

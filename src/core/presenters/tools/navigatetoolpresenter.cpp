@@ -23,6 +23,7 @@ void NavigateToolPresenter::setNavigateOperation(NavigateToolPresenter::Navigate
 {
     _initHelper.check();
     _operation = operation;
+    _cache_cursor.recalculate();
     emit navigateOperationChanged(_operation);
 }
 
@@ -37,4 +38,19 @@ void NavigateToolPresenter::onMove()
         _viewPort->gripPivot(_mouseHelper.getFirstPosition(), _mouseHelper.getLatestPosition());
         break;
     }
+}
+
+QCursor NavigateToolPresenter::cursor_p()
+{
+    switch (_operation)
+    {
+    case gripPan:
+    case gripPivot:
+        if (_mouseHelper.isEngaged())
+            return QCursor(Qt::ClosedHandCursor);
+        else
+            return QCursor(Qt::OpenHandCursor);
+    }
+
+    return QCursor();
 }

@@ -24,6 +24,14 @@ const static BrushBuilder soft = BrushBuilder()
     })
     .setMinSize(21.0)
     .setPreferredStartingSize(60.0);
+
+const static BrushBuilder basicEraser = BrushBuilder()
+    .setId(GlobalConstants::CoreBrushes::BasicEraser)
+    .setEngine(GlobalConstants::CoreBrushEngines::PathEngine)
+    .setPreviewHints(IBrushModel::Subtractive)
+    .setEraserMode(true)
+    .setPreferredStartingSize(21.0);
+
 }
 
 #endif // COREBRUSHBUILDERS_HPP

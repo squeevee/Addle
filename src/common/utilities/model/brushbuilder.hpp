@@ -5,6 +5,7 @@
 #include <QSharedData>
 #include <QIcon>
 
+#include "interfaces/models/ibrushmodel.hpp"
 #include "idtypes/brushid.hpp"
 #include "idtypes/brushengineid.hpp"
 
@@ -23,6 +24,7 @@ class BrushBuilder
         bool isPixelAliased = false;
 
         bool eraserMode = false;
+        bool copyMode = false;
 
         double minSize = 0;
         double maxSize = Q_INFINITY;
@@ -30,6 +32,8 @@ class BrushBuilder
         QList<double> preferredSizes;
         bool strictSizing = false;
         double preferredStartingSize = Q_QNAN;
+
+        IBrushModel::PreviewHints previewHints;
     };
 
 public:
@@ -60,6 +64,9 @@ public:
     bool eraserMode() const { return _data->eraserMode; }
     BrushBuilder& setEraserMode(bool eraserMode) { _data->eraserMode = eraserMode; return *this; }
 
+    bool copyMode() const { return _data->copyMode; }
+    BrushBuilder& setCopyMode(bool copyMode) { _data->copyMode = copyMode; return *this; }
+
     double minSize() const { return _data->minSize; }
     BrushBuilder& setMinSize(double minSize) { _data->minSize = minSize; return *this; }
 
@@ -74,6 +81,9 @@ public:
 
     double preferredStartingSize() const { return _data->preferredStartingSize; }
     BrushBuilder& setPreferredStartingSize(double preferredStartingSize) { _data->preferredStartingSize = preferredStartingSize; return *this; }
+
+    IBrushModel::PreviewHints previewHints() const { return _data->previewHints; }
+    BrushBuilder& setPreviewHints(IBrushModel::PreviewHints previewHints) { _data->previewHints = previewHints; return *this; }
 
 private:
     QSharedDataPointer<BrushBuilderData> _data;

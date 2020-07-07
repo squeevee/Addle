@@ -23,7 +23,14 @@ void PathBrushEngine::paint(BrushStroke& brushStroke) const
     const QPointF pos = brushStroke.positions().last();
     const double size = brushStroke.getSize();
 
+    const bool eraser = brushStroke.brush().eraserMode();
+
     if (size == 0 || qIsNaN(size)) return;
+
+    if (eraser)
+    {
+        brushStroke.getBuffer()->setReplaceMode(true);
+    }
 
     if (!brushStroke.isMarkedPainted())
     {
@@ -35,12 +42,13 @@ void PathBrushEngine::paint(BrushStroke& brushStroke) const
         QPainter& painter = handle.getPainter();
 
         painter.setRenderHint(QPainter::Antialiasing, true);
-        painter.setCompositionMode(QPainter::CompositionMode_Source);
         painter.setPen(Qt::NoPen);
         painter.setBackground(Qt::transparent);
-        painter.setBrush(brushStroke.color());
+        painter.setCompositionMode(eraser ? QPainter::CompositionMode_DestinationOut : QPainter::CompositionMode_Source);
 
-        painter.eraseRect(nibBound);
+        painter.setBrush(eraser ? Qt::black : brushStroke.color());
+
+        //painter.eraseRect(nibBound);
         painter.drawEllipse(QRectF(
             pos - QPointF(halfSize, halfSize),
             QSizeF(size, size)
@@ -88,29 +96,35 @@ void PathBrushEngine::paint(BrushStroke& brushStroke) const
 
         {
             auto paintHandle = brushStroke.getBuffer()->getPaintHandle(bound);
-            
+            paintHandle.getPainter().setCompositionMode(eraser
+                ? QPainter::CompositionMode_DestinationOut
+                : QPainter::CompositionMode_Source);
+
             sourceAlpha = QImage(alphaBound.size(), QImage::Format_Alpha8);
             sourceAlpha.fill(Qt::transparent);
 
             QPainter alphaPainter(&sourceAlpha);
             alphaPainter.translate(-alphaBound.topLeft());
+            alphaPainter.setCompositionMode(QPainter::CompositionMode_Source);
 
             for (QPainter* painter : { &paintHandle.getPainter(), &alphaPainter })
             {
                 painter->setRenderHint(QPainter::Antialiasing, true);
-                //painter->setClipRect(bound);
+                painter->setClipRect(bound);
+
                 painter->setPen(QPen(
-                    brushStroke.color(),
+                    eraser ? Qt::black : brushStroke.color(),
                     size,
                     Qt::SolidLine,
                     Qt::RoundCap,
                     Qt::RoundJoin
                 ));
-
+            
                 painter->drawPath(path);
             }
         }
 
+        if (!eraser) //TODO
         {
             auto bitWriter = brushStroke.getBuffer()->getBitWriter(alphaBound);
             
@@ -122,7 +136,8 @@ void PathBrushEngine::paint(BrushStroke& brushStroke) const
 
                 for (int x = 0; x < alphaBound.width(); x++)
                 {
-                    const uchar alpha = qMax(*a, *b);
+                    uchar alpha;
+                    alpha = qMax(*a, *b);
 
                     if (alpha == 0) *d = 0;
                     *d = qRgba(qRed(*d), qGreen(*d), qBlue(*d), alpha);

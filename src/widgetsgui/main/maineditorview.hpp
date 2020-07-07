@@ -87,8 +87,8 @@ private:
     OptionAction* _action_selectBrushTool;
     BrushToolOptionsBar* _optionsToolBar_brush;
 
-    //SelectToolAction* action_selectEraserTool;
-    QToolBar* _optionsToolBar_eraser;
+    OptionAction* _action_selectEraserTool;
+    BrushToolOptionsBar* _optionsToolBar_eraser;
 
     //SelectToolAction* action_selectFillTool;
     QToolBar* _optionsToolBar_fill;

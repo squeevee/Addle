@@ -3,6 +3,8 @@
 #include "interfaces/presenters/ilayerpresenter.hpp"
 #include "interfaces/models/ibrushmodel.hpp"
 
+#include "interfaces/models/ilayer.hpp"
+
 //#include "interfaces/editing/operations/ibrushoperation.hpp"
 #include "interfaces/presenters/imaineditorpresenter.hpp"
 #include "interfaces/presenters/icanvaspresenter.hpp"
@@ -50,24 +52,44 @@ void BrushToolPresenter::initialize(IMainEditorPresenter* owner,
     _viewPort = viewPortPresenter;
     _colorSelection = colorSelection;
     
+    _mode = mode;
+
     _previewProvider = QSharedPointer<const IBrushPresenter::PreviewInfoProvider>(
         new BrushPreviewProvider(this)
     );
 
-    _brushSelection = ServiceLocator::makeUnique<IAssetSelectionPresenter>(
-        QList<QSharedPointer<IAssetPresenter>>({
-            ServiceLocator::makeShared<IBrushPresenter>(DefaultBrushes::Basic, _previewProvider),
-            ServiceLocator::makeShared<IBrushPresenter>(DefaultBrushes::Soft, _previewProvider)
-        }),
-        false
-    );
+    switch(_mode)
+    {
+    case Mode::Brush:
+        _brushSelection = ServiceLocator::makeUnique<IAssetSelectionPresenter>(
+            QList<QSharedPointer<IAssetPresenter>>({
+                ServiceLocator::makeShared<IBrushPresenter>(DefaultBrushes::Basic, _previewProvider),
+                ServiceLocator::makeShared<IBrushPresenter>(DefaultBrushes::Soft, _previewProvider)
+            }),
+            false
+        );
+        _brushSelection->setFavorites({ 
+            DefaultBrushes::Basic, 
+            DefaultBrushes::Soft 
+        });
 
-    _brushSelection->setFavorites({ 
-        DefaultBrushes::Basic, 
-        DefaultBrushes::Soft 
-    });
+        _brushSelection->select(IBrushToolPresenterAux::DEFAULT_BRUSH);
+        break;
 
-    _brushSelection->select(IBrushToolPresenterAux::DEFAULT_BRUSH);
+    case Mode::Eraser:
+        _brushSelection = ServiceLocator::makeUnique<IAssetSelectionPresenter>(
+            QList<QSharedPointer<IAssetPresenter>>({
+                ServiceLocator::makeShared<IBrushPresenter>(DefaultErasers::Basic, _previewProvider)
+            }),
+            false
+        );
+        _brushSelection->setFavorites({ 
+            DefaultErasers::Basic
+        });
+
+        _brushSelection->select(IBrushToolPresenterAux::DEFAULT_ERASER);
+        break;
+    }
 
     _hoverPreview = std::unique_ptr<HoverPreview>(new HoverPreview(*this));
 
@@ -205,6 +227,13 @@ void BrushToolPresenter::onEngage()
         brushSurface
     ));
 
+    if (brush->model().copyMode())
+    {
+        auto s_layerModel = layer->getModel().toStrongRef();
+        brushSurface->link(s_layerModel->getRasterSurface());
+        //brushSurface->setCompositionMode(QPainter::CompositionMode_Source);
+    }
+
     layer->getRenderStack().push(brushSurface->getRenderStep());
 
     _brushStroke->moveTo(_mouseHelper.getFirstPosition());
@@ -223,6 +252,8 @@ void BrushToolPresenter::onMove()
 void BrushToolPresenter::onDisengage()
 {
     if (!_brushStroke) return;
+
+    _brushStroke->getBuffer()->unlink();    
     auto layer = _mainEditor->getSelectedLayer().toStrongRef();
     if (!layer) return;
 
@@ -290,12 +321,21 @@ void BrushToolPresenter::HoverPreview::update()
         if (_layer && (!isVisible_cache.getValue() || _layer != _owner._mainEditor->getSelectedLayer()))
         {
             _layer->getRenderStack().remove(_surface->getRenderStep());
+            if (_owner.selectedBrushPresenter()->model().eraserMode())
+            {
+                _surface->unlink();
+            }
             _layer = nullptr;
         }
 
         if (isVisible_cache.getValue() && _layer != _owner._mainEditor->getSelectedLayer())
         {
             _layer = _owner._mainEditor->getSelectedLayer().toStrongRef();
+            if (_owner.selectedBrushPresenter()->model().eraserMode())
+            {
+                auto s_layerModel = _layer->getModel().toStrongRef();
+                _surface->link(s_layerModel->getRasterSurface());
+            }
             _layer->getRenderStack().push(_surface->getRenderStep());
         }   
     }

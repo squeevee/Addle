@@ -71,19 +71,19 @@ void RenderStack::render(RenderData data, int maxDepth)
         stackData[depth - 1] = stepData;
         lastData = stepData;
     
-        depth--;
+        --depth;
     }
 
     while (depth < maxDepth)
     {
-        depth++;
+        auto s_step = _steps[depth].toStrongRef();
 
-        auto s_step = _steps[depth - 1].toStrongRef();
-
-        RenderData stepData = stackData[depth - 1];
+        RenderData stepData = stackData[depth];
         if (s_step)
             s_step->onPop(stepData);
         stepData.getPainter()->restore();
+
+        ++depth;
     }
 }
 
