@@ -32,6 +32,7 @@
 #include "tooloptionsbars/navigatetooloptionsbar.hpp"
 
 #include "colorselector.hpp"
+#include "layers/layersmanager.hpp"
 
 #include <QtDebug>
 
@@ -166,6 +167,14 @@ void MainEditorView::setupUi()
     _toolBar_editorToolSelection->addAction(_action_selectNavigateTool);
     _toolBar_editorToolSelection->addAction(new QAction(ADDLE_ICON("eyedrop-tool"), "", this));
     _toolBar_editorToolSelection->addAction(new QAction(ADDLE_ICON("measure-tool"), "", this));
+
+    setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
+    setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
+    setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
+    setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
+
+    _layersManager = new LayersManager(this);
+    addDockWidget(Qt::RightDockWidgetArea, _layersManager);
 
     _colorSelector = new ColorSelector(_presenter->colorSelection(), this);
 

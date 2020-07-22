@@ -27,7 +27,7 @@ class ViewPort;
 class ViewPortScrollWidget;
 class ZoomRotateWidget;
 class ColorSelector;
-
+class LayersManager;
 class ADDLE_WIDGETSGUI_EXPORT MainEditorView : public QMainWindow, public virtual IMainEditorView
 {
     Q_OBJECT
@@ -113,6 +113,7 @@ private:
 
     QToolBar* _optionsToolBar_currentTool = nullptr;
 
+    LayersManager* _layersManager;
     ColorSelector* _colorSelector;
 
     InitializeHelper<MainEditorView> _initHelper;

@@ -4,6 +4,8 @@
 #include <QUrl>
 #include <QFileInfo>
 #include <QWeakPointer>
+#include <QSet>
+#include <QMap>
 
 #include "iraiseerrorpresenter.hpp"
 #include "ihavetoolspresenter.hpp"
@@ -15,11 +17,17 @@
 #include "interfaces/traits/makeable_trait.hpp"
 #include "interfaces/traits/metaobjectinfo.hpp"
 
+#include "utilities/heirarchylist.hpp"
+
+#include "utilities/qtextensions/qhash.hpp"
+
 class ICanvasPresenter;
 class ILayerPresenter;
 class IDocumentPresenter
 {
 public:
+    typedef HeirarchyList<QSharedPointer<ILayerPresenter>> LayersList;
+    typedef HeirarchyList<QSharedPointer<ILayerPresenter>>::NodePointer LayerNode;
     enum EmptyInitOptions
     {
         initNoModel,
@@ -41,8 +49,31 @@ public:
     virtual QRect getRect() = 0;
     virtual QColor getBackgroundColor() = 0;
 
-    virtual QList<QSharedPointer<ILayerPresenter>> getLayers() = 0;
+    virtual LayersList layers() const = 0;
+
+    virtual QSet<LayerNode> layerSelection() const = 0;
+    virtual void setLayerSelection(QSet<LayerNode> layer) = 0;
+    virtual void addLayerSelection(QSet<LayerNode> layer) = 0;
+    virtual void removeLayerSelection(QSet<LayerNode> layer) = 0;
+
+    virtual QSharedPointer<ILayerPresenter> topSelectedLayer() const = 0;
+
+    virtual QSharedPointer<ILayerPresenter> addLayer() = 0;
+    virtual LayerNode addLayerGroup() = 0;
+    
+    virtual void removeSelectedLayers() = 0;
+    virtual void moveSelectedLayers(int destination) = 0;
+    virtual void mergeSelectedLayers() = 0;
+
+signals:
+    virtual void layersChanged(IDocumentPresenter::LayersList layers) = 0;
+    virtual void layerSelectionChanged(QSet<IDocumentPresenter::LayerNode> selection) = 0;
+
 };
+
+Q_DECLARE_METATYPE(IDocumentPresenter::LayersList);
+Q_DECLARE_METATYPE(IDocumentPresenter::LayerNode);
+
 DECL_MAKEABLE(IDocumentPresenter);
 DECL_EXPECTS_INITIALIZE(IDocumentPresenter);
 DECL_IMPLEMENTED_AS_QOBJECT(IDocumentPresenter);

@@ -126,4 +126,23 @@ QList<QSharedPointer<OutType>> qSharedPointerListCast(const QList<QSharedPointer
 }
 */
 
+// I am deeply annoyed that Qt is deprecating QList::toSet() and the like, just
+// because range-based constructors exist now. It's not like Qt has heretofore
+// been shy about API sugar. So I'm willfully undermining that decision.
+
+template<typename T>
+inline QSet<T> qToSet(const QList<T>& list)
+{
+    return QSet<T>(list.constBegin(), list.constEnd());
+}
+
+// template<typename T>
+// inline const QList<T> qAsConstList(QList<T>&& list)
+// {
+//     return const QList<T>(list);
+//     // theoretically this should make an attached instance "by value", i.e,
+//     // suitable as a range expression in a for loop even though it's given
+//     // by r-value
+// }
+
 #endif // qtextensions__QLIST_HPP

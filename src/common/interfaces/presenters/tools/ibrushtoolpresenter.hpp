@@ -53,12 +53,7 @@ public:
 
     virtual ~IBrushToolPresenter() = default;
 
-    virtual void initialize(IMainEditorPresenter* owner,
-        ICanvasPresenter* canvasPresenter,
-        IViewPortPresenter* viewPortPresenter,
-        IColorSelectionPresenter* colorSelection,
-        Mode mode
-    ) = 0;
+    virtual void initialize(IMainEditorPresenter* owner, Mode mode) = 0;
 
     virtual IAssetSelectionPresenter& brushSelection() = 0;
 

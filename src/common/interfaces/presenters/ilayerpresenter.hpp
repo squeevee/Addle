@@ -22,6 +22,10 @@ public:
     virtual void initialize(IDocumentPresenter* documentPresenter, QWeakPointer<ILayer> layer) = 0;
     virtual IDocumentPresenter* getDocumentPresenter() = 0;
 
+    virtual void setIndex(int index) = 0;
+
+    virtual int index() const = 0;
+
     virtual QWeakPointer<ILayer> getModel() = 0;
 
     virtual IRenderStack& getRenderStack() = 0;

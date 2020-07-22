@@ -44,12 +44,7 @@ public:
     }
     virtual ~BrushToolPresenter() = default;
 
-    void initialize(IMainEditorPresenter* owner,
-        ICanvasPresenter* canvasPresenter,
-        IViewPortPresenter* viewPortPresenter,
-        IColorSelectionPresenter* colorSelection,
-        Mode mode
-    );
+    void initialize(IMainEditorPresenter* owner, Mode mode);
 
     IMainEditorPresenter* getOwner() { _initHelper.check(); return _mainEditor; }
     ToolId getId();
@@ -80,9 +75,10 @@ signals:
     void cursorChanged(QCursor cursor); 
     
 private slots:
+    void onDocumentChanged(IDocumentPresenter* document);
     void onColorChanged(ColorInfo info);
     void onBrushSelectionChanged();
-    void onSelectedLayerChanged(QWeakPointer<ILayerPresenter> layer);
+    void onSelectedLayerChanged();
     void onSizeChanged(double size);
     void onCanvasHasMouseChanged(bool hasMouse);
     void onViewPortZoomChanged(double zoom);
@@ -100,10 +96,12 @@ private:
     Mode _mode = (Mode)NULL;
 
     QMetaObject::Connection _connection_onSizeChanged;
+    QMetaObject::Connection _connection_onSelectedLayerChanged;
 
     IMainEditorPresenter* _mainEditor;
     ICanvasPresenter* _canvas;
     IViewPortPresenter* _viewPort;
+    IDocumentPresenter* _document = nullptr;
 
     QSharedPointer<BrushStroke> _brushStroke;
     std::unique_ptr<IAssetSelectionPresenter> _brushSelection;
@@ -111,6 +109,8 @@ private:
 
     ToolSelectHelper _selectHelper;
     MouseHelper _mouseHelper;
+
+    QWeakPointer<ILayerPresenter> _operatingLayer;
 
     std::unique_ptr<HoverPreview> _hoverPreview;
 

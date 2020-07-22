@@ -20,6 +20,7 @@ set (common_sources
     utilities/presenter/propertybinding.cpp
     utilities/presenter/propertyobserver.cpp
     utilities/render/rendersubstack.cpp
+    utilities/view/documentlayersitemmodel.cpp
 
     ../../resources/resources.qrc
 )

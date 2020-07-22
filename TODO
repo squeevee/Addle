@@ -228,8 +228,8 @@ Absolutely only one file for interface traits.
 Shared pool of temporary/disposable raster surfaces for various kinds of brush 
 previews?
 
-Brush icons of a certain exceeding size should have an additional hint that they
-are very big. (maybe a plus sign in the corner?)
+Brush icons of a certain exceeding size should have an additional visual hint
+that they are very big. (maybe a plus sign in the corner?)
 
 maybe change the navigate tool icon to a hand? That's a recognizable tool, and
 a decent representation of what the tool does? (of course it doesn't imply zoom
@@ -239,3 +239,19 @@ Eventually add a special viewport control similar to what Gwenview has, where
 (when the navigate tool is selected) you can hover over the viewport and in the
 corner an abstract "mini-map" appears and can be used to drag the viewport around
 the canvas area.
+
+Consolidate base interfaces of main editor presenter
+
+I might be overusing implicit sharing with small data types. There's also the
+related performance consideration of QVector vs QList. Examine these?
+(note: I'm not convinced the performance differences of QVector and QList are
+generally worth the trouble of frequently negotiating between two ostensibly
+very similar container types -- especially when they will have identical
+implementations in Qt 6.)
+
+combine HeirarchyList::Node::Iterator and HeirarchyList::NodePointer ?
+
+I'm pretty sure QVector doesn't need std::is_nothrow_move_constructible in alloc
+for the class to operate the same. That's only an if-else block, not any real 
+SFNIAE stuff: if move semantics made a difference there, I don't think it would
+compile. Maybe I'll file a bug report.

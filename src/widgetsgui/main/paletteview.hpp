@@ -6,7 +6,7 @@
 #include <QHash>
 
 #include "interfaces/presenters/ipalettepresenter.hpp"
-#include "widgetsgui/utilities/presenterassignment.hpp"
+#include "utilities/presenter/presenterassignment.hpp"
 
 #include "utilities/model/colorinfo.hpp"
 

@@ -1,6 +1,8 @@
 #include "documentpresenter.hpp"
 #include "servicelocator.hpp"
 
+
+#include "utilities/qtextensions/qlist.hpp"
 #include "interfaces/presenters/ilayerpresenter.hpp"
 
 void DocumentPresenter::initialize(EmptyInitOptions option)
@@ -47,11 +49,38 @@ void DocumentPresenter::initialize(QSharedPointer<IDocument> model)
     //assert model
     _model = model;
 
-    for (auto layer : _model->getLayers())
-    {
-        QSharedPointer<ILayerPresenter> layerPresenter = ServiceLocator::makeShared<ILayerPresenter>(this, layer);
-        _layers.append(layerPresenter);
-    }
-    
+    _layersHelper.initialize(_model->getLayers());
+    _initHelper.setCheckpoint(InitCheckpoints::Layers);
+
     _initHelper.initializeEnd();
 }
+
+// void DocumentPresenter::addLayer(int index)
+// {
+
+// }
+
+// void DocumentPresenter::removeLayer(int index, int count)
+// {
+
+// }
+
+// void DocumentPresenter::removeLayer(QSharedPointer<ILayerPresenter> layer)
+// {
+
+// }
+
+// void DocumentPresenter::removeLayers(QList<QSharedPointer<ILayerPresenter>> layers)
+// {
+
+// }
+
+// void DocumentPresenter::moveLayer(QSharedPointer<ILayerPresenter> layer, int destination)
+// {
+
+// }
+
+// void DocumentPresenter::moveLayers(QList<QSharedPointer<ILayerPresenter>> layers, int destination)
+// {
+
+// }

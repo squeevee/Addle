@@ -22,7 +22,6 @@ class IMainEditorView;
 class ICanvasPresenter;
 class IViewPortPresenter;
 class IColorSelectionPresenter;
-
 namespace IMainEditorPresenterAux
 {
     enum Mode
@@ -31,7 +30,7 @@ namespace IMainEditorPresenterAux
         Viewer
     };
 
-    struct ADDLE_COMMON_EXPORT DefaultTools
+    struct ADDLE_COMMON_EXPORT DefaultTools // namespace?
     {
         static const ToolId SELECT;
         static const ToolId BRUSH;
@@ -70,15 +69,10 @@ public:
     virtual void setMode(Mode mode) = 0;
     virtual Mode getMode() = 0;
 
-    virtual QWeakPointer<ILayerPresenter> getSelectedLayer() = 0;
-    virtual void selectLayer(QWeakPointer<ILayerPresenter> layer) = 0;
-    virtual void selectLayerAt(int index) = 0;
-    
     typedef IMainEditorPresenterAux::DefaultTools DefaultTools;
 
 signals:
     virtual void documentPresenterChanged(IDocumentPresenter* documentPresenter) = 0;
-    virtual void selectedLayerChanged(QWeakPointer<ILayerPresenter> layer) = 0;
     virtual void isEmptyChanged(bool) = 0;
 };
 

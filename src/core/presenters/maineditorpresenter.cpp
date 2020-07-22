@@ -55,7 +55,10 @@ void MainEditorPresenter::initialize(Mode mode)
     _mode = mode;
 
     _viewPortPresenter = ServiceLocator::make<IViewPortPresenter>(this);
+    _initHelper.setCheckpoint(Check_ViewPortPresenter);
+
     _canvasPresenter = ServiceLocator::make<ICanvasPresenter>(this);
+    _initHelper.setCheckpoint(Check_CanvasPresenter);
     
     _palettes = { 
         ServiceLocator::makeShared<IPalettePresenter>(
@@ -65,6 +68,7 @@ void MainEditorPresenter::initialize(Mode mode)
 
     _colorSelection = ServiceLocator::make<IColorSelectionPresenter>(_palettes);
     _colorSelection->setPalette(_palettes.first());
+    _initHelper.setCheckpoint(Check_ColorSelection);
 
     _tools = {{
         Mode::Editor,
@@ -86,9 +90,6 @@ void MainEditorPresenter::initialize(Mode mode)
             DefaultTools::BRUSH,
             _brushTool = ServiceLocator::make<IBrushToolPresenter>(
                 this,
-                _canvasPresenter,
-                _viewPortPresenter,
-                _colorSelection,
                 IBrushToolPresenter::Mode::Brush
             )
         },
@@ -96,23 +97,19 @@ void MainEditorPresenter::initialize(Mode mode)
             DefaultTools::ERASER,
             _brushTool = ServiceLocator::make<IBrushToolPresenter>(
                 this,
-                _canvasPresenter,
-                _viewPortPresenter,
-                _colorSelection,
                 IBrushToolPresenter::Mode::Eraser
             )
         },
         {
             DefaultTools::NAVIGATE,
             _navigateTool = ServiceLocator::make<INavigateToolPresenter>(
-                this,
-                _canvasPresenter,
-                _viewPortPresenter
+                this
             )
         }
     };
 
     _view = ServiceLocator::make<IMainEditorView>(this);
+    _initHelper.setCheckpoint(Check_View);
 
     _loadDocumentTask = new LoadDocumentTask(this);
     connect(_loadDocumentTask, &AsyncTask::completed, this, &MainEditorPresenter::onLoadDocumentCompleted);
@@ -125,10 +122,8 @@ void MainEditorPresenter::setDocumentPresenter(IDocumentPresenter* documentPrese
     _initHelper.check(); 
     _documentPresenter = documentPresenter;
 
-    _selectedLayer = _documentPresenter->getLayers().first();
     _isEmptyCache.recalculate();
     emit documentPresenterChanged(_documentPresenter);
-    emit selectedLayerChanged(_selectedLayer);
 }
 
 void MainEditorPresenter::setMode(Mode mode)
@@ -200,16 +195,6 @@ void MainEditorPresenter::selectTool(ToolId tool)
     emit _currentToolPresenter->setSelected(true);
     if (previousTool)
         emit previousTool->setSelected(false);
-}
-
-void MainEditorPresenter::selectLayer(QWeakPointer<ILayerPresenter> layer)
-{
-
-}
-
-void MainEditorPresenter::selectLayerAt(int index)
-{
-    
 }
 
 void LoadDocumentTask::doTask()

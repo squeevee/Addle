@@ -18,6 +18,9 @@ public:
     void initialize(IDocumentPresenter* documentPresenter, QWeakPointer<ILayer> model);
     IDocumentPresenter* getDocumentPresenter() { _initHelper.check(); return _documentPresenter; }
 
+    virtual void setIndex(int index) { _index = index; }
+    virtual int index() const { return _index; }
+
     QWeakPointer<ILayer> getModel() { _initHelper.check(); return _model; }
 
     IRenderStack& getRenderStack();
@@ -34,6 +37,8 @@ private:
     IRenderStack* _renderStack = nullptr;
     
     QWeakPointer<ILayer> _model;
+
+    int _index = 0;
 
     QSharedPointer<IRenderStep> _renderStep;
     QSharedPointer<IRenderStep> _rasterSurfaceStep;

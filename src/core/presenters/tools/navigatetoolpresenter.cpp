@@ -6,15 +6,12 @@
 
 using namespace INavigateToolPresenterAux;
 
-void NavigateToolPresenter::initialize(IMainEditorPresenter* owner,
-        ICanvasPresenter* canvasPresenter,
-        IViewPortPresenter* viewPort
-    )
+void NavigateToolPresenter::initialize(IMainEditorPresenter* owner)
 {
     _initHelper.initializeBegin();
     
     _owner = owner;
-    _viewPort = viewPort;
+    _viewPort = _owner->getViewPortPresenter();
 
     _initHelper.initializeEnd();
 }

@@ -19,12 +19,11 @@ include_directories(
     src/common
 )
 
+find_package(Qt5Core REQUIRED)
+
 add_subdirectory( src )
 
 include( CTest )
-
-if (BUILD_TESTING)
-
-    #add_subdirectory( tests )
-
+if(BUILD_TESTING)
+    add_subdirectory( tests )
 endif()

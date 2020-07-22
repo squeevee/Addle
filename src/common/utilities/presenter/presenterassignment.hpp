@@ -155,9 +155,17 @@ public:
         return conn;
     }
 
+    // Associate a connection to this assignment so that it is disconnected when
+    // disconnect() is called or when the assignment is changed
+    // (for example, use this with connections to objects owned by the presenter)
+    void addConnection(const QMetaObject::Connection& connection)
+    {
+        _connections.append(connection);
+    }
+
     void disconnect()
     {
-        for (auto connection : _connections)
+        for (auto connection : qAsConst(_connections))
         {
             if (connection) QObject::disconnect(connection);
         }

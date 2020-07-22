@@ -50,6 +50,14 @@ class ADDLE_CORE_EXPORT MainEditorPresenter : public QObject, public virtual IMa
         READ isEmpty
         NOTIFY isEmptyChanged
     )
+
+    enum InitCheckpoints
+    {
+        Check_CanvasPresenter,
+        Check_ViewPortPresenter,
+        Check_ColorSelection,
+        Check_View
+    };
 public:
     MainEditorPresenter()
         : //_propertyDecorationHelper(this),
@@ -64,15 +72,11 @@ public:
 
     void initialize(Mode mode);
 
-    IMainEditorView* getView() { _initHelper.check(); return _view; }
+    IMainEditorView* getView() { _initHelper.check(Check_View); return _view; }
 
-    ICanvasPresenter* getCanvasPresenter() { _initHelper.check(); return _canvasPresenter; }
-    IViewPortPresenter* getViewPortPresenter() { _initHelper.check(); return _viewPortPresenter; }
-    IColorSelectionPresenter& colorSelection() { _initHelper.check(); return *_colorSelection; }
-
-    QWeakPointer<ILayerPresenter> getSelectedLayer() { _initHelper.check(); return _selectedLayer; }
-    void selectLayer(QWeakPointer<ILayerPresenter> layer);
-    void selectLayerAt(int index);
+    ICanvasPresenter* getCanvasPresenter() { _initHelper.check(Check_CanvasPresenter); return _canvasPresenter; }
+    IViewPortPresenter* getViewPortPresenter() { _initHelper.check(Check_ViewPortPresenter); return _viewPortPresenter; }
+    IColorSelectionPresenter& colorSelection() { _initHelper.check(Check_ColorSelection); return *_colorSelection; }
 
     void setMode(Mode mode);
     Mode getMode() { return _mode; }
@@ -84,7 +88,6 @@ public:
 
 signals:
     void documentPresenterChanged(IDocumentPresenter* documentPresenter);
-    void selectedLayerChanged(QWeakPointer<ILayerPresenter> layer);
     void isEmptyChanged(bool);
 
 public slots:
@@ -162,8 +165,6 @@ private:
     QHash<ToolId, IToolPresenter*> _toolPresenters;
     ToolId _currentTool;
     IToolPresenter* _currentToolPresenter = nullptr;
-
-    QWeakPointer<ILayerPresenter> _selectedLayer;
 
     LoadDocumentTask* _loadDocumentTask;
 

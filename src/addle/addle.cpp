@@ -24,6 +24,8 @@
 #include "utilities/debugging.hpp"
 #endif //ADDLE_DEBUG
 
+#include "utilities/heirarchylist.hpp"
+
 #include "utilities/unhandledexceptionrouter.hpp"
 #include "core/presenters/tools/navigatetoolpresenter.hpp"
 

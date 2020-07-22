@@ -38,19 +38,14 @@
 
 using namespace IBrushToolPresenterAux;
 
-void BrushToolPresenter::initialize(IMainEditorPresenter* owner,
-        ICanvasPresenter* canvasPresenter,
-        IViewPortPresenter* viewPortPresenter,
-        IColorSelectionPresenter* colorSelection,
-        Mode mode
-    )
+void BrushToolPresenter::initialize(IMainEditorPresenter* owner, Mode mode)
 {
     _initHelper.initializeBegin();
 
     _mainEditor = owner;
-    _canvas = canvasPresenter;
-    _viewPort = viewPortPresenter;
-    _colorSelection = colorSelection;
+    _canvas = _mainEditor->getCanvasPresenter();
+    _viewPort = _mainEditor->getViewPortPresenter();
+    _colorSelection = &_mainEditor->colorSelection();
     
     _mode = mode;
 
@@ -93,7 +88,7 @@ void BrushToolPresenter::initialize(IMainEditorPresenter* owner,
 
     _hoverPreview = std::unique_ptr<HoverPreview>(new HoverPreview(*this));
 
-    connect_interface(_mainEditor, SIGNAL(selectedLayerChanged(QWeakPointer<ILayerPresenter>)), this, SLOT(onSelectedLayerChanged(QWeakPointer<ILayerPresenter>)));
+    connect_interface(_mainEditor, SIGNAL(documentPresenterChanged(IDocumentPresenter*)), this, SLOT(onDocumentChanged(IDocumentPresenter*)));
     connect_interface(_canvas, SIGNAL(hasMouseChanged(bool)), this, SLOT(onCanvasHasMouseChanged(bool)));
     connect_interface(_brushSelection.get(), SIGNAL(selectionChanged(QList<PersistentId>)), this, SLOT(onBrushSelectionChanged()));
     connect_interface(_viewPort, SIGNAL(zoomChanged(double)), this, SLOT(onViewPortZoomChanged(double)));
@@ -187,7 +182,7 @@ void BrushToolPresenter::onCanvasHasMouseChanged(bool hasMouse)
     _hoverPreview->isVisible_cache.recalculate();
 }
 
-void BrushToolPresenter::onSelectedLayerChanged(QWeakPointer<ILayerPresenter> layer)
+void BrushToolPresenter::onSelectedLayerChanged()
 {
     _hoverPreview->isVisible_cache.recalculate();
 }
@@ -200,12 +195,36 @@ void BrushToolPresenter::onViewPortZoomChanged(double zoom)
     refreshPreviews();
 }
 
+void BrushToolPresenter::onDocumentChanged(IDocumentPresenter* document)
+{
+    _document = document;
+    if (_document)
+    {
+        _connection_onSelectedLayerChanged = connect_interface(
+            _document,
+            SIGNAL(layerSelectionChanged(QSet<IDocumentPresenter::LayerNode>)),
+            this,
+            SLOT(onSelectedLayerChanged())
+        );
+
+        _hoverPreview->isVisible_cache.recalculate();
+    }
+    else
+    {
+        if (_connection_onSelectedLayerChanged)
+            disconnect(_connection_onSelectedLayerChanged);
+
+        _hoverPreview->isVisible_cache.recalculate();
+    }
+}
+
 void BrushToolPresenter::onEngage()
 {
     if (!selectedBrush()) return;
 
     auto brush = selectedBrushPresenter();
-    auto layer = _mainEditor->getSelectedLayer().toStrongRef();
+    auto layer = _document->topSelectedLayer();
+    _operatingLayer = layer;
 
     if (!layer) return;
 
@@ -254,7 +273,7 @@ void BrushToolPresenter::onDisengage()
     if (!_brushStroke) return;
 
     _brushStroke->getBuffer()->unlink();    
-    auto layer = _mainEditor->getSelectedLayer().toStrongRef();
+    auto layer = _operatingLayer.toStrongRef();
     if (!layer) return;
 
     {
@@ -279,6 +298,7 @@ void BrushToolPresenter::onDisengage()
 
     _grace = true;
     _hoverPreview->isVisible_cache.recalculate();
+    _operatingLayer.clear();
 }
 
 BrushToolPresenter::HoverPreview::HoverPreview(BrushToolPresenter& owner)
@@ -318,7 +338,7 @@ void BrushToolPresenter::HoverPreview::update()
 
     if (_surface)
     {
-        if (_layer && (!isVisible_cache.getValue() || _layer != _owner._mainEditor->getSelectedLayer()))
+        if (_layer && (!isVisible_cache.getValue() || _layer != _owner._document->topSelectedLayer()))
         {
             _layer->getRenderStack().remove(_surface->getRenderStep());
             if (_owner.selectedBrushPresenter()->model().eraserMode())
@@ -328,9 +348,9 @@ void BrushToolPresenter::HoverPreview::update()
             _layer = nullptr;
         }
 
-        if (isVisible_cache.getValue() && _layer != _owner._mainEditor->getSelectedLayer())
+        if (isVisible_cache.getValue() && _layer != _owner._document->topSelectedLayer())
         {
-            _layer = _owner._mainEditor->getSelectedLayer().toStrongRef();
+            _layer = _owner._document->topSelectedLayer();
             if (_owner.selectedBrushPresenter()->model().eraserMode())
             {
                 auto s_layerModel = _layer->getModel().toStrongRef();
@@ -361,7 +381,8 @@ bool BrushToolPresenter::HoverPreview::calc_visible()
 
         && !_owner._mouseHelper.isEngaged()
 
-        && _owner._mainEditor->getSelectedLayer()
+        && _owner._document
+        && _owner._document->topSelectedLayer()
 
         && !qIsNaN(_owner.selectedBrushPresenter()->size())
         && _owner.selectedBrushPresenter()->size() > 0

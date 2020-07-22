@@ -11,6 +11,7 @@ set (
     main/colorselector.cpp
     main/favoriteassetspicker.cpp
     main/maineditorview.cpp
+    main/layers/layersmanager.cpp
     main/paletteview.cpp
     main/sizeselector.cpp
     main/viewportscrollwidget.cpp

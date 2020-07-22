@@ -7,7 +7,7 @@
 #include <QToolButton>
 #include <QWeakPointer>
 
-#include "widgetsgui/utilities/presenterassignment.hpp"
+#include "utilities/presenter/presenterassignment.hpp"
 #include "widgetsgui/utilities/popupbutton.hpp"
 
 #include "interfaces/presenters/tools/isizeselectionpresenter.hpp"

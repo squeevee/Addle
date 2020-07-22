@@ -25,10 +25,7 @@ public:
 
     virtual ~INavigateToolPresenter() = default;
 
-    virtual void initialize(IMainEditorPresenter* owner,
-        ICanvasPresenter* canvasPresenter,
-        IViewPortPresenter* viewPortPresenter
-    ) = 0;
+    virtual void initialize(IMainEditorPresenter* owner) = 0;
     
     virtual NavigateOperationOptions getNavigateOperation() = 0;
 

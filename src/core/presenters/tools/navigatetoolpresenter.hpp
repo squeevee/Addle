@@ -33,10 +33,7 @@ public:
     }
     virtual ~NavigateToolPresenter() = default;
 
-    void initialize(IMainEditorPresenter* owner,
-        ICanvasPresenter* canvas,
-        IViewPortPresenter* viewPort
-    );
+    void initialize(IMainEditorPresenter* owner);
 
     IMainEditorPresenter* getOwner() { return _owner; }
     ToolId getId() { return INavigateToolPresenterAux::ID; }

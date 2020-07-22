@@ -10,7 +10,7 @@
 #include "interfaces/presenters/tools/iassetselectionpresenter.hpp"
 #include "interfaces/presenters/assets/iassetpresenter.hpp"
 
-#include "widgetsgui/utilities/presenterassignment.hpp"
+#include "utilities/presenter/presenterassignment.hpp"
 
 class FavoriteAssetButton;
 class FavoriteAssetsPicker : public QWidget 
