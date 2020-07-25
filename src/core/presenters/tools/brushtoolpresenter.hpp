@@ -126,13 +126,13 @@ class BrushToolPresenter::HoverPreview
 public:
     HoverPreview(BrushToolPresenter& owner);
 
+    void update();
     void setPosition(QPointF);
 
     PropertyCache<bool> isVisible_cache;
 private:
     bool calc_visible();
 
-    void update();
     void onVisibleChanged(bool);
     
     void paint();

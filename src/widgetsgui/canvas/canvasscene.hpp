@@ -25,6 +25,9 @@ protected:
     void mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent);
     void mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent);
     void mouseReleaseEvent(QGraphicsSceneMouseEvent* mouseEvent);
+
+private slots:
+    void layersUpdated();
     
 private:
     CanvasItem* _canvasItem;

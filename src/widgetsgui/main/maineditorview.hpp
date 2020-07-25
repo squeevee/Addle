@@ -57,6 +57,8 @@ private slots:
 
     void onPresenterEmptyChanged(bool);
 
+    void onDocumentChanged(IDocumentPresenter* document);
+
 private:
     void setupUi();
 

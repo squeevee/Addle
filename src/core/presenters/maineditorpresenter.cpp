@@ -13,6 +13,7 @@
 //#include "interfaces/tasks/iloaddocumentfiletask.hpp"
 
 #include "interfaces/presenters/ilayerpresenter.hpp"
+#include "interfaces/presenters/idocumentpresenter.hpp"
 
 #include "utilities/qtextensions/qobject.hpp"
 
@@ -120,10 +121,37 @@ void MainEditorPresenter::initialize(Mode mode)
 void MainEditorPresenter::setDocumentPresenter(IDocumentPresenter* documentPresenter)
 {
     _initHelper.check(); 
+
+    auto oldTopSelectedLayer = topSelectedLayer();
+
     _documentPresenter = documentPresenter;
 
+    if (_connection_topSelectedLayer)
+        disconnect(_connection_topSelectedLayer);
+
+    if (_documentPresenter)
+        _connection_topSelectedLayer = connect_interface(
+            _documentPresenter,
+            SIGNAL(topSelectedLayerChanged(QSharedPointer<ILayerPresenter>)),
+            this,
+            SIGNAL(topSelectedLayerChanged(QSharedPointer<ILayerPresenter>))
+        );
+    
     _isEmptyCache.recalculate();
     emit documentPresenterChanged(_documentPresenter);
+
+    auto newTopSelectedLayer = topSelectedLayer();
+    if (newTopSelectedLayer != oldTopSelectedLayer)
+        emit topSelectedLayerChanged(newTopSelectedLayer);
+}
+
+QSharedPointer<ILayerPresenter> MainEditorPresenter::topSelectedLayer() const
+{
+    _initHelper.check();
+    if (_documentPresenter)
+        return _documentPresenter->topSelectedLayer();
+    else
+        return nullptr;
 }
 
 void MainEditorPresenter::setMode(Mode mode)

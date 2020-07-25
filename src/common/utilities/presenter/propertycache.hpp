@@ -5,6 +5,8 @@
 #include <type_traits>
 #include <QVector>
 
+#include "../helpercallback.hpp"
+
 /**
  * @class PropertyCache
  * @brief Automatically caches a dynamically calculated property, calling a
@@ -70,9 +72,13 @@ public:
         _initialized = true;
     }
 
-    inline const PropertyType& getValue()
+    inline const PropertyType& getValue() const
     {
-        if (!_initialized && _calculate) initialize(_calculate());
+        if (!_initialized && _calculate)
+        {
+            _value = _calculate();
+            _initialized = true;
+        }
         return _value;
     }
     
@@ -94,8 +100,8 @@ public:
     }
 
 private:
-    bool _initialized = false;
-    PropertyType _value;
+    mutable bool _initialized = false;
+    mutable PropertyType _value;
 
     std::function<PropertyType()> _calculate;
 

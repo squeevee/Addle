@@ -3,6 +3,8 @@
 #include <QToolButton>
 #include <QApplication>
 
+#include <QSignalBlocker>
+
 #include "layersmanager.hpp"
 
 #include "utilities/view/documentlayersitemmodel.hpp"
@@ -50,6 +52,8 @@ LayersManager::LayersManager(QWidget* parent)
     _view->setModel(_itemModel);
     mainLayout->addWidget(_view);
 
+    connect(_view->selectionModel(), &QItemSelectionModel::selectionChanged,
+        this, &LayersManager::viewSelectionChanged);
 
     QBoxLayout* belowRow = new QBoxLayout(QBoxLayout::LeftToRight);
     mainLayout->addLayout(belowRow);
@@ -79,10 +83,72 @@ LayersManager::LayersManager(QWidget* parent)
         0, 0, QSizePolicy::Expanding
     ));
 
+    widget->setEnabled(false);
 }
 
 void LayersManager::setPresenter(PresenterAssignment<IDocumentPresenter> presenter)
 {
     _presenter = presenter;
     _itemModel->setPresenter(_presenter);
+
+    if (_presenter)
+    {
+        _presenter.connect(
+            _action_addLayer, SIGNAL(triggered()), 
+                                SLOT(addLayer())
+        );
+
+        _presenter.connect(
+            _action_addLayerGroup, SIGNAL(triggered()), 
+                                     SLOT(addLayerGroup())
+        );
+
+        _presenter.connect(
+                SIGNAL(layerSelectionChanged(QSet<IDocumentPresenter::LayerNode*>)),
+            this, SLOT(presenterSelectionChanged())
+        );
+    }
+
+    presenterSelectionChanged();
+
+    if (widget())
+        widget()->setEnabled((bool)_presenter);
+}
+
+void LayersManager::viewSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected)
+{
+    if(!_presenter) return;
+
+    QSet<IDocumentPresenter::LayerNode*> newSelection;
+
+    for (QModelIndex index : selected.indexes())
+    {
+        newSelection.insert(DocumentLayersItemModel::nodeAt(index));
+    }
+
+    _presenter->setLayerSelection(newSelection);
+}
+
+void LayersManager::presenterSelectionChanged()
+{
+    QItemSelectionModel* selectionModel = _view->selectionModel();
+    if (!_presenter)
+    {
+        selectionModel->clear();
+        return;
+    }
+
+    QItemSelection selection;
+    
+    // inefficient
+    for (IDocumentPresenter::LayerNode* node : _presenter->layerSelection())
+    {
+        QModelIndex index = _itemModel->indexOf(node);
+        selection.select(index, index);
+    }
+
+    {
+        const QSignalBlocker block(selectionModel);
+        selectionModel->select(selection, QItemSelectionModel::ClearAndSelect);
+    }
 }

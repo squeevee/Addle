@@ -18,17 +18,18 @@ LayerPresenter::~LayerPresenter()
     delete _renderStack;
 }
 
-void LayerPresenter::initialize(IDocumentPresenter* documentPresenter, QWeakPointer<ILayer> model)
+void LayerPresenter::initialize(IDocumentPresenter* documentPresenter, QSharedPointer<ILayer> model)
 {
     _initHelper.initializeBegin();
 
     _documentPresenter = documentPresenter;
-    _model = model;
-
-    auto s_model = _model.toStrongRef();
+    if (model)
+        _model = model;
+    else
+        _model = ServiceLocator::makeShared<ILayer>();
 
     connect_interface(
-        s_model->getRasterSurface().data(),
+        _model->getRasterSurface().data(),
         SIGNAL(changed(QRect)),
         this,
         SLOT(onRasterChanged(QRect)),
@@ -36,7 +37,7 @@ void LayerPresenter::initialize(IDocumentPresenter* documentPresenter, QWeakPoin
     );
 
     _renderStep = QSharedPointer<IRenderStep>(new LayerPresenterRenderStep(*this));
-    _rasterSurfaceStep = s_model->getRasterSurface()->getRenderStep();
+    _rasterSurfaceStep = _model->getRasterSurface()->getRenderStep();
 
     _initHelper.initializeEnd();
 }
@@ -48,7 +49,6 @@ IRenderStack& LayerPresenter::getRenderStack()
 
     if (!_renderStack)
     {
-        auto s_model = _model.toStrongRef();
         _renderStack = ServiceLocator::make<IRenderStack>(QList<QWeakPointer<IRenderStep>>({
             _renderStep,
             _rasterSurfaceStep

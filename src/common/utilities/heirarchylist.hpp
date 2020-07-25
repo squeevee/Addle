@@ -12,18 +12,13 @@
 #include <QSharedData>
 #include <QSharedPointer>
 
+/**
+ * A generic container class whose members are arranged as a nested heirarchy.
+ */
 template<typename T>
-class HeirarchyList;
-
-namespace HeirarchyListPrivate
+class HeirarchyList
 {
-    template<typename T>
-    class NodePointer;
-
-    template<typename T>
-    class ConstNodePointer;
-
-    template<typename T>
+public:
     class Node
     {
         static constexpr int W_GROUP = 0;
@@ -91,7 +86,7 @@ namespace HeirarchyListPrivate
         template<typename Iterator_>
         void copyFrom(const Iterator_& begin, const Iterator_& end)
         {
-            QVector<Node> nodes;
+            QList<Node*> nodes;
 
             for (Iterator_ i = begin; i != end; ++i)
             {
@@ -101,8 +96,8 @@ namespace HeirarchyListPrivate
         }
 
         inline Node* parent() const { return _parent; }
-        inline int depth() const;
-        inline int indexInParent() const { return _parent ? this - _parent->asGroup().data() : -1; }
+        inline int depth() const { return _depth; }
+        inline int index() const { return _index; }
         inline QList<const Node*> path() const;
 
         inline QVariant& metaData() { return _metaData; }
@@ -113,12 +108,18 @@ namespace HeirarchyListPrivate
         inline bool isValue() const { return _value.which() == W_VALUE; }
 
         inline bool isEmpty() const { return isGroup() && asGroup().isEmpty(); }
-        inline int childrenCount() const { return isGroup() ? asGroup().count() : 0; }
+        inline int size() const { return isGroup() ? asGroup().size() : 0; }
 
         inline T takeFirstValue() const;
 
-        inline void dispose();
-        //inline HeirarchyList<T> emancipate();
+        //inline void dispose();
+
+        // removes this node from its parent without destroying it. values of 
+        // index() and parent() continue to point to their former location
+        // (unless/until the node is inserted into another list). The caller
+        // becomes responsible for deleting this node.
+        // behavior is (currently) undefined if this is a root node
+        inline void emancipate();
 
         inline bool operator==(const Node& x) const { return this == &x; }
         inline bool operator!=(const Node& x) const { return this != &x; }
@@ -139,13 +140,13 @@ namespace HeirarchyListPrivate
 
         // Assumes isGroup
 
-        inline NodePointer<T> addValue(const T& value);
-        inline NodePointer<T> addGroup();
+        inline Node& addValue(const T& value, int insertBefore = -1);
+        inline Node& addGroup(int insertBefore = -1);
 
         // Transfers ownership of node as a child of this
-        inline NodePointer<T> adoptNode(Node& node);
+        inline Node& adoptNode(Node& node, int insertBefore = -1);
 
-        inline NodePointer<T> copyNode(const Node& node);
+        // inline NodePointer<T> copyNode(const Node& node, int insertBefore = -1);
 
         inline Iterator begin();
         inline ConstIterator begin() const { return const_begin(); }
@@ -155,20 +156,19 @@ namespace HeirarchyListPrivate
         inline ConstIterator end() const { return const_end(); }
         inline ConstIterator const_end() const;
 
-        inline const QVector<Node>& asGroup() const { return boost::get<const QVector<Node>&>(_value); }
+        inline const QList<Node*>& asGroup() const { return boost::get<const QList<Node*>&>(_value); }
 
-        inline typename QVector<Node>::iterator children_begin() { return asGroup().begin(); }
-        inline typename QVector<Node>::iterator children_end() { return asGroup().end(); }
+        inline typename QList<Node*>::iterator children_begin() { return asGroup().begin(); }
+        inline typename QList<Node*>::iterator children_end() { return asGroup().end(); }
 
-        inline Node& operator[](int index) { return asGroup()[index]; }
-        inline const Node& operator[](int index) const { return asGroup()[index]; }
-        inline const Node& at(int index) const { return asGroup()[index]; }
+        inline Node& operator[](int index) { return *asGroup()[index]; }
+        inline const Node& operator[](int index) const { return *asGroup()[index]; }
+        inline const Node& at(int index) const { return *asGroup()[index]; }
 
-        inline QVector<T> takeValues() const;
-        inline QVector<Node> takeDescendants(bool andSelf = true) const;
+        inline QList<T> takeValues() const;
+        inline QList<Node*> takeDescendants(bool andSelf = true) const;
 
-
-        inline void remove(int index, int count = 1);
+        inline void remove(int index);
 
         //template<typename Visitor>
         //inline typename Visitor::result_type apply_visitor(const Visitor& v) const;
@@ -179,33 +179,36 @@ namespace HeirarchyListPrivate
 
         // Const access can be provided through the public const asGroup()
 
-
-        // THIS CONSTRUCTOR AND DESTRUCTOR ARE PROVIDED FOR THE BENEFIT OF
-        // QVector. DO NOT CREATE OR TAKE OWNERSHIP OF INSTANCES OF Node.
-
-        inline Node(Node&& x) noexcept;
-        inline ~Node() noexcept;
+        // for use with ordered containers
+        struct Comparator
+        {
+            inline bool operator()(const Node& a, const Node& b) const { return a < b; }
+            inline bool operator()(const Node* a, const Node* b) const { return a && b && *a < *b; }
+        };
 
     private:
         inline Node() = default;
 
-        inline Node(const T& value, Node* parent, QVariant metaData = QVariant())
-            : _value(value), _parent(parent), _metaData(metaData)
+        inline Node(const T& value, Node* parent, int index)
+            : _value(value), _parent(parent), _index(index)
         {
+            if (_parent)
+                _depth = _parent->_depth + 1;
         }
 
-        inline Node(QVector<Node> list, Node* parent, QVariant metaData = QVariant())
-            : _value(list), _parent(parent), _metaData(metaData)
+        inline Node(const QList<Node*>& list, Node* parent, int index)
+            : _value(list), _parent(parent), _index(index)
         {
+            if (_parent)
+                _depth = _parent->_depth + 1;
         }
 
-        inline Node(const Node& x);
-/*  */
-        inline void rebase() noexcept;
-        inline void nullifyPointers() noexcept;
+        inline Node(const Node& x);        
+        inline Node(Node&& x) noexcept;
 
-        inline QList<QSet<NodePointer<T>*>> stashPointers(int offset = 0);
-        inline void applyPointers(QList<QSet<NodePointer<T>*>> pointers, int offset = 0);
+        inline ~Node() noexcept;
+
+        inline void copyValue(const Node& x);
 
         inline Node* next(bool descend = true);
         inline const Node* next(bool descend = true) const;
@@ -213,119 +216,44 @@ namespace HeirarchyListPrivate
         inline Node* find(const T& value) const;
 
         //non-const overload is private
-        inline QVector<Node>& asGroup() { return boost::get<QVector<Node>&>(_value); }
+        inline QList<Node*>& asGroup() { return boost::get<QList<Node*>&>(_value); }
 
-        boost::variant<QVector<Node>, T> _value;
+        boost::variant<QList<Node*>, T> _value;
         Node* _parent = nullptr;
+
+        int _index = -1;
+        int _depth = 0;
 
         QVariant _metaData;
 
-        QSet<NodePointer<T>*> _pointers;
-        QSet<ConstNodePointer<T>*> _constPointers;
-
-        friend class QVector<Node>;
+        friend class QList<Node*>;
         friend class HeirarchyList<T>;
-        friend class NodePointer<T>;
-        friend class ConstNodePointer<T>;
     };
-
-    template<typename T>
-    uint qHash(const NodePointer<T>& pointer, uint seed = 0);
-
-    template<typename T>
-    class NodePointer
-    {
-    public:
-        inline NodePointer() : _ptr(nullptr) { }
-        inline NodePointer(const NodePointer& x);
-
-        inline NodePointer(Node<T>* node);
-
-        inline ~NodePointer();
-
-        inline NodePointer& operator=(const NodePointer& x);
-        inline NodePointer& operator=(Node<T>* node);
-
-        explicit inline operator bool() const { return (bool)_ptr; }
-        inline bool operator!() const { return !_ptr; }
-        inline bool isNull() const { return !_ptr; }
-
-        inline bool operator==(const NodePointer& x) const { return _ptr == x._ptr; }
-        inline bool operator==(const Node<T>* node) const { return _ptr == node; }
-
-        inline bool operator!=(const NodePointer& x) const { return _ptr != x._ptr; }
-        inline bool operator!=(const Node<T>* node) const { return _ptr != node; }
-
-        inline bool operator<(const NodePointer& x) const
-        {
-            return _ptr && x._ptr && *_ptr < *x._ptr;
-        }
-
-        inline bool operator<=(const NodePointer& x) const
-        {
-            return (*this == x) || (*this < x);
-        }
-
-        inline bool operator>(const NodePointer& x) const
-        {
-            return _ptr && x._ptr && *_ptr > *x._ptr;
-        }
-
-        inline bool operator>=(const NodePointer& x) const
-        {
-            return (*this == x) || (*this > x);
-        }
-
-        inline Node<T>& operator*() const { return *_ptr; }
-        inline Node<T>* operator->() const { return _ptr; }
-
-        // // because I can't seem to define a qHash function in global namespace
-        // // and have it find this class through template deduction
-        // inline operator quintptr() const noexcept { return reinterpret_cast<quintptr>(_ptr); }
-
-    private:
-        Node<T>* _ptr;
-
-        friend uint qHash<T>(const NodePointer<T>&, uint);
-        friend class Node<T>;
-    };
-
-    template<typename T>
-    inline uint qHash(const NodePointer<T>& pointer, uint seed)
-    {
-        return QT_PREPEND_NAMESPACE(qHash(reinterpret_cast<quintptr>(pointer._ptr), seed));
-    }
-}
-
-/**
- * A generic container class whose members are arranged as a nested heirarchy.
- */
-template<typename T>
-class HeirarchyList
-{
-public:
-    typedef HeirarchyListPrivate::Node<T> Node;
-    typedef HeirarchyListPrivate::NodePointer<T> NodePointer;
 
     inline HeirarchyList();
     // inline HeirarchyList(std::initializer_list<T> list)
-    //     : _root(QVector<Node>(list), nullptr, 0)
+    //     : _root(QList<Node*>(list), nullptr, 0)
     // {
     // }
 
     inline HeirarchyList(const HeirarchyList&) = default;
 
-    inline NodePointer addValue(const T& value);
-    inline NodePointer addGroup();
+    inline Node& addValue(const T& value, int insertBefore = -1);
+    inline Node& addGroup(int insertBefore = -1);
+    inline Node& adoptNode(Node& node, int insertBefore = -1);
+
+    inline void remove(int index);
 
     inline Node& operator[](int index);
     inline const Node& operator[](int index) const;
     inline const Node& at(int index) const;
 
-    inline int count() const;
+    inline int size() const;
+    inline bool isEmpty() const;
 
     inline Node& root();
-    inline const Node& root() const;
+    inline const Node& root() const { return const_root(); }
+    inline const Node& const_root() const;
 
     typename Node::Iterator begin();
     typename Node::ConstIterator begin() const { return const_begin(); }
@@ -341,13 +269,13 @@ private:
     struct Data : QSharedData
     {
         inline Data(Node&& root_) : root(std::move(root_)) { }
-        inline Data(const T& value, Node* parent, QVariant metaData)
-            : root(value, parent, metaData)
+        inline Data(const T& value)
+            : root(value, nullptr, -1)
         {
         }
 
-        inline Data(QVector<Node> list, Node* parent, QVariant metaData)
-            : root(list, parent, metaData)
+        inline Data(QList<Node*> list)
+            : root(list, nullptr, -1)
         {
         }
 
@@ -356,90 +284,24 @@ private:
     
     QSharedDataPointer<Data> _data;
 
-    friend class HeirarchyListPrivate::Node<T>;
+    friend class HeirarchyList<T>::Node;
 };
 
 template<typename T>
-inline void HeirarchyListPrivate::Node<T>::rebase() noexcept
+inline typename HeirarchyList<T>::Node* HeirarchyList<T>::Node::next(bool descend)
 {
-    if (isGroup() && !isEmpty())
-    {
-        for (auto& node: asGroup())
-        {
-            node._parent = this;
-        }
-    }
-
-    for (auto ref : qAsConst(_pointers))
-    {
-        ref->_ptr = this;
-    }
-    for (auto cRef : qAsConst(_constPointers))
-    {
-        //cRef->_ptr = this;
-    }
-}
-
-template<typename T>
-inline void HeirarchyListPrivate::Node<T>::nullifyPointers() noexcept
-{
-    for (auto ref : qAsConst(_pointers))
-    {
-        ref->_ptr = nullptr;
-    }
-    for (auto cRef : qAsConst(_constPointers))
-    {
-        //cRef->_ptr = nullptr;
-    }
-}
-
-template<typename T>
-inline QList<QSet<HeirarchyListPrivate::NodePointer<T>*>> HeirarchyListPrivate::Node<T>::stashPointers(int offset)
-{
-    auto& children = asGroup();
-
-    QList<QSet<NodePointer<T>*>> pointers;
-    pointers.reserve(children.count() - offset);
-
-    for (int i = offset; i < children.count(); i++)
-    {
-        auto& child = children[i];
-        pointers.append(child._pointers);
-        child._pointers.clear();
-    }
-
-    return pointers;
-}
-
-template<typename T>
-inline void HeirarchyListPrivate::Node<T>::applyPointers(QList<QSet<NodePointer<T>*>> pointers, int offset)
-{
-    auto& children = asGroup();
-
-    for (int i = 0; i < qMin(pointers.count(), children.count() + offset); i++)
-    {
-        auto& child = children[i + offset];
-        child._pointers = pointers[i];
-        child.rebase();
-    }
-}
-
-template<typename T>
-inline typename HeirarchyListPrivate::Node<T>* HeirarchyListPrivate::Node<T>::next(bool descend)
-{
-    if (!_parent) return nullptr;
-
     if (descend && isGroup() && !isEmpty())
     {
-        return &asGroup().first();
+        return asGroup().first();
     }
 
-    QVector<Node>& siblings = _parent->asGroup();
-    ptrdiff_t index = this - siblings.data();
+    if (!_parent) return nullptr;
 
-    if (index < siblings.count() - 1)
+    QList<Node*>& siblings = _parent->asGroup();
+
+    if (_index < siblings.size() - 1)
     {
-        return &siblings[index + 1];
+        return siblings[_index + 1];
     }
     else
     {
@@ -448,23 +310,20 @@ inline typename HeirarchyListPrivate::Node<T>* HeirarchyListPrivate::Node<T>::ne
 }
 
 template<typename T>
-inline const typename HeirarchyListPrivate::Node<T>* HeirarchyListPrivate::Node<T>::next(bool descend) const
+inline const typename HeirarchyList<T>::Node* HeirarchyList<T>::Node::next(bool descend) const
 {
     if (descend && isGroup() && !isEmpty())
     {
-        const QVector<Node>& children = asGroup();
-        return &children.constFirst();
-    }    
-    
+        return asGroup().first();
+    }
+
     if (!_parent) return nullptr;
 
-    const QVector<Node>& siblings = _parent->asGroup();
-    ptrdiff_t index = this - siblings.data();
+    QList<Node*>& siblings = _parent->asGroup();
 
-    int c = siblings.count();
-    if (index < siblings.count() - 1)
+    if (_index < siblings.size() - 1)
     {
-        return &siblings[index + 1];
+        return siblings[_index + 1];
     }
     else
     {
@@ -473,14 +332,14 @@ inline const typename HeirarchyListPrivate::Node<T>* HeirarchyListPrivate::Node<
 }
 
 template<typename T>
-inline typename HeirarchyListPrivate::Node<T>::Iterator& HeirarchyListPrivate::Node<T>::Iterator::operator++()
+inline typename HeirarchyList<T>::Node::Iterator& HeirarchyList<T>::Node::Iterator::operator++()
 {
     _cursor = _cursor->next();
     return *this;
 }
 
 template<typename T>
-inline typename HeirarchyListPrivate::Node<T>::Iterator HeirarchyListPrivate::Node<T>::Iterator::operator++(int)
+inline typename HeirarchyList<T>::Node::Iterator HeirarchyList<T>::Node::Iterator::operator++(int)
 {
     Node* oldCursor = _cursor;
     ++(*this);
@@ -488,14 +347,14 @@ inline typename HeirarchyListPrivate::Node<T>::Iterator HeirarchyListPrivate::No
 }
 
 template<typename T>
-inline typename HeirarchyListPrivate::Node<T>::ConstIterator& HeirarchyListPrivate::Node<T>::ConstIterator::operator++()
+inline typename HeirarchyList<T>::Node::ConstIterator& HeirarchyList<T>::Node::ConstIterator::operator++()
 {
     _cursor = _cursor->next();
     return *this;
 }
 
 template<typename T>
-inline typename HeirarchyListPrivate::Node<T>::ConstIterator HeirarchyListPrivate::Node<T>::ConstIterator::operator++(int)
+inline typename HeirarchyList<T>::Node::ConstIterator HeirarchyList<T>::Node::ConstIterator::operator++(int)
 {
     Node* oldCursor = _cursor;
     ++(*this);
@@ -503,25 +362,25 @@ inline typename HeirarchyListPrivate::Node<T>::ConstIterator HeirarchyListPrivat
 }
 
 template<typename T>
-inline typename HeirarchyListPrivate::Node<T>::Iterator HeirarchyListPrivate::Node<T>::begin()
+inline typename HeirarchyList<T>::Node::Iterator HeirarchyList<T>::Node::begin()
 {
     if (!isGroup() || isEmpty())
         return Iterator(nullptr);
 
-    return Iterator(&asGroup().first());
+    return Iterator(asGroup().first());
 }
 
 template<typename T>
-inline typename HeirarchyListPrivate::Node<T>::ConstIterator HeirarchyListPrivate::Node<T>::const_begin() const
+inline typename HeirarchyList<T>::Node::ConstIterator HeirarchyList<T>::Node::const_begin() const
 {
     if (!isGroup() || isEmpty())
         return ConstIterator(nullptr);
 
-    return ConstIterator(&asGroup().first());
+    return ConstIterator(asGroup().first());
 }
 
 template<typename T>
-inline typename HeirarchyListPrivate::Node<T>::Iterator HeirarchyListPrivate::Node<T>::end()
+inline typename HeirarchyList<T>::Node::Iterator HeirarchyList<T>::Node::end()
 {
     if (!isGroup() || isEmpty())
         return Iterator(nullptr);
@@ -530,7 +389,7 @@ inline typename HeirarchyListPrivate::Node<T>::Iterator HeirarchyListPrivate::No
 }
 
 template<typename T>
-inline typename HeirarchyListPrivate::Node<T>::ConstIterator HeirarchyListPrivate::Node<T>::const_end() const
+inline typename HeirarchyList<T>::Node::ConstIterator HeirarchyList<T>::Node::const_end() const
 {
     if (!isGroup() || isEmpty())
         return ConstIterator(nullptr);
@@ -539,69 +398,92 @@ inline typename HeirarchyListPrivate::Node<T>::ConstIterator HeirarchyListPrivat
 }
 
 template <typename T>
-inline typename HeirarchyListPrivate::Node<T>& HeirarchyListPrivate::Node<T>::operator=(const Node& x)
+inline void HeirarchyList<T>::Node::copyValue(const Node& x)
+{
+    if (x.isGroup())
+    {
+        auto otherChildren = x.asGroup();   
+        QList<Node*> children;
+        children.reserve(otherChildren.size());
+
+        int i = 0;
+        for (Node* otherNode : otherChildren)
+        {
+            Node* node = new Node(*otherNode);
+            node->_parent = this;
+            node->_index = i;
+            children.append(node);
+            ++i;
+        }
+
+        _value = children;
+    }
+    else
+    {
+        _value = x._value;
+    }
+}
+
+template <typename T>
+inline typename HeirarchyList<T>::Node& HeirarchyList<T>::Node::operator=(const Node& x)
+{
+    copyValue(x);
+    _metaData = x._metaData;
+
+    return *this;
+}
+
+template <typename T> //?
+inline typename HeirarchyList<T>::Node& HeirarchyList<T>::Node::operator=(Node&& x)
 {
     _value = x._value;
     _metaData = x._metaData;
 
-    nullifyPointers();
+    x._value = QList<Node*>();
 
-    _pointers = x._pointers;
-    _constPointers = x._constPointers;
-
-    rebase();
-    return *this;
-}
-
-template <typename T>
-inline typename HeirarchyListPrivate::Node<T>& HeirarchyListPrivate::Node<T>::operator=(Node&& x)
-{
-    _value = x._value;
-    _metaData = x._metaData;
-
-    nullifyPointers();
-
-    _pointers = x._pointers;
-    _constPointers = x._constPointers;
-
-    rebase();
-
-    x._pointers.clear();
-    x._constPointers.clear();
+    if (x._parent)
+        x._parent->remove(x._index);
 
     return *this;
 }
 
 template <typename T>
-inline HeirarchyListPrivate::Node<T>::Node(const Node& x)
-    : _value(x._value), _parent(x._parent), _metaData(x._metaData)
+inline HeirarchyList<T>::Node::Node(const Node& x)
+    : _parent(x._parent), _metaData(x._metaData), _index(x._index)
 {
-    rebase();
+    copyValue(x);
+
+    if (_parent)
+        _depth = _parent->_depth + 1;
 }
 
-template <typename T>
-inline HeirarchyListPrivate::Node<T>::Node(Node&& x) noexcept
+template <typename T> //?
+inline HeirarchyList<T>::Node::Node(Node&& x) noexcept
     : _value(x._value),
     _parent(x._parent),
     _metaData(x._metaData),
-    _pointers(x._pointers),
-    _constPointers(x._constPointers)
+    _index(x._index)
 {
-    x._value = QVector<Node>();
-    x._pointers.clear();
-    x._constPointers.clear();
+    x._value = QList<Node*>();
 
-    rebase();
+    if (_parent)
+        _depth = _parent->_depth + 1;
 }
 
 template <typename T>
-inline HeirarchyListPrivate::Node<T>::~Node() noexcept
+inline HeirarchyList<T>::Node::~Node() noexcept
 {
-    nullifyPointers();
+    if (isGroup())
+    {
+        for (Node* node : asGroup())
+        {
+            delete node;
+        }
+    }
 }
 
 template<typename T>
-inline T HeirarchyListPrivate::Node<T>::takeFirstValue() const
+inline T HeirarchyList<T>::Node::takeFirstValue() const
 {
     if (isValue()) return asValue();
 
@@ -614,137 +496,104 @@ inline T HeirarchyListPrivate::Node<T>::takeFirstValue() const
 }
 
 template<typename T>
-inline HeirarchyListPrivate::NodePointer<T> HeirarchyListPrivate::Node<T>::adoptNode(Node& node)
+inline typename HeirarchyList<T>::Node& HeirarchyList<T>::Node::adoptNode(Node& node, int insertBefore)
 {
     auto& children = asGroup();
+    if (insertBefore == -1) insertBefore = children.size();
 
-    children.append(std::move(node));
-    if (node._parent)
+    children.insert(insertBefore, &node);
+    if (node._parent && node._parent->asGroup().at(node._index) == &node)
     {
-        node._parent->remove(node.indexInParent());
+        node._parent->remove(node.index());
     }
     else
     {
-        _value = QVector<Node>();
+        _value = QList<Node*>();
         _metaData = QVariant();
     }
 
     node._parent = this;
-    node.rebase();
+    node._index = insertBefore;
+    node._depth = _depth + 1;
 
-    return &children.last();
+    for (int i = insertBefore + 1; i < children.size(); ++i)
+    {
+        children[i]->_index = i;
+    }
+
+    return *children[insertBefore];
 }
 
 template<typename T>
-inline HeirarchyListPrivate::NodePointer<T> HeirarchyListPrivate::Node<T>::addValue(const T& value)
+inline typename HeirarchyList<T>::Node& HeirarchyList<T>::Node::addValue(const T& value, int insertBefore)
 {
-    QVector<Node>& children = asGroup();
+    QList<Node*>& children = asGroup();
+    if (insertBefore == -1) insertBefore = children.size();
 
-    //auto stash = stashPointers();
-    children.append(Node(value, this));
-    //applyPointers(stash);
-    rebase();
-    return NodePointer<T>(&children.last());
+    children.insert(insertBefore, new Node(value, this, insertBefore));
+
+    for (int i = insertBefore + 1; i < children.size(); ++i)
+    {
+        children[i]->_index = i;
+    }
+
+    return *children[insertBefore];
 }
 
 template<typename T>
-inline HeirarchyListPrivate::NodePointer<T> HeirarchyListPrivate::Node<T>::addGroup()
+inline typename HeirarchyList<T>::Node& HeirarchyList<T>::Node::addGroup(int insertBefore)
 {
-    QVector<Node>& children = asGroup();
+    QList<Node*>& children = asGroup();
+    if (insertBefore == -1) insertBefore = children.size();
     
-    //auto stash = stashPointers();
-    children.append(Node(QVector<Node>(), this));
-    //applyPointers(stash);
-    rebase();
-    return NodePointer<T>(&children.last());
+    children.insert(insertBefore, new Node(QList<Node*>(), this, insertBefore));
+
+    for (int i = insertBefore + 1; i < children.size(); ++i)
+    {
+        children[i]->_index = i;
+    }
+
+    return *children[insertBefore];
 }
 
 template<typename T>
-inline void HeirarchyListPrivate::Node<T>::remove(int index, int count)
+inline void HeirarchyList<T>::Node::remove(int index)
 {
     auto& children = asGroup();
 
-    auto stash = stashPointers(index + count);
-    children.remove(index, count);
-    applyPointers(stash, index);
-}
+    //auto stash = stashPointers(index + count);
 
-template<typename T>
-inline HeirarchyListPrivate::NodePointer<T>::NodePointer(const NodePointer& x)
-    : _ptr(x._ptr)
-{
-    if (_ptr)
-        _ptr->_pointers.insert(this);
-}
+    delete children.at(index);
+    children.removeAt(index);
 
-template<typename T>
-inline HeirarchyListPrivate::NodePointer<T>::NodePointer(Node<T>* node)
-    : _ptr(node)
-{
-    if (_ptr)
-        _ptr->_pointers.insert(this);
-}
-
-template<typename T>
-inline HeirarchyListPrivate::NodePointer<T>::~NodePointer()
-{
-    if (_ptr)
-        _ptr->_pointers.remove(this);
-}
-
-template<typename T>
-inline typename HeirarchyListPrivate::NodePointer<T>& HeirarchyListPrivate::NodePointer<T>::operator=(const NodePointer& x)
-{
-    if (*this != x)
+    for (int i = index; i < children.size(); ++i)
     {
-        if (_ptr)
-            _ptr->_pointers.remove(this);
-
-        _ptr = x._ptr;
-
-        if (_ptr)
-            _ptr->_pointers.insert(this);
+        children[i]->_index = i;
     }
-    return *this;
+
+    //applyPointers(stash, index);
 }
 
 template<typename T>
-inline typename HeirarchyListPrivate::NodePointer<T>& HeirarchyListPrivate::NodePointer<T>::operator=(Node<T>* node)
+inline void HeirarchyList<T>::Node::emancipate()
 {
-    if (_ptr != node)
-    {
-        if (_ptr)
-            _ptr->_pointers.remove(this);
-        
-        _ptr = node;
+    auto& siblings = _parent->asGroup();
+    siblings.removeAt(_index);
 
-        if (_ptr)
-            _ptr->_pointers.insert(this);
+    for (int i = _index; i < siblings.size(); ++i)
+    {
+        siblings[i]->_index = i;
     }
-    return *this;
 }
 
 template<typename T>
 inline HeirarchyList<T>::HeirarchyList()
-    : _data(new Data(QVector<Node>(), nullptr, QVariant()))
+    : _data(new Data(QList<Node*>()))
 {
 }
 
 template<typename T>
-inline int HeirarchyListPrivate::Node<T>::depth() const
-{
-    int depth = 0;
-    const Node* cursor = this;
-    while (cursor->_parent)
-    {
-        cursor = cursor->_parent;
-        ++depth;
-    }
-    return depth;
-}
-
-template<typename T>
-inline QList<const HeirarchyListPrivate::Node<T>*> HeirarchyListPrivate::Node<T>::path() const
+inline QList<const typename HeirarchyList<T>::Node*> HeirarchyList<T>::Node::path() const
 {
     QList<const Node*> result;
     const Node* cursor = _parent;
@@ -757,26 +606,27 @@ inline QList<const HeirarchyListPrivate::Node<T>*> HeirarchyListPrivate::Node<T>
 }
 
 template<typename T>
-inline bool HeirarchyListPrivate::Node<T>::operator<(const Node& x) const
+inline bool HeirarchyList<T>::Node::operator<(const Node& other) const
 {
-    if (*this == x || !_parent || !x._parent)
+    if (*this == other)
     {
-        // equal nodes are equivalent and root nodes are not comparable.
+        // equal nodes are equivalent
         return false;
     }
-    if (_parent == x._parent)
+    if (_parent == other._parent)
     {
-        return indexInParent() < x.indexInParent();
+        return index() < other.index();
     }
     else
     {
         QList<const Node*> pathA = path();
-        QList<const Node*> pathB = x.path();
+        QList<const Node*> pathB = other.path();
 
         auto i = pathA.begin();
         auto j = pathB.begin();
 
-        if (*i != *j) return false; // Nodes do not have a common ancestor.
+        if (*i != *j && *i != &other && *j != this)
+            return false; // Nodes do not have a common ancestor.
 
         while (true)
         {
@@ -806,25 +656,26 @@ inline bool HeirarchyListPrivate::Node<T>::operator<(const Node& x) const
 }
 
 template<typename T>
-inline bool HeirarchyListPrivate::Node<T>::operator>(const Node& x) const
+inline bool HeirarchyList<T>::Node::operator>(const Node& other) const
 {
-if (*this == x)
+if (*this == other)
     {
         return false;
     }
-    if (_parent == x._parent)
+    if (_parent == other._parent)
     {
-        return indexInParent() > x.indexInParent();
+        return index() > other.index();
     }
     else
     {
         QList<const Node*> pathA = path();
-        QList<const Node*> pathB = x.path();
+        QList<const Node*> pathB = other.path();
 
         auto i = pathA.begin();
         auto j = pathB.begin();
 
-        if (*i != *j) return false; // Nodes do not have a common ancestor.
+        if (*i != *j && *i != &other && *j != this) 
+            return false; // Nodes do not have a common ancestor.
 
         while (true)
         {
@@ -854,52 +705,60 @@ if (*this == x)
 }
 
 template<typename T>
-inline typename HeirarchyListPrivate::NodePointer<T> HeirarchyList<T>::addValue(const T& value) { return _data->root.addValue(value); }
+inline typename HeirarchyList<T>::Node& HeirarchyList<T>::addValue(const T& value, int insertBefore) 
+{ 
+    return _data->root.addValue(value, insertBefore);
+}
 template<typename T>
-inline typename HeirarchyListPrivate::NodePointer<T> HeirarchyList<T>::addGroup() { return _data->root.addGroup(); }
+inline typename HeirarchyList<T>::Node& HeirarchyList<T>::addGroup(int insertBefore)
+{ 
+    return _data->root.addGroup(insertBefore);
+}
 
 template<typename T>
-inline typename HeirarchyListPrivate::Node<T>& HeirarchyList<T>::operator[](int index)
+inline typename HeirarchyList<T>::Node& HeirarchyList<T>::operator[](int index)
 {
     return _data->root[index];
 }
 
 template<typename T>
-inline const typename HeirarchyListPrivate::Node<T>& HeirarchyList<T>::operator[](int index) const
+inline const typename HeirarchyList<T>::Node& HeirarchyList<T>::operator[](int index) const
 {
     return _data->root[index];
 }
 
 template<typename T>
-inline const typename HeirarchyListPrivate::Node<T>& HeirarchyList<T>::at(int index) const
+inline const typename HeirarchyList<T>::Node& HeirarchyList<T>::at(int index) const
 {
     return _data->root[index];
 }
 
 template<typename T>
-inline int HeirarchyList<T>::count() const
-{
-    _data->root->updateIndex();
-    return _data->root->count();
-}
+inline int HeirarchyList<T>::size() const { return _data->root.size(); }
 
 template<typename T>
-inline typename HeirarchyListPrivate::Node<T>& HeirarchyList<T>::root() { return _data->root; }
+inline bool HeirarchyList<T>::isEmpty() const { return _data->root.isEmpty(); }
 
 template<typename T>
-inline const typename HeirarchyListPrivate::Node<T>& HeirarchyList<T>::root() const { return _data->root; }
+inline void HeirarchyList<T>::remove(int index) { _data->root.remove(index); }
 
 template<typename T>
-typename HeirarchyListPrivate::Node<T>::Iterator HeirarchyList<T>::begin() { return _data->root.begin(); }
+inline typename HeirarchyList<T>::Node& HeirarchyList<T>::root() { return _data->root; }
 
 template<typename T>
-typename HeirarchyListPrivate::Node<T>::ConstIterator HeirarchyList<T>::const_begin() const { return _data->root.const_begin(); }
+inline const typename HeirarchyList<T>::Node& HeirarchyList<T>::const_root() const { return _data->root; }
 
 template<typename T>
-typename HeirarchyListPrivate::Node<T>::Iterator HeirarchyList<T>::end() { return _data->root.end();}
+typename HeirarchyList<T>::Node::Iterator HeirarchyList<T>::begin() { return _data->root.begin(); }
 
 template<typename T>
-typename HeirarchyListPrivate::Node<T>::ConstIterator HeirarchyList<T>::const_end() const { return _data->root.const_end(); }
+typename HeirarchyList<T>::Node::ConstIterator HeirarchyList<T>::const_begin() const { return _data->root.const_begin(); }
+
+template<typename T>
+typename HeirarchyList<T>::Node::Iterator HeirarchyList<T>::end() { return _data->root.end();}
+
+template<typename T>
+typename HeirarchyList<T>::Node::ConstIterator HeirarchyList<T>::const_end() const { return _data->root.const_end(); }
 
 template<typename T>
 inline HeirarchyList<T>::HeirarchyList(Node&& node)

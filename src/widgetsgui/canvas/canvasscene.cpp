@@ -25,24 +25,13 @@ CanvasScene::CanvasScene(ICanvasPresenter& presenter, QObject* parent)
     
     IMainEditorPresenter& mainEditorPresenter = *_presenter.getMainEditorPresenter();
 
-    IDocumentPresenter& documentPresenter = *mainEditorPresenter.getDocumentPresenter();
-    DocBackgroundItem* background = new DocBackgroundItem(documentPresenter);
+    layersUpdated();
 
-    addItem(background);
-
-    double layerZ = MINIMUM_LAYER_Z;
-
-    const auto layers = documentPresenter.layers();
-    for (auto& node : layers)
-    {
-        if (!node.isValue()) continue;
-        
-        LayerItem* layerItem = new LayerItem(*node.asValue());
-        layerItem->setZValue(layerZ);
-        addItem(layerItem);
-
-        layerZ += 1.0;
-    }
+    connect_interface(mainEditorPresenter.getDocumentPresenter(),
+        SIGNAL(layersChanged(IDocumentPresenter::LayerList)),
+        this,
+        SLOT(layersUpdated())
+    );
 }
 
 void CanvasScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
@@ -95,4 +84,31 @@ bool CanvasScene::event(QEvent* e)
     }
 
     return QGraphicsScene::event(e);
+}
+
+void CanvasScene::layersUpdated()
+{
+    clear();
+
+    IDocumentPresenter* document = _presenter.getMainEditorPresenter()->getDocumentPresenter();
+
+    if (!document) return;
+
+    double layerZ = MINIMUM_LAYER_Z;
+    
+    DocBackgroundItem* background = new DocBackgroundItem(*_presenter.getMainEditorPresenter()->getDocumentPresenter());
+
+    addItem(background);
+
+    const auto layers = document->layers();
+    for (auto& node : layers)
+    {
+        if (!node.isValue()) continue;
+        
+        LayerItem* layerItem = new LayerItem(*node.asValue());
+        layerItem->setZValue(layerZ);
+        addItem(layerItem);
+
+        layerZ += 1.0;
+    }
 }

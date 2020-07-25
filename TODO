@@ -255,3 +255,8 @@ I'm pretty sure QVector doesn't need std::is_nothrow_move_constructible in alloc
 for the class to operate the same. That's only an if-else block, not any real 
 SFNIAE stuff: if move semantics made a difference there, I don't think it would
 compile. Maybe I'll file a bug report.
+
+The palette grid can probably be rendered more efficiently with primitives
+instead of every well being a QWidget
+
+style: layers added or layers inserted?

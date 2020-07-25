@@ -86,7 +86,10 @@ public:
     IDocumentPresenter* getDocumentPresenter() { _initHelper.check(); return _documentPresenter; }
     bool isEmpty() { _initHelper.check(); return _isEmptyCache.getValue(); }
 
+    QSharedPointer<ILayerPresenter> topSelectedLayer() const;
+
 signals:
+    void topSelectedLayerChanged(QSharedPointer<ILayerPresenter>);
     void documentPresenterChanged(IDocumentPresenter* documentPresenter);
     void isEmptyChanged(bool);
 
@@ -172,6 +175,8 @@ private:
     UndoStackHelper _undoStackHelper;
 
     QList<QSharedPointer<IPalettePresenter>> _palettes;
+
+    QMetaObject::Connection _connection_topSelectedLayer;
 
     InitializeHelper<MainEditorPresenter> _initHelper;
 };

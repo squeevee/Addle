@@ -15,13 +15,13 @@ public:
     LayerPresenter() : _initHelper(this) { }
     virtual ~LayerPresenter();
 
-    void initialize(IDocumentPresenter* documentPresenter, QWeakPointer<ILayer> model);
+    void initialize(IDocumentPresenter* documentPresenter, QSharedPointer<ILayer> model);
     IDocumentPresenter* getDocumentPresenter() { _initHelper.check(); return _documentPresenter; }
 
     virtual void setIndex(int index) { _index = index; }
     virtual int index() const { return _index; }
 
-    QWeakPointer<ILayer> getModel() { _initHelper.check(); return _model; }
+    QSharedPointer<ILayer> getModel() { _initHelper.check(); return _model; }
 
     IRenderStack& getRenderStack();
 
@@ -36,7 +36,7 @@ private:
     IDocumentPresenter* _documentPresenter;
     IRenderStack* _renderStack = nullptr;
     
-    QWeakPointer<ILayer> _model;
+    QSharedPointer<ILayer> _model;
 
     int _index = 0;
 

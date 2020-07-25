@@ -93,6 +93,7 @@ void BrushToolPresenter::initialize(IMainEditorPresenter* owner, Mode mode)
     connect_interface(_brushSelection.get(), SIGNAL(selectionChanged(QList<PersistentId>)), this, SLOT(onBrushSelectionChanged()));
     connect_interface(_viewPort, SIGNAL(zoomChanged(double)), this, SLOT(onViewPortZoomChanged(double)));
     connect_interface(_colorSelection, SIGNAL(color1Changed(ColorInfo)), this, SLOT(onColorChanged(ColorInfo)));
+    connect_interface(_mainEditor, SIGNAL(topSelectedLayerChanged(QSharedPointer<ILayerPresenter>)), this, SLOT(onSelectedLayerChanged()));
 
     _initHelper.initializeEnd();
 }
@@ -185,6 +186,8 @@ void BrushToolPresenter::onCanvasHasMouseChanged(bool hasMouse)
 void BrushToolPresenter::onSelectedLayerChanged()
 {
     _hoverPreview->isVisible_cache.recalculate();
+
+    _hoverPreview->update();
 }
 
 void BrushToolPresenter::onViewPortZoomChanged(double zoom)
@@ -197,25 +200,12 @@ void BrushToolPresenter::onViewPortZoomChanged(double zoom)
 
 void BrushToolPresenter::onDocumentChanged(IDocumentPresenter* document)
 {
+    //needed?
     _document = document;
-    if (_document)
-    {
-        _connection_onSelectedLayerChanged = connect_interface(
-            _document,
-            SIGNAL(layerSelectionChanged(QSet<IDocumentPresenter::LayerNode>)),
-            this,
-            SLOT(onSelectedLayerChanged())
-        );
 
-        _hoverPreview->isVisible_cache.recalculate();
-    }
-    else
-    {
-        if (_connection_onSelectedLayerChanged)
-            disconnect(_connection_onSelectedLayerChanged);
-
-        _hoverPreview->isVisible_cache.recalculate();
-    }
+    _hoverPreview->isVisible_cache.recalculate();
+    if (!_document)
+        _hoverPreview->update();
 }
 
 void BrushToolPresenter::onEngage()
@@ -248,8 +238,7 @@ void BrushToolPresenter::onEngage()
 
     if (brush->model().copyMode())
     {
-        auto s_layerModel = layer->getModel().toStrongRef();
-        brushSurface->link(s_layerModel->getRasterSurface());
+        brushSurface->link(layer->getModel()->getRasterSurface());
         //brushSurface->setCompositionMode(QPainter::CompositionMode_Source);
     }
 
@@ -353,8 +342,7 @@ void BrushToolPresenter::HoverPreview::update()
             _layer = _owner._document->topSelectedLayer();
             if (_owner.selectedBrushPresenter()->model().eraserMode())
             {
-                auto s_layerModel = _layer->getModel().toStrongRef();
-                _surface->link(s_layerModel->getRasterSurface());
+                _surface->link(_layer->getModel()->getRasterSurface());
             }
             _layer->getRenderStack().push(_surface->getRenderStep());
         }   

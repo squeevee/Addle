@@ -19,14 +19,14 @@ class ILayerPresenter
 public:
     virtual ~ILayerPresenter() = default;
     
-    virtual void initialize(IDocumentPresenter* documentPresenter, QWeakPointer<ILayer> layer) = 0;
+    virtual void initialize(IDocumentPresenter* documentPresenter, QSharedPointer<ILayer> layer = nullptr) = 0;
     virtual IDocumentPresenter* getDocumentPresenter() = 0;
 
     virtual void setIndex(int index) = 0;
 
     virtual int index() const = 0;
 
-    virtual QWeakPointer<ILayer> getModel() = 0;
+    virtual QSharedPointer<ILayer> getModel() = 0;
 
     virtual IRenderStack& getRenderStack() = 0;
 

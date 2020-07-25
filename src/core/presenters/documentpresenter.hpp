@@ -8,7 +8,7 @@
 #include "utilities/initializehelper.hpp"
 #include <memory>
 
-#include "helpers/layershelper.hpp"
+#include "helpers/documentlayershelper.hpp"
 
 class ADDLE_CORE_EXPORT DocumentPresenter : public QObject, public IDocumentPresenter
 {
@@ -19,7 +19,16 @@ class ADDLE_CORE_EXPORT DocumentPresenter : public QObject, public IDocumentPres
         Layers
     };
 public:
-    DocumentPresenter() : _initHelper(this), _layersHelper(this) {}
+    DocumentPresenter()
+        : _initHelper(this),
+        _layersHelper(this)
+    {
+
+        _layersHelper.onLayersChanged += std::bind(&DocumentPresenter::layersChanged, this, std::placeholders::_1);
+        _layersHelper.onLayersAdded += std::bind(&DocumentPresenter::layersAdded, this, std::placeholders::_1);
+        _layersHelper.onLayerSelectionChanged += std::bind(&DocumentPresenter::layerSelectionChanged, this, std::placeholders::_1);
+        _layersHelper.onTopSelectedLayerChanged += std::bind(&DocumentPresenter::topSelectedLayerChanged, this, std::placeholders::_1);
+    }
     virtual ~DocumentPresenter() = default;
 
     void initialize(EmptyInitOptions option);
@@ -35,23 +44,29 @@ public:
 
     HeirarchyList<QSharedPointer<ILayerPresenter>> layers() const { _initHelper.check(); return _layersHelper.layers(); }
 
-    QSet<LayerNode> layerSelection() const { _initHelper.check(); return _layersHelper.layerSelection(); }
-    void setLayerSelection(QSet<LayerNode> layer) { }
-    void addLayerSelection(QSet<LayerNode> layer) { }
-    void removeLayerSelection(QSet<LayerNode> layer) { }
+    QSet<LayerNode*> layerSelection() const { _initHelper.check(); return _layersHelper.layerSelection(); }
+    void setLayerSelection(QSet<LayerNode*> selection) { _initHelper.check(); _layersHelper.setLayerSelection(selection); }
+    void addLayerSelection(QSet<LayerNode*> added) { _initHelper.check(); _layersHelper.addLayerSelection(added); }
+    void removeLayerSelection(QSet<LayerNode*> removed) { _initHelper.check(); _layersHelper.removeLayerSelection(removed); }
 
     QSharedPointer<ILayerPresenter> topSelectedLayer() const { _initHelper.check(); return _layersHelper.topSelectedLayer(); }
 
-    QSharedPointer<ILayerPresenter> addLayer() { return nullptr; }
-    LayerNode addLayerGroup() { return nullptr; }
+public slots:
+    LayerNode& addLayer() { _initHelper.check(); return _layersHelper.addLayer(); }
+    LayerNode& addLayerGroup() { _initHelper.check(); return _layersHelper.addLayerGroup(); }
     
     void removeSelectedLayers() { }
     void moveSelectedLayers(int destination) { }
     void mergeSelectedLayers() { }
 
 signals:
-    void layersChanged(IDocumentPresenter::LayersList layers);
-    void layerSelectionChanged(QSet<IDocumentPresenter::LayerNode> selection);
+    void layersAdded(QList<IDocumentPresenter::LayerNode*> added);
+    void layersRemoved(QList<IDocumentPresenter::LayerNode*> removed);
+    void layersMoved(QList<IDocumentPresenter::LayerNode*> moved);
+
+    void layersChanged(IDocumentPresenter::LayerList layers);
+    void topSelectedLayerChanged(QSharedPointer<ILayerPresenter> layer);
+    void layerSelectionChanged(QSet<IDocumentPresenter::LayerNode*> selection);
 
 private:
     QSize _size;
@@ -59,7 +74,7 @@ private:
 
     QSharedPointer<IDocument> _model;
 
-    LayersHelper _layersHelper;
+    DocumentLayersHelper _layersHelper;
 
     InitializeHelper<DocumentPresenter> _initHelper;
 };

@@ -43,8 +43,13 @@ void MainEditorView::initialize(IMainEditorPresenter* presenter)
     _presenter = presenter;
 
     connect_interface(_presenter, SIGNAL(raiseError(QSharedPointer<IErrorPresenter>)),
-        this, SLOT(onPresenterErrorRaised(QSharedPointer<IErrorPresenter>)));
-    connect_interface(_presenter, SIGNAL(undoStateChanged()), this, SLOT(onUndoStateChanged()));
+                              this, SLOT(onPresenterErrorRaised(QSharedPointer<IErrorPresenter>)));
+                            
+    connect_interface(_presenter, SIGNAL(undoStateChanged()),
+                              this, SLOT(onUndoStateChanged()));
+
+    connect_interface(_presenter, SIGNAL(documentPresenterChanged(IDocumentPresenter*)),
+                              this, SLOT(onDocumentChanged(IDocumentPresenter*)));
     
     _initHelper.initializeEnd();
 }
@@ -243,4 +248,9 @@ void MainEditorView::onPresenterEmptyChanged(bool empty)
 {
     if (!empty && _viewPort)
         _viewPort->setFocus();
+}
+
+void MainEditorView::onDocumentChanged(IDocumentPresenter* document)
+{
+    _layersManager->setPresenter(*document);
 }

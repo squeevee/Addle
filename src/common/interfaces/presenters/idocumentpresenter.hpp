@@ -26,8 +26,8 @@ class ILayerPresenter;
 class IDocumentPresenter
 {
 public:
-    typedef HeirarchyList<QSharedPointer<ILayerPresenter>> LayersList;
-    typedef HeirarchyList<QSharedPointer<ILayerPresenter>>::NodePointer LayerNode;
+    typedef HeirarchyList<QSharedPointer<ILayerPresenter>> LayerList;
+    typedef HeirarchyList<QSharedPointer<ILayerPresenter>>::Node LayerNode;
     enum EmptyInitOptions
     {
         initNoModel,
@@ -49,30 +49,35 @@ public:
     virtual QRect getRect() = 0;
     virtual QColor getBackgroundColor() = 0;
 
-    virtual LayersList layers() const = 0;
+    virtual LayerList layers() const = 0;
 
-    virtual QSet<LayerNode> layerSelection() const = 0;
-    virtual void setLayerSelection(QSet<LayerNode> layer) = 0;
-    virtual void addLayerSelection(QSet<LayerNode> layer) = 0;
-    virtual void removeLayerSelection(QSet<LayerNode> layer) = 0;
+    virtual QSet<LayerNode*> layerSelection() const = 0;
+    virtual void setLayerSelection(QSet<LayerNode*> layer) = 0;
+    virtual void addLayerSelection(QSet<LayerNode*> layer) = 0;
+    virtual void removeLayerSelection(QSet<LayerNode*> layer) = 0;
 
     virtual QSharedPointer<ILayerPresenter> topSelectedLayer() const = 0;
 
-    virtual QSharedPointer<ILayerPresenter> addLayer() = 0;
-    virtual LayerNode addLayerGroup() = 0;
+public slots:
+    virtual LayerNode& addLayer() = 0;
+    virtual LayerNode& addLayerGroup() = 0;
     
     virtual void removeSelectedLayers() = 0;
     virtual void moveSelectedLayers(int destination) = 0;
     virtual void mergeSelectedLayers() = 0;
 
 signals:
-    virtual void layersChanged(IDocumentPresenter::LayersList layers) = 0;
-    virtual void layerSelectionChanged(QSet<IDocumentPresenter::LayerNode> selection) = 0;
+    virtual void layersAdded(QList<IDocumentPresenter::LayerNode*> added) = 0;
+    virtual void layersRemoved(QList<IDocumentPresenter::LayerNode*> removed) = 0;
+    virtual void layersMoved(QList<IDocumentPresenter::LayerNode*> moved) = 0;
+
+    virtual void layersChanged(IDocumentPresenter::LayerList layers) = 0;
+    virtual void topSelectedLayerChanged(QSharedPointer<ILayerPresenter>) = 0;
+    virtual void layerSelectionChanged(QSet<IDocumentPresenter::LayerNode*> selection) = 0;
 
 };
 
-Q_DECLARE_METATYPE(IDocumentPresenter::LayersList);
-Q_DECLARE_METATYPE(IDocumentPresenter::LayerNode);
+Q_DECLARE_METATYPE(IDocumentPresenter::LayerList);
 
 DECL_MAKEABLE(IDocumentPresenter);
 DECL_EXPECTS_INITIALIZE(IDocumentPresenter);

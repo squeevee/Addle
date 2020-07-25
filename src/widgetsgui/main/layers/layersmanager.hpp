@@ -28,6 +28,10 @@ public:
 
     void setPresenter(PresenterAssignment<IDocumentPresenter> presenter);
 
+private slots:
+    void viewSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
+    void presenterSelectionChanged();
+
 private:
     QAction* _action_selectAllLayers;
     QAction* _action_unSelectAllLayers;
