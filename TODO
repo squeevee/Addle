@@ -260,3 +260,14 @@ The palette grid can probably be rendered more efficiently with primitives
 instead of every well being a QWidget
 
 style: layers added or layers inserted?
+
+I think I've made some `const Node*` and `Node* const` confusion in the logic of
+HeirarchyList. I'll need to look over the class and see if I'm satisfied with 
+the way it handles constness.
+
+Possible optimizations for HeirarchyList Node comparators:
+(even their naive method implementation doesn't require saving off a list, which
+would be better praxis.)
+
+https://www.geeksforgeeks.org/sqrt-square-root-decomposition-set-2-lca-tree-osqrth-time/
+https://www.geeksforgeeks.org/lca-for-general-or-n-ary-trees-sparse-matrix-dp-approach-onlogn-ologn/

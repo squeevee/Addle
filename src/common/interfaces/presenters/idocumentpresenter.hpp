@@ -28,6 +28,7 @@ class IDocumentPresenter
 public:
     typedef HeirarchyList<QSharedPointer<ILayerPresenter>> LayerList;
     typedef HeirarchyList<QSharedPointer<ILayerPresenter>>::Node LayerNode;
+    typedef HeirarchyList<QSharedPointer<ILayerPresenter>>::NodeRemoved LayerNodeRemoved;
     enum EmptyInitOptions
     {
         initNoModel,
@@ -49,7 +50,7 @@ public:
     virtual QRect getRect() = 0;
     virtual QColor getBackgroundColor() = 0;
 
-    virtual LayerList layers() const = 0;
+    virtual const LayerList& layers() const = 0;
 
     virtual QSet<LayerNode*> layerSelection() const = 0;
     virtual void setLayerSelection(QSet<LayerNode*> layer) = 0;
@@ -68,16 +69,16 @@ public slots:
 
 signals:
     virtual void layersAdded(QList<IDocumentPresenter::LayerNode*> added) = 0;
-    virtual void layersRemoved(QList<IDocumentPresenter::LayerNode*> removed) = 0;
+    virtual void layersRemoved(QList<IDocumentPresenter::LayerNodeRemoved> removed) = 0;
     virtual void layersMoved(QList<IDocumentPresenter::LayerNode*> moved) = 0;
 
-    virtual void layersChanged(IDocumentPresenter::LayerList layers) = 0;
+    virtual void layersChanged() = 0;
     virtual void topSelectedLayerChanged(QSharedPointer<ILayerPresenter>) = 0;
     virtual void layerSelectionChanged(QSet<IDocumentPresenter::LayerNode*> selection) = 0;
 
 };
 
-Q_DECLARE_METATYPE(IDocumentPresenter::LayerList);
+Q_DECLARE_METATYPE(IDocumentPresenter::LayerNodeRemoved);
 
 DECL_MAKEABLE(IDocumentPresenter);
 DECL_EXPECTS_INITIALIZE(IDocumentPresenter);

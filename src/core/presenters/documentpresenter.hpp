@@ -24,8 +24,10 @@ public:
         _layersHelper(this)
     {
 
-        _layersHelper.onLayersChanged += std::bind(&DocumentPresenter::layersChanged, this, std::placeholders::_1);
+        _layersHelper.onLayersChanged += std::bind(&DocumentPresenter::layersChanged, this);
         _layersHelper.onLayersAdded += std::bind(&DocumentPresenter::layersAdded, this, std::placeholders::_1);
+        _layersHelper.onLayersRemoved += std::bind(&DocumentPresenter::layersRemoved, this, std::placeholders::_1);
+
         _layersHelper.onLayerSelectionChanged += std::bind(&DocumentPresenter::layerSelectionChanged, this, std::placeholders::_1);
         _layersHelper.onTopSelectedLayerChanged += std::bind(&DocumentPresenter::topSelectedLayerChanged, this, std::placeholders::_1);
     }
@@ -42,7 +44,7 @@ public:
     QRect getRect() { return QRect(QPoint(), getSize()); }
     QColor getBackgroundColor() { _initHelper.check(); return _model ? _model->getBackgroundColor() : QColor(); }
 
-    HeirarchyList<QSharedPointer<ILayerPresenter>> layers() const { _initHelper.check(); return _layersHelper.layers(); }
+    const LayerList& layers() const { _initHelper.check(); return _layersHelper.layers(); }
 
     QSet<LayerNode*> layerSelection() const { _initHelper.check(); return _layersHelper.layerSelection(); }
     void setLayerSelection(QSet<LayerNode*> selection) { _initHelper.check(); _layersHelper.setLayerSelection(selection); }
@@ -55,16 +57,16 @@ public slots:
     LayerNode& addLayer() { _initHelper.check(); return _layersHelper.addLayer(); }
     LayerNode& addLayerGroup() { _initHelper.check(); return _layersHelper.addLayerGroup(); }
     
-    void removeSelectedLayers() { }
+    void removeSelectedLayers() { _initHelper.check(); _layersHelper.removeSelectedLayers(); }
     void moveSelectedLayers(int destination) { }
     void mergeSelectedLayers() { }
 
 signals:
     void layersAdded(QList<IDocumentPresenter::LayerNode*> added);
-    void layersRemoved(QList<IDocumentPresenter::LayerNode*> removed);
+    void layersRemoved(QList<IDocumentPresenter::LayerNodeRemoved> removed);
     void layersMoved(QList<IDocumentPresenter::LayerNode*> moved);
 
-    void layersChanged(IDocumentPresenter::LayerList layers);
+    void layersChanged();
     void topSelectedLayerChanged(QSharedPointer<ILayerPresenter> layer);
     void layerSelectionChanged(QSet<IDocumentPresenter::LayerNode*> selection);
 

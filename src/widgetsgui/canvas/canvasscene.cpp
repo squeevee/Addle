@@ -16,6 +16,8 @@
 #include "docbackgrounditem.hpp"
 #include "layeritem.hpp"
 
+#include "utils.hpp"
+
 const double MINIMUM_LAYER_Z = 1;
 
 CanvasScene::CanvasScene(ICanvasPresenter& presenter, QObject* parent)
@@ -28,7 +30,7 @@ CanvasScene::CanvasScene(ICanvasPresenter& presenter, QObject* parent)
     layersUpdated();
 
     connect_interface(mainEditorPresenter.getDocumentPresenter(),
-        SIGNAL(layersChanged(IDocumentPresenter::LayerList)),
+        SIGNAL(layersChanged()),
         this,
         SLOT(layersUpdated())
     );
@@ -94,21 +96,21 @@ void CanvasScene::layersUpdated()
 
     if (!document) return;
 
-    double layerZ = MINIMUM_LAYER_Z;
     
     DocBackgroundItem* background = new DocBackgroundItem(*_presenter.getMainEditorPresenter()->getDocumentPresenter());
 
     addItem(background);
 
-    const auto layers = document->layers();
-    for (auto& node : layers)
+    double z = MINIMUM_LAYER_Z + document->layers().nodeCount() + 1;
+
+    for (auto& node : noDetach(document->layers()))
     {
         if (!node.isValue()) continue;
         
         LayerItem* layerItem = new LayerItem(*node.asValue());
-        layerItem->setZValue(layerZ);
+        layerItem->setZValue(z);
         addItem(layerItem);
 
-        layerZ += 1.0;
+        z -= 1.0;
     }
 }

@@ -97,12 +97,14 @@ void LayersManager::setPresenter(PresenterAssignment<IDocumentPresenter> present
             _action_addLayer, SIGNAL(triggered()), 
                                 SLOT(addLayer())
         );
-
         _presenter.connect(
             _action_addLayerGroup, SIGNAL(triggered()), 
                                      SLOT(addLayerGroup())
         );
-
+        _presenter.connect(
+            _action_removeLayers, SIGNAL(triggered()),
+                                    SLOT(removeSelectedLayers())
+        );
         _presenter.connect(
                 SIGNAL(layerSelectionChanged(QSet<IDocumentPresenter::LayerNode*>)),
             this, SLOT(presenterSelectionChanged())

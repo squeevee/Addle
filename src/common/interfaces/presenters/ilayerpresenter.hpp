@@ -22,15 +22,16 @@ public:
     virtual void initialize(IDocumentPresenter* documentPresenter, QSharedPointer<ILayer> layer = nullptr) = 0;
     virtual IDocumentPresenter* getDocumentPresenter() = 0;
 
-    virtual void setIndex(int index) = 0;
-
-    virtual int index() const = 0;
-
     virtual QSharedPointer<ILayer> getModel() = 0;
+
+    virtual QString name() const = 0;
+    virtual void setName(QString name) = 0;
 
     virtual IRenderStack& getRenderStack() = 0;
 
 signals: 
+    virtual void nameChanged(QString name) = 0;
+
     virtual void updated(QRect area) = 0;
 };
 

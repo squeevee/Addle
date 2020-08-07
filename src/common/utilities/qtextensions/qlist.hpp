@@ -76,6 +76,8 @@ inline QList<QSharedPointer<OutType>> qSharedPointerListCast(const QList<QShared
     return outList;
 }
 
+// TODO: static cast iterator
+
 template<typename T>
 inline QList<T> qListFromArray(const T arr[], std::size_t length)
 {
@@ -91,7 +93,7 @@ inline QList<T> qListFromArray(const T arr[], std::size_t length)
 
 
 template<typename T, std::size_t N>
-inline QList<T> qListFromArray(const T (&arr)[N])
+inline QList<T> qListFromArray(const T (&arr)[N]) //qToList
 {
     return qListFromArray(arr, N);
 }
@@ -136,13 +138,31 @@ inline QSet<T> qToSet(const QList<T>& list)
     return QSet<T>(list.constBegin(), list.constEnd());
 }
 
-// template<typename T>
-// inline const QList<T> qAsConstList(QList<T>&& list)
-// {
-//     return const QList<T>(list);
-//     // theoretically this should make an attached instance "by value", i.e,
-//     // suitable as a range expression in a for loop even though it's given
-//     // by r-value
-// }
+template<typename T>
+inline QList<T> qToList(const QSet<T>& set)
+{
+    return QList<T>(set.constBegin(), set.constEnd());
+}
+
+// A general const-wrapper for use on a range expression in a range-based `for`
+// loop, to prevent implicitly shared containers from detaching. With lvalue
+// references, this is equivalent to `qAsConst`. With rvalue references, this
+// constructs a "copy" and returns it as a const value -- under the assumption
+// that such a copy operation is inexpensive and results in an attached
+// shared-reference object.
+//
+// Naturally, this should only be used with implicitly shared types.
+
+template<typename T>
+inline const T& noDetach(T& container)
+{
+    return qAsConst(container);
+}
+
+template<typename T>
+inline const T noDetach(T&& container)
+{
+    return T(std::move(container));
+}
 
 #endif // qtextensions__QLIST_HPP

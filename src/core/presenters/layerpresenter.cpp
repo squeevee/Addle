@@ -58,6 +58,15 @@ IRenderStack& LayerPresenter::getRenderStack()
     return *_renderStack;
 }
 
+void LayerPresenter::setName(QString name)
+{
+    if (_name != name)
+    {
+        _name = name;
+        emit nameChanged(_name);
+    }
+}
+
 void LayerPresenter::onRasterChanged(QRect area)
 {
     //emit updated(area);

@@ -1,5 +1,7 @@
 #include "documentlayersitemmodel.hpp"
-#include "nodemodelhelper.hpp"
+
+#include "interfaces/presenters/ilayerpresenter.hpp"
+#include "utilities/model/layergroupinfo.hpp"
 
 #include <QtDebug>
 
@@ -8,17 +10,11 @@ DocumentLayersItemModel::DocumentLayersItemModel(QObject* parent)
 {
 }
 
-DocumentLayersItemModel::~DocumentLayersItemModel()
-{
-    if (_nodeHelper) delete _nodeHelper;
-}
-
 void DocumentLayersItemModel::setPresenter(PresenterAssignment<IDocumentPresenter> presenter)
 {
     beginResetModel();
 
-    if (_nodeHelper) delete _nodeHelper;
-    _nodeHelper = nullptr;
+    _nodeHelper.clear();
 
     _presenter = presenter;
     if (_presenter)
@@ -27,7 +23,10 @@ void DocumentLayersItemModel::setPresenter(PresenterAssignment<IDocumentPresente
                 SIGNAL(layersAdded(QList<IDocumentPresenter::LayerNode*>)),
             this, SLOT(onPresenterLayersAdded(QList<IDocumentPresenter::LayerNode*>))
         );
-        _nodeHelper = new NodeModelHelper<LayerNode>;
+        _presenter.connect( 
+                SIGNAL(layersRemoved(QList<IDocumentPresenter::LayerNodeRemoved>)),
+            this, SLOT(onPresenterLayersRemoved(QList<IDocumentPresenter::LayerNodeRemoved>))
+        );
     }
     
     endResetModel();
@@ -44,17 +43,14 @@ QModelIndex DocumentLayersItemModel::index(int row, int column, const QModelInde
     else
         parentNode = &_presenter->layers().const_root();
 
-    if (_nodeHelper->isNostalgic())    
+    if (_nodeHelper.isNostalgic())    
     {
-        qWarning() << "Nostalgic index requested";
-        return QModelIndex();
-
-        // may be unnecessary?
-        //return createIndex(_nodeHelper->nodeAt(parentNode, row), row);
+        return createIndex(_nodeHelper.nodeAt(parentNode, row), row);
     }
     else
     {
-        return indexOf(&parentNode->at(row));
+        const LayerNode* node = &parentNode->at(row);
+        return createIndex(node, node->index());
     }
 }
 
@@ -63,10 +59,10 @@ QModelIndex DocumentLayersItemModel::parent(const QModelIndex& index) const
     if (!_presenter)
         return QModelIndex();
 
-    if (_nodeHelper->isNostalgic())
+    if (_nodeHelper.isNostalgic())
     {
         const LayerNode* parent = nodeAt(index)->parent();
-        return createIndex(parent, _nodeHelper->indexOf(parent));
+        return createIndex(parent, _nodeHelper.indexOf(parent));
     }
     else 
     {
@@ -85,9 +81,9 @@ int DocumentLayersItemModel::rowCount(const QModelIndex& parent) const
     else
         parentNode = &_presenter->layers().const_root();
 
-    if (_nodeHelper->isNostalgic())
+    if (_nodeHelper.isNostalgic())
     {
-        return _nodeHelper->sizeOf(parentNode);
+        return _nodeHelper.sizeOf(parentNode);
     }
     else 
     {
@@ -112,12 +108,17 @@ QVariant DocumentLayersItemModel::data(const QModelIndex& index, int role) const
     {
     case Qt::DisplayRole:
         {
-            if (node->metaData().isValid())
-                return node->metaData();
-            else if (node->isValue())
-                return QString("Layer");
-            else 
-                return QString("Layer Group");
+            if (node->isGroup())
+            {
+                // assert can convert
+                LayerGroupInfo info = node->metaData().value<LayerGroupInfo>();
+
+                return info.name();
+            }
+            else
+            {
+                return node->asValue()->name();
+            }
         }
     default:
         return QVariant();
@@ -127,38 +128,43 @@ QVariant DocumentLayersItemModel::data(const QModelIndex& index, int role) const
 void DocumentLayersItemModel::onPresenterLayersAdded(QList<IDocumentPresenter::LayerNode*> added)
 {
     // assert _presenter
-
-    _nodeHelper->nodesInserted(added);
+    // assert !_nodeHelper
+    
+    _nodeHelper.nodesInserted(added);
 
     const LayerNode* parent;
     int first;
     int last;
-    while (_nodeHelper->getInsertArgs(&parent, &first, &last))
+    while (_nodeHelper.getInsertArgs(&parent, &first, &last))
     {
-        int i = _nodeHelper->indexOf(parent);
-        QModelIndex index = createIndex(parent, i);
+        QModelIndex index = createIndex(parent, _nodeHelper.indexOf(parent));
         beginInsertRows(index, first, last);
-        _nodeHelper->nextInsert();
+        _nodeHelper.nextInsert();
         endInsertRows();
     };
+
+    _nodeHelper.clear();
 }
 
-void DocumentLayersItemModel::onPresenterLayersRemoved(QList<IDocumentPresenter::LayerNode*> removed)
+void DocumentLayersItemModel::onPresenterLayersRemoved(QList<LayerNodeRemoved> removed)
 {
     // assert _presenter
+    // assert !_nodeHelper
 
-    // _nodeHelper->nodesRemoved(removed);
+    _nodeHelper.nodesRemoved(removed);
 
-    // const LayerNode* parent;
-    // int first;
-    // int last;
-    // while (_nodeHelper->getRemoveArgs(&parent, &first, &last))
-    // {
-    //     QModelIndex index = createIndex(parent, _nodeHelper->indexOf(parent));
-    //     beginRemoveRows(index, first, last);
-    //     _nodeHelper->nextRemove();
-    //     endInsertRows();
-    // };
+    const LayerNode* parent;
+    int first;
+    int last;
+    while (_nodeHelper.getRemoveArgs(&parent, &first, &last))
+    {
+        QModelIndex index = createIndex(parent, _nodeHelper.indexOf(parent));
+        beginRemoveRows(index, first, last);
+        _nodeHelper.nextRemove();
+        endRemoveRows();
+    };
+
+    _nodeHelper.clear();
 }
 
 void DocumentLayersItemModel::onPresenterLayersMoved(QList<IDocumentPresenter::LayerNode*> moved)

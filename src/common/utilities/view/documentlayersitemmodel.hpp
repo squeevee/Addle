@@ -3,12 +3,14 @@
 
 #include <map>
 #include <set>
+#include <memory>
 
 #include <QHash>
 #include <QAbstractItemModel>
 #include "compat.hpp"
 
 #include "../presenter/presenterassignment.hpp"
+#include "nodemodelhelper.hpp"
 
 #include "interfaces/presenters/idocumentpresenter.hpp"
 
@@ -21,9 +23,10 @@ class ADDLE_COMMON_EXPORT DocumentLayersItemModel : public QAbstractItemModel
 
     typedef IDocumentPresenter::LayerList LayerList;
     typedef IDocumentPresenter::LayerNode LayerNode;
+    typedef IDocumentPresenter::LayerNodeRemoved LayerNodeRemoved;
 public:
     DocumentLayersItemModel(QObject* parent = nullptr);
-    virtual ~DocumentLayersItemModel();
+    virtual ~DocumentLayersItemModel() = default;
 
     void setPresenter(PresenterAssignment<IDocumentPresenter> presenter);
     
@@ -41,13 +44,13 @@ public:
 
 public slots:
     void onPresenterLayersAdded(QList<IDocumentPresenter::LayerNode*> added);
-    void onPresenterLayersRemoved(QList<IDocumentPresenter::LayerNode*> added);
+    void onPresenterLayersRemoved(QList<IDocumentPresenter::LayerNodeRemoved> removed);
     void onPresenterLayersMoved(QList<IDocumentPresenter::LayerNode*> added);
 
 private:
     QModelIndex createIndex(const LayerNode* node, int row) const;
 
-    NodeModelHelper<LayerNode>* _nodeHelper = nullptr;
+    NodeModelHelper<LayerNode> _nodeHelper;
     PresenterAssignment<IDocumentPresenter> _presenter;
 };
 

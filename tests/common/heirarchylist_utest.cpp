@@ -67,139 +67,248 @@ private slots:
         QVERIFY(list[0].asValue() == "Freem");
     }
 
-    // void pointers1()
-    // {
-    //     HeirarchyList<QString>::Node& pointer;
-    //     QVERIFY(!pointer);
-
-    //     {
-    //         HeirarchyList<QString> list;
-    //         pointer = list.addValue("Spiff");
-
-    //         QVERIFY(pointer);
-    //     }
-
-    //     QVERIFY(!pointer);
-    // }
-
-    // void pointers2()
-    // {
-    //     HeirarchyList<QString>::Node& pointer;
-    //     QVERIFY(!pointer);
-
-    //     HeirarchyList<QString> list;
-    //     auto group = list.addGroup();
-    //     pointer = group->addValue("Spiff");
-
-    //     QVERIFY(pointer);
-
-    //     *group = "Freem";
-
-    //     QVERIFY(!pointer);
-    // }
-
-    // void pointers3()
-    // {
-    //     HeirarchyList<QString> list1;
-
-    //     auto pointer = list1.addValue("Spiff");
-
-    //     HeirarchyList<QString> list2(list1);
-
-    //     QVERIFY(pointer == &list2.at(0));
-    // }
-
-    // void pointers4()
-    // {
-    //     HeirarchyList<QString> list;
+    void count1()
+    {
+        HeirarchyList<QString> list;
         
-    //     auto group = list.addGroup();
-    //     auto pointer1 = group->addValue("Spiff");
-    //     auto pointer2 = group->addValue("Freem");
+        for (int i = 0; i < 50; ++i)
+        {
+            list.addValue(QString::number(i));
+        }
 
-    //     group->remove(0);
+        QVERIFY(list.nodeCount() == 50);
+    }
 
-    //     QVERIFY(!pointer1);
-    //     QVERIFY(pointer2 == &group->at(0));
-    //     QVERIFY(pointer2->asValue() == "Freem");
-    // }
+    void count2()
+    {
+        HeirarchyList<QString> list;
 
-    // void comparisons1()
-    // {
-    //     HeirarchyList<QString> list;
+        HeirarchyList<QString>::Node* cursor = &list.root();
+        for (int i = 0; i < 50; ++i)
+        {
+            cursor = &cursor->addGroup();
+        }
 
-    //     auto a = list.addValue("Spiff");
-    //     auto b = list.addValue("Freem");
+        QVERIFY(list.nodeCount() == 50);
+    }
 
-    //     QVERIFY(a < b);
-    //     QVERIFY(b > a);
-    //     QVERIFY(!(b < a));
-    //     QVERIFY(!(a > b));
-    // }
+    void count3()
+    {
+        HeirarchyList<QString> list;
 
-    // void comparisons2()
-    // {
-    //     HeirarchyList<QString> list;
+        HeirarchyList<QString>::Node* cursor = &list.root();
+        for (int i = 0; i < 50; ++i)
+        {
+            if ((i % 2) == 0)
+                cursor = &cursor->addGroup();
+            else
+                cursor->addValue(QString::number(i));
+        }
 
-    //     auto group = list.addGroup();
-    //     auto value = group.addValue("Spiff");
-
-    //     QVERIFY(group < value);
-    //     QVERIFY(value > group);
-    //     QVERIFY(!(value < group));
-    //     QVERIFY(!(group > value));
-    // }
+        QVERIFY(list.nodeCount() == 50);
+    }
     
-    // void comparisons3()
+    void count4()
+    {
+        HeirarchyList<QString> list;
+        
+        for (int i = 0; i < 50; ++i)
+        {
+            list.addValue(QString::number(i));
+        }
+
+        for (int i = 0; i < 50; ++i)
+        {
+            list.remove(0);
+        }
+
+        QVERIFY(list.nodeCount() == 0);
+    }
+
+    void count5()
+    {
+        HeirarchyList<QString> list;
+
+        HeirarchyList<QString>::Node* cursor = &list.root();
+        for (int i = 0; i < 50; ++i)
+        {
+            cursor = &cursor->addGroup();
+        }
+
+        list.remove(0);
+
+        QVERIFY(list.nodeCount() == 0);
+    }
+
+    void count6()
+    {
+        HeirarchyList<QString> list;
+
+        HeirarchyList<QString>::Node* cursor = &list.root();
+        for (int i = 0; i < 50; ++i)
+        {
+            if ((i % 2) == 0)
+                cursor = &cursor->addGroup();
+            else
+                cursor->addValue(QString::number(i));
+        }
+
+        list.remove(0);
+
+        QVERIFY(list.nodeCount() == 0);
+    }
+    
+
+    void comparisons1()
+    {
+        HeirarchyList<QString> list;
+
+        auto& a = list.addValue("Spiff");
+        auto& b = list.addValue("Freem");
+
+        QVERIFY(a < b);
+        QVERIFY(b > a);
+        QVERIFY(!(b < a));
+        QVERIFY(!(a > b));
+    }
+
+    void comparisons2()
+    {
+        HeirarchyList<QString> list;
+
+        auto& group = list.addGroup();
+        auto& value = group.addValue("Spiff");
+
+        QVERIFY(group < value);
+        QVERIFY(value > group);
+        QVERIFY(!(value < group));
+        QVERIFY(!(group > value));
+    }
+    
+    void comparisons3()
+    {
+        HeirarchyList<QString> list;
+
+        auto& group1 = list.addGroup();
+        auto& group2 = group1.addGroup();
+        auto& value = group2.addValue("Spiff");
+
+        QVERIFY(group1 < value);
+        QVERIFY(value > group1);
+        QVERIFY(!(value < group1));
+        QVERIFY(!(group1 > value));
+    }
+
+    void comparisons4()
+    {
+        HeirarchyList<QString> list;
+
+        auto& group1 = list.addGroup();
+        auto& value1 = group1.addValue("Spiff");
+
+        auto& group2 = group1.addGroup();
+        auto& value2 = group2.addValue("Freem");
+
+        QVERIFY(value1 < value2);
+        QVERIFY(value2 > value1);
+        QVERIFY(!(value2 < value1));
+        QVERIFY(!(value1 > value2));
+    }
+
+    void comparisons5()
+    {
+        HeirarchyList<QString> list;
+
+        auto& value = list.addValue("Spiff");
+
+        QVERIFY(!(value < value));
+        QVERIFY(!(value > value));
+    }
+
+    void removeNodes1()
+    {
+        HeirarchyList<QString> list;
+        QList<HeirarchyList<QString>::Node*> nodes;
+
+        list.addValue("Spiff");
+        nodes.append(&list.addValue("Freem"));
+
+        auto removed = list.removeNodes(nodes);
+
+        QVERIFY(removed[0].index() == 1);
+        QVERIFY(removed[0].depth() == 1);
+        QVERIFY(boost::get<const HeirarchyList<QString>::Node*>(removed[0].parent()) == &list.root());
+        QVERIFY(removed[0]->asValue() == "Freem");
+    }
+
+    void removeNodes2()
+    {
+        HeirarchyList<QString> list;
+        QList<HeirarchyList<QString>::Node*> nodes;
+
+        nodes.append(&list.addValue("Spiff"));
+        list.addValue("Freem");
+
+        auto removed = list.removeNodes(nodes);
+
+        QVERIFY(removed[0].index() == 0);
+        QVERIFY(removed[0].depth() == 1);
+        QVERIFY(boost::get<const HeirarchyList<QString>::Node*>(removed[0].parent()) == &list.root());
+        QVERIFY(removed[0]->asValue() == "Spiff");
+
+        QVERIFY(list[0].asValue() == "Freem");
+        QVERIFY(list[0].index() == 0);
+    }
+
+    void removeNodes3()
+    {
+        HeirarchyList<QString> list;
+        QList<HeirarchyList<QString>::Node*> nodes;
+
+        auto& group = list.addGroup();
+        nodes.append(&group);
+
+        auto& value = group.addValue("Spiff");
+
+        list.addValue("Freem");
+        
+        auto removed = list.removeNodes(nodes);
+
+        QVERIFY(removed[0].node() == &group);
+        QVERIFY(removed[1].node() == &value);
+        QVERIFY(boost::get<HeirarchyList<QString>::NodeRemoved>(removed[1].parent()) == removed[0]);
+
+        QVERIFY(removed[0] < removed[1]);
+        QVERIFY(!(removed[0] > removed[1]));
+        QVERIFY(removed[1] > removed[0]);
+        QVERIFY(!(removed[1] < removed[0]));
+    }
+
+    // void batchEmancipate()
     // {
     //     HeirarchyList<QString> list;
 
-    //     auto group1 = list.addGroup();
-    //     auto group2 = group1.addGroup();
-    //     auto value = group2.addValue("Spiff");
+    //     auto& value1 = list.addValue("Spiff");
+    //     auto& value2 = list.addValue("Freem");
+    //     auto& group = list.addGroup();
+    //     auto& value3 = group.addValue("Zorch");
 
-    //     QVERIFY(group1 < value);
-    //     QVERIFY(value > group1);
-    //     QVERIFY(!(value < group1));
-    //     QVERIFY(!(group1 > value));
-    // }
+    //     QList<HeirarchyList<QString>::Node*> nodes = {
+    //         &value1, &value3
+    //     };
 
-    // void comparisons4()
-    // {
-    //     HeirarchyList<QString> list;
+    //     list.emancipateNodes(nodes.begin(), nodes.end());
 
-    //     auto group1 = list.addGroup();
-    //     auto value1 = group1.addValue("Spiff");
+    //     QVERIFY(list.nodeCount() == 2);
+    //     QVERIFY(value1.parent() == &list.const_root());
+    //     QVERIFY(value1.index() == 0);
+    //     QVERIFY(value3.parent() == &group);
 
-    //     auto group2 = group1.addGroup();
-    //     auto value2 = group2.addValue("Freem");
+    //     QVERIFY(value2.index() == 0);
+    //     QVERIFY(group.index() == 1);
+    //     QVERIFY(group.asGroup().size() == 0);
 
-    //     QVERIFY(value1 < value2);
-    //     QVERIFY(value2 > value1);
-    //     QVERIFY(!(value2 < value1));
-    //     QVERIFY(!(value1 > value2));
-    // }
-
-    // void emancipation1()
-    // {
-    //     HeirarchyList<QString> list2;
-    //     HeirarchyList<QString>::Node& group1;
-    //     HeirarchyList<QString>::Node& value1;
-    //     HeirarchyList<QString>::Node& value2;
-    //     {
-    //         HeirarchyList<QString> list1;
-    //         group1 = list1.addGroup();
-    //         value1 = list1.addValue("Spiff");
-
-    //         value2 = group1.addValue("Freem");
-
-    //         list2.root().adoptNode(*group1);
-    //     }
-
-    //     QVERIFY(!value1);
-
-    //     QVERIFY(group1);
-    //     QVERIFY(value2);
+    //     for (auto node : nodes) delete node;
     // }
 };
 

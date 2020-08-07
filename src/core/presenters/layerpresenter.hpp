@@ -18,15 +18,15 @@ public:
     void initialize(IDocumentPresenter* documentPresenter, QSharedPointer<ILayer> model);
     IDocumentPresenter* getDocumentPresenter() { _initHelper.check(); return _documentPresenter; }
 
-    virtual void setIndex(int index) { _index = index; }
-    virtual int index() const { return _index; }
-
     QSharedPointer<ILayer> getModel() { _initHelper.check(); return _model; }
+
+    QString name() const { _initHelper.check(); return _name; }
+    void setName(QString name);
 
     IRenderStack& getRenderStack();
 
-
 signals:
+    void nameChanged(QString name);
     void updated(QRect area);
 
 private slots:
@@ -38,7 +38,7 @@ private:
     
     QSharedPointer<ILayer> _model;
 
-    int _index = 0;
+    QString _name;
 
     QSharedPointer<IRenderStep> _renderStep;
     QSharedPointer<IRenderStep> _rasterSurfaceStep;
