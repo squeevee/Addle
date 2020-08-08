@@ -26,7 +26,10 @@
 
 namespace std
 {
-    inline uint qHash(const std::type_index& key, uint seed = 0) { return key.hash_code() ^ seed; }
+    inline uint qHash(const std::type_index& key, uint seed = 0)
+	{ 
+		return QT_PREPEND_NAMESPACE(qHash(key.hash_code(), seed)); 
+	}
 }
 
 namespace boost

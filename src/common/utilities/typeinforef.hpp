@@ -26,7 +26,9 @@ private:
     const std::type_info* _typeinfo_ptr;
 };
 
-inline uint qHash(const TypeInfoRef& ref, uint seed = 0) { return ((const std::type_index&)ref).hash_code() ^ seed; }
+inline uint qHash(const TypeInfoRef& ref, uint seed = 0)
+{
+	return QT_PREPEND_NAMESPACE(qHash(((const std::type_index&)ref).hash_code(), seed)); }
 
 Q_DECLARE_METATYPE(TypeInfoRef)
 

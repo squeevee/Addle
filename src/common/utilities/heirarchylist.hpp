@@ -842,8 +842,8 @@ QList<typename HeirarchyList<T>::NodeRemoved> HeirarchyList<T>::removeNodes(Iter
 
     for (auto i = indicesToRemove.keyValueBegin(); i != indicesToRemove.keyValueEnd(); ++i)
     {
-        Node* parent = i->first;
-        const QList<int>& indices = i->second;
+        Node* parent = (*i).first;
+        const QList<int>& indices = (*i).second;
         {
             int offset = 0;
 

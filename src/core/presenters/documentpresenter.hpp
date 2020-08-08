@@ -25,11 +25,17 @@ public:
     {
 
         _layersHelper.onLayersChanged += std::bind(&DocumentPresenter::layersChanged, this);
+#ifndef Q_CC_MSVC
         _layersHelper.onLayersAdded += std::bind(&DocumentPresenter::layersAdded, this, std::placeholders::_1);
         _layersHelper.onLayersRemoved += std::bind(&DocumentPresenter::layersRemoved, this, std::placeholders::_1);
-
         _layersHelper.onLayerSelectionChanged += std::bind(&DocumentPresenter::layerSelectionChanged, this, std::placeholders::_1);
         _layersHelper.onTopSelectedLayerChanged += std::bind(&DocumentPresenter::topSelectedLayerChanged, this, std::placeholders::_1);
+#else
+        _layersHelper.onLayersAdded += BIND_MEMBER(layersAdded, QList<IDocumentPresenter::LayerNode*>);
+        _layersHelper.onLayersRemoved += BIND_MEMBER(layersRemoved, QList<IDocumentPresenter::LayerNodeRemoved>);
+        _layersHelper.onLayerSelectionChanged += BIND_MEMBER(layerSelectionChanged, QSet<IDocumentPresenter::LayerNode*>);
+        _layersHelper.onTopSelectedLayerChanged += BIND_MEMBER(topSelectedLayerChanged, QSharedPointer<ILayerPresenter>);
+#endif
     }
     virtual ~DocumentPresenter() = default;
 

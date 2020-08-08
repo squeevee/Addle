@@ -55,7 +55,11 @@ public:
     template<class OwnerType>
     inline void onChange(void (OwnerType::*onChange)(PropertyType), OwnerType* owner)
     {
+#ifndef Q_CC_MSVC
         _onChange_1.append(std::bind(onChange, owner, std::placeholders::_1));
+#else
+		_onChange_1.append([owner, onChange](PropertyType value) { emit (owner->*onChange)(value); });
+#endif
     }
 
     template<typename T>

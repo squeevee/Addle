@@ -28,4 +28,4 @@ set (common_sources
 add_definitions(-DADDLE_EXPORTING_COMMON)
 
 add_library( common SHARED 	${common_sources} )
-target_link_libraries(common Qt5::Core Qt5::Gui)
+target_link_libraries(common Qt5::Core Qt5::Gui Boost::headers)

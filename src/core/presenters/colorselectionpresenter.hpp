@@ -5,9 +5,11 @@
 #include "interfaces/presenters/ipalettepresenter.hpp"
 #include <QObject>
 
+#include "compat.hpp"
+
 #include "utilities/initializehelper.hpp"
 
-class ColorSelectionPresenter : public QObject, public IColorSelectionPresenter
+class ADDLE_CORE_EXPORT ColorSelectionPresenter : public QObject, public IColorSelectionPresenter
 {
     Q_OBJECT
     Q_PROPERTY(

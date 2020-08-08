@@ -69,7 +69,7 @@ public:
         _callbacks.append(callback);
         return *this;
     }
-
+	
     inline HelperArgCallback& operator+=(std::function<void(ArgTypes... args)> callback)
     {
         _callbacksArgs.append(callback);
