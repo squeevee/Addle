@@ -8,8 +8,8 @@ void AssetSelectionPresenter::initialize(QList<QSharedPointer<IAssetPresenter>> 
     _assets = assets;
     for (auto asset : _assets)
     {
-        _ids.append(asset->getId());
-        _assets_ById[asset->getId()] = asset;
+        _ids.append(asset->id());
+        _assets_ById[asset->id()] = asset;
     }
 
     _canMultiSelect = canMultiSelect;
@@ -54,13 +54,13 @@ void AssetSelectionPresenter::select(QList<PersistentId> assetIds)
 
 void AssetSelectionPresenter::select(QSharedPointer<IAssetPresenter> asset)
 {
-    if (!_assets_ById.contains(asset->getId())) return; // error?
+    if (!_assets_ById.contains(asset->id())) return; // error?
 
-    if (_selectedIds.size() == 1 && _selectedIds.first() == asset->getId()) return;
+    if (_selectedIds.size() == 1 && _selectedIds.first() == asset->id()) return;
 
     _selection = { asset };
-    _selectedIds = { asset->getId() };
-    pushRecent(asset->getId());
+    _selectedIds = { asset->id() };
+    pushRecent(asset->id());
 
     emit selectionChanged(_selectedIds);
 }
@@ -75,15 +75,15 @@ void AssetSelectionPresenter::select(QList<QSharedPointer<IAssetPresenter>> asse
 
     for (auto asset : assets)
     {
-        if (!_assets_ById.contains(asset->getId())) return; // error?
+        if (!_assets_ById.contains(asset->id())) return; // error?
     }
 
     _selection = assets;
     _selectedIds.clear();
     for (auto asset : _selection)
     {
-        _selectedIds.append(asset->getId());
-        pushRecent(asset->getId());
+        _selectedIds.append(asset->id());
+        pushRecent(asset->id());
     }
 
     emit selectionChanged(_selectedIds);
@@ -102,8 +102,8 @@ void AssetSelectionPresenter::setAssets(QList<QSharedPointer<IAssetPresenter>> a
 
         for (auto asset : _assets)
         {
-            _ids.append(asset->getId());
-            _assets_ById[asset->getId()] = asset;
+            _ids.append(asset->id());
+            _assets_ById[asset->id()] = asset;
         }
 
         emit assetsChanged(_ids);

@@ -23,21 +23,21 @@ void CanvasPresenter::initialize(IMainEditorPresenter* mainEditorPresenter)
     _initHelper.initializeEnd();
 }
 
-QCursor CanvasPresenter::getCursor()
+QCursor CanvasPresenter::cursor()
 {
     _initHelper.check();
 
-    if (_mainEditorPresenter->getCurrentToolPresenter())
-        return _mainEditorPresenter->getCurrentToolPresenter()->cursor();
+    if (_mainEditorPresenter->currentToolPresenter())
+        return _mainEditorPresenter->currentToolPresenter()->cursor();
     else
         return QCursor(Qt::ArrowCursor);
 }
 
 bool CanvasPresenter::event(QEvent* e)
 {
-    if (e->type() == CanvasMouseEvent::getType())
+    if (e->type() == CanvasMouseEvent::type())
     {
-        IToolPresenter* tool = _mainEditorPresenter->getCurrentToolPresenter();
+        IToolPresenter* tool = _mainEditorPresenter->currentToolPresenter();
         if (tool && qobject_interface_cast(tool)->event(e) && e->isAccepted())
             return true;
 
@@ -63,7 +63,7 @@ void CanvasPresenter::onEditorToolChanged()
     if (_connection_toolCursor)
         disconnect(_connection_toolCursor);
     
-    IToolPresenter* tool = _mainEditorPresenter->getCurrentToolPresenter();
+    IToolPresenter* tool = _mainEditorPresenter->currentToolPresenter();
     if (tool)
     {
         _connection_toolCursor = connect_interface(
@@ -73,7 +73,7 @@ void CanvasPresenter::onEditorToolChanged()
             SLOT(onToolCursorChanged())
         );
 
-        emit cursorChanged(getCursor());
+        emit cursorChanged(cursor());
     }
 }
 
@@ -82,5 +82,5 @@ void CanvasPresenter::onToolCursorChanged()
 {
     _initHelper.check();
 
-    emit cursorChanged(getCursor());
+    emit cursorChanged(cursor());
 }

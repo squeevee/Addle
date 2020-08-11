@@ -27,11 +27,11 @@ CanvasScene::CanvasScene(ICanvasPresenter& presenter, QObject* parent)
 {
     _presenter = presenter;
     
-    IMainEditorPresenter& mainEditorPresenter = *_presenter.getMainEditorPresenter();
+    IMainEditorPresenter& mainEditorPresenter = *_presenter.mainEditorPresenter();
 
     layersUpdated();
 
-    connect_interface(mainEditorPresenter.getDocumentPresenter(),
+    connect_interface(mainEditorPresenter.documentPresenter(),
         SIGNAL(layersChanged()),
         this,
         SLOT(layersUpdated())
@@ -94,12 +94,12 @@ void CanvasScene::layersUpdated()
 {
     clear();
 
-    IDocumentPresenter* document = _presenter.getMainEditorPresenter()->getDocumentPresenter();
+    IDocumentPresenter* document = _presenter.mainEditorPresenter()->documentPresenter();
 
     if (!document) return;
 
     
-    DocBackgroundItem* background = new DocBackgroundItem(*_presenter.getMainEditorPresenter()->getDocumentPresenter());
+    DocBackgroundItem* background = new DocBackgroundItem(*_presenter.mainEditorPresenter()->documentPresenter());
 
     addItem(background);
 

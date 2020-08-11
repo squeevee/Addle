@@ -25,9 +25,9 @@ public:
 
     virtual bool start() = 0;
 
-    virtual StartupMode getStartupMode() = 0;
+    virtual StartupMode startupMode() = 0;
 
-    virtual int getExitCode() = 0;
+    virtual int exitCode() = 0;
 
 //#define ADDLE_STRING__IAPPLICATIONSERVICE__CMD_EDITOR_OPTION "editor"
 //#define ADDLE_STRING__IAPPLICATIONSERVICE__CMD_EDITOR_SHORT_OPTION "e"

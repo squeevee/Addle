@@ -24,7 +24,7 @@ public:
     ViewPortScrollWidget(IViewPortPresenter& presenter, QWidget* parent = nullptr);
     virtual ~ViewPortScrollWidget() = default;
 
-    ViewPort* getViewPort() { return _viewPort; }
+    ViewPort* viewPort() { return _viewPort; }
     void setViewPort(ViewPort* viewPort);
 
     QSize sizeHint() const { return QSize(640, 480); }

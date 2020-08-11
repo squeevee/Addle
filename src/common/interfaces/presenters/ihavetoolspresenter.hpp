@@ -12,12 +12,12 @@ class IHaveToolsPresenter
 public:
     virtual ~IHaveToolsPresenter() = default;
 
-    virtual ToolId getCurrentTool() = 0;
+    virtual ToolId currentTool() = 0;
     virtual void selectTool(ToolId tool) = 0;
-    virtual QList<ToolId> getTools() = 0;
+    virtual QList<ToolId> tools() = 0;
 
-    virtual IToolPresenter* getToolPresenter(ToolId id) = 0;
-    virtual IToolPresenter* getCurrentToolPresenter() = 0;
+    virtual IToolPresenter* toolPresenter(ToolId id) = 0;
+    virtual IToolPresenter* currentToolPresenter() = 0;
 
 signals:
     virtual void currentToolChanged(ToolId tool) = 0;

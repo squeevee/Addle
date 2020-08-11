@@ -20,7 +20,7 @@ LayerItem::LayerItem(ILayerPresenter& presenter)
         }
     );
     connect_interface(
-        &_presenter.getRenderStack(),
+        &_presenter.renderStack(),
         SIGNAL(changed(QRect)),
         this, SLOT(onRenderChanged(QRect))
     );
@@ -28,7 +28,7 @@ LayerItem::LayerItem(ILayerPresenter& presenter)
 
 QRectF LayerItem::boundingRect() const
 {
-    return _presenter.getDocumentPresenter()->getRect();
+    return _presenter.documentPresenter()->rect();
 }
 
 void LayerItem::paint(QPainter* painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -36,7 +36,7 @@ void LayerItem::paint(QPainter* painter, const QStyleOptionGraphicsItem *option,
     //assert painter
     
     RenderData data(coarseBoundRect(option->exposedRect), painter);
-    _presenter.getRenderStack().render(data);
+    _presenter.renderStack().render(data);
 }
 
 void LayerItem::onRenderChanged(QRect area)

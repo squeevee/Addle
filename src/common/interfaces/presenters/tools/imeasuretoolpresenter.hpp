@@ -21,7 +21,7 @@ public:
 
     virtual ~IMeasureToolPresenter() = default;
 
-    virtual MeasureOperationOptions getMeasureOperation() = 0;
+    virtual MeasureOperationOptions measureOperation() = 0;
     virtual void setMeasureOperation(MeasureOperationOptions operation) = 0;
 
 signals:

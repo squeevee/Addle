@@ -34,15 +34,15 @@ void RasterBrushEngine::paint(BrushStroke& brushStroke) const
     RasterEngineParams params(ServiceLocator::get<IBrushModel>(brushStroke.id()));
 
     QPointF pos = brushStroke.positions().last();
-    double size = brushStroke.getSize();
+    double size = brushStroke.size();
     QColor color = brushStroke.color();
 
     QRect bound = coarseBoundRect(pos, size);
     
     if (brushStroke.positions().size() == 1)
     {
-        auto handle = brushStroke.getBuffer()->getPaintHandle(bound);
-        QPainter& painter = handle.getPainter();
+        auto handle = brushStroke.buffer()->paintHandle(bound);
+        QPainter& painter = handle.painter();
 
         paint_p(painter, params, pos, color, size);
     }
@@ -53,8 +53,8 @@ void RasterBrushEngine::paint(BrushStroke& brushStroke) const
         
         bound = bound.united(brushStroke.lastPaintedBound());
 
-        auto handle = brushStroke.getBuffer()->getPaintHandle(bound);
-        QPainter& painter = handle.getPainter();
+        auto handle = brushStroke.buffer()->paintHandle(bound);
+        QPainter& painter = handle.painter();
 
         int steps = ceil(distance(brushStroke.lastPositionPainted(), pos) / spacing);
 

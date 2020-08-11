@@ -14,7 +14,7 @@ void RasterDiff::initialize(
         QWeakPointer<IRasterSurface> destination
     )
 {
-    _area = source.getArea();
+    _area = source.area();
     _destination = destination;
 
     auto s_destination = _destination.toStrongRef();
@@ -31,11 +31,11 @@ void RasterDiff::initialize(
         );
         QPainter painter(&mergedBuffer);
         painter.translate(-_area.topLeft());
-        render({ s_destination->getRenderStep(), source.getRenderStep() }, _area, &painter);
+        render({ s_destination->renderStep(), source.renderStep() }, _area, &painter);
     }
 
     {
-        RasterBitReader surfaceReader = s_destination->getBitReader(_area);
+        RasterBitReader surfaceReader = s_destination->bitReader(_area);
 
         if (surfaceReader.area().isNull()) return;
         
@@ -72,7 +72,7 @@ void RasterDiff::apply()
     if (!_destination) return;
     auto s_destination = _destination.toStrongRef();
 
-    RasterBitWriter writer = s_destination->getBitWriter(_area);
+    RasterBitWriter writer = s_destination->bitWriter(_area);
     //assert surfaceReader.pixelWidth() == PIXEL_DEPTH
     
     {

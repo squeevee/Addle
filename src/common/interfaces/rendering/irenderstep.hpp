@@ -19,7 +19,7 @@ public:
     // virtual void hide() = 0;
     // virtual void unhide() = 0;
 
-    virtual QRect getAreaHint() = 0;
+    virtual QRect areaHint() = 0;
 
 signals: 
     virtual void changed(QRect area) = 0;

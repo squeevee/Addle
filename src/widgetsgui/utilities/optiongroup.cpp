@@ -13,10 +13,10 @@ OptionGroup::OptionGroup(QObject* parent)
 
 void OptionGroup::addOption(OptionAction* option)
 {
-    IndexVariant index(option->getValue());
+    IndexVariant index(option->value());
     //assert
 
-    _valuesByOption[option] = option->getValue();
+    _valuesByOption[option] = option->value();
     _optionsByValue[index] = option;
 
     option->setCheckable(true);

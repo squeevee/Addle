@@ -39,30 +39,30 @@ public:
     {
     }
 
-    inline QString getMimeType() const
+    inline QString mimeType() const
     {
-        return isNull() ? QString() : getMetadata().value(QStringLiteral("mimeType")).toString();
+        return isNull() ? QString() : metadata().value(QStringLiteral("mimeType")).toString();
     }
     
-    inline const std::type_info& getModelType() const
+    inline const std::type_info& modelType() const
     {
         //!! dangerous if null
-        return getMetadata().value(QStringLiteral("modelType")).value<TypeInfoRef>();
+        return metadata().value(QStringLiteral("modelType")).value<TypeInfoRef>();
     }
 
-    inline QString getFileExtension() const
+    inline QString fileExtension() const
     {
-        return isNull() ? QString() : getMetadata().value(QStringLiteral("fileExtensions")).toStringList().first();
+        return isNull() ? QString() : metadata().value(QStringLiteral("fileExtensions")).toStringList().first();
     }
 
-    inline QStringList getFileExtensions() const
+    inline QStringList fileExtensions() const
     {
-        return isNull() ? QStringList() : getMetadata().value(QStringLiteral("fileExtensions")).toStringList();
+        return isNull() ? QStringList() : metadata().value(QStringLiteral("fileExtensions")).toStringList();
     }
 
-    inline QByteArray getFileSignature() const
+    inline QByteArray fileSignature() const
     {
-        return isNull() ? QByteArray() : getMetadata().value(QStringLiteral("fileSignature")).toByteArray();
+        return isNull() ? QByteArray() : metadata().value(QStringLiteral("fileSignature")).toByteArray();
     }
 
 };

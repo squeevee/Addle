@@ -10,7 +10,7 @@ class ZoomSlider : public QSlider
     Q_OBJECT
     Q_PROPERTY(
         double zoom
-        READ getZoom
+        READ zoom
         WRITE setZoom
         NOTIFY zoomChanged
     )
@@ -23,13 +23,13 @@ public:
     ZoomSlider(QWidget* parent);
     virtual ~ZoomSlider();
 
-    double getZoom() { return mapValueToZoom(value()); }
+    double zoom() { return mapValueToZoom(value()); }
     void setZoom(double zoom) { setValue(mapZoomToValue(zoom)); emit zoomChanged(zoom); }
 
-    double getMaxZoom() { return _maxZoom; }
+    double maxZoom() { return _maxZoom; }
     void setMaxZoom(double max);
 
-    double getMinZoom() { return _minZoom; }
+    double minZoom() { return _minZoom; }
     void setMinZoom(double min);
     
 signals:

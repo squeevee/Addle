@@ -33,8 +33,8 @@ using namespace Addle;
 ViewPort::ViewPort(IViewPortPresenter* presenter)
 {
     _presenter = presenter;
-    _mainEditorPresenter = _presenter->getMainEditorPresenter();
-    _canvasPresenter = _mainEditorPresenter->getCanvasPresenter();
+    _mainEditorPresenter = _presenter->mainEditorPresenter();
+    _canvasPresenter = _mainEditorPresenter->canvasPresenter();
 
     QGraphicsView::setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     QGraphicsView::setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -71,7 +71,7 @@ ViewPort::ViewPort(IViewPortPresenter* presenter)
         SLOT(setDocument(IDocumentPresenter*))
     );
 
-    setDocument(_mainEditorPresenter->getDocumentPresenter());
+    setDocument(_mainEditorPresenter->documentPresenter());
 
     _presenter->setHasFocus(hasFocus());
 
@@ -106,7 +106,7 @@ void ViewPort::onTransformsChanged()
 
     //QPointF vptl = _cache_ontoCanvasTransform.map()
 
-    QRectF bound = _presenter->getOntoCanvasTransform().mapRect(QRectF(QPointF(), _presenter->getSize()));
+    QRectF bound = _presenter->ontoCanvasTransform().mapRect(QRectF(QPointF(), _presenter->size()));
 
     // Moving the scene while the mouse is pressed can cause additional mouse
     // events to be sent with positions based on outdated transforms, and this
@@ -116,8 +116,8 @@ void ViewPort::onTransformsChanged()
     QGraphicsView::scene()->installEventFilter(&blocker);
 
     QGraphicsView::setSceneRect(bound);
-    QGraphicsView::setTransform(_presenter->getFromCanvasTransform());
-    QGraphicsView::centerOn(_presenter->getPosition());
+    QGraphicsView::setTransform(_presenter->fromCanvasTransform());
+    QGraphicsView::centerOn(_presenter->position());
 
     QGraphicsView::scene()->removeEventFilter(&blocker);
 }
@@ -145,5 +145,5 @@ void ViewPort::focusOutEvent(QFocusEvent* focusEvent)
 
 void ViewPort::updateCursor()
 {
-    setCursor(_canvasPresenter->getCursor());
+    setCursor(_canvasPresenter->cursor());
 }

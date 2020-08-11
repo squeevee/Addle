@@ -78,7 +78,7 @@ void MainEditorView::setupUi()
         BindingConverter::negate()
     );
 
-    IViewPortPresenter* viewPortPresenter = _presenter->getViewPortPresenter();
+    IViewPortPresenter* viewPortPresenter = _presenter->viewPortPresenter();
 
     _viewPort = new ViewPort(viewPortPresenter);
     _viewPortScrollWidget = new ViewPortScrollWidget(*viewPortPresenter, this);
@@ -221,8 +221,8 @@ void MainEditorView::onPresenterErrorRaised(QSharedPointer<IErrorPresenter> erro
     _initHelper.check();
 
     QMessageBox message(this);
-    message.setText(error->getMessage());
-    if (error->getSeverity() == IErrorPresenter::warning)
+    message.setText(error->message());
+    if (error->severity() == IErrorPresenter::warning)
     {
         message.setIcon(QMessageBox::Icon::Warning);
     }

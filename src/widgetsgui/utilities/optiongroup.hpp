@@ -17,13 +17,13 @@ class OptionGroup : public QObject
     Q_OBJECT
     Q_PROPERTY(
         OptionAction* selectedOption
-        READ getSelectedOption
+        READ selectedOption
         WRITE selectOption
         NOTIFY selectedOptionChanged
     )
     Q_PROPERTY(
         QVariant value
-        READ getValue 
+        READ value 
         WRITE selectValue 
         NOTIFY valueChanged
     )
@@ -38,14 +38,14 @@ public:
 
     void addOption(OptionAction* option);
 
-    QList<QVariant> getValues() const { return _valuesByOption.values(); }
-    QList<OptionAction*> getOptions() const { return _valuesByOption.keys(); }
-    QHash<IndexVariant, OptionAction*> getOptionsByValue() const { return _optionsByValue; }
+    QList<QVariant> values() const { return _valuesByOption.values(); }
+    QList<OptionAction*> options() const { return _valuesByOption.keys(); }
+    QHash<IndexVariant, OptionAction*> optionsByValue() const { return _optionsByValue; }
 
-    OptionAction* getSelectedOption() const { return _selectedOption; }
+    OptionAction* selectedOption() const { return _selectedOption; }
     void selectOption(OptionAction* option);
 
-    QVariant getValue() const { return _selectedValue; }
+    QVariant value() const { return _selectedValue; }
     void selectValue(QVariant value);
 
     bool isEnabled() const { return _group->isEnabled(); }

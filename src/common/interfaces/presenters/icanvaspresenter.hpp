@@ -14,10 +14,10 @@ public:
 
     virtual void initialize(IMainEditorPresenter* mainEditorPresenter) = 0;
 
-    virtual IMainEditorPresenter* getMainEditorPresenter() = 0;
+    virtual IMainEditorPresenter* mainEditorPresenter() = 0;
 
-    virtual QCursor getCursor() = 0;
-    virtual QString getStatusTip() = 0;
+    virtual QCursor cursor() = 0;
+    virtual QString statusTip() = 0;
 
     virtual bool hasMouse() const = 0;
     virtual void setHasMouse(bool value) = 0;

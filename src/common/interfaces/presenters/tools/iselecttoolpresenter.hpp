@@ -36,10 +36,10 @@ public:
 
     virtual ~ISelectToolPresenter() = default;
 
-    virtual SelectStyleOptions getSelectStyle() = 0;
+    virtual SelectStyleOptions selectStyle() = 0;
     virtual void setSelectStyle(SelectStyleOptions selectStyle) = 0;
 
-    virtual SelectionOperationOptions getSelectionOperation() = 0;
+    virtual SelectionOperationOptions selectionOperation() = 0;
     virtual void setSelectionOperation(SelectionOperationOptions operation) = 0;
 
 public slots:

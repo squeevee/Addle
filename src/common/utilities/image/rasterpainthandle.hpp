@@ -18,9 +18,9 @@ public:
     RasterPaintHandle(RasterPaintHandle&& other);
     ~RasterPaintHandle();
 
-    QPainter& getPainter() { return *_painter; }
+    QPainter& painter() { return *_painter; }
 
-    QRect getArea() const { return _area; }
+    QRect area() const { return _area; }
 
 private:
     RasterPaintHandle(IRasterSurface& surface, QImage& buffer, QPoint bufferOffset, QRect area);

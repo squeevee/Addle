@@ -11,7 +11,7 @@ using namespace Addle;
 IFormatModel* QtImageFormatDriver::importModel(QIODevice& device, ImportExportInfo info)
 {
     DocumentBuilder documentBuilder;
-    documentBuilder.setFilename(info.getFilename());
+    documentBuilder.setFilename(info.filename());
 
     QImage image;
     image.load(&device, _name);

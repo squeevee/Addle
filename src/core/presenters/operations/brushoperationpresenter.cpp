@@ -14,8 +14,8 @@ void BrushOperationPresenter::initialize(QWeakPointer<BrushStroke> BrushStroke, 
     auto s_BrushStroke = BrushStroke.toStrongRef();
     
     _operation = ServiceLocator::makeShared<IRasterDiff>(
-        std::ref(*s_BrushStroke->getBuffer()),
-        s_layerPresenter->getModel()->getRasterSurface()
+        std::ref(*s_BrushStroke->buffer()),
+        s_layerPresenter->model()->rasterSurface()
     );
 }
 

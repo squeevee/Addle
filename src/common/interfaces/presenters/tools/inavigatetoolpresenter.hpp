@@ -28,7 +28,7 @@ public:
 
     virtual void initialize(IMainEditorPresenter* owner) = 0;
     
-    virtual NavigateOperationOptions getNavigateOperation() = 0;
+    virtual NavigateOperationOptions navigateOperation() = 0;
 
 public slots:
     virtual void setNavigateOperation(NavigateOperationOptions operation) = 0;

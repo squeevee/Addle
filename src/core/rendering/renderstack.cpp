@@ -43,7 +43,7 @@ void RenderStack::remove(QWeakPointer<IRenderStep> step)
         auto s_step = step.toStrongRef();
         disconnect(qobject_interface_cast(s_step.data()), SIGNAL(changed(QRect)), this, SLOT(onRenderStepChange(QRect)));
 
-        areaHint = s_step->getAreaHint();
+        areaHint = s_step->areaHint();
     }
 
     emit changed(areaHint);
@@ -64,7 +64,7 @@ void RenderStack::render(RenderData data, int maxDepth)
         auto s_step = _steps[depth - 1].toStrongRef();
 
         RenderData stepData = lastData;
-        stepData.getPainter()->save();
+        stepData.painter()->save();
         
         if (s_step) //temporary stop gap
             s_step->onPush(stepData);
@@ -82,7 +82,7 @@ void RenderStack::render(RenderData data, int maxDepth)
         RenderData stepData = stackData[depth];
         if (s_step)
             s_step->onPop(stepData);
-        stepData.getPainter()->restore();
+        stepData.painter()->restore();
 
         ++depth;
     }

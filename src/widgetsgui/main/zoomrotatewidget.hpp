@@ -21,11 +21,11 @@ public:
     ZoomRotateWidget(IViewPortPresenter& presenter, QWidget* parent = nullptr);
     virtual ~ZoomRotateWidget() = default;
 
-    QAction* getAction_zoomIn() { return _action_zoomIn; }
-    QAction* getAction_zoomOut() { return _action_zoomOut; }
-    QAction* getAction_turntableCW() { return _action_turntableCW; }
-    QAction* getAction_turntableCCW() { return _action_turntableCCW; }
-    QAction* getAction_reset() { return _action_reset; }
+    QAction* action_zoomIn() { return _action_zoomIn; }
+    QAction* action_zoomOut() { return _action_zoomOut; }
+    QAction* action_turntableCW() { return _action_turntableCW; }
+    QAction* action_turntableCCW() { return _action_turntableCCW; }
+    QAction* action_reset() { return _action_reset; }
 
 private:
     IViewPortPresenter& _presenter;

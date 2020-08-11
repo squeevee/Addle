@@ -13,7 +13,7 @@ ZoomSlider::ZoomSlider(QWidget* parent)
     setMinimum(0);
     setMaximum(ZOOM_SLIDER_VALUE_SPAN);
 
-    connect(this, &QAbstractSlider::valueChanged, this, [this](int value) { emit zoomChanged(getZoom()); });
+    connect(this, &QAbstractSlider::valueChanged, this, [this](int value) { emit zoomChanged(zoom()); });
 }
 
 ZoomSlider::~ZoomSlider()

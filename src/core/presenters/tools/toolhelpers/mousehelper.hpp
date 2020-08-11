@@ -23,7 +23,7 @@ public:
     inline void event(QEvent* e)
     {
         e->ignore();
-        if (e->type() == CanvasMouseEvent::getType())
+        if (e->type() == CanvasMouseEvent::type())
         {
             CanvasMouseEvent* canvasMouseEvent = static_cast<CanvasMouseEvent*>(e);
 
@@ -107,11 +107,11 @@ public:
 
     inline bool isEngaged() { return _engaged; }
 
-    inline QPointF getFirstPosition() { return _firstPosition; }
-    inline QPointF getPreviousPosition() { return _previousPosition; }
-    inline QPointF getLatestPosition() { return _latestPosition; }
+    inline QPointF firstPosition() { return _firstPosition; }
+    inline QPointF previousPosition() { return _previousPosition; }
+    inline QPointF latestPosition() { return _latestPosition; }
 
-    inline std::list<QPointF> getPositions() { return _positions; }
+    inline std::list<QPointF> positions() { return _positions; }
 
     HelperCallback onEngage;
     HelperCallback onMove;

@@ -71,7 +71,7 @@ public:
         _initialized = true;
     }
 
-    inline const PropertyType& getValue() const
+    inline const PropertyType& value() const
     {
         if (!_initialized && _calculate)
         {

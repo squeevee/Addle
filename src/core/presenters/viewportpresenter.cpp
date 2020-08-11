@@ -74,7 +74,7 @@ void ViewPortPresenter::setPosition(QPointF position)
     emit positionChanged(_position);
 }
 
-ViewPortPresenter::ScrollState ViewPortPresenter::getScrollState_p()
+ViewPortPresenter::ScrollState ViewPortPresenter::scrollState_p()
 {
     _initHelper.check();
 
@@ -83,25 +83,25 @@ ViewPortPresenter::ScrollState ViewPortPresenter::getScrollState_p()
         return ScrollState();
     }
 
-    QTransform fromCanvas = getFromCanvasTransform();
+    QTransform fromCanvas = fromCanvasTransform();
 
-    QRect canvasRect = fromCanvas.mapRect(QRect(QPoint(), _mainEditorPresenter->getDocumentPresenter()->getSize()));
+    QRect canvasRect = fromCanvas.mapRect(QRect(QPoint(), _mainEditorPresenter->documentPresenter()->size()));
     
     return ScrollState(canvasRect.size(), QRect(-canvasRect.topLeft(), _size));
 }
 
 void ViewPortPresenter::scrollX(int x)
 {
-    QTransform ontoCanvas = getOntoCanvasTransform();
-    auto& scrollState = _scrollStateCache.getValue();
+    QTransform ontoCanvas = ontoCanvasTransform();
+    auto& scrollState = _scrollStateCache.value();
 
     setPosition(ontoCanvas.map(QPointF(x - scrollState._x, 0) + _center));
 }
 
 void ViewPortPresenter::scrollY(int y)
 {
-    QTransform ontoCanvas = getOntoCanvasTransform();
-    auto& scrollState = _scrollStateCache.getValue();
+    QTransform ontoCanvas = ontoCanvasTransform();
+    auto& scrollState = _scrollStateCache.value();
 
     setPosition(ontoCanvas.map(QPointF(0, y - scrollState._y) + _center));
 }
@@ -226,8 +226,7 @@ IViewPortPresenter::ZoomPreset ViewPortPresenter::zoomIn(bool* zoomed)
     }
     else
     {
-        double zoom = getZoom();
-        ZoomPreset newPreset = _zoomPresetHelper.nextUp(zoom);
+        ZoomPreset newPreset = _zoomPresetHelper.nextUp(zoom());
 
         if (newPreset != _zoomPreset)
         {
@@ -258,8 +257,7 @@ IViewPortPresenter::ZoomPreset ViewPortPresenter::zoomOut(bool* zoomed)
     }
     else
     {
-        double zoom = getZoom();
-        ZoomPreset newPreset = _zoomPresetHelper.nextDown(zoom);
+        ZoomPreset newPreset = _zoomPresetHelper.nextDown(zoom());
 
         if (newPreset != _zoomPreset)
         {
@@ -322,8 +320,7 @@ IViewPortPresenter::RotatePreset ViewPortPresenter::turntableCcw(bool* rotated)
     }
     else
     {
-        double rotation = getRotation();
-        RotatePreset newPreset = _rotatePresetHelper.nextDown(rotation);
+        RotatePreset newPreset = _rotatePresetHelper.nextDown(rotation());
 
         if (newPreset != _rotatePreset)
         {
@@ -355,8 +352,7 @@ IViewPortPresenter::RotatePreset ViewPortPresenter::turntableCw(bool* rotated)
     }
     else
     {
-        double rotation = getRotation();
-        RotatePreset newPreset = _rotatePresetHelper.nextUp(rotation);
+        RotatePreset newPreset = _rotatePresetHelper.nextUp(rotation());
 
         if (newPreset != _rotatePreset)
         {
@@ -376,7 +372,7 @@ void ViewPortPresenter::gripPivot(QPointF gripStart, QPointF gripEnd)
     QLineF startLine(_position, gripStart);
     QLineF endLine(_position, gripEnd);
 
-    QTransform fromCanvas = getFromCanvasTransform();
+    QTransform fromCanvas = fromCanvasTransform();
 
     if (QLineF(_center, fromCanvas.map(gripStart)).length() < 4)
         return;
@@ -414,7 +410,7 @@ void ViewPortPresenter::propagateCanNavigate()
     _canZoomOutCache.recalculate();
 }
 
-ViewPortPresenter::TransformPair ViewPortPresenter::getTransforms_p()
+ViewPortPresenter::TransformPair ViewPortPresenter::transforms_p()
 {
     QTransform ontoCanvas;
 
@@ -433,5 +429,5 @@ void ViewPortPresenter::centerView()
     if (_mainEditorPresenter->isEmpty())
         setPosition(QPointF());
     else
-        setPosition(QRectF(QPointF(), _mainEditorPresenter->getDocumentPresenter()->getSize()).center());
+        setPosition(QRectF(QPointF(), _mainEditorPresenter->documentPresenter()->size()).center());
 }

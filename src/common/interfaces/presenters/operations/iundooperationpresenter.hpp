@@ -12,7 +12,7 @@ class IUndoOperationPresenter
 public: 
     virtual ~IUndoOperationPresenter() = default;
 
-    virtual QString getText() = 0;
+    virtual QString text() = 0;
 
 public slots: 
     virtual void do_() = 0;

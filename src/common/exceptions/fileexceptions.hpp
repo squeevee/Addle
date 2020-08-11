@@ -28,8 +28,8 @@ public:
     }
 #endif
 
-    Action getAction() const { return _action; }
-    QFileInfo getFileInfo() const { return _fileInfo; }
+    Action action() const { return _action; }
+    QFileInfo fileInfo() const { return _fileInfo; }
 
 private:
     const Action _action;

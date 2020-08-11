@@ -61,14 +61,14 @@ public:
 
     virtual void initialize(Mode mode) = 0;
 
-    virtual IMainEditorView* getView() = 0;
+    virtual IMainEditorView* view() = 0;
 
-    virtual ICanvasPresenter* getCanvasPresenter() = 0;
-    virtual IViewPortPresenter* getViewPortPresenter() = 0;
+    virtual ICanvasPresenter* canvasPresenter() = 0;
+    virtual IViewPortPresenter* viewPortPresenter() = 0;
     virtual IColorSelectionPresenter& colorSelection() = 0;
 
     virtual void setMode(Mode mode) = 0;
-    virtual Mode getMode() = 0;
+    virtual Mode mode() = 0;
 
     typedef IMainEditorPresenterAux::DefaultTools DefaultTools;
 

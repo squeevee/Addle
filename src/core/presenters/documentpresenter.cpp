@@ -50,7 +50,7 @@ void DocumentPresenter::initialize(QSharedPointer<IDocument> model)
     //assert model
     _model = model;
 
-    _layersHelper.initialize(_model->getLayers());
+    _layersHelper.initialize(_model->layers());
     _initHelper.setCheckpoint(InitCheckpoints::Layers);
 
     _initHelper.initializeEnd();

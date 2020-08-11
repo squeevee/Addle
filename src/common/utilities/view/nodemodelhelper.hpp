@@ -77,11 +77,11 @@ public:
     const Node* nodeAt(const Node* parent, int row) const;
 
     void nodesInserted(QList<Node*> inserted);
-    bool getInsertArgs(const Node** parent, int* first, int* last);
+    bool insertArgs(const Node** parent, int* first, int* last);
     void nextInsert();
 
     void nodesRemoved(QList<typename Node::Removed> removed);
-    bool getRemoveArgs(const Node** parent, int* first, int* last);
+    bool removeArgs(const Node** parent, int* first, int* last);
     void nextRemove();
     
 private:
@@ -354,7 +354,7 @@ void NodeModelHelper<Node>::nodesInserted(QList<Node*> inserted)
 }
 
 template<typename Node>
-bool NodeModelHelper<Node>::getInsertArgs(const Node** parent, int* first, int* last)
+bool NodeModelHelper<Node>::insertArgs(const Node** parent, int* first, int* last)
 {
     if (parent) *parent = _nextInsertParent;
     if (first) *first = _nextInsertFirst;
@@ -432,7 +432,7 @@ void NodeModelHelper<Node>::nodesRemoved(QList<typename Node::Removed> removed)
 }
 
 template<typename Node>
-bool NodeModelHelper<Node>::getRemoveArgs(const Node** parent, int* first, int* last)
+bool NodeModelHelper<Node>::removeArgs(const Node** parent, int* first, int* last)
 {
     if (parent) *parent = _nextRemoveParent;
     if (first) *first = _nextRemoveFirst;

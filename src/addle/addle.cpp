@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
     }
     else
     {
-        int exitCode = appService.getExitCode();
+        int exitCode = appService.exitCode();
         serviceConfiguration.destroy();
         return exitCode;
     }

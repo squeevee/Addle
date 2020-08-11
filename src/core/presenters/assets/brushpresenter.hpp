@@ -21,18 +21,18 @@ public:
     void initialize(IBrushModel& model, QSharedPointer<const PreviewInfoProvider> info = nullptr);
     void initialize(BrushId id, QSharedPointer<const PreviewInfoProvider> info = nullptr);
 
-    PersistentId getId() { return getBrushId(); }
-    BrushId getBrushId() { _initHelper.check(); return _id; }
+    PersistentId id() { return brushId(); }
+    BrushId brushId() { _initHelper.check(); return _id; }
     virtual IBrushModel& model() const { _initHelper.check(); return *_model; }
 
     QString name();
     QIcon icon();
     
-    // SizeOption getSize() { return SizeOption::_25px; } //todo
-    // double getCustomPixelSize() { return 0; } //
-    // double getCustomPercentSize() { return 0; } //
+    // SizeOption size() { return SizeOption::_25px; } //todo
+    // double customPixelSize() { return 0; } //
+    // double customPercentSize() { return 0; } //
 
-    // IToolWithAssetsPresenter* getOwnerTool() { return nullptr; }
+    // IToolWithAssetsPresenter* ownerTool() { return nullptr; }
     // void setOwnerTool(IToolWithAssetsPresenter* owner) {}
 
     void selectInTool() { }

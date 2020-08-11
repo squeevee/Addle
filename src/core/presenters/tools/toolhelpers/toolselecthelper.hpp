@@ -19,12 +19,12 @@ public:
 
     inline void setSelected(bool isSelected)
     {
-        if (_isSelected == (_owner.getId() == _owner.getOwner()->getCurrentTool())) return;
+        if (_isSelected == (_owner.id() == _owner.owner()->currentTool())) return;
 
         if (isSelected)
-            _owner.getOwner()->selectTool(_owner.getId());
-        else if (_owner.getId() == _owner.getOwner()->getCurrentTool())
-            _owner.getOwner()->selectTool(ToolId());
+            _owner.owner()->selectTool(_owner.id());
+        else if (_owner.id() == _owner.owner()->currentTool())
+            _owner.owner()->selectTool(ToolId());
 
         _isSelected = isSelected;
 

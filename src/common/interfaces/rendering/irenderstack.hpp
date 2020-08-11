@@ -17,7 +17,7 @@ public:
     virtual void initialize(QWeakPointer<IRenderStep> step = QWeakPointer<IRenderStep>()) = 0;
     virtual void initialize(QList<QWeakPointer<IRenderStep>> steps) = 0;
 
-    virtual QList<QWeakPointer<IRenderStep>> getSteps() const = 0;
+    virtual QList<QWeakPointer<IRenderStep>> steps() const = 0;
 
     virtual void push(QWeakPointer<IRenderStep> step) = 0;
     virtual void remove(QWeakPointer<IRenderStep> step) = 0;

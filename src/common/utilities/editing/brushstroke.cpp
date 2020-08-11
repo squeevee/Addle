@@ -43,7 +43,7 @@ void BrushStroke::setColor(QColor color)
     _painterStates.top().color = color;
 }
 
-double BrushStroke::getSize() const
+double BrushStroke::size() const
 {
     return _painterStates.top().size;
 }

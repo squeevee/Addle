@@ -58,18 +58,18 @@ void ViewPortScrollWidget::setViewPort(ViewPort* viewPort)
 
 void ViewPortScrollWidget::onScrollStateChanged()
 {
-    const IScrollState& state = _presenter.getScrollState();
+    const IScrollState& state = _presenter.scrollState();
 
     const QSignalBlocker horizontalBlocker(_scrollbar_horizontal);
     const QSignalBlocker verticalBlocker(_scrollbar_vertical);
 
-    _scrollbar_horizontal->setMinimum(state.getHorizontalMinimum());
-    _scrollbar_horizontal->setMaximum(state.getHorizontalMaximum());
-    _scrollbar_horizontal->setPageStep(state.getPageWidth());
-    _scrollbar_horizontal->setValue(state.getHorizontalValue());
+    _scrollbar_horizontal->setMinimum(state.horizontalMinimum());
+    _scrollbar_horizontal->setMaximum(state.horizontalMaximum());
+    _scrollbar_horizontal->setPageStep(state.pageWidth());
+    _scrollbar_horizontal->setValue(state.horizontalValue());
 
-    _scrollbar_vertical->setMinimum(state.getVerticalMinimum());
-    _scrollbar_vertical->setMaximum(state.getVerticalMaximum());
-    _scrollbar_vertical->setPageStep(state.getPageHeight());
-    _scrollbar_vertical->setValue(state.getVerticalValue());
+    _scrollbar_vertical->setMinimum(state.verticalMinimum());
+    _scrollbar_vertical->setMaximum(state.verticalMaximum());
+    _scrollbar_vertical->setPageStep(state.pageHeight());
+    _scrollbar_vertical->setValue(state.verticalValue());
 }

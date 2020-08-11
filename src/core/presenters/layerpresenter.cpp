@@ -30,7 +30,7 @@ void LayerPresenter::initialize(IDocumentPresenter* documentPresenter, QSharedPo
         _model = ServiceLocator::makeShared<ILayer>();
 
     connect_interface(
-        _model->getRasterSurface().data(),
+        _model->rasterSurface().data(),
         SIGNAL(changed(QRect)),
         this,
         SLOT(onRasterChanged(QRect)),
@@ -38,12 +38,12 @@ void LayerPresenter::initialize(IDocumentPresenter* documentPresenter, QSharedPo
     );
 
     _renderStep = QSharedPointer<IRenderStep>(new LayerPresenterRenderStep(*this));
-    _rasterSurfaceStep = _model->getRasterSurface()->getRenderStep();
+    _rasterSurfaceStep = _model->rasterSurface()->renderStep();
 
     _initHelper.initializeEnd();
 }
 
-IRenderStack& LayerPresenter::getRenderStack()
+IRenderStack& LayerPresenter::renderStack()
 {
     _initHelper.check();
 

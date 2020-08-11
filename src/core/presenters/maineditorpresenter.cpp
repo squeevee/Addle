@@ -169,7 +169,7 @@ void MainEditorPresenter::newDocument()
     {
         IMainEditorPresenter* newPresenter = ServiceLocator::make<IMainEditorPresenter>(_mode);
         newPresenter->newDocument();
-        newPresenter->getView()->start();
+        newPresenter->view()->start();
     }
     else
     {
@@ -187,7 +187,7 @@ void MainEditorPresenter::loadDocument(QUrl url)
     {
         IMainEditorPresenter* newPresenter = ServiceLocator::make<IMainEditorPresenter>(_mode);
         newPresenter->loadDocument(url);
-        newPresenter->getView()->start();
+        newPresenter->view()->start();
     }
     else
     {            
@@ -202,7 +202,7 @@ void MainEditorPresenter::loadDocument(QUrl url)
 void MainEditorPresenter::onLoadDocumentCompleted()
 {
     _initHelper.check(); 
-    setDocumentPresenter(_loadDocumentTask->getDocumentPresenter());
+    setDocumentPresenter(_loadDocumentTask->documentPresenter());
 }
 
 void MainEditorPresenter::selectTool(ToolId tool)
@@ -228,14 +228,14 @@ void MainEditorPresenter::selectTool(ToolId tool)
 
 void LoadDocumentTask::doTask()
 {
-    QUrl url = getUrl();
+    QUrl loadedUrl = url();
 
-    if (url.isLocalFile())
+    if (loadedUrl.isLocalFile())
     {
-        QFile file(url.toLocalFile());
+        QFile file(loadedUrl.toLocalFile());
 
         ImportExportInfo info;
-        info.setFilename(url.toLocalFile());
+        info.setFilename(loadedUrl.toLocalFile());
 
         auto doc = QSharedPointer<IDocument>(ServiceLocator::get<IFormatService>().importModel<IDocument>(file, info));
         setDocumentPresenter(ServiceLocator::make<IDocumentPresenter>(doc));

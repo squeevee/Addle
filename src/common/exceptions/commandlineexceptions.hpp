@@ -27,7 +27,7 @@ public:
 
     virtual ~CommandLineException() = default;
 
-    QString getErrorText() { return _errorText; }
+    QString errorText() { return _errorText; }
 
 protected:
     QString _errorText;

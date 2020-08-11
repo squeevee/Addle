@@ -40,7 +40,7 @@ void RasterSurface::initialize(
     _initHelper.initializeEnd();
 }
 
-QSharedPointer<IRenderStep> RasterSurface::getRenderStep()
+QSharedPointer<IRenderStep> RasterSurface::renderStep()
 {
     const QReadLocker lock(&_lock);
     if (!_renderStep)
@@ -154,7 +154,7 @@ void RasterSurface::copyLinked()
     QPainter painter(&_buffer);
 
     painter.translate(-_bufferOffset);
-    render(_linked->getRenderStep(), QRect(_bufferOffset, _buffer.size()), &painter);
+    render(_linked->renderStep(), QRect(_bufferOffset, _buffer.size()), &painter);
 }
 
 void RasterSurface::onPaintHandleDestroyed(const RasterPaintHandle& handle)
@@ -164,10 +164,10 @@ void RasterSurface::onPaintHandleDestroyed(const RasterPaintHandle& handle)
     {
         const QReadLocker lock(&_lock);
 
-        emit changed(handle.getArea());
+        emit changed(handle.area());
         if (_renderStep)
         {
-            emit _renderStep->changed(handle.getArea());
+            emit _renderStep->changed(handle.area());
         }
     }
 }
@@ -202,12 +202,12 @@ void RasterSurfaceRenderStep::onPush(RenderData& data)
     if (_owner._replaceMode)
     {
         QPainterPath p1;
-        p1.addRect(data.getArea());
+        p1.addRect(data.area());
 
         QPainterPath p2;
         p2.addRect(_owner._area);
 
-        data.getPainter()->setClipPath(p1.subtracted(p2), Qt::IntersectClip);
+        data.painter()->setClipPath(p1.subtracted(p2), Qt::IntersectClip);
     }
 }
 
@@ -217,19 +217,19 @@ void RasterSurfaceRenderStep::onPop(RenderData& data)
 
     if (!_owner._area.isValid()) return;
 
-    QRect intersection = _owner._area.intersected(data.getArea());
+    QRect intersection = _owner._area.intersected(data.area());
 
-    data.getPainter()->setCompositionMode(_owner._compositionMode);
-    data.getPainter()->setOpacity((double)_owner._alpha / 0xFF);
+    data.painter()->setCompositionMode(_owner._compositionMode);
+    data.painter()->setOpacity((double)_owner._alpha / 0xFF);
 
     if (_owner._replaceMode)
     {
-        QPainterPath p = data.getPainter()->clipPath();
+        QPainterPath p = data.painter()->clipPath();
         p.addRect(_owner._area);
-        data.getPainter()->setClipPath(p.simplified(), Qt::ReplaceClip);
+        data.painter()->setClipPath(p.simplified(), Qt::ReplaceClip);
     }
 
-    data.getPainter()->drawImage(
+    data.painter()->drawImage(
         intersection, 
         _owner._buffer,
         intersection.translated(-_owner._bufferOffset)

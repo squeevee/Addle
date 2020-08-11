@@ -19,9 +19,9 @@ class IToolPresenter
 public:
     virtual ~IToolPresenter() = default;
     
-    virtual IMainEditorPresenter* getOwner() = 0;
+    virtual IMainEditorPresenter* owner() = 0;
 
-    virtual ToolId getId() = 0;
+    virtual ToolId id() = 0;
 
     virtual bool isSelected() const = 0;
     virtual void setSelected(bool isSelected) = 0;

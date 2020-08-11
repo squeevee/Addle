@@ -11,9 +11,9 @@ class IAssetPresenter
 public:
     virtual ~IAssetPresenter() = default;
 
-    virtual PersistentId getId() = 0;
+    virtual PersistentId id() = 0;
 
-    // virtual IToolWithAssetsPresenter* getOwnerTool() = 0;
+    // virtual IToolWithAssetsPresenter* ownerTool() = 0;
     // virtual void setOwnerTool(IToolWithAssetsPresenter* owner) = 0;
 
     virtual QString name() = 0;

@@ -137,7 +137,7 @@ void DocumentLayersItemModel::onPresenterLayersAdded(QList<IDocumentPresenter::L
     const LayerNode* parent;
     int first;
     int last;
-    while (_nodeHelper.getInsertArgs(&parent, &first, &last))
+    while (_nodeHelper.insertArgs(&parent, &first, &last))
     {
         QModelIndex index = createIndex(parent, _nodeHelper.indexOf(parent));
         beginInsertRows(index, first, last);
@@ -158,7 +158,7 @@ void DocumentLayersItemModel::onPresenterLayersRemoved(QList<LayerNodeRemoved> r
     const LayerNode* parent;
     int first;
     int last;
-    while (_nodeHelper.getRemoveArgs(&parent, &first, &last))
+    while (_nodeHelper.removeArgs(&parent, &first, &last))
     {
         QModelIndex index = createIndex(parent, _nodeHelper.indexOf(parent));
         beginRemoveRows(index, first, last);

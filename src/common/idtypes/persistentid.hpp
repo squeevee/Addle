@@ -54,7 +54,7 @@ public:
     {
     }
 
-    inline QString getKey() const { return _data->key; }
+    inline QString key() const { return _data->key; }
 
     inline bool isNull() const { return !_data; }
     explicit inline operator bool() const { return !isNull(); }
@@ -89,7 +89,7 @@ protected:
         : _data(new PersistentIdData(metaTypeId, key, metadata))
     {
     }
-    inline const QHash<QString, QVariant>& getMetadata() const { return _data->metadata; }
+    inline const QHash<QString, QVariant>& metadata() const { return _data->metadata; }
 
 private:
     QSharedDataPointer<const PersistentIdData> _data;

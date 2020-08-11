@@ -28,7 +28,7 @@ public:
     
     inline BrushId id() const { return _id; }
     inline IBrushModel& brush() const { return _brush; }
-    inline QSharedPointer<IRasterSurface> getBuffer() const { return _buffer; }
+    inline QSharedPointer<IRasterSurface> buffer() const { return _buffer; }
 
     void conform();
 
@@ -38,7 +38,7 @@ public:
     QColor color() const;
     void setColor(QColor color);
 
-    double getSize() const;
+    double size() const;
     void setSize(double size);
     
     QRect bound() const;

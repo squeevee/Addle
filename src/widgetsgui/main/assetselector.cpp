@@ -29,7 +29,7 @@ AssetSelector::AssetSelector(IAssetSelectionPresenter& presenter, QWidget* paren
         item->setText(asset->name());
         item->setIcon(asset->icon());
 
-        _items[asset->getId()] = item;
+        _items[asset->id()] = item;
         _itemValues[item] = asset;
 
         _list->addItem(item);
@@ -44,7 +44,7 @@ void AssetSelector::onListSelectionChanged()
     QList<PersistentId> selected;
     for (auto item : _list->selectedItems())
     {
-        selected.append(_itemValues[item]->getId());
+        selected.append(_itemValues[item]->id());
     }
 
     _presenter.select(selected);

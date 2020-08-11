@@ -22,7 +22,7 @@ void PathBrushEngine::paint(BrushStroke& brushStroke) const
     if (brushStroke.positions().isEmpty()) return;
 
     const QPointF pos = brushStroke.positions().last();
-    const double size = brushStroke.getSize();
+    const double size = brushStroke.size();
 
     const bool eraser = brushStroke.brush().eraserMode();
 
@@ -30,7 +30,7 @@ void PathBrushEngine::paint(BrushStroke& brushStroke) const
 
     if (eraser)
     {
-        brushStroke.getBuffer()->setReplaceMode(true);
+        brushStroke.buffer()->setReplaceMode(true);
     }
 
     if (!brushStroke.isMarkedPainted())
@@ -39,8 +39,8 @@ void PathBrushEngine::paint(BrushStroke& brushStroke) const
 
         const double halfSize = size / 2;
 
-        auto handle = brushStroke.getBuffer()->getPaintHandle(nibBound);
-        QPainter& painter = handle.getPainter();
+        auto handle = brushStroke.buffer()->paintHandle(nibBound);
+        QPainter& painter = handle.painter();
 
         painter.setRenderHint(QPainter::Antialiasing, true);
         painter.setPen(Qt::NoPen);
@@ -72,7 +72,7 @@ void PathBrushEngine::paint(BrushStroke& brushStroke) const
         QImage destAlpha;
 
         {
-            auto bitReader = brushStroke.getBuffer()->getBitReader(bound);
+            auto bitReader = brushStroke.buffer()->bitReader(bound);
             alphaBound = bitReader.area();
 
             destAlpha = QImage(alphaBound.size(), QImage::Format_Alpha8);
@@ -96,8 +96,8 @@ void PathBrushEngine::paint(BrushStroke& brushStroke) const
         QImage sourceAlpha;
 
         {
-            auto paintHandle = brushStroke.getBuffer()->getPaintHandle(bound);
-            paintHandle.getPainter().setCompositionMode(eraser
+            auto paintHandle = brushStroke.buffer()->paintHandle(bound);
+            paintHandle.painter().setCompositionMode(eraser
                 ? QPainter::CompositionMode_DestinationOut
                 : QPainter::CompositionMode_Source);
 
@@ -108,7 +108,7 @@ void PathBrushEngine::paint(BrushStroke& brushStroke) const
             alphaPainter.translate(-alphaBound.topLeft());
             alphaPainter.setCompositionMode(QPainter::CompositionMode_Source);
 
-            for (QPainter* painter : { &paintHandle.getPainter(), &alphaPainter })
+            for (QPainter* painter : { &paintHandle.painter(), &alphaPainter })
             {
                 painter->setRenderHint(QPainter::Antialiasing, true);
                 painter->setClipRect(bound);
@@ -127,7 +127,7 @@ void PathBrushEngine::paint(BrushStroke& brushStroke) const
 
         if (!eraser) //TODO
         {
-            auto bitWriter = brushStroke.getBuffer()->getBitWriter(alphaBound);
+            auto bitWriter = brushStroke.buffer()->bitWriter(alphaBound);
             
             for (int line = 0; line < alphaBound.height(); line++)
             {

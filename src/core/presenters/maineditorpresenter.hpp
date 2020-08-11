@@ -42,7 +42,7 @@ class ADDLE_CORE_EXPORT MainEditorPresenter : public QObject, public virtual IMa
     Q_OBJECT
     Q_PROPERTY(
         Addle::ToolId currentTool 
-        READ getCurrentTool 
+        READ currentTool 
         WRITE selectTool
         NOTIFY currentToolChanged
     )
@@ -73,19 +73,19 @@ public:
 
     void initialize(Mode mode);
 
-    IMainEditorView* getView() { _initHelper.check(Check_View); return _view; }
+    IMainEditorView* view() { _initHelper.check(Check_View); return _view; }
 
-    ICanvasPresenter* getCanvasPresenter() { _initHelper.check(Check_CanvasPresenter); return _canvasPresenter; }
-    IViewPortPresenter* getViewPortPresenter() { _initHelper.check(Check_ViewPortPresenter); return _viewPortPresenter; }
+    ICanvasPresenter* canvasPresenter() { _initHelper.check(Check_CanvasPresenter); return _canvasPresenter; }
+    IViewPortPresenter* viewPortPresenter() { _initHelper.check(Check_ViewPortPresenter); return _viewPortPresenter; }
     IColorSelectionPresenter& colorSelection() { _initHelper.check(Check_ColorSelection); return *_colorSelection; }
 
     void setMode(Mode mode);
-    Mode getMode() { return _mode; }
+    Mode mode() { return _mode; }
 
     // # IHaveDocumentPresenter
 
-    IDocumentPresenter* getDocumentPresenter() { _initHelper.check(); return _documentPresenter; }
-    bool isEmpty() { _initHelper.check(); return _isEmptyCache.getValue(); }
+    IDocumentPresenter* documentPresenter() { _initHelper.check(); return _documentPresenter; }
+    bool isEmpty() { _initHelper.check(); return _isEmptyCache.value(); }
 
     QSharedPointer<ILayerPresenter> topSelectedLayer() const;
 
@@ -100,12 +100,12 @@ public slots:
 
     // # IHaveToolsPresenter
 public:
-    ToolId getCurrentTool() { _initHelper.check(); return _currentTool; }
+    ToolId currentTool() { _initHelper.check(); return _currentTool; }
     void selectTool(ToolId tool);
-    QList<ToolId> getTools() { _initHelper.check(); return _tools.value(_mode); }
+    QList<ToolId> tools() { _initHelper.check(); return _tools.value(_mode); }
 
-    IToolPresenter* getToolPresenter(ToolId id) { _initHelper.check(); return _toolPresenters.value(id); }
-    IToolPresenter* getCurrentToolPresenter() { _initHelper.check(); return _currentToolPresenter; }
+    IToolPresenter* toolPresenter(ToolId id) { _initHelper.check(); return _toolPresenters.value(id); }
+    IToolPresenter* currentToolPresenter() { _initHelper.check(); return _currentToolPresenter; }
 
 signals:
     void currentToolChanged(ToolId tool);
@@ -130,9 +130,9 @@ signals:
 
     // # IDecoratedPresenter
 public:
-    // PropertyDecoration getPropertyDecoration(const char* propertyName) const
+    // PropertyDecoration propertyDecoration(const char* propertyName) const
     // { 
-    //     return _propertyDecorationHelper.getPropertyDecoration(propertyName);
+    //     return _propertyDecorationHelper.propertyDecoration(propertyName);
     // }
 
 private slots:
@@ -141,7 +141,7 @@ private slots:
 private:
     void setDocumentPresenter(IDocumentPresenter* document);
     bool isEmpty_p() { return !_documentPresenter; }
-    QList<ILayerPresenter*> getLayers_p();
+    QList<ILayerPresenter*> layers_p();
 
     Mode _mode = (Mode)NULL;
 
@@ -192,10 +192,10 @@ public:
     }
     virtual ~LoadDocumentTask() = default;
 
-    QUrl getUrl() { const auto lock = lockIO(); return _url; }
+    QUrl url() { const auto lock = lockIO(); return _url; }
     void setUrl(QUrl url) { const auto lock = lockIO(); _url = url; }
 
-    IDocumentPresenter* getDocumentPresenter()
+    IDocumentPresenter* documentPresenter()
     { 
         const auto lock = lockIO();
         return _documentPresenter;

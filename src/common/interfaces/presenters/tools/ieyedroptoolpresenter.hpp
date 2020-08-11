@@ -21,7 +21,7 @@ public:
 
     virtual ~IEyedropToolPresenter() = default;
 
-    virtual SampleOptions getSample() = 0;
+    virtual SampleOptions sample() = 0;
     virtual void setSample(SampleOptions sample) = 0;
 
 signals:

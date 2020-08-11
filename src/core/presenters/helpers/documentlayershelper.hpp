@@ -100,7 +100,7 @@ public:
             onTopSelectedLayerChanged(topSelectedLayer());
     }
 
-    QSharedPointer<ILayerPresenter> topSelectedLayer() const { return _topSelectedLayer.getValue(); }
+    QSharedPointer<ILayerPresenter> topSelectedLayer() const { return _topSelectedLayer.value(); }
 
     LayerNode& addLayer()
     {

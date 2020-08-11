@@ -61,7 +61,7 @@ public:
 
     virtual void initialize(IMainEditorPresenter* mainEditorPresenter) = 0;
     
-    virtual IMainEditorPresenter* getMainEditorPresenter() = 0;
+    virtual IMainEditorPresenter* mainEditorPresenter() = 0;
 
 public:
     virtual bool canNavigate() = 0;
@@ -76,8 +76,8 @@ signals:
 
     // # Scrolling / positioning
 public:
-    virtual QPointF getPosition() = 0;
-    virtual const IScrollState& getScrollState() = 0;
+    virtual QPointF position() = 0;
+    virtual const IScrollState& scrollState() = 0;
 
 public slots:
     virtual void setPosition(QPointF center) = 0;
@@ -95,14 +95,14 @@ public:
     virtual bool canZoomIn() = 0;
     virtual bool canZoomOut() = 0;
 
-    virtual double getZoom() = 0;
+    virtual double zoom() = 0;
     virtual void setZoom(double zoom) = 0;
     //virtual void gripZoom(QPoint gripStart, QPoint gripEnd) = 0;
 
-    virtual ZoomPreset getZoomPreset() = 0;
+    virtual ZoomPreset zoomPreset() = 0;
     virtual void setZoomPreset(ZoomPreset preset) = 0;
-    virtual double getMaxZoomPresetValue() = 0;
-    virtual double getMinZoomPresetValue() = 0;
+    virtual double maxZoomPresetValue() = 0;
+    virtual double minZoomPresetValue() = 0;
     
     virtual ZoomPreset zoomTo(double zoom, bool snapToPreset = true) = 0;
 
@@ -115,7 +115,7 @@ signals:
 
     // # Rotation
 public:
-    virtual double getRotation() = 0;
+    virtual double rotation() = 0;
     virtual void setRotation(double) = 0;
 
 
@@ -128,14 +128,14 @@ signals:
 
     // # General transforming
 public:
-    virtual QSize getSize() = 0;
-    virtual QPoint getGlobalOffset() = 0;
-    virtual QPointF getCenter() = 0;
+    virtual QSize size() = 0;
+    virtual QPoint globalOffset() = 0;
+    virtual QPointF center() = 0;
 
     virtual void gripPivot(QPointF start, QPointF end) = 0;
 
-    virtual QTransform getOntoCanvasTransform() = 0;
-    virtual QTransform getFromCanvasTransform() = 0;
+    virtual QTransform ontoCanvasTransform() = 0;
+    virtual QTransform fromCanvasTransform() = 0;
 
 public slots:
     virtual void resetTransforms() = 0;

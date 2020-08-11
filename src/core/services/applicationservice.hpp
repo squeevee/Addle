@@ -23,9 +23,9 @@ public:
 
     bool start();
 
-    StartupMode getStartupMode() { return _startupMode; }
+    StartupMode startupMode() { return _startupMode; }
 
-    int getExitCode() { return _exitCode; }
+    int exitCode() { return _exitCode; }
 
 public slots:
     void quitting();

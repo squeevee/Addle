@@ -9,10 +9,10 @@ void Document::initialize(DocumentBuilder& builder)
 {
     _initHelper.initializeBegin();
 
-    _filename = builder.getFilename();
-    _backgroundColor = builder.getBackgroundColor();
+    _filename = builder.filename();
+    _backgroundColor = builder.backgroundColor();
 
-    for (LayerBuilder& layerBuilder : builder.getLayers())
+    for (LayerBuilder& layerBuilder : builder.layers())
     {
         ILayer* layer = ServiceLocator::make<ILayer>(layerBuilder);
         _layers.append(QSharedPointer<ILayer>(layer));
@@ -130,13 +130,13 @@ void Document::addNewLayers(QList<LayerBuilder> builders, int insertBefore)
 // }
 
 
-QList<QSharedPointer<ILayer>> Document::getLayers()
+QList<QSharedPointer<ILayer>> Document::layers()
 {
     _initHelper.check();
     return _layers;
 }
 
-// ILayer* Document::getLayer(int index)
+// ILayer* Document::layer(int index)
 // {
 //     _initHelper.check();
 //     return _layers.at(index);
@@ -209,7 +209,7 @@ void Document::updateGeometry()
     //             continue;
     //         }
 
-    //         QPoint layerTL = layer->getTopLeft();
+    //         QPoint layerTL = layer->topLeft();
     //         layer->setTopLeft(layerTL - newTopLeft);
     //     }
     // }
@@ -226,7 +226,7 @@ QRect Document::unitedBoundary()
 
     for (QSharedPointer<ILayer> layer : _layers)
     {
-        QRect bound = layer->getBoundary();
+        QRect bound = layer->boundary();
         if (!bound.isNull())
         {
             if (result.isNull())
@@ -246,9 +246,9 @@ QRect Document::unitedBoundary()
 QImage Document::exportImage()
 {
     _initHelper.check();
-    QImage result(getSize(), QImage::Format::Format_ARGB32);
+    QImage result(size(), QImage::Format::Format_ARGB32);
     
-    render(QRect(QPoint(), getSize()), &result);
+    render(QRect(QPoint(), size()), &result);
 
     return result;
 }

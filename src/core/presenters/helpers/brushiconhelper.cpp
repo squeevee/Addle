@@ -27,8 +27,8 @@ BrushIconHelper::BrushIconHelper(QObject* parent)
     _brushSurface = ServiceLocator::makeShared<IRasterSurface>();
     _renderStack = ServiceLocator::makeShared<IRenderStack>(
         QList<QWeakPointer<IRenderStep>>({ 
-            _underSurface->getRenderStep().toWeakRef(),
-            _brushSurface->getRenderStep().toWeakRef()
+            _underSurface->renderStep().toWeakRef(),
+            _brushSurface->renderStep().toWeakRef()
         })
     );
 
@@ -143,7 +143,7 @@ void BrushIconHelper::BrushIconEngine::paint_p(QSize iconSize)
     else
     {
         scale = _helper->scale();
-        size = _brushStroke->getSize();
+        size = _brushStroke->size();
     }
 
     QRectF frameRect(
@@ -218,17 +218,17 @@ void BrushIconHelper::BrushIconEngine::paint_p(QSize iconSize)
     _helper->_underSurface->clear();
     if (hints & IBrushModel::Subtractive)
     {
-        auto surfaceHandle = _helper->_underSurface->getPaintHandle(coarseBoundRect(canonicalRect));
+        auto surfaceHandle = _helper->_underSurface->paintHandle(coarseBoundRect(canonicalRect));
         
-        surfaceHandle.getPainter().setPen(Qt::NoPen);
+        surfaceHandle.painter().setPen(Qt::NoPen);
 
         if (smallIcon)
-            surfaceHandle.getPainter().setBrush(QBrush(_pattern8));
+            surfaceHandle.painter().setBrush(QBrush(_pattern8));
         else 
-            surfaceHandle.getPainter().setBrush(QBrush(_pattern64));
+            surfaceHandle.painter().setBrush(QBrush(_pattern64));
             
-        surfaceHandle.getPainter().setBrushOrigin(canonicalRect.center());
-        surfaceHandle.getPainter().drawRect(coarseBoundRect(canonicalRect));
+        surfaceHandle.painter().setBrushOrigin(canonicalRect.center());
+        surfaceHandle.painter().drawRect(coarseBoundRect(canonicalRect));
     }
 
     if (copyMode) _helper->_brushSurface->link(_helper->_underSurface);
@@ -265,7 +265,7 @@ void BrushIconHelper::BrushIconEngine::paint_p(QSize iconSize)
     }
 
     _helper->_renderStack->render(RenderData(iconRect, &painter));
-    //render(_helper->_brushSurface->getRenderStep(), coarseBoundRect(canonicalRect), &painter);
+    //render(_helper->_brushSurface->renderStep(), coarseBoundRect(canonicalRect), &painter);
 }
 
 QIcon BrushIconHelper::SizeIconProvider::icon(double size) const

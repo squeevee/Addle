@@ -34,8 +34,8 @@ public:
 #endif
     virtual ~FormatException() = default;
 
-    const ImportExportInfo& getimportExportInfo() const { return _importExportInfo; }
-    FormatId getFormatId() const { return _format; }
+    const ImportExportInfo& importExportInfo() const { return _importExportInfo; }
+    FormatId formatId() const { return _format; }
 
 private:
     const ImportExportInfo _importExportInfo;
@@ -97,8 +97,8 @@ public:
                 "There is no driver for the given format.\n"
                 "format type: \"%1\"\n"
                 "   filename: \"%2\""))
-            .arg(format.getMimeType())
-            .arg(importExportInfo.getFilename())
+            .arg(format.mimeType())
+            .arg(importExportInfo.filename())
         )
     {
     }
@@ -132,8 +132,8 @@ public:
                 "The driver for the format does not support importing.\n"
                 "format type: \"%1\"\n"
                 "   filename: \"%2\""))
-            .arg(format.getMimeType())
-            .arg(importExportInfo.getFilename())
+            .arg(format.mimeType())
+            .arg(importExportInfo.filename())
         ), _driver(driver)
     {
     }
@@ -166,7 +166,7 @@ public:
             QStringLiteral(
                 "A format could not be inferred from the information given.\n"
                 "   filename: \"%1\""))
-            .arg(importExportInfo.getFilename())
+            .arg(importExportInfo.filename())
         )
     {
     }

@@ -63,10 +63,10 @@ public:
         _data = other._data;
     }
 
-    QPainter* getPainter() const { return _data->painter; }
+    QPainter* painter() const { return _data->painter; }
 
     void setArea(QRect area) { _data->area = area; }
-    QRect getArea() const { return _data->area; }
+    QRect area() const { return _data->area; }
 
     bool isAborted() const { return _data->aborted; }
     void abort() { _data->aborted = true; }

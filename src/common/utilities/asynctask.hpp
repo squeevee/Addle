@@ -66,9 +66,9 @@ public:
     AsyncTask(QObject* parent = nullptr);
     virtual ~AsyncTask();
 
-    double getMaxProgress() { const QMutexLocker lock(&_ioMutex); return _maxProgress; }
-    double getMinProgress() { const QMutexLocker lock(&_ioMutex); return _minProgress; }
-    double getProgress() { const QMutexLocker lock(&_ioMutex); return _progress; }
+    double maxProgress() { const QMutexLocker lock(&_ioMutex); return _maxProgress; }
+    double minProgress() { const QMutexLocker lock(&_ioMutex); return _minProgress; }
+    double progress() { const QMutexLocker lock(&_ioMutex); return _progress; }
 
     // The task has started and has not yet stopped.
     bool isRunning() { const QMutexLocker lock(&_stateMutex); return _isRunning; }
@@ -89,7 +89,7 @@ public:
      * If the most recent run of the task was stopped because of an error, this
      * accesses the error.
      */
-    QSharedPointer<IAddleException> getError() { const QMutexLocker lock(&_stateMutex); return _error; }
+    QSharedPointer<IAddleException> error() { const QMutexLocker lock(&_stateMutex); return _error; }
 
     void sync() { const QMutexLocker lock(&_stateMutex); while (_isRunning); }
 

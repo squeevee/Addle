@@ -19,10 +19,10 @@ public:
 
     void initialize(IMainEditorPresenter* mainEditorPresenter);
 
-    IMainEditorPresenter* getMainEditorPresenter() { _initHelper.check(); return _mainEditorPresenter; }
+    IMainEditorPresenter* mainEditorPresenter() { _initHelper.check(); return _mainEditorPresenter; }
 
-    QCursor getCursor();
-    QString getStatusTip() { return QString(); }
+    QCursor cursor();
+    QString statusTip() { return QString(); }
 
     bool event(QEvent* e);
 

@@ -27,17 +27,17 @@ public:
 
     bool isEmpty() { _initHelper.check(); return _empty; }
 
-    QSize getSize() { _initHelper.check(); return _size; }
+    QSize size() { _initHelper.check(); return _size; }
 
     //void applyOperation(IDrawingOperation& operation);
 
-    QColor getBackgroundColor() { _initHelper.check(); return _backgroundColor; }
+    QColor backgroundColor() { _initHelper.check(); return _backgroundColor; }
 
-    QString getFilename() { _initHelper.check(); return _filename; }
+    QString filename() { _initHelper.check(); return _filename; }
     void setFilename(QString filename) {}
 
-    QList<QSharedPointer<ILayer>> getLayers();
-    ILayer* getLayer(int index);
+    QList<QSharedPointer<ILayer>> layers();
+    ILayer* layer(int index);
     void addNewLayer(LayerBuilder& builder, int insertBefore = -1);
     void addNewLayers(QList<LayerBuilder> builders, int insertBefore = -1);
     void addNewEmptyLayer(int insertBefore = -1);

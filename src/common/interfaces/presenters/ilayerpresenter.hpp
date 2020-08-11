@@ -21,14 +21,14 @@ public:
     virtual ~ILayerPresenter() = default;
     
     virtual void initialize(IDocumentPresenter* documentPresenter, QSharedPointer<ILayer> layer = nullptr) = 0;
-    virtual IDocumentPresenter* getDocumentPresenter() = 0;
+    virtual IDocumentPresenter* documentPresenter() = 0;
 
-    virtual QSharedPointer<ILayer> getModel() = 0;
+    virtual QSharedPointer<ILayer> model() = 0;
 
     virtual QString name() const = 0;
     virtual void setName(QString name) = 0;
 
-    virtual IRenderStack& getRenderStack() = 0;
+    virtual IRenderStack& renderStack() = 0;
 
 signals: 
     virtual void nameChanged(QString name) = 0;

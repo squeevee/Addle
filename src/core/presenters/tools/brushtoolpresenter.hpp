@@ -47,8 +47,8 @@ public:
 
     void initialize(IMainEditorPresenter* owner, Mode mode);
 
-    IMainEditorPresenter* getOwner() { _initHelper.check(); return _mainEditor; }
-    ToolId getId();
+    IMainEditorPresenter* owner() { _initHelper.check(); return _mainEditor; }
+    ToolId id();
 
     IAssetSelectionPresenter& brushSelection() { _initHelper.check(); return *_brushSelection; }
     void selectBrush(BrushId id) { brushSelection().select(id); }

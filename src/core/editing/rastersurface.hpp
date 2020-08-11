@@ -36,7 +36,7 @@ public:
         _compositionMode = mode;
     }
 
-    virtual QPainter::CompositionMode getCompositionMode() const override
+    virtual QPainter::CompositionMode compositionMode() const override
     {
         _initHelper.check();
         const QReadLocker lock(&_lock);
@@ -57,7 +57,7 @@ public:
         _linked.clear(); 
     }
 
-    QRect getArea() const override
+    QRect area() const override
     { 
         _initHelper.check();
         const QReadLocker lock(&_lock);
@@ -69,30 +69,30 @@ public:
     int alpha() const { _initHelper.check(); return _alpha; }
     void setAlpha(int alpha) { _initHelper.check(); _alpha = alpha; emit changed(_area); }
 
-    QSharedPointer<IRenderStep> getRenderStep() override;
+    QSharedPointer<IRenderStep> renderStep() override;
 
-    RasterPaintHandle getPaintHandle(QRect handleArea) override
+    RasterPaintHandle paintHandle(QRect handleArea) override
     {
         _lock.lockForWrite(); //unlock in onPaintHandleDestroyed
 
         allocate(handleArea);
-        return getPaintHandle_p(_buffer, _bufferOffset, handleArea);
+        return paintHandle_p(_buffer, _bufferOffset, handleArea);
     }
 
-    RasterBitReader getBitReader(QRect area) const override
+    RasterBitReader bitReader(QRect area) const override
     {
         _lock.lockForRead(); //unlock in onBitReaderDestroyed
 
         QRect readerArea = QRect(_bufferOffset, _buffer.size()).intersected(area);
-        return getBitReader_p(_buffer, _bufferOffset, readerArea);
+        return bitReader_p(_buffer, _bufferOffset, readerArea);
     }
 
-    RasterBitWriter getBitWriter(QRect area)
+    RasterBitWriter bitWriter(QRect area)
     {
         _lock.lockForWrite(); //unlock in onBitReaderDestroyed
 
         allocate(area);
-        return getBitWriter_p(_buffer, _bufferOffset, area);
+        return bitWriter_p(_buffer, _bufferOffset, area);
     }
 
 signals:
@@ -138,7 +138,7 @@ public:
     virtual void onPush(RenderData& data) override;
     virtual void onPop(RenderData& data) override;
 
-    virtual QRect getAreaHint() override { return _owner._area; }
+    virtual QRect areaHint() override { return _owner._area; }
 
 signals: 
     void changed(QRect area);

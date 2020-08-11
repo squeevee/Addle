@@ -13,7 +13,7 @@ class IHaveDocumentPresenter
 public:
     virtual ~IHaveDocumentPresenter() = default;
 
-    virtual IDocumentPresenter* getDocumentPresenter() = 0;
+    virtual IDocumentPresenter* documentPresenter() = 0;
 
     virtual bool isEmpty() = 0;
 

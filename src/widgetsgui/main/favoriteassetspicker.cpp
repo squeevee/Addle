@@ -57,7 +57,7 @@ void FavoriteAssetsPicker::onFavoritesChanged()
         auto asset = _presenter.assetById(id);
         FavoriteAssetButton* button = _buttons[index];
         button->setPresenter(asset);
-        _buttons_byAsset.insert(asset->getId(), button);
+        _buttons_byAsset.insert(asset->id(), button);
 
         ++index;
     }
@@ -86,7 +86,7 @@ void FavoriteAssetsPicker::onButtonClicked(bool checked)
     auto asset = button->presenter();
     if (!asset) return;
 
-    _presenter.select(asset->getId());
+    _presenter.select(asset->id());
 }
 
 FavoriteAssetButton::FavoriteAssetButton(QWidget* parent)

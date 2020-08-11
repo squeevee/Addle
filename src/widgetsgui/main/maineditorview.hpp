@@ -42,7 +42,7 @@ public:
 
     void initialize(IMainEditorPresenter* presenter);
 
-    IMainEditorPresenter* getPresenter() { _initHelper.check(); return _presenter; }
+    IMainEditorPresenter* presenter() { _initHelper.check(); return _presenter; }
 
 public slots:
     void start();

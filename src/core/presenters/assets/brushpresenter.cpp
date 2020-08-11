@@ -75,7 +75,7 @@ QIcon BrushPresenter::icon()
 
 QString BrushPresenter::name()
 {
-    return ADDLE_TEXT(QString("brushes.%1.text").arg(_id.getKey()));
+    return ADDLE_TEXT(QString("brushes.%1.text").arg(_id.key()));
 }
 
 void BrushPresenter::setPreviewInfo(QSharedPointer<const PreviewInfoProvider> info)

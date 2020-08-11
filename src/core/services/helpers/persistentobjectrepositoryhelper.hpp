@@ -14,7 +14,7 @@ public:
     {
     }
 
-    QHash<IdType, QSharedPointer<ObjectType>> getCollection() { return _collection; }
+    QHash<IdType, QSharedPointer<ObjectType>> collection() { return _collection; }
 
     void setCollection(const QHash<IdType, QSharedPointer<ObjectType>>& collection)
     {

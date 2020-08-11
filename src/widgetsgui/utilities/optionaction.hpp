@@ -10,7 +10,7 @@ class OptionAction : public QAction
     Q_OBJECT
     Q_PROPERTY(
         QVariant value
-        READ getValue
+        READ value
     )
 public:
     OptionAction(QVariant value, QObject* parent = nullptr)
@@ -18,7 +18,7 @@ public:
     {
     }
 
-    QVariant getValue() const { return _value; }
+    QVariant value() const { return _value; }
 
 private: 
     const QVariant _value;

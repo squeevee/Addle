@@ -52,7 +52,7 @@ bool ApplicationService::start()
         if (DebugBehavior::test(DebugBehavior::abort_on_startup_error))
             std::abort();
 #else
-        std::cerr << qPrintable(ex.getErrorText()) << std::endl;
+        std::cerr << qPrintable(ex.errorText()) << std::endl;
 #endif
 
     }
@@ -276,7 +276,7 @@ void ApplicationService::startGraphicalApplication()
         presenter->loadDocument(_startingUrl);
     }
 
-    presenter->getView()->start();
+    presenter->view()->start();
 }
 
 void ApplicationService::quitting()

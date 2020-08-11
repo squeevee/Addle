@@ -57,7 +57,7 @@ public:
     Qt::MouseEventSource source() const { return _source; }
     const QEvent* underlying() const { return _underlying; }
 
-    static inline int getType()
+    static inline int type()
     {
         return _type;
     }

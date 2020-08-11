@@ -16,7 +16,7 @@ IndexVariant::IndexVariant(const QVariant& var)
     //TODO: Assert var is hashable
 }
 
-uint IndexVariant::getHash(uint seed) const
+uint IndexVariant::hash(uint seed) const
 {
     int type = _var.userType();
 

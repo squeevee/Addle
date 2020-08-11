@@ -23,16 +23,16 @@ DocBackgroundItem::DocBackgroundItem(IDocumentPresenter& presenter)
 
 QRectF DocBackgroundItem::boundingRect() const
 {
-    return _presenter.getRect();
+    return _presenter.rect();
 }
 
 void DocBackgroundItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     QPainterPath path;
-    path.addRect(QRectF(_presenter.getRect()).intersected(option->exposedRect));
+    path.addRect(QRectF(_presenter.rect()).intersected(option->exposedRect));
     path = painter->transform().map(path);
 
-    QColor backgroundColor = _presenter.getBackgroundColor();
+    QColor backgroundColor = _presenter.backgroundColor();
     
     painter->save();
     painter->setTransform(QTransform());

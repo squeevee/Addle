@@ -15,10 +15,10 @@ public:
 
     void initialize(QString message = QString(), Severity severity = Severity::warning);
 
-    Severity getSeverity() { _initHelper.check(); return _severity; }
+    Severity severity() { _initHelper.check(); return _severity; }
     void setSeverity(Severity severity) { _initHelper.check(); _severity = severity; }
 
-    QString getMessage() { _initHelper.check(); return _message; }
+    QString message() { _initHelper.check(); return _message; }
     void setMessage(QString message) { _initHelper.check(); _message = message; }
 
 private:

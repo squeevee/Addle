@@ -28,8 +28,8 @@ public:
 
     virtual void apply() = 0;
 
-    virtual QRect getArea() const = 0;
-    virtual QWeakPointer<IRasterSurface> getDesination() const = 0;
+    virtual QRect area() const = 0;
+    virtual QWeakPointer<IRasterSurface> desination() const = 0;
 
     virtual void compress() = 0;
     virtual void uncompress() = 0;

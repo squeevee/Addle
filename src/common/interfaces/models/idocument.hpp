@@ -31,14 +31,14 @@ public:
 
     virtual bool isEmpty() = 0;
 
-    virtual QSize getSize() = 0;
+    virtual QSize size() = 0;
 
-    virtual QColor getBackgroundColor() = 0;
+    virtual QColor backgroundColor() = 0;
 
-    virtual QString getFilename() = 0;
+    virtual QString filename() = 0;
     virtual void setFilename(QString filename) = 0;
 
-    virtual QList<QSharedPointer<ILayer>> getLayers() = 0;
+    virtual QList<QSharedPointer<ILayer>> layers() = 0;
 
 signals:
     //void renderChanged(QRect area);

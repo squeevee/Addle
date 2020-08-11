@@ -19,7 +19,7 @@ public:
     bool supportsImport() const { return true; }
     bool supportsExport() const { return false; }
 
-    FormatId getId() const { return _id; }
+    FormatId id() const { return _id; }
 
     IFormatModel* importModel(QIODevice& device, ImportExportInfo info);
     void exportModel(IFormatModel* model, QIODevice& device, ImportExportInfo info);

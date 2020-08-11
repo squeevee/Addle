@@ -12,7 +12,7 @@ void NavigateToolPresenter::initialize(IMainEditorPresenter* owner)
     _initHelper.initializeBegin();
     
     _owner = owner;
-    _viewPort = _owner->getViewPortPresenter();
+    _viewPort = _owner->viewPortPresenter();
 
     _initHelper.initializeEnd();
 }
@@ -30,10 +30,10 @@ void NavigateToolPresenter::onMove()
     switch (_operation)
     {
     case gripPan:
-        _viewPort->gripPan(_mouseHelper.getFirstPosition(), _mouseHelper.getLatestPosition());
+        _viewPort->gripPan(_mouseHelper.firstPosition(), _mouseHelper.latestPosition());
         break;
     case gripPivot:
-        _viewPort->gripPivot(_mouseHelper.getFirstPosition(), _mouseHelper.getLatestPosition());
+        _viewPort->gripPivot(_mouseHelper.firstPosition(), _mouseHelper.latestPosition());
         break;
     }
 }

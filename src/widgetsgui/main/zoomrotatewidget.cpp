@@ -74,8 +74,8 @@ ZoomRotateWidget::ZoomRotateWidget(IViewPortPresenter& presenter, QWidget* paren
     connect_interface(_action_reset, SIGNAL(triggered()), &_presenter, SLOT(resetTransforms()));
 
     _slider_zoom = new ZoomSlider(this);
-    _slider_zoom->setMinZoom(_presenter.getMinZoomPresetValue());
-    _slider_zoom->setMaxZoom(_presenter.getMaxZoomPresetValue());
+    _slider_zoom->setMinZoom(_presenter.minZoomPresetValue());
+    _slider_zoom->setMaxZoom(_presenter.maxZoomPresetValue());
     _slider_zoom->setOrientation(Qt::Orientation::Horizontal);
     _slider_zoom->setMinimumSize(QSize(150, 0));
     _slider_zoom->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -89,8 +89,8 @@ ZoomRotateWidget::ZoomRotateWidget(IViewPortPresenter& presenter, QWidget* paren
     );
 
     _spinBox_zoomPercent = new QDoubleSpinBox(this);
-    _spinBox_zoomPercent->setMinimum(_presenter.getMinZoomPresetValue() * 100);
-    _spinBox_zoomPercent->setMaximum(_presenter.getMaxZoomPresetValue() * 100);
+    _spinBox_zoomPercent->setMinimum(_presenter.minZoomPresetValue() * 100);
+    _spinBox_zoomPercent->setMaximum(_presenter.maxZoomPresetValue() * 100);
     _spinBox_zoomPercent->setSingleStep(5.0);
     _spinBox_zoomPercent->setToolTip(ADDLE_TEXT("ui.set-zoom.toolTip"));
 

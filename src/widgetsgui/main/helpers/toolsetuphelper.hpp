@@ -37,12 +37,12 @@ public:
         )
     {
         typedef typename ToolBarType::PresenterType PresenterType;
-        PresenterType* presenter = dynamic_cast<PresenterType*>(_mainEditorPresenter.getToolPresenter(tool));
+        PresenterType* presenter = dynamic_cast<PresenterType*>(_mainEditorPresenter.toolPresenter(tool));
 
         OptionAction* selectAction = new OptionAction(tool, _owner);
-        selectAction->setText(ADDLE_TEXT(QStringLiteral("tools.%1.text").arg(tool.getKey())));
-        selectAction->setToolTip(ADDLE_TEXT(QStringLiteral("tools.%1.toolTip").arg(tool.getKey())));
-        selectAction->setIcon(ADDLE_ICON(tool.getKey()));
+        selectAction->setText(ADDLE_TEXT(QStringLiteral("tools.%1.text").arg(tool.key())));
+        selectAction->setToolTip(ADDLE_TEXT(QStringLiteral("tools.%1.toolTip").arg(tool.key())));
+        selectAction->setIcon(ADDLE_ICON(tool.key()));
         *selectActionptr = selectAction;
 
         _selectGroup->addOption(selectAction);

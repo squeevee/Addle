@@ -56,7 +56,7 @@ private:
 Q_DECLARE_OPERATORS_FOR_FLAGS(DebugBehavior::DebugBehaviorFlags)
 
 template<class Interface>
-const char* getQObjectClassName(Interface* object)
+const char* qObjectClassName(Interface* object)
 {
     static_assert(
         implemented_as_QObject<Interface>::value,

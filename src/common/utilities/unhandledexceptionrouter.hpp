@@ -88,7 +88,7 @@ public:
     // UnhandledExceptionRouter can live on the main thread.
     static void initialize();
 
-    const UnhandledExceptionRouter* getInstance() { return _instance; }
+    const UnhandledExceptionRouter* instance() { return _instance; }
 
     static void report(AddleUnhandledException& ex);
     static void report(IAddleException& ex, Severity severity = Severity::normal);
@@ -163,10 +163,10 @@ public:
         if (_innerStdException) delete _innerStdException;
     }
 
-    bool getSeverity() { return _severity; }
+    bool severity() { return _severity; }
 
-    IAddleException* getInnerAddleException() { return _innerAddleException; }
-    std::exception* getInnerStdException() { return _innerStdException; }
+    IAddleException* innerAddleException() { return _innerAddleException; }
+    std::exception* innerStdException() { return _innerStdException; }
 
 private:
     IAddleException* _innerAddleException = nullptr;

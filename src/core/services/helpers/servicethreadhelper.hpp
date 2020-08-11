@@ -71,7 +71,7 @@ public:
         }
     }
 
-    QThread* getServiceThread() { return _serviceThread; }
+    QThread* serviceThread() { return _serviceThread; }
 
     void assertThread()
     {

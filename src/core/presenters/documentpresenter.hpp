@@ -37,12 +37,12 @@ public:
     void initialize(QSize size, QColor backgroundColor);
     void initialize(QSharedPointer<IDocument> model);
 
-    QSharedPointer<IDocument> getModel() { _initHelper.check(); return _model; }
+    QSharedPointer<IDocument> model() { _initHelper.check(); return _model; }
     bool isEmpty() { _initHelper.check(); return !_model; }
 
-    QSize getSize() { _initHelper.check(); return _model ? _model->getSize() : QSize(); }
-    QRect getRect() { return QRect(QPoint(), getSize()); }
-    QColor getBackgroundColor() { _initHelper.check(); return _model ? _model->getBackgroundColor() : QColor(); }
+    QSize size() { _initHelper.check(); return _model ? _model->size() : QSize(); }
+    QRect rect() { return QRect(QPoint(), size()); }
+    QColor backgroundColor() { _initHelper.check(); return _model ? _model->backgroundColor() : QColor(); }
 
     const LayerList& layers() const { _initHelper.check(); return _layersHelper.layers(); }
 

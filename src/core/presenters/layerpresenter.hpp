@@ -17,14 +17,14 @@ public:
     virtual ~LayerPresenter();
 
     void initialize(IDocumentPresenter* documentPresenter, QSharedPointer<ILayer> model);
-    IDocumentPresenter* getDocumentPresenter() { _initHelper.check(); return _documentPresenter; }
+    IDocumentPresenter* documentPresenter() { _initHelper.check(); return _documentPresenter; }
 
-    QSharedPointer<ILayer> getModel() { _initHelper.check(); return _model; }
+    QSharedPointer<ILayer> model() { _initHelper.check(); return _model; }
 
     QString name() const { _initHelper.check(); return _name; }
     void setName(QString name);
 
-    IRenderStack& getRenderStack();
+    IRenderStack& renderStack();
 
 signals:
     void nameChanged(QString name);
@@ -59,7 +59,7 @@ public:
     void onPush(RenderData& data);
     void onPop(RenderData& data);
 
-    QRect getAreaHint() { return QRect(); }
+    QRect areaHint() { return QRect(); }
 
 signals: 
     void changed(QRect area);

@@ -20,14 +20,14 @@ public:
     DocumentBuilder() { _data = new DocumentBuilderData; }
     DocumentBuilder(const DocumentBuilder& other) : _data(other._data) {}
 
-    QString getFilename() { return _data->filename; }
+    QString filename() { return _data->filename; }
     void setFilename(QString filename) { _data->filename = filename; }
 
-    QColor getBackgroundColor() { return _data->backgroundColor; }
+    QColor backgroundColor() { return _data->backgroundColor; }
     void setBackgroundColor(QColor backgroundColor) { _data->backgroundColor = backgroundColor; }
 
     void addLayer(LayerBuilder& layer) { _data->layers.append(layer); }
-    QList<LayerBuilder> getLayers() { return _data->layers; }
+    QList<LayerBuilder> layers() { return _data->layers; }
 
 private:
     QSharedDataPointer<DocumentBuilderData> _data;

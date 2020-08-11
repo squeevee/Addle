@@ -13,7 +13,7 @@ public:
     void initialize(QWeakPointer<IRenderStep> step);
     void initialize(QList<QWeakPointer<IRenderStep>> steps);
 
-    QList<QWeakPointer<IRenderStep>> getSteps() const { return _steps; }
+    QList<QWeakPointer<IRenderStep>> steps() const { return _steps; }
 
     void push(QWeakPointer<IRenderStep> step);
     void remove(QWeakPointer<IRenderStep> step);

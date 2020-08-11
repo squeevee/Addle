@@ -24,21 +24,21 @@ FormatService::FormatService()
 
     for (IFormatDriver* driver : drivers)
     {
-        FormatId format(driver->getId());
+        FormatId format(driver->id());
         _drivers_byFormat.insert(format, driver);
-        _formats_byMimeType.insert(driver->getId().getMimeType(), format);
+        _formats_byMimeType.insert(driver->id().mimeType(), format);
 
-        int length = driver->getId().getFileSignature().length();
+        int length = driver->id().fileSignature().length();
         if (length > 0)
         {
-            _formats_bySignature.insert(driver->getId().getFileSignature(), format);
+            _formats_bySignature.insert(driver->id().fileSignature(), format);
             if (length > _maxSignatureLength)
                 _maxSignatureLength = length;
         }
         
-        _formats_byModelType[std::type_index(format.getModelType())].insert(format);
+        _formats_byModelType[std::type_index(format.modelType())].insert(format);
 
-        for (QString& extension : driver->getId().getFileExtensions())
+        for (QString& extension : driver->id().fileExtensions())
         {
             _formats_byExtension.insert(extension, format);
         }
@@ -66,14 +66,14 @@ IFormatModel* FormatService::importModel_p(const std::type_info& modelType, QIOD
         ADDLE_THROW(ex);
     }
 
-    if (!info.getFilename().isEmpty())
-        assertCanReadFile(info.getFileInfo());
+    if (!info.filename().isEmpty())
+        assertCanReadFile(info.fileInfo());
 
-    FormatId impliedBySuffix = _formats_byExtension.value(info.getFileInfo().completeSuffix());
+    FormatId impliedBySuffix = _formats_byExtension.value(info.fileInfo().completeSuffix());
 
     FormatId format;
     if (
-        (format = info.getFormatId()) ||
+        (format = info.formatId()) ||
         (format = inferFormatFromSignature(device)) ||
         (format = impliedBySuffix)
     )

@@ -17,7 +17,7 @@ class ADDLE_CORE_EXPORT NavigateToolPresenter : public QObject, public virtual I
     Q_OBJECT
     Q_PROPERTY(
         NavigateOperationOptions navigateOperation
-        READ getNavigateOperation
+        READ navigateOperation
         WRITE setNavigateOperation
         NOTIFY navigateOperationChanged
     )
@@ -36,17 +36,17 @@ public:
 
     void initialize(IMainEditorPresenter* owner);
 
-    IMainEditorPresenter* getOwner() { return _owner; }
-    ToolId getId() { return INavigateToolPresenterAux::ID; }
+    IMainEditorPresenter* owner() { return _owner; }
+    ToolId id() { return INavigateToolPresenterAux::ID; }
 
-    NavigateOperationOptions getNavigateOperation() { _initHelper.check(); return _operation; }
+    NavigateOperationOptions navigateOperation() { _initHelper.check(); return _operation; }
 
     bool event(QEvent* e) override { _mouseHelper.event(e); return e->isAccepted() || QObject::event(e); }
 
     bool isSelected() const { return _selectHelper.isSelected(); }
     void setSelected(bool isSelected) { _selectHelper.setSelected(isSelected); }
 
-    QCursor cursor() { return _cache_cursor.getValue(); }
+    QCursor cursor() { return _cache_cursor.value(); }
 
 signals:
     void isSelectedChanged(bool isSelected);

@@ -28,7 +28,7 @@ public:
     IndexVariant(const IndexVariant& other) = default;
     IndexVariant(const QVariant& var);
 
-    uint getHash(uint seed = 0) const;
+    uint hash(uint seed = 0) const;
 
     inline bool operator==(const IndexVariant& rhs) const
     {
@@ -89,7 +89,7 @@ private:
 
     friend bool operator==(const QVariant& lhs, const IndexVariant& rhs);
 
-    friend uint qHash(const IndexVariant& var, uint seed = 0) { return var.getHash(seed); };
+    friend uint qHash(const IndexVariant& var, uint seed = 0) { return var.hash(seed); };
 };
 
 inline bool operator==(const QVariant& lhs, const IndexVariant& rhs)

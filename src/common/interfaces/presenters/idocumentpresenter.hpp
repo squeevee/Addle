@@ -43,13 +43,13 @@ public:
     virtual void initialize(QSize size, QColor backgroundColor) = 0;
     virtual void initialize(QSharedPointer<IDocument> model) = 0;
 
-    virtual QSharedPointer<IDocument> getModel() = 0;
+    virtual QSharedPointer<IDocument> model() = 0;
 
     virtual bool isEmpty() = 0;
     
-    virtual QSize getSize() = 0;
-    virtual QRect getRect() = 0;
-    virtual QColor getBackgroundColor() = 0;
+    virtual QSize size() = 0;
+    virtual QRect rect() = 0;
+    virtual QColor backgroundColor() = 0;
 
     virtual const LayerList& layers() const = 0;
 

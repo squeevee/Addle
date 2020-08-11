@@ -17,8 +17,8 @@ public:
 
     void apply();
 
-    QRect getArea() const { return _area; }
-    QWeakPointer<IRasterSurface> getDesination() const { return _destination; }
+    QRect area() const { return _area; }
+    QWeakPointer<IRasterSurface> desination() const { return _destination; }
 
     void compress() { }
     void uncompress() { }

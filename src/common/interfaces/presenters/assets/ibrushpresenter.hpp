@@ -52,7 +52,7 @@ public:
     virtual void initialize(IBrushModel& model, QSharedPointer<const PreviewInfoProvider> info = nullptr) = 0;
     virtual void initialize(BrushId id, QSharedPointer<const PreviewInfoProvider> info = nullptr) = 0;
 
-    virtual BrushId getBrushId() = 0;
+    virtual BrushId brushId() = 0;
     virtual IBrushModel& model() const = 0;
 
     virtual ISizeSelectionPresenter& sizeSelection() = 0;

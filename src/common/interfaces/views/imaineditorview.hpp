@@ -18,7 +18,7 @@ public:
 
     virtual void initialize(IMainEditorPresenter* presenter) = 0;
 
-    virtual IMainEditorPresenter* getPresenter() = 0;
+    virtual IMainEditorPresenter* presenter() = 0;
 };
 
 DECL_MAKEABLE(IMainEditorView)

@@ -27,7 +27,7 @@ class IPersistentObjectRepository
 public:
     virtual ~IPersistentObjectRepository() = default;
 
-    virtual QHash<IdType, QSharedPointer<ObjectType>> getCollection() = 0;
+    virtual QHash<IdType, QSharedPointer<ObjectType>> collection() = 0;
     virtual void setCollection(const QHash<IdType, QSharedPointer<ObjectType>>& collection) = 0;
 
     virtual QSharedPointer<ObjectType> get(const IdType& id) = 0;

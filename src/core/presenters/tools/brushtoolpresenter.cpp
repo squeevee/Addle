@@ -43,8 +43,8 @@ void BrushToolPresenter::initialize(IMainEditorPresenter* owner, Mode mode)
     _initHelper.initializeBegin();
 
     _mainEditor = owner;
-    _canvas = _mainEditor->getCanvasPresenter();
-    _viewPort = _mainEditor->getViewPortPresenter();
+    _canvas = _mainEditor->canvasPresenter();
+    _viewPort = _mainEditor->viewPortPresenter();
     _colorSelection = &_mainEditor->colorSelection();
     
     _mode = mode;
@@ -98,7 +98,7 @@ void BrushToolPresenter::initialize(IMainEditorPresenter* owner, Mode mode)
     _initHelper.initializeEnd();
 }
 
-ToolId BrushToolPresenter::getId()
+ToolId BrushToolPresenter::id()
 {
     _initHelper.check();
     switch(_mode)
@@ -120,7 +120,7 @@ void BrushToolPresenter::onSelectedChanged(bool selected)
 
 bool BrushToolPresenter::event(QEvent* e)
 {
-    if (e->type() == CanvasMouseEvent::getType())
+    if (e->type() == CanvasMouseEvent::type())
     {
         CanvasMouseEvent* canvasMouseEvent = static_cast<CanvasMouseEvent*>(e);
 
@@ -154,7 +154,7 @@ void BrushToolPresenter::onBrushSelectionChanged()
         SLOT(onSizeChanged(double))
     );
 
-    //selectedBrushPresenter()->setPreviewScale(_mainEditor->getViewPortPresenter()->getZoom());
+    //selectedBrushPresenter()->setPreviewScale(_mainEditor->viewPortPresenter()->zoom());
     //selectedBrushPresenter()->setPreviewColor(_mainEditor->colorSelection().color1().color());
 
     _hoverPreview->isVisible_cache.recalculate();
@@ -224,13 +224,13 @@ void BrushToolPresenter::onEngage()
     _grace = false;
 
     _hoverPreview->isVisible_cache.recalculate();
-    _hoverPreview->setPosition(_mouseHelper.getLatestPosition());
+    _hoverPreview->setPosition(_mouseHelper.latestPosition());
 
     QColor color = _colorSelection->color1().color();
 
     auto brushSurface = ServiceLocator::makeShared<IRasterSurface>();
     _brushStroke = QSharedPointer<BrushStroke>(new BrushStroke(
-        brush->getBrushId(),
+        brush->brushId(),
         color,
         size,
         brushSurface
@@ -238,13 +238,13 @@ void BrushToolPresenter::onEngage()
 
     if (brush->model().copyMode())
     {
-        brushSurface->link(layer->getModel()->getRasterSurface());
+        brushSurface->link(layer->model()->rasterSurface());
         //brushSurface->setCompositionMode(QPainter::CompositionMode_Source);
     }
 
-    layer->getRenderStack().push(brushSurface->getRenderStep());
+    layer->renderStack().push(brushSurface->renderStep());
 
-    _brushStroke->moveTo(_mouseHelper.getFirstPosition());
+    _brushStroke->moveTo(_mouseHelper.firstPosition());
     _brushStroke->paint();
 }
 
@@ -252,27 +252,27 @@ void BrushToolPresenter::onMove()
 {
     if (!_brushStroke) return;
 
-    _brushStroke->moveTo(_mouseHelper.getLatestPosition());
+    _brushStroke->moveTo(_mouseHelper.latestPosition());
     _brushStroke->paint();
-    _hoverPreview->setPosition(_mouseHelper.getLatestPosition());
+    _hoverPreview->setPosition(_mouseHelper.latestPosition());
 }
 
 void BrushToolPresenter::onDisengage()
 {
     if (!_brushStroke) return;
 
-    _brushStroke->getBuffer()->unlink();    
+    _brushStroke->buffer()->unlink();    
     auto layer = _operatingLayer.toStrongRef();
     if (!layer) return;
 
     {
         QSharedPointer<IRasterSurface> previewBuffer;
         QSharedPointer<IRenderStep> previewRenderStep;
-        if ((previewBuffer = _brushStroke->getBuffer())
-             && (previewRenderStep = previewBuffer->getRenderStep())
+        if ((previewBuffer = _brushStroke->buffer())
+             && (previewRenderStep = previewBuffer->renderStep())
         )
         {
-            layer->getRenderStack().remove(previewRenderStep);
+            layer->renderStack().remove(previewRenderStep);
         }
     }
     
@@ -313,7 +313,7 @@ void BrushToolPresenter::HoverPreview::update()
         _brushStroke->setSize(size);
         _brushStroke->setColor(color);
     }
-    else if (isVisible_cache.getValue())
+    else if (isVisible_cache.value())
     {
         if (!_surface) _surface = ServiceLocator::makeShared<IRasterSurface>();
 
@@ -327,9 +327,9 @@ void BrushToolPresenter::HoverPreview::update()
 
     if (_surface)
     {
-        if (_layer && (!isVisible_cache.getValue() || _layer != _owner._document->topSelectedLayer()))
+        if (_layer && (!isVisible_cache.value() || _layer != _owner._document->topSelectedLayer()))
         {
-            _layer->getRenderStack().remove(_surface->getRenderStep());
+            _layer->renderStack().remove(_surface->renderStep());
             if (_owner.selectedBrushPresenter()->model().eraserMode())
             {
                 _surface->unlink();
@@ -337,14 +337,14 @@ void BrushToolPresenter::HoverPreview::update()
             _layer = nullptr;
         }
 
-        if (isVisible_cache.getValue() && _layer != _owner._document->topSelectedLayer())
+        if (isVisible_cache.value() && _layer != _owner._document->topSelectedLayer())
         {
             _layer = _owner._document->topSelectedLayer();
             if (_owner.selectedBrushPresenter()->model().eraserMode())
             {
-                _surface->link(_layer->getModel()->getRasterSurface());
+                _surface->link(_layer->model()->rasterSurface());
             }
-            _layer->getRenderStack().push(_surface->getRenderStep());
+            _layer->renderStack().push(_surface->renderStep());
         }   
     }
 
@@ -384,7 +384,7 @@ void BrushToolPresenter::HoverPreview::paint()
 {
     _owner._initHelper.check();
 
-    if (!isVisible_cache.getValue()) return;
+    if (!isVisible_cache.value()) return;
     
     _brushStroke->clear();
     _brushStroke->moveTo(_position);
@@ -396,7 +396,7 @@ void BrushToolPresenter::HoverPreview::paint()
 double BrushPreviewProvider::scale() const 
 {
     if (!_presenter || !_presenter->_initHelper.isInitialized()) return 1;
-    else return _presenter->_viewPort->getZoom();
+    else return _presenter->_viewPort->zoom();
 }
 
 QColor BrushPreviewProvider::color() const

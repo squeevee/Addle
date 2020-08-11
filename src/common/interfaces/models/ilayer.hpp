@@ -27,11 +27,11 @@ public:
 
     virtual bool isEmpty() = 0;
     
-    virtual QRect getBoundary() = 0;
-    virtual QPoint getTopLeft() = 0;
+    virtual QRect boundary() = 0;
+    virtual QPoint topLeft() = 0;
     virtual void setTopLeft(QPoint) = 0;
 
-    virtual QSharedPointer<IRasterSurface> getRasterSurface() = 0;
+    virtual QSharedPointer<IRasterSurface> rasterSurface() = 0;
 };
 
 DECL_MAKEABLE(ILayer)

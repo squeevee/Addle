@@ -28,13 +28,13 @@ public:
 
     bool isEmpty() { _initHelper.check(); return _empty; }
 
-    QRect getBoundary() { _initHelper.check(); return _boundary; }
-    QPoint getTopLeft() { _initHelper.check(); return _boundary.topLeft(); }
+    QRect boundary() { _initHelper.check(); return _boundary; }
+    QPoint topLeft() { _initHelper.check(); return _boundary.topLeft(); }
     void setTopLeft(QPoint) { _initHelper.check(); }
 
-    QColor getSkirtColor() { _initHelper.check(); return Qt::GlobalColor::transparent; }
+    QColor skirtColor() { _initHelper.check(); return Qt::GlobalColor::transparent; }
 
-    QSharedPointer<IRasterSurface> getRasterSurface() { return _rasterSurface; }
+    QSharedPointer<IRasterSurface> rasterSurface() { return _rasterSurface; }
 
 private:
     QRect _boundary;

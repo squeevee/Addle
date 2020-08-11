@@ -53,7 +53,7 @@ public:
     ) = 0;
 
     virtual void setCompositionMode(QPainter::CompositionMode mode) = 0;
-    virtual QPainter::CompositionMode getCompositionMode() const = 0;
+    virtual QPainter::CompositionMode compositionMode() const = 0;
     
     virtual bool replaceMode() const = 0;
     virtual void setReplaceMode(bool replace) = 0;
@@ -61,7 +61,7 @@ public:
     virtual void link(QSharedPointer<IRasterSurface> other) = 0;
     virtual void unlink() = 0;
 
-    virtual QRect getArea() const = 0;
+    virtual QRect area() const = 0;
 
     //virtual void render(QPainter& painter, QRect area) const = 0;
 
@@ -70,32 +70,32 @@ public:
     virtual int alpha() const = 0;
     virtual void setAlpha(int alpha) = 0;
 
-    virtual QSharedPointer<IRenderStep> getRenderStep() = 0;
+    virtual QSharedPointer<IRenderStep> renderStep() = 0;
 
-    virtual RasterPaintHandle getPaintHandle(QRect area) = 0;
+    virtual RasterPaintHandle paintHandle(QRect area) = 0;
 
-    virtual RasterBitReader getBitReader(QRect area) const = 0;
-    virtual RasterBitWriter getBitWriter(QRect area) = 0;
+    virtual RasterBitReader bitReader(QRect area) const = 0;
+    virtual RasterBitWriter bitWriter(QRect area) = 0;
 
 signals:
     virtual void changed(QRect area) = 0;
 
 protected:
-    inline RasterPaintHandle getPaintHandle_p(QImage& buffer, QPoint bufferOffset, QRect area)
+    inline RasterPaintHandle paintHandle_p(QImage& buffer, QPoint bufferOffset, QRect area)
     {
         return RasterPaintHandle(*this, buffer, bufferOffset, area);
     }
 
     virtual void onPaintHandleDestroyed(const RasterPaintHandle& handle) = 0;
 
-    inline RasterBitReader getBitReader_p(const QImage& buffer, QPoint bufferOffset, QRect area) const
+    inline RasterBitReader bitReader_p(const QImage& buffer, QPoint bufferOffset, QRect area) const
     {
         return RasterBitReader(*this, buffer, bufferOffset, area);
     }
 
     virtual void onBitReaderDestroyed(const RasterBitReader& handle) const = 0;
 
-    inline RasterBitWriter getBitWriter_p(QImage& buffer, QPoint bufferOffset, QRect area)
+    inline RasterBitWriter bitWriter_p(QImage& buffer, QPoint bufferOffset, QRect area)
     {
         return RasterBitWriter(*this, buffer, bufferOffset, area);
     }

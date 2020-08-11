@@ -26,12 +26,12 @@ inline void render(QWeakPointer<IRenderStep> step, QRect area, QPainter* painter
 }
 // void isolatedRender(IRenderStep& step, RenderData data)
 // {
-//     data.getPainter()->save();
+//     data.painter()->save();
 
 //     step.onPush(data);
 //     step.onPop(data);
 
-//     data.getPainter()->restore();
+//     data.painter()->restore();
 // }
 
 // void isolatedRender(IRenderStep& step, QRect area, QPainter* painter)
