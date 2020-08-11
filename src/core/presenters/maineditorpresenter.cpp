@@ -35,6 +35,7 @@
 #include "interfaces/presenters/ipalettepresenter.hpp"
 #include "interfaces/models/ipalette.hpp"
 #include "globals.hpp"
+using namespace Addle;
 
 using namespace IMainEditorPresenterAux;
 
@@ -63,7 +64,7 @@ void MainEditorPresenter::initialize(Mode mode)
     
     _palettes = { 
         ServiceLocator::makeShared<IPalettePresenter>(
-            std::ref(ServiceLocator::get<IPalette>(GlobalConstants::CorePalettes::BasicPalette))
+            std::ref(ServiceLocator::get<IPalette>(CorePalettes::BasicPalette))
         ) // wow that's crunchy :)
     };
 

@@ -20,6 +20,8 @@
 #include "utilities/initializehelper.hpp"
 #include "utilities/qtextensions/qobject.hpp"
 
+namespace Addle {
+
 class BrushToolOptionsBar;
 class NavigateToolOptionsBar;
 
@@ -122,5 +124,7 @@ private:
 
     friend class ToolSetupHelper;
 };
+
+} // namespace Addle
 
 #endif // BASEDOCUMENTVIEW_HPP

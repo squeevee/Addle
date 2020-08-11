@@ -4,6 +4,7 @@
 #include "interfaces/rendering/irenderstack.hpp"
 
 #include "utilities/qtextensions/qobject.hpp"
+using namespace Addle;
 
 void LayerPresenterRenderStep::onPush(RenderData& data)
 {

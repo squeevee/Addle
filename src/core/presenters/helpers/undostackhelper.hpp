@@ -4,6 +4,7 @@
 #include "interfaces/presenters/ihaveundostackpresenter.hpp"
 
 #include <QStack>
+namespace Addle {
 
 class UndoStackHelper 
 {
@@ -47,4 +48,5 @@ private:
     IHaveUndoStackPresenter& _presenter;
 };
 
+} // namespace Addle
 #endif // UNDOSTACKHELPER_HPP

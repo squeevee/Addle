@@ -10,6 +10,7 @@
 #include <QSize>
 #include <QPoint>
 #include <QRect>
+namespace Addle {
 
 /**
  * @class QMultiArray
@@ -326,4 +327,5 @@ private:
     QMultiArray<T, 2, Allocator>& _arr;
 };
 
+} // namespace Addle
 #endif // QMULTIARRAY_HPP

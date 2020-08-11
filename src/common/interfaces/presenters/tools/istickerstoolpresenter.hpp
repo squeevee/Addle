@@ -7,6 +7,7 @@
 #include "interfaces/traits.hpp"
 
 
+namespace Addle {
 
 class IStickersToolPresenter //: public virtual IToolWithAssetsPresenter
 {
@@ -19,4 +20,5 @@ public:
 DECL_MAKEABLE(IStickersToolPresenter)
 DECL_IMPLEMENTED_AS_QOBJECT(IStickersToolPresenter)
 
+} // namespace Addle
 #endif // ISTICKERSTOOLPRESENTER_HPP

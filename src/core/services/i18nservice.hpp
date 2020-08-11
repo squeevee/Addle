@@ -7,6 +7,8 @@
 #include <QJsonDocument>
 #include <QLocale>
 
+namespace Addle {
+
 class ADDLE_CORE_EXPORT I18nService : public II18nService
 {
 public:
@@ -19,5 +21,7 @@ private:
     QLocale _locale;
     QJsonDocument _textDoc;
 };
+
+} // namespace Addle
 
 #endif // I18NSERVICE_HPP

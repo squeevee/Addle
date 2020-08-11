@@ -8,7 +8,7 @@
 #include "interfaces/models/ipalette.hpp"
 
 #include "utilities/initializehelper.hpp"
-
+namespace Addle {
 class ADDLE_CORE_EXPORT Palette : public QObject, public IPalette
 {
     Q_OBJECT
@@ -39,4 +39,5 @@ private:
     InitializeHelper<Palette> _initHelper;
 };
 
+} // namespace Addle
 #endif // PALETTE_HPP

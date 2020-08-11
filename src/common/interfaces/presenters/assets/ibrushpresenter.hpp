@@ -11,6 +11,7 @@
 
 #include "interfaces/traits.hpp"
 
+namespace Addle {
 
 
 namespace IBrushPresenterAux
@@ -66,4 +67,5 @@ DECL_IMPLEMENTED_AS_QOBJECT(IBrushPresenter)
 DECL_EXPECTS_INITIALIZE(IBrushPresenter)
 DECL_MAKEABLE(IBrushPresenter)
 
+} // namespace Addle
 #endif // IBRUSHPRESENTER_HPP

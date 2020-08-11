@@ -6,6 +6,7 @@
 #include "interfaces/models/ilayer.hpp"
 #include "interfaces/presenters/ilayerpresenter.hpp"
 #include "interfaces/editing/irasterdiff.hpp"
+using namespace Addle;
 
 void BrushOperationPresenter::initialize(QWeakPointer<BrushStroke> BrushStroke, QWeakPointer<ILayerPresenter> layerPresenter)
 {

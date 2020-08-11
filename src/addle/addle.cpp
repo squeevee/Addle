@@ -29,6 +29,8 @@
 #include "utilities/unhandledexceptionrouter.hpp"
 #include "core/presenters/tools/navigatetoolpresenter.hpp"
 
+using namespace Addle;
+
 int main(int argc, char *argv[])
 {
 #ifdef ADDLE_DEBUG
@@ -37,7 +39,7 @@ int main(int argc, char *argv[])
     registerQMetaTypes();
 
     QApplication a(argc, argv);
-    a.setApplicationVersion(GlobalConstants::ADDLE_VERSION);
+    a.setApplicationVersion(ADDLE_VERSION);
 
     QTranslator translator;
     translator.load(QString(":/translations/en_US.qm"));

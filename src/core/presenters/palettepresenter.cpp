@@ -1,4 +1,5 @@
 #include "palettepresenter.hpp"
+using namespace Addle;
 
 void PalettePresenter::initialize(IPalette& model)
 {

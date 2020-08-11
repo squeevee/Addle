@@ -1,4 +1,5 @@
 #include "palette.hpp"
+using namespace Addle;
 
 void Palette::initialize(const PaletteBuilder& builder)
 {

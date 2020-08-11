@@ -6,6 +6,7 @@
 #include "interfaces/rendering/irenderstep.hpp"
 #include "interfaces/rendering/irenderstack.hpp"
 #include "servicelocator.hpp"
+namespace Addle {
 
 inline void render(QList<QWeakPointer<IRenderStep>> steps, RenderData data)
 {
@@ -37,5 +38,6 @@ inline void render(QWeakPointer<IRenderStep> step, QRect area, QPainter* painter
 // {
 //     isolatedRender(step, RenderData(area, painter));
 // }
+} // namespace Addle
 
 #endif // RENDERUTILS_HPP

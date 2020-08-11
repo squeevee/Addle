@@ -10,6 +10,8 @@
 
 //#include "interfaces/presenters/icanvaspresenter.hpp"
 
+namespace Addle {
+
 class ICanvasPresenter;
 class CanvasItem;
 class ADDLE_WIDGETSGUI_EXPORT CanvasScene : public QGraphicsScene
@@ -34,5 +36,7 @@ private:
 
     ICanvasPresenter& _presenter;
 };
+
+} // namespace Addle
 
 #endif // CANVASSCENE_HPP

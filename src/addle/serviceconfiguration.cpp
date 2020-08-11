@@ -56,6 +56,8 @@
 #include "core/models/corebrushbuilders.hpp"
 #include "core/models/corepalettebuilders.hpp"
 
+using namespace Addle;
+
 void ServiceConfiguration::configure()
 {
 
@@ -106,27 +108,27 @@ void ServiceConfiguration::configure()
     //CONFIG_AUTOFACTORY_BY_TYPE(ILoadDocumentFileTask, LoadDocumentFileTask);
 
     // # Formats
-    CONFIG_CUSTOMFACTORY_BY_ID(IFormatDriver, GlobalConstants::CoreFormats::JPEG, 
-        []() -> IFormatDriver* { return new QtImageFormatDriver(GlobalConstants::CoreFormats::JPEG, "JPEG"); }
+    CONFIG_CUSTOMFACTORY_BY_ID(IFormatDriver, CoreFormats::JPEG, 
+        []() -> IFormatDriver* { return new QtImageFormatDriver(CoreFormats::JPEG, "JPEG"); }
     );
-    CONFIG_CUSTOMFACTORY_BY_ID(IFormatDriver, GlobalConstants::CoreFormats::PNG, 
-        []() -> IFormatDriver* { return new QtImageFormatDriver(GlobalConstants::CoreFormats::PNG, "PNG"); }
+    CONFIG_CUSTOMFACTORY_BY_ID(IFormatDriver, CoreFormats::PNG, 
+        []() -> IFormatDriver* { return new QtImageFormatDriver(CoreFormats::PNG, "PNG"); }
     );
 
     // # Views
     CONFIG_AUTOFACTORY_BY_TYPE(IMainEditorView, MainEditorView);
 
-    //CONFIG_AUTOFACTORY_BY_ID(IBrushPainter, GlobalConstants::CoreBrushes::BasicBrush, BasicBrushPainter);
-    //CONFIG_CUSTOMFACTORY_BY_ID(IBrushModel, GlobalConstants::CoreBrushes::BasicBrush, std::bind(&BrushModel::fromId, GlobalConstants::CoreBrushes::BasicBrush));
-    //CONFIG_CUSTOMFACTORY_BY_ID(IBrushModel, GlobalConstants::CoreBrushes::SoftBrush, std::bind(&BrushModel::fromId, GlobalConstants::CoreBrushes::SoftBrush));
+    //CONFIG_AUTOFACTORY_BY_ID(IBrushPainter, CoreBrushes::BasicBrush, BasicBrushPainter);
+    //CONFIG_CUSTOMFACTORY_BY_ID(IBrushModel, CoreBrushes::BasicBrush, std::bind(&BrushModel::fromId, CoreBrushes::BasicBrush));
+    //CONFIG_CUSTOMFACTORY_BY_ID(IBrushModel, CoreBrushes::SoftBrush, std::bind(&BrushModel::fromId, CoreBrushes::SoftBrush));
 
     CONFIG_AUTOFACTORY_BY_TYPE(IBrushModel, BrushModel);
 
-    buildPersistentObject<IBrushModel>(GlobalConstants::CoreBrushes::BasicBrush, CoreBrushBuilders::basic);
-    buildPersistentObject<IBrushModel>(GlobalConstants::CoreBrushes::SoftBrush, CoreBrushBuilders::soft);
-    buildPersistentObject<IBrushModel>(GlobalConstants::CoreBrushes::BasicEraser, CoreBrushBuilders::basicEraser);
+    buildPersistentObject<IBrushModel>(CoreBrushes::BasicBrush, CoreBrushBuilders::basic);
+    buildPersistentObject<IBrushModel>(CoreBrushes::SoftBrush, CoreBrushBuilders::soft);
+    buildPersistentObject<IBrushModel>(CoreBrushes::BasicEraser, CoreBrushBuilders::basicEraser);
 
     CONFIG_AUTOFACTORY_BY_TYPE(IPalette, Palette);
 
-    buildPersistentObject<IPalette>(GlobalConstants::CorePalettes::BasicPalette, CorePaletteBuilders::basic);
+    buildPersistentObject<IPalette>(CorePalettes::BasicPalette, CorePaletteBuilders::basic);
 }

@@ -7,6 +7,8 @@
 #include "optionaction.hpp"
 #include "utilities/indexvariant.hpp"
 
+namespace Addle {
+
 // Keeps an (exclusive) QActionGroup and associates its (checkable) contents to
 // QVariant values. The group's collective value corresponds to the value
 // associated to the selected action.
@@ -65,5 +67,7 @@ private:
 
     QActionGroup* _group;
 };
+
+} // namespace Addle
 
 #endif // OPTIONGROUP_HPP

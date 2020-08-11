@@ -13,6 +13,7 @@
 #include "nodemodelhelper.hpp"
 
 #include "interfaces/presenters/idocumentpresenter.hpp"
+namespace Addle {
 
 template<typename NodeType>
 class NodeModelHelper;
@@ -53,5 +54,7 @@ private:
     NodeModelHelper<LayerNode> _nodeHelper;
     PresenterAssignment<IDocumentPresenter> _presenter;
 };
+
+} // namespace Addle
 
 #endif // DOCUMENTLAYERSITEMMODEL_HPP

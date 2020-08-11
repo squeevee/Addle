@@ -10,6 +10,8 @@
 
 #include "utilities/model/colorinfo.hpp"
 
+namespace Addle {
+
 class ColorWell;
 class PaletteView : public QWidget
 {
@@ -47,5 +49,7 @@ private:
     friend class ColorSelector;
     class ColorWellMouseFilter;
 };
+
+} // namespace Addle
 
 #endif // PALETTEVIEW_HPP

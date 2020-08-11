@@ -4,6 +4,8 @@
 #include <exception>
 #include <QSharedPointer>
 
+namespace Addle {
+
 class IAddleException : public std::exception
 {
 public:
@@ -53,6 +55,8 @@ struct is_runtime_error : std::false_type {};
 }
 #endif
 
-Q_DECLARE_METATYPE(QSharedPointer<IAddleException>);
+// Q_DECLARE_METATYPE(QSharedPointer<IAddleException>);
+
+} // namespace Addle
 
 #endif // IADDLEEXCEPTION_HPP

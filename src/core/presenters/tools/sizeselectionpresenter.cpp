@@ -1,5 +1,6 @@
 #include "sizeselectionpresenter.hpp"
 #include <QtDebug>
+using namespace Addle;
 
 void SizeSelectionPresenter::initialize(QSharedPointer<IconProvider> iconProvider)
 {

@@ -9,6 +9,7 @@
 #include "interfaces/traits.hpp"
 
 
+namespace Addle {
 
 class IApplicationService : public virtual IService
 {
@@ -45,4 +46,5 @@ public slots:
 DECL_MAKEABLE(IApplicationService)
 DECL_IMPLEMENTED_AS_QOBJECT(IApplicationService)
 
+} // namespace Addle
 #endif // IAPPLICATIONSERVICE_HPP

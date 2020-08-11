@@ -7,6 +7,7 @@
 #include "utilities/initializehelper.hpp"
 #include <QObject>
 #include <QReadWriteLock>
+namespace Addle {
 
 class RasterSurfaceRenderStep;
 class ADDLE_CORE_EXPORT RasterSurface : public QObject, public IRasterSurface
@@ -129,8 +130,7 @@ private:
 
 class RasterSurfaceRenderStep : public QObject, public IRenderStep
 {
-    Q_OBJECT 
-    Q_INTERFACES(IRenderStep)
+    Q_OBJECT
 public: 
     RasterSurfaceRenderStep(RasterSurface& owner) : _owner(owner) { }
     virtual ~RasterSurfaceRenderStep() = default;
@@ -146,5 +146,7 @@ signals:
 private:
     RasterSurface& _owner;
 };
+
+} // namespace Addle
 
 #endif // RASTERSURFACE_HPP

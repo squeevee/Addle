@@ -10,6 +10,7 @@
 #include <QByteArray>
 
 #include "interfaces/iaddleexception.hpp"
+namespace Addle {
 
 class ADDLE_COMMON_EXPORT BaseAddleException : public IAddleException
 {
@@ -48,6 +49,8 @@ public: \
     const std::type_info& type_info() const { return typeid(T); } \
     bool isLogicError() const { return is_logic_error<T>::value; } \
     bool isRuntimeError() const { return is_runtime_error<T>::value; }
+
+} // namespace Addle
 
 #endif // EXCEPTIONUTILS_HPP
 

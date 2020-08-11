@@ -4,6 +4,7 @@
 
 #include <QVector>
 
+using namespace Addle;
 void RenderStack::initialize(QWeakPointer<IRenderStep> step)
 {
     if (step)

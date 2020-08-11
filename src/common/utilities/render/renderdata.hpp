@@ -6,6 +6,7 @@
 #include <QRect>
 #include <QPainter>
 #include <QPainterPath>
+namespace Addle {
 
 class RenderData
 {
@@ -75,5 +76,6 @@ private:
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(RenderData::Hints);
+} // namespace Addle
 
 #endif // RENDERDATA_HPP

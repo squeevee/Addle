@@ -6,6 +6,7 @@
 #include "servicelocator.hpp"
 
 #include <QPainter>
+using namespace Addle;
 
 void Layer::initialize()
 {

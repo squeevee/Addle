@@ -5,6 +5,7 @@
 
 #include "utilities/qtextensions/qobject.hpp"
 #include "utilities/canvas/canvasmouseevent.hpp"
+using namespace Addle;
 
 void CanvasPresenter::initialize(IMainEditorPresenter* mainEditorPresenter)
 {

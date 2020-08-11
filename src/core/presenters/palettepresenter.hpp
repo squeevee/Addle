@@ -8,6 +8,7 @@
 #include "utilities/initializehelper.hpp"
 
 #include <QObject>
+namespace Addle {
 
 class ADDLE_CORE_EXPORT PalettePresenter : public QObject, public IPalettePresenter
 {
@@ -27,4 +28,5 @@ private:
     InitializeHelper<PalettePresenter> _initHelper;
 };
 
+} // namespace Addle
 #endif // PALETTEPRESENTER_HPP

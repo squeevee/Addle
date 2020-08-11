@@ -8,6 +8,8 @@
 #include <QCoreApplication>
 #include <QObject>
 
+namespace Addle {
+
 class AddleUnhandledException;
 
 /**
@@ -194,4 +196,5 @@ __ADDLE_UNHANDLED_EXCEPTION_FALLTHROUGH(x) \
 
 #define ADDLE_FALLBACK_CATCH ADDLE_FALLBACK_CATCH__SEVERITY(UnhandledExceptionRouter::Severity::normal)
 
+} // namespace Addle
 #endif // GLOBALEXCEPTIONHANDLER_HPP

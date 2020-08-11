@@ -5,6 +5,8 @@
 
 #include "utilities/qtextensions/qobject.hpp"
 
+using namespace Addle;
+
 FavoriteAssetsPicker::FavoriteAssetsPicker(IAssetSelectionPresenter& presenter, QWidget* parent)
     : QWidget(parent), _presenter(presenter)
 {

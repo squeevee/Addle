@@ -5,6 +5,7 @@
 
 #include "interfaces/traits.hpp"
 #include "utilities/render/renderdata.hpp"
+namespace Addle {
 
 class IRenderStep
 {
@@ -26,5 +27,7 @@ signals:
 };
 
 DECL_IMPLEMENTED_AS_QOBJECT(IRenderStep);
+
+} // namespace Addle
 
 #endif // IRENDERSTEP_HPP

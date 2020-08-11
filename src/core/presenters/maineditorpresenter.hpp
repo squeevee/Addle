@@ -20,6 +20,7 @@
 #include "utilities/initializehelper.hpp"
 
 // #include "helpers/propertydecorationhelper.hpp"
+namespace Addle {
 
 class IMainEditorView;
 
@@ -40,7 +41,7 @@ class ADDLE_CORE_EXPORT MainEditorPresenter : public QObject, public virtual IMa
 {
     Q_OBJECT
     Q_PROPERTY(
-        ToolId currentTool 
+        Addle::ToolId currentTool 
         READ getCurrentTool 
         WRITE selectTool
         NOTIFY currentToolChanged
@@ -214,4 +215,5 @@ private:
     IDocumentPresenter* _documentPresenter;
 };
 
+} // namespace Addle
 #endif // MAINEDITORPRESENTER_HPP

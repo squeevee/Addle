@@ -4,6 +4,7 @@
 #include <QString>
 
 #include "interfaces/traits.hpp"
+namespace Addle {
 
 
 class IErrorPresenter 
@@ -31,4 +32,5 @@ public:
 DECL_MAKEABLE(IErrorPresenter)
 DECL_EXPECTS_INITIALIZE(IErrorPresenter)
 
+} // namespace Addle
 #endif // IERRORPRESENTER_HPP

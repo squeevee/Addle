@@ -12,6 +12,7 @@
 #include "interfaces/services/iformatservice.hpp"
 
 #include "idtypes/formatid.hpp"
+namespace Addle {
 
 
 class ADDLE_CORE_EXPORT FormatService : public virtual ServiceBase, public virtual IFormatService
@@ -38,4 +39,5 @@ private:
     int _maxSignatureLength = 0;
 };
 
+} // namespace Addle
 #endif // FILESERVICE_HPP

@@ -3,6 +3,7 @@
 
 #include "interfaces/editing/ibrushengine.hpp"
 #include "compat.hpp"
+namespace Addle {
 
 class RasterEngineParams;
 
@@ -24,5 +25,7 @@ private:
     static void paint_p(QPainter& painter, const RasterEngineParams& params, QPointF pos, QColor color, double size);
     static void paintGradient(QPainter& painter, QPointF pos, QColor color, double size, double hardness);
 };
+
+} // namespace Addle
 
 #endif // RASTERBRUSHENGINE_HPP

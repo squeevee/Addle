@@ -8,6 +8,7 @@
 
 #include <QHash>
 #include <QMap>
+namespace Addle {
 
 template<typename IdType = int, typename ValueType = double>
 class PresetHelper
@@ -271,5 +272,7 @@ private:
     mutable QMap<ValueType, IdType> _index_byValue;
     mutable bool _stale = false;
 };
+
+} // namspace Addle
 
 #endif // PRESETHELPER_HPP

@@ -5,6 +5,8 @@
 
 #include <cmath>
 
+using namespace Addle;
+
 ZoomSlider::ZoomSlider(QWidget* parent)
     : QSlider(parent)
 {

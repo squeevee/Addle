@@ -15,6 +15,9 @@
 class QDoubleSpinBox;
 class QListWidget;
 class QListWidgetItem;
+
+namespace Addle {
+
 class PropertyBinding;
 class SizeSelector : public QWidget
 {
@@ -60,5 +63,7 @@ private:
     SizeSelector* _sizeSelector;
     PresenterAssignment<ISizeSelectionPresenter> _presenter;
 };
+
+} // namespace Addle
 
 #endif // SIZESELECTOR_HPP

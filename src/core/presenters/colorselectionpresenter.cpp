@@ -1,4 +1,5 @@
 #include "colorselectionpresenter.hpp"
+using namespace Addle;
 
 void ColorSelectionPresenter::initialize(QList<QSharedPointer<IPalettePresenter>> palettes)
 {

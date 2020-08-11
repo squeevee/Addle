@@ -2,6 +2,7 @@
 #include <QPalette>
 #include "appearanceservice.hpp"
 
+using namespace Addle;
 AppearanceService::AppearanceService()
 {
     //kinda kludgy

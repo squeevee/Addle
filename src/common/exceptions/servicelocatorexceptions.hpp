@@ -16,6 +16,7 @@
 #include "baseaddleexception.hpp"
 
 #include "utilities/qtextensions/translation.hpp"
+namespace Addle {
 
 DECL_LOGIC_ERROR(ServiceLocatorException)
 class ADDLE_COMMON_EXPORT ServiceLocatorException : public BaseAddleException
@@ -246,5 +247,7 @@ public:
 private:
     const Why _why;
 };
+
+} // namespace Addle
 
 #endif // SERVICELOCATOREXCEPTIONS_HPP

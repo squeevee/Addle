@@ -11,6 +11,7 @@
 
 #include "interfaces/traits.hpp"
 
+namespace Addle {
 
 class IMainEditorPresenter;
 class IToolPresenter
@@ -34,4 +35,5 @@ signals:
 
 DECL_IMPLEMENTED_AS_QOBJECT(IToolPresenter)
 
+} // namespace Addle
 #endif // ITOOLPRESENTER_HPP

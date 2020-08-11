@@ -10,6 +10,7 @@
 #include "interfaces/traits.hpp"
 
 
+namespace Addle {
 
 
 class BrushBuilder;
@@ -55,4 +56,5 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(IBrushModel::PreviewHints);
 DECL_MAKEABLE(IBrushModel);
 DECL_PERSISTENT_OBJECT_TYPE(IBrushModel, BrushId); // TODO: isn't actually makeable by ID ..?
 
+} // namespace Addle
 #endif // IBRUSHMODEL_HPP

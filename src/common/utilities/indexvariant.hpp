@@ -11,6 +11,7 @@
 #include <type_traits>
 
 #include "typeinforef.hpp"
+namespace Addle {
 
 /**
  * @class IndexVariant
@@ -81,12 +82,14 @@ private:
     template<typename T>
     static uint hasher(QVariant var, uint seed)
     {
-        return qHash(var.value<T>(), seed);
+        return QT_PREPEND_NAMESPACE(qHash(var.value<T>(), seed));
     }
 
     static QHash<int, uint(*)(QVariant, uint)> _hashers;
 
     friend bool operator==(const QVariant& lhs, const IndexVariant& rhs);
+
+    friend uint qHash(const IndexVariant& var, uint seed = 0) { return var.getHash(seed); };
 };
 
 inline bool operator==(const QVariant& lhs, const IndexVariant& rhs)
@@ -99,10 +102,8 @@ inline bool operator!=(const QVariant& lhs, const IndexVariant& rhs)
     return !(lhs == rhs);
 }
 
-inline uint qHash(const IndexVariant& var, uint seed = 0) { return var.getHash(seed); }
+} // namespace Addle
 
-Q_DECLARE_METATYPE(IndexVariant)
-
-typedef QHash<IndexVariant, QVariant> IndexVariantHash;
+Q_DECLARE_METATYPE(Addle::IndexVariant)
 
 #endif // INDEXVARIANT_HPP

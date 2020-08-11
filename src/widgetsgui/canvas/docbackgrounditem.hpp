@@ -8,6 +8,8 @@
 #include <QGraphicsItemGroup>
 #include <QGraphicsRectItem>
 
+namespace Addle {
+
 class IDocumentPresenter;
 class ADDLE_WIDGETSGUI_EXPORT DocBackgroundItem : public QObject, public QGraphicsItem
 {
@@ -25,5 +27,7 @@ private:
 
     IDocumentPresenter& _presenter;
 };
+
+} // namespace Addle
 
 #endif // CANVASITEM_HPP

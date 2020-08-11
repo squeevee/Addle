@@ -1,6 +1,8 @@
 #include <QSet>
 #include "propertybinding.hpp"
 
+using namespace Addle;
+
 PropertyBinding::PropertyBinding(
         QObject* local,
         const char* localProperty,

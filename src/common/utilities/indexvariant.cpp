@@ -1,5 +1,7 @@
 #include "indexvariant.hpp"
 
+using namespace Addle;
+
 //Initialize with hashers for some basic types
 QHash<int, uint(*)(QVariant, uint)> IndexVariant::_hashers = {
     { QMetaType::Int, &hasher<int> },

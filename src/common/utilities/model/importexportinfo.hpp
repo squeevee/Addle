@@ -12,6 +12,7 @@
 #include <QString>
 #include <QUrl>
 #include <QFileInfo>
+namespace Addle {
 
 // Data about a resource (i.e., a file or stream) that is to be imported or
 // exported as a format model.
@@ -65,4 +66,5 @@ private:
     QSharedDataPointer<ImportExportInfoData> _data;
 };
 
+} // namespace Addle
 #endif // FORMATPORTAGEINFO_HPP 

@@ -7,6 +7,7 @@
 #include <QPixmap>
 
 #include <cmath>
+namespace Addle {
 
 class CheckerBoard
 {
@@ -96,4 +97,5 @@ private:
     QPoint _origin;
 };
 
+} // namespace Addle
 #endif // CHECKERBOARD_HPP

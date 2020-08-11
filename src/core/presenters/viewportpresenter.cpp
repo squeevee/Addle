@@ -10,6 +10,7 @@
 
 #include <QLineF>
 #include <QPainter>
+using namespace Addle;
 
 const PresetHelper<ViewPortPresenter::RotatePreset, double> ViewPortPresenter::_rotatePresetHelper
     = PresetHelper<RotatePreset, double>(

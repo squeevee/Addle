@@ -5,6 +5,8 @@
 #include <QObject>
 #include <QGraphicsItem>
 
+namespace Addle {
+
 class ILayerPresenter;
 class ADDLE_WIDGETSGUI_EXPORT LayerItem: public QObject, public QGraphicsItem
 {
@@ -23,5 +25,7 @@ private:
 
     ILayerPresenter& _presenter;
 };
+
+} // namespace Addle
 
 #endif // LAYERITEM_HPP

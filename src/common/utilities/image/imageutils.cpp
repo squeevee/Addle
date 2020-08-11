@@ -1,5 +1,7 @@
 #include "imageutils.hpp"
 
+using namespace Addle;
+
 using namespace ImageUtils;
 
 QImage compositeByMask(QImage mask, QImage image0, QImage image1)

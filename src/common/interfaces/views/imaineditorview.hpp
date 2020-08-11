@@ -6,6 +6,7 @@
 #include "interfaces/traits.hpp"
 
 
+namespace Addle {
 
 class IMainEditorPresenter;
 class IViewPortPresenter;
@@ -23,4 +24,5 @@ public:
 DECL_MAKEABLE(IMainEditorView)
 DECL_EXPECTS_INITIALIZE(IMainEditorView)
 
+} // namespace Addle
 #endif // IEDITORVIEW_HPP

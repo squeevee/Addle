@@ -6,6 +6,7 @@
 #include <QPoint>
 #include <QPointF>
 #include <QRectF>
+namespace Addle {
 
 static inline QPoint pointFloor(QPointF in)
 {
@@ -45,4 +46,5 @@ static inline double distance(const QPointF& p1, const QPointF& p2)
     return sqrt(a * a + b * b);
 }
 
+} // namespace Addle
 #endif // MATHUTILS_HPP

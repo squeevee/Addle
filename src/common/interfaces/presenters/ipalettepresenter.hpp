@@ -9,6 +9,7 @@
 #include "utilities/qmultiarray.hpp"
 
 #include <QMetaType>
+namespace Addle {
 
 class IPalette;
 class IPalettePresenter
@@ -22,10 +23,11 @@ public:
     virtual QMultiArray<ColorInfo, 2> colors() const = 0;
 };
 
-Q_DECLARE_METATYPE(QSharedPointer<IPalettePresenter>);
+// Q_DECLARE_METATYPE(QSharedPointer<IPalettePresenter>);
 
 DECL_EXPECTS_INITIALIZE(IPalettePresenter);
 DECL_IMPLEMENTED_AS_QOBJECT(IPalettePresenter);
 DECL_MAKEABLE(IPalettePresenter);
 
+} // namespace Addle
 #endif // IPALETTEPRESENTER_HPP

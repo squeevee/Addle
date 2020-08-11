@@ -5,18 +5,19 @@
 #include "interfaces/models/ibrushmodel.hpp"
 
 #include "globals.hpp"
+namespace Addle {
 
 namespace CoreBrushBuilders
 {
 
 const static BrushBuilder basic = BrushBuilder()
-    .setId(GlobalConstants::CoreBrushes::BasicBrush)
-    .setEngine(GlobalConstants::CoreBrushEngines::PathEngine)
+    .setId(CoreBrushes::BasicBrush)
+    .setEngine(CoreBrushEngines::PathEngine)
     .setPreferredStartingSize(7.0);
 
 const static BrushBuilder soft = BrushBuilder()
-    .setId(GlobalConstants::CoreBrushes::SoftBrush)
-    .setEngine(GlobalConstants::CoreBrushEngines::RasterEngine)
+    .setId(CoreBrushes::SoftBrush)
+    .setEngine(CoreBrushEngines::RasterEngine)
     .setCustomEngineParameters({
         { "mode", "Gradient" },
         { "hardness", 1.0 },
@@ -26,12 +27,13 @@ const static BrushBuilder soft = BrushBuilder()
     .setPreferredStartingSize(60.0);
 
 const static BrushBuilder basicEraser = BrushBuilder()
-    .setId(GlobalConstants::CoreBrushes::BasicEraser)
-    .setEngine(GlobalConstants::CoreBrushEngines::PathEngine)
+    .setId(CoreBrushes::BasicEraser)
+    .setEngine(CoreBrushEngines::PathEngine)
     .setPreviewHints(IBrushModel::Subtractive)
     .setEraserMode(true)
     .setPreferredStartingSize(21.0);
 
 }
 
+} // namespace Addle
 #endif // COREBRUSHBUILDERS_HPP

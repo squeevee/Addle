@@ -6,6 +6,7 @@
 #include <QImage>
 #include <QSharedData>
 #include <QSharedDataPointer>
+namespace Addle {
 
 class LayerBuilder
 {
@@ -28,4 +29,5 @@ private:
     QSharedDataPointer<LayerBuilderData> _data;
 };
 
+} // namespace Addle
 #endif // LAYERBUILDER_HPP

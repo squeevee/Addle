@@ -13,6 +13,7 @@
 #include "interfaces/presenters/ilayerpresenter.hpp"
 #include "utilities/presenter/presenterassignment.hpp"
 
+namespace Addle {
 
 class DocumentLayersItemModel;
 
@@ -58,5 +59,7 @@ private:
 
     PresenterAssignment<IDocumentPresenter> _presenter;
 };
+
+} // namespace Addle
 
 #endif // LAYERSMANAGER_HPP

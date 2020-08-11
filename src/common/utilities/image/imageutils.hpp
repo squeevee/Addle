@@ -4,6 +4,7 @@
 #include "compat.hpp"
 #include <QImage>
 #include <QPainter>
+namespace Addle {
 
 namespace ImageUtils
 {
@@ -12,4 +13,5 @@ namespace ImageUtils
 
 }
 
+} // namespace Addle
 #endif // IMAGEUTILS_HPP

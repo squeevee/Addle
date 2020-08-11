@@ -8,6 +8,7 @@
 #include <QThread>
 #include <QCoreApplication>
 
+namespace Addle {
 namespace ServiceThreadHelper_options
 {
     enum ThreadOption {
@@ -84,5 +85,6 @@ private:
 
     const ThreadOption _threadOption;
 };
+} // namespace Addle
 
 #endif // SERVICETHREADHELPER_HPP

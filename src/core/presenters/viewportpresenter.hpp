@@ -12,6 +12,7 @@
 
 #include "utilities/presenter/propertycache.hpp"
 
+namespace Addle {
 //The ViewPort is the main presenter for the Canvas, representing a rectangular
 //region onscreen that transforms and displays the Canvas' contents. The
 //ViewPort can be zoomed, moved, and rotated relative to the Canvas.
@@ -293,4 +294,5 @@ private:
     static const PresetHelper<ZoomPreset, double> _zoomPresetHelper;
 };
 
+} // namespace Addle
 #endif // VIEWPORTPRESENTER_HPP

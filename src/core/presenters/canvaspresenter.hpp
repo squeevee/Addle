@@ -8,6 +8,7 @@
 #include <QCursor>
 #include <QString>
 #include <QObject>
+namespace Addle {
 
 class ADDLE_CORE_EXPORT CanvasPresenter : public QObject, public ICanvasPresenter
 {
@@ -47,4 +48,5 @@ private:
     InitializeHelper<CanvasPresenter> _initHelper;
 };
 
+} // namespace Addle
 #endif // CANVASPRESENTER_HPP

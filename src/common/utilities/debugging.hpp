@@ -8,6 +8,7 @@
 #include <QFlags>
 #include "globals.hpp"
 #include "interfaces/traits.hpp"
+namespace Addle {
 
 ADDLE_COMMON_EXPORT void debugMessageHandler(QtMsgType type, const QMessageLogContext& context, const QString& message);
 
@@ -70,9 +71,10 @@ const char* getQObjectClassName(Interface* object)
     }
     else
     {
-        return GlobalConstants::DEBUG__NONE_TYPE_NAME;
+        return DEBUG__NONE_TYPE_NAME;
     }
 }
+} // namespace Addle
 
 #endif // ADDLE_DEBUG
 #endif // DEBUGGING_HPP

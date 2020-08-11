@@ -16,6 +16,7 @@
 #include "interfaces/metaobjectinfo.hpp"
 
 #include "inavigatetoolpresenteraux.hpp"
+namespace Addle {
 
 class INavigateToolPresenter : public virtual IToolPresenter
 {
@@ -45,4 +46,5 @@ DECL_MAKEABLE(INavigateToolPresenter)
 DECL_EXPECTS_INITIALIZE(INavigateToolPresenter)
 DECL_IMPLEMENTED_AS_QOBJECT(INavigateToolPresenter)
 
+} // namespace Addle
 #endif // INAVIGATETOOLPRESENTER_HPP

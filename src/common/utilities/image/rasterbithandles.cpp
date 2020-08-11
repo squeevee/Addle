@@ -3,6 +3,8 @@
 
 #include "interfaces/editing/irastersurface.hpp"
 
+using namespace Addle;
+
 RasterBitReader::RasterBitReader(
     const IRasterSurface& surface,
     const QImage& buffer,

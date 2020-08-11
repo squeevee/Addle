@@ -4,6 +4,8 @@
 #include "persistentid.hpp"
 #include "brushengineid.hpp"
 
+namespace Addle {
+
 class ADDLE_COMMON_EXPORT BrushId : public PersistentId
 {
     PERSISTENT_ID_BOILERPLATE(BrushId)
@@ -13,6 +15,9 @@ public:
     {
     }
 };
-Q_DECLARE_METATYPE(BrushId)
+
+} // namespace Addle
+
+Q_DECLARE_METATYPE(Addle::BrushId)
 
 #endif // BRUSHID_HPP

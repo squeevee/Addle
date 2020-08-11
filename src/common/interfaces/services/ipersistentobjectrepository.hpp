@@ -8,6 +8,7 @@
 
 #include <type_traits>
 #include "interfaces/traits.hpp"
+namespace Addle {
 
 /**
  * A base interface for services that hold a collection of persisent objects
@@ -41,5 +42,6 @@ public:
 
     virtual void collectionChanged(QList<IdType> ids) = 0;
 };
+} // namespace Addle
 
 #endif // IOBJECTREPOSITORY_HPP

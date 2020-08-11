@@ -5,6 +5,7 @@
 #include <memory>
 
 #include "interfaces/servicelocator/ifactory.hpp"
+namespace Addle {
 
 template<class Interface>
 class CustomFactory : public IFactory
@@ -41,4 +42,5 @@ BaseServiceConfiguration::registerFactoryByType<Interface>(new CustomFactory<Int
 #define CONFIG_CUSTOMFACTORY_BY_ID(Interface, id, ...) \
 BaseServiceConfiguration::registerFactoryById<Interface>(new CustomFactory<Interface>(__VA_ARGS__), id);
 
+} // namespace Addle
 #endif // CUSTOMFACTORY_HPP

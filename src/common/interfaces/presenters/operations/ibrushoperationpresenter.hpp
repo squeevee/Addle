@@ -5,6 +5,7 @@
 
 #include "interfaces/traits.hpp"
 
+namespace Addle {
 
 class BrushStroke;
 class ILayerPresenter;
@@ -24,4 +25,5 @@ public:
 DECL_EXPECTS_INITIALIZE(IBrushOperationPresenter);
 DECL_MAKEABLE(IBrushOperationPresenter);
 
+} // namespace Addle
 #endif // IBRUSHOPERATIONPRESENTER_HPP

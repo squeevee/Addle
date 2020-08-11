@@ -13,6 +13,8 @@
 #define RASTER_PARAM_HARDNESS "hardness"
 #define RASTER_PARAM_SPACING "spacing"
 
+namespace Addle {
+
 class ADDLE_COMMON_EXPORT RasterEngineParams final
 {
     Q_GADGET
@@ -54,5 +56,7 @@ public:
 private:
     const IBrushModel& _model;
 };
+
+} // namespace Addle
 
 #endif // RASTERENGINEPARAMS_HPP

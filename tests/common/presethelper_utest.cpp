@@ -4,6 +4,8 @@
 
 #include "utilities/presethelper.hpp"
 
+using namespace Addle;
+
 class PresetHelper_UTest : public QObject
 {
     Q_OBJECT

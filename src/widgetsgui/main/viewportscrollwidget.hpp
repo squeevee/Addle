@@ -9,6 +9,8 @@
 
 #include "interfaces/presenters/iviewportpresenter.hpp"
 
+namespace Addle {
+
 class ViewPort;
 
 /**
@@ -40,5 +42,7 @@ private:
     QScrollBar* _scrollbar_horizontal;
     QScrollBar* _scrollbar_vertical;
 };
+
+} // namespace Addle
 
 #endif // VIEWPORTSCROLLWIDGET_HPP

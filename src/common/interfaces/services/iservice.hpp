@@ -4,6 +4,7 @@
 #include <QObject>
 
 #include "interfaces/servicelocator/iservicelocator.hpp"
+namespace Addle {
 
 class IService
 {
@@ -18,5 +19,6 @@ public:
 
 };
 
+} // namespace Addle
 
 #endif // ISERVICE_HPP

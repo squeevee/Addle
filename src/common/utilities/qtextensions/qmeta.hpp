@@ -3,6 +3,7 @@
 
 #include <QByteArray>
 #include <QMetaEnum>
+namespace Addle {
 
 template <typename EnumType>
     // TODO: std::enable_if
@@ -29,5 +30,6 @@ inline EnumType valueFromKey(const QByteArray& key)
     }
     return static_cast<EnumType>(NULL);
 }
+} // namespace Addle
 
 #endif // QMETA_HPP

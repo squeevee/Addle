@@ -1,5 +1,6 @@
 #ifndef ISCROLLSTATE_HPP
 #define ISCROLLSTATE_HPP
+namespace Addle {
 
 class IScrollState
 {
@@ -19,4 +20,5 @@ public:
     virtual int getVerticalMaximum() const = 0;
 };
 
+} // namespace Addle
 #endif // ISCROLLSTATE_HPP

@@ -13,6 +13,7 @@
 
 #include <algorithm>
 #include <list>
+namespace Addle {
 
 // A generic container class whose members are arranged as a nested heirarchy
 // (i.e., a variable-width tree).
@@ -1095,5 +1096,7 @@ bool HeirarchyList<T>::Node::Removed::adapter_compareParent::operator==(const Re
 // { 
 //     return _removed.apply_visitor(visitor_equals<Removed>(removed));
 // }
+
+} // namespace Addle
 
 #endif // HEIRARCHYLIST_HPP

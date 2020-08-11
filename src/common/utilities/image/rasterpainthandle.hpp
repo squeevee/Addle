@@ -9,6 +9,7 @@
 #include <QRect>
 #include <QImage>
 #include <QPainter>
+namespace Addle {
 
 class IRasterSurface;
 class ADDLE_COMMON_EXPORT RasterPaintHandle
@@ -38,4 +39,5 @@ private:
     friend class IRasterSurface;
 };
 
+} // namespace Addle
 #endif // RASTERSURFACEHANDLE_HPP

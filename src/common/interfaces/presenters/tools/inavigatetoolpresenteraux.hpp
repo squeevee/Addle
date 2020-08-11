@@ -6,6 +6,7 @@
 #include <QObject>
 
 // Separte file from INavigateToolPresenter for the benefit of AutoMoc
+namespace Addle {
 
 namespace INavigateToolPresenterAux
 {
@@ -23,4 +24,5 @@ namespace INavigateToolPresenterAux
     const NavigateOperationOptions DEFAULT_NAVIGATE_OPERATION_OPTION = gripPan;
 }
 
+} // namespace Addle
 #endif // INAVIGATEPRESENTERAUX_HPP

@@ -4,6 +4,8 @@
 #include <QToolButton>
 #include <QWidgetAction>
 
+namespace Addle {
+
 class PopupButton : public QToolButton
 {
     Q_OBJECT
@@ -23,5 +25,7 @@ private:
     QWidget* _popup = nullptr;
     QMenu* _menu;
 };
+
+} // namespace Addle
 
 #endif // POPUPBUTTON_HPP

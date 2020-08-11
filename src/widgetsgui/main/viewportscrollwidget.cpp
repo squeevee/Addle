@@ -11,6 +11,8 @@
 
 #include "viewport.hpp"
 
+using namespace Addle;
+
 ViewPortScrollWidget::ViewPortScrollWidget(IViewPortPresenter& presenter, QWidget* parent)
     : QWidget(parent), _presenter(presenter)
 {

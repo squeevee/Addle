@@ -4,6 +4,8 @@
 
 #include "utilities/qtextensions/translation.hpp"
 
+using namespace Addle;
+
 #ifdef ADDLE_DEBUG
 
 #include "utilities/debugging.hpp"

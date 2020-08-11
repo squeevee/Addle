@@ -20,6 +20,7 @@
 #include "interfaces/rendering/irenderstack.hpp"
 
 #include "utilities/render/checkerboard.hpp"
+namespace Addle {
 
 class ADDLE_CORE_EXPORT BrushIconHelper : public QObject
 {
@@ -111,5 +112,6 @@ private:
     friend class BrushIconEngine;
 };
 
+} // namespace Addle
 
 #endif // BRUSHICONHELPER_HPP

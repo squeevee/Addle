@@ -32,6 +32,7 @@
 
 #include "compat.hpp"
 #include "hashfunctions.hpp"
+namespace Addle {
 
 template<typename T>
 inline const T& noDetach(T& container)
@@ -137,4 +138,5 @@ inline QList<QSharedPointer<OutType>> qSharedPointerListCast(const QList<QShared
     return outList;
 }
 
+} // namespace Addle
 #endif // collections_hpp

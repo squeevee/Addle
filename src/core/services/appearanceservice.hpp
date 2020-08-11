@@ -5,7 +5,7 @@
 
 #include "compat.hpp"
 #include "interfaces/services/iappearanceservice.hpp"
-
+namespace Addle {
 class ADDLE_CORE_EXPORT AppearanceService : public IAppearanceService
 {
 public:
@@ -23,4 +23,5 @@ private:
     QFileSelector _selector;
 };
 
+} // namespace Addle
 #endif // APPEARANCESERVICE_HPP

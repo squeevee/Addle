@@ -16,6 +16,7 @@
 #include "idtypes/formatid.hpp"
 
 #include "iformatmodel.hpp"
+namespace Addle {
 
 class IFormatDriver
 {
@@ -35,4 +36,5 @@ public:
 
 DECL_MAKEABLE_BY_ID(IFormatDriver, FormatId);
 
+} // namespace Addle
 #endif // IFORMATDRIVER_HPP

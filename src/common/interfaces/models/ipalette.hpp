@@ -6,12 +6,11 @@
 
 #include "interfaces/traits.hpp"
 
-
-
-
 #include "utilities/model/colorinfo.hpp"
 #include "idtypes/paletteid.hpp"
 #include "utilities/model/palettebuilder.hpp"
+
+namespace Addle {
 
 class IPalette
 {
@@ -37,4 +36,5 @@ DECL_MAKEABLE(IPalette)
 DECL_EXPECTS_INITIALIZE(IPalette);
 DECL_PERSISTENT_OBJECT_TYPE(IPalette, PaletteId);
 
+} // namespace Addle
 #endif // ICOLORPALETTE_HPP

@@ -7,6 +7,7 @@
 
 #include "interfaces/traits.hpp"
 #include "iservice.hpp"
+namespace Addle {
 
 class IAppearanceService : public virtual IService
 {
@@ -20,5 +21,6 @@ public:
 };
 
 DECL_MAKEABLE(IAppearanceService);
+} // namespace Addle
 
 #endif // IAPPEARANCESERVICE_HPP

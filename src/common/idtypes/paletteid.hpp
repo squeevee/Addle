@@ -2,6 +2,7 @@
 #define PALETTEID_HPP
 
 #include "persistentid.hpp"
+namespace Addle {
 
 class PaletteId : public PersistentId
 {
@@ -13,6 +14,8 @@ public:
     }
 };
 
-Q_DECLARE_METATYPE(PaletteId);
+} // namespace Addle
+
+Q_DECLARE_METATYPE(Addle::PaletteId);
 
 #endif // PALETTEID_HPP

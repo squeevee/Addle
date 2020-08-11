@@ -1,5 +1,7 @@
 #include "optiongroup.hpp"
 
+using namespace Addle;
+
 OptionGroup::OptionGroup(QObject* parent)
     : QObject(parent)
 {

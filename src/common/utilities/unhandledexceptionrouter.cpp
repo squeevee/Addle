@@ -1,6 +1,8 @@
 #include <QCoreApplication>
 #include "unhandledexceptionrouter.hpp"
 
+using namespace Addle;
+
 UnhandledExceptionRouter* UnhandledExceptionRouter::_instance = nullptr;
 
 void UnhandledExceptionRouter::initialize()

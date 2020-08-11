@@ -1,10 +1,13 @@
 #ifndef qtextensions__TRANSLATION_H
 #define qtextensions__TRANSLATION_H
 
+// OBSOLETE?
+
 #include "compat.hpp"
 #include <QString>
 #include <QCoreApplication>
 #include <QTranslator>
+namespace Addle {
 
 // Translates a string, using a different string as a fallback rather than the
 // key. This is useful for debug messages which tend to be long and complex, but
@@ -50,5 +53,6 @@ inline QString template_translate(const char* context, const char* keyTemplate, 
 
 //     QString translate(const char* context, const char* sourceText, const char* disambiguation = nullptr, int n = -1) const override;
 // };
+} // namespace Addle
 
 #endif // qtextensions__TRANSLATION_H

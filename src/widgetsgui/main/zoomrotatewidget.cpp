@@ -11,6 +11,8 @@
 #include "utilities/presenter/propertybinding.hpp"
 #include "utilities/widgetproperties.hpp"
 
+using namespace Addle;
+
 ZoomRotateWidget::ZoomRotateWidget(IViewPortPresenter& presenter, QWidget* parent)
     : QToolBar(parent),
     _presenter(presenter)

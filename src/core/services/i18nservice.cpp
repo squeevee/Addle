@@ -6,6 +6,7 @@
 #include <QJsonObject>
 #include <QJsonValue>
 
+using namespace Addle;
 I18nService::I18nService()
 {
     QFile textFile(QFileSelector().select(":/i18n/text.json"));

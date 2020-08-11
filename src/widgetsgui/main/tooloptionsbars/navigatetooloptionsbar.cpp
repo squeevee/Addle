@@ -8,6 +8,8 @@
 
 #include "utilities/presenter/propertybinding.hpp"
 
+using namespace Addle;
+
 NavigateToolOptionsBar::NavigateToolOptionsBar(INavigateToolPresenter& presenter, QWidget* parent)
     : ToolOptionBarBase(presenter, parent),
     _presenter(presenter)

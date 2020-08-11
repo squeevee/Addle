@@ -2,7 +2,9 @@
 
 #include <QPainter>
 
-QPixmap checkerBoardTexture(int width, QColor color1, QColor color2)
+using namespace Addle;
+
+QPixmap Addle::checkerBoardTexture(int width, QColor color1, QColor color2)
 {
     QPixmap texture(QSize(2 * width, 2 * width));
     texture.fill(color1);
@@ -16,7 +18,7 @@ QPixmap checkerBoardTexture(int width, QColor color1, QColor color2)
     return texture;
 }
 
-CanvasMouseEvent graphicsMouseToCanvasMouseEvent(const QGraphicsSceneMouseEvent* event)
+CanvasMouseEvent Addle::graphicsMouseToCanvasMouseEvent(const QGraphicsSceneMouseEvent* event)
 {
     CanvasMouseEvent::Action action = (CanvasMouseEvent::Action)NULL;
     switch (event->type())

@@ -5,6 +5,8 @@
 
 #include <QtDebug>
 
+using namespace Addle;
+
 DocumentLayersItemModel::DocumentLayersItemModel(QObject* parent)
     : QAbstractItemModel(parent)
 {

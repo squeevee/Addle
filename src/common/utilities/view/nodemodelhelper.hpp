@@ -41,6 +41,7 @@
 // (As is, this class requires the data to be stored as HeirarchyList<T>::Node,
 // but with a little work, it could be made to work with any tree-like structure
 // of smiilar capability.)
+namespace Addle {
 
 template<typename Node>
 class NodeModelHelper
@@ -501,5 +502,7 @@ void NodeModelHelper<Node>::updateRemove()
             _nextRemoveFirst = index;
     }
 }
+
+} // namespace Addle
 
 #endif // NODEMODELHELPER_HPP

@@ -6,6 +6,7 @@
 #include <QVector>
 
 #include "../helpercallback.hpp"
+namespace Addle {
 
 /**
  * @class PropertyCache
@@ -99,5 +100,6 @@ private:
 
     std::function<PropertyType()> _calculate;
 };
+} // namespace Addle
 
 #endif // PROPERTYCACHE_HPP

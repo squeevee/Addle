@@ -4,11 +4,13 @@
 #include <QFrame>
 #include "utilities/model/colorinfo.hpp"
 
+namespace Addle {
+
 class ColorWell : public QFrame 
 {
     Q_OBJECT
     Q_PROPERTY(
-        ColorInfo info
+        Addle::ColorInfo info
         READ info 
         WRITE setInfo
     )
@@ -54,5 +56,7 @@ private:
 
     QPixmap _checkerTexture;
 };
+
+} // namespace Addle
 
 #endif //COLORWELL_HPP

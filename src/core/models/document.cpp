@@ -3,6 +3,7 @@
 #include "document.hpp"
 #include <QImage>
 #include <QPainter>
+using namespace Addle;
 
 void Document::initialize(DocumentBuilder& builder)
 {

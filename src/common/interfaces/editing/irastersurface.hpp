@@ -11,6 +11,7 @@
 
 #include <QPainter>
 #include <QImage>
+namespace Addle {
 
 //class IRasterPreview;
 class IRenderStep;
@@ -112,4 +113,5 @@ DECL_EXPECTS_INITIALIZE(IRasterSurface);
 DECL_IMPLEMENTED_AS_QOBJECT(IRasterSurface);
 DECL_MAKEABLE(IRasterSurface);
 
+} // namespace Addle
 #endif // IRASTERSURFACE_HPP

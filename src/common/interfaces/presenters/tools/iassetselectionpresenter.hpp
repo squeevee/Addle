@@ -7,6 +7,7 @@
 #include "../assets/iassetpresenter.hpp"
 
 #include <QList>
+namespace Addle {
 
 class IAssetSelectionPresenter
 {
@@ -54,4 +55,5 @@ DECL_MAKEABLE(IAssetSelectionPresenter);
 DECL_EXPECTS_INITIALIZE(IAssetSelectionPresenter);
 DECL_IMPLEMENTED_AS_QOBJECT(IAssetSelectionPresenter);
 
+} // namespace Addle
 #endif // IASSETSELECTIONPRESENTER_HPP

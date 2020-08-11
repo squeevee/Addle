@@ -3,6 +3,7 @@
 #include <QMetaEnum>
 
 #include "utilities/canvas/canvasmouseevent.hpp"
+using namespace Addle;
 
 using namespace INavigateToolPresenterAux;
 

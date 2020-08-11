@@ -13,6 +13,7 @@
 
 #include <QImage>
 #include <QPoint>
+namespace Addle {
 
 class IRasterSurface;
 class IRasterDiff
@@ -40,4 +41,5 @@ public:
 DECL_MAKEABLE(IRasterDiff)
 DECL_EXPECTS_INITIALIZE(IRasterDiff)
 
+} // namespace Addle
 #endif // IRASTERDIFF_HPP

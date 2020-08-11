@@ -1,6 +1,8 @@
 #ifndef WIDGETPROPERTIES_HPP
 #define WIDGETPROPERTIES_HPP
 
+namespace Addle {
+
 // Names of properties of QWidgets and other objects relevant to the gui, for
 // convenience / consistencty in property bindings. Not exhaustive, may be
 // expanded as desired.
@@ -23,5 +25,7 @@ namespace WidgetProperties
     const char* const pageStep = "pageStep";
     const char* const singleStep = "singleStep";
 }
+
+} // namespace Addle
 
 #endif // WIDGETPROPERTIES_HPP

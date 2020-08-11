@@ -1,4 +1,5 @@
 #include "errorpresenter.hpp"
+using namespace Addle;
 
 void ErrorPresenter::initialize(QString message, Severity severity)
 {

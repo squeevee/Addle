@@ -8,6 +8,7 @@
 #include <QObject>
 #include <QRunnable>
 #include <QMutex>
+namespace Addle {
 
 /**
  * @brief
@@ -149,5 +150,6 @@ private:
     Worker* _worker = nullptr;
     friend class Worker;
 };
+} // namespace Addle
 
 #endif // ASYNCTASK_HPP

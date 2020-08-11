@@ -4,6 +4,7 @@
 
 #include "utils.hpp"
 #include "interfaces/presenters/ilayerpresenter.hpp"
+using namespace Addle;
 
 void DocumentPresenter::initialize(EmptyInitOptions option)
 {

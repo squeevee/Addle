@@ -6,6 +6,8 @@
 #include "interfaces/services/iservice.hpp"
 #include "interfaces/servicelocator/iservicelocator.hpp"
 
+namespace Addle {
+
 class ADDLE_CORE_EXPORT ServiceBase : public virtual IService
 {
 public:
@@ -16,5 +18,7 @@ public:
 protected:
     IServiceLocator* _serviceLocator;
 };
+
+} // namespace Addle
 
 #endif // SERVICEBASE_HPP

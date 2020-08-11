@@ -4,6 +4,7 @@
 #include "persistentid.hpp"
 
 #include "utilities/typeinforef.hpp"
+namespace Addle {
 
 class ADDLE_COMMON_EXPORT FormatId : public PersistentId
 {
@@ -66,7 +67,9 @@ public:
 
 };
 
-Q_DECLARE_METATYPE(FormatId)
-Q_DECLARE_TYPEINFO(FormatId, Q_MOVABLE_TYPE);
+} // namespace Addle
+
+Q_DECLARE_METATYPE(Addle::FormatId)
+Q_DECLARE_TYPEINFO(Addle::FormatId, Q_MOVABLE_TYPE);
 
 #endif // FORMATID_HPP

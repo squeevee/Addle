@@ -26,6 +26,7 @@
  * A helper class for objects that expect initialization. Tracks whether the
  * owner class is initialized and performs assertions as called upon.
  */
+namespace Addle {
 
 #ifdef ADDLE_DEBUG
 template<class OwnerType>
@@ -159,4 +160,5 @@ private:
 #endif
 };
 
+} // namespace Addle
 #endif // INITIALIZEHELPER_HPP

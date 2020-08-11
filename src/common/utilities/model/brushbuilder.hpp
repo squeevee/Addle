@@ -8,6 +8,7 @@
 #include "interfaces/models/ibrushmodel.hpp"
 #include "idtypes/brushid.hpp"
 #include "idtypes/brushengineid.hpp"
+namespace Addle {
 
 class BrushBuilder
 {
@@ -89,4 +90,5 @@ private:
     QSharedDataPointer<BrushBuilderData> _data;
 };
 
+} // namespace Addle
 #endif // BRUSHBUILDER_HPP

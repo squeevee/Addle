@@ -11,7 +11,7 @@
 
 #include <QColor>
 
-namespace GlobalConstants
+namespace Addle
 {
     const char* const ADDLE_VERSION = "0.0.1-dev";
 
@@ -62,6 +62,6 @@ namespace GlobalConstants
     }
 
     extern const ADDLE_COMMON_EXPORT ColorInfo Transparent;
-}
+} // namespace Addle
 
 #endif // GLOBALS_HPP

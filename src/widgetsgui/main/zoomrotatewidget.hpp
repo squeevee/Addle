@@ -12,6 +12,8 @@
 #include "interfaces/presenters/iviewportpresenter.hpp"
 #include "utilities/zoomslider.hpp"
 
+namespace Addle {
+
 class ADDLE_WIDGETSGUI_EXPORT ZoomRotateWidget : public QToolBar //QWidget 
 {
     Q_OBJECT
@@ -43,5 +45,7 @@ private:
     ZoomSlider* _slider_zoom;
     QDoubleSpinBox* _spinBox_zoomPercent;
 };
+
+} // namespace Addle
 
 #endif // ZOOMROTATEWIDGET_HPP

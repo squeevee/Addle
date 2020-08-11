@@ -4,6 +4,8 @@
 
 #include "utilities/heirarchylist.hpp"
 
+using namespace Addle;
+
 class HeirarchyList_UTest : public QObject
 {
     Q_OBJECT

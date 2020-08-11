@@ -4,6 +4,7 @@
 #include "compat.hpp"
 #include <QEvent>
 #include <QPointF>
+namespace Addle {
 
 /**
  * 
@@ -76,5 +77,7 @@ private:
     static int _type;
     friend void registerQMetaTypes();
 };
+} // namespace Addle
+
 
 #endif // CANVASMOUSEEVENT_HPP

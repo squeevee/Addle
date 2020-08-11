@@ -5,6 +5,8 @@
 
 #include <QtDebug>
 
+using namespace Addle;
+
 AssetSelector::AssetSelector(IAssetSelectionPresenter& presenter, QWidget* parent)
     : QWidget(parent), _presenter(presenter)
 {

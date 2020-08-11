@@ -1,4 +1,5 @@
 #include "assetselectionpresenter.hpp"
+using namespace Addle;
 
 void AssetSelectionPresenter::initialize(QList<QSharedPointer<IAssetPresenter>> assets, bool canMultiSelect)
 {

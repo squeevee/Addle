@@ -4,6 +4,7 @@
 #include "itoolpresenter.hpp"
 #include "interfaces/traits.hpp"
 
+namespace Addle {
 
 
 class IEyedropToolPresenter : public virtual IToolPresenter
@@ -26,9 +27,10 @@ public:
 signals:
     virtual void sampleChanged(SampleOptions sample) = 0;
 };
-Q_DECLARE_METATYPE(IEyedropToolPresenter::SampleOptions)
+//Q_DECLARE_METATYPE(IEyedropToolPresenter::SampleOptions)
 
 DECL_MAKEABLE(IEyedropToolPresenter)
 DECL_IMPLEMENTED_AS_QOBJECT(IEyedropToolPresenter)
 
+} // namespace Addle
 #endif // IEYEDROPTOOLPRESENTER_HPP

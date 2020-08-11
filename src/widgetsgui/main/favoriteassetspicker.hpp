@@ -12,6 +12,8 @@
 
 #include "utilities/presenter/presenterassignment.hpp"
 
+namespace Addle {
+
 class FavoriteAssetButton;
 class FavoriteAssetsPicker : public QWidget 
 {
@@ -47,5 +49,7 @@ public:
 private:
     PresenterAssignment<IAssetPresenter> _presenter;
 };
+
+} // namespace Addle
 
 #endif // FAVORITEASSETSPICKER_HPP

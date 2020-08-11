@@ -10,6 +10,8 @@
 #include "../sizeselector.hpp"
 #include "../assetselector.hpp"
 
+namespace Addle {
+
 class PopupButton;
 class SizeSelectorButton;
 class FavoriteAssetsPicker;
@@ -41,5 +43,7 @@ private slots:
 private:
     IBrushToolPresenter& _presenter;
 };
+
+} // namespace Addle
 
 #endif // BRUSHTOOLOPTIONSBAR_HPP

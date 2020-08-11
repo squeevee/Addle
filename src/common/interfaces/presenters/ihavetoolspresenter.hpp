@@ -4,6 +4,7 @@
 #include <QList>
 #include "interfaces/traits.hpp"
 #include "idtypes/toolid.hpp"
+namespace Addle {
 
 class IToolPresenter;
 class IHaveToolsPresenter
@@ -24,4 +25,5 @@ signals:
 
 DECL_IMPLEMENTED_AS_QOBJECT(IHaveToolsPresenter)
 
+} // namespace Addle
 #endif //IHAVETOOLSPRESENTER_HPP

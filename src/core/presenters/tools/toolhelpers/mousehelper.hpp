@@ -11,6 +11,7 @@
 #include <list>
 
 #include "utilities/helpercallback.hpp"
+namespace Addle {
 
 /**
  * Tracks mouse state for a tool presenter
@@ -130,4 +131,5 @@ private:
     QCursor _engagedCursor;
 };
 
+} // namespace Addle
 #endif // MOUSEHELPER_HPP

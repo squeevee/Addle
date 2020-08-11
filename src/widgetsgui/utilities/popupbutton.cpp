@@ -4,6 +4,8 @@
 #include <QWidgetAction>
 #include <QtDebug>
 
+using namespace Addle;
+
 PopupButton::PopupButton(
         QWidget* parent
     ) : QToolButton(parent)

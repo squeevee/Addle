@@ -8,6 +8,8 @@
 #include "interfaces/presenters/ilayerpresenter.hpp"
 #include "interfaces/rendering/irenderstack.hpp"
 
+using namespace Addle;
+
 LayerItem::LayerItem(ILayerPresenter& presenter)
     : _presenter(presenter)
 {

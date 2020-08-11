@@ -20,6 +20,7 @@
 #include "utilities/debugging.hpp"
 #endif
 
+using namespace Addle;
 ApplicationService::~ApplicationService()
 {   
 }
@@ -40,7 +41,7 @@ bool ApplicationService::start()
     catch (CommandLineException& ex)
     {
         _startupMode = StartupMode::terminal;
-        _exitCode = GlobalConstants::ErrorCodes::COMMAND_LINE_ERROR_CODE;
+        _exitCode = ErrorCodes::COMMAND_LINE_ERROR_CODE;
 
 #ifdef ADDLE_DEBUG
         std::cerr << qPrintable(QCoreApplication::translate(
@@ -99,7 +100,7 @@ bool ApplicationService::start()
             if (DebugBehavior::test(DebugBehavior::abort_on_startup_error))
                 std::abort();
 #endif
-            _exitCode = GlobalConstants::ErrorCodes::UNKNOWN_ERROR_CODE;
+            _exitCode = ErrorCodes::UNKNOWN_ERROR_CODE;
             quitting();
             return false;
         }

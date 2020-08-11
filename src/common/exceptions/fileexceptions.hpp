@@ -5,6 +5,7 @@
 
 #include <QFileInfo>
 #include <QCoreApplication>
+namespace Addle {
 
 class ADDLE_COMMON_EXPORT FileException : public BaseAddleException
 {
@@ -66,5 +67,7 @@ public:
 class FileNotPermittedException;
 
 class FileIsEmptyException;
+
+} // namespace Addle
 
 #endif // FILEEXCEPTIONS_HPP

@@ -9,6 +9,7 @@
 #include "utilities/model/importexportinfo.hpp"
 
 #include "utilities/qtextensions/translation.hpp"
+namespace Addle {
 
 class ADDLE_COMMON_EXPORT FormatException : public BaseAddleException
 {
@@ -179,5 +180,7 @@ public:
 public:
     virtual ~FormatInferrenceFailedException() = default;
 };
+
+} // namespace Addle
 
 #endif // FORMATEXCEPTIONS_HPP

@@ -20,6 +20,7 @@
 #include "utilities/heirarchylist.hpp"
 
 #include "utilities/collections.hpp" //??
+namespace Addle {
 
 class ICanvasPresenter;
 class ILayerPresenter;
@@ -78,10 +79,13 @@ signals:
 
 };
 
-Q_DECLARE_METATYPE(IDocumentPresenter::LayerNodeRemoved);
 
 DECL_MAKEABLE(IDocumentPresenter);
 DECL_EXPECTS_INITIALIZE(IDocumentPresenter);
 DECL_IMPLEMENTED_AS_QOBJECT(IDocumentPresenter);
+
+} // namespace Addle
+
+Q_DECLARE_METATYPE(Addle::IDocumentPresenter::LayerNodeRemoved);
 
 #endif // IDOCUMENTPRESENTER_HPP

@@ -5,6 +5,8 @@
 
 #include "utils.hpp"
 
+using namespace Addle;
+
 BrushStroke::BrushStroke(BrushId id,
         QColor color,
         double size,

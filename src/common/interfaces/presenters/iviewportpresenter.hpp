@@ -12,6 +12,7 @@
 #include "interfaces/metaobjectinfo.hpp"
 
 #include "iscrollstate.hpp"
+namespace Addle {
 
 class IMainEditorPresenter;
 class IViewPortPresenter
@@ -160,4 +161,5 @@ DECL_MAKEABLE(IViewPortPresenter)
 DECL_EXPECTS_INITIALIZE(IViewPortPresenter)
 DECL_IMPLEMENTED_AS_QOBJECT(IViewPortPresenter)
 
+} // namespace Addle
 #endif // IVIEWPORTPRESENTER_HPP

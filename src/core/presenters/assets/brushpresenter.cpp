@@ -10,6 +10,7 @@
 
 #include "utilities/qtextensions/qobject.hpp"
 #include <QtDebug>
+using namespace Addle;
 
 void BrushPresenter::initialize(IBrushModel& model, QSharedPointer<const PreviewInfoProvider> info)
 {

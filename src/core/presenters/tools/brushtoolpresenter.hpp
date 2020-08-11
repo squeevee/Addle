@@ -23,6 +23,7 @@
 #include "toolhelpers/mousehelper.hpp"
 
 #include <memory>
+namespace Addle {
 
 class ADDLE_CORE_EXPORT BrushToolPresenter : public QObject, public virtual IBrushToolPresenter
 {
@@ -168,4 +169,5 @@ private:
     QPointer<BrushToolPresenter> _presenter;
 };
 
+} // namespace Addle
 #endif // BRUSHTOOLPRESENTER_HPP

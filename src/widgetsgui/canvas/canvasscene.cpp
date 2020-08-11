@@ -18,6 +18,8 @@
 
 #include "utils.hpp"
 
+using namespace Addle;
+
 const double MINIMUM_LAYER_Z = 1;
 
 CanvasScene::CanvasScene(ICanvasPresenter& presenter, QObject* parent)

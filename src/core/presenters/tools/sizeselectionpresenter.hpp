@@ -8,6 +8,8 @@
 #include "utilities/initializehelper.hpp"
 #include "utilities/presethelper.hpp"
 
+namespace Addle {
+
 class ADDLE_CORE_EXPORT SizeSelectionPresenter : public QObject, public ISizeSelectionPresenter
 {
     Q_OBJECT
@@ -73,5 +75,7 @@ private:
     InitializeHelper<SizeSelectionPresenter> _initHelper;
     PresetHelper<> _presetHelper;
 };
+
+} // namespace Addle
 
 #endif // SIZESELECTIONPRESENTER_HPP

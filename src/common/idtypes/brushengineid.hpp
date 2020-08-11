@@ -2,6 +2,7 @@
 #define BRUSHENGINEID_HPP
 
 #include "persistentid.hpp"
+namespace Addle {
 
 class ADDLE_COMMON_EXPORT BrushEngineId : public PersistentId
 {
@@ -12,6 +13,9 @@ public:
     {
     }
 };
-Q_DECLARE_METATYPE(BrushEngineId)
+
+} // namespace Addle
+
+Q_DECLARE_METATYPE(Addle::BrushEngineId);
 
 #endif // BRUSHENGINEID_HPP

@@ -8,6 +8,7 @@
 
 #include <QList>
 #include <QObject>
+namespace Addle {
 
 template<class PresenterType>
 class PresenterAssignment
@@ -191,4 +192,5 @@ inline bool operator!=(const PresenterType& presenter, const PresenterAssignment
 }
 
 
+} // namespace Addle
 #endif // TRANSIENTPRESENTERASSIGNMENT_HPP

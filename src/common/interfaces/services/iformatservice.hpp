@@ -19,6 +19,7 @@
 #include "interfaces/traits.hpp"
 #include "utilities/model/importexportinfo.hpp"
 #include "interfaces/traits.hpp"
+namespace Addle {
 
 /**
  * @class IFormatService
@@ -48,4 +49,5 @@ protected:
 
 DECL_MAKEABLE(IFormatService)
 
+} // namespace Addle
 #endif // IFORMATSERVICE_HPP

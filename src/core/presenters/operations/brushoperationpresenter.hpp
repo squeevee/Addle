@@ -6,6 +6,7 @@
 
 #include "interfaces/presenters/operations/ibrushoperationpresenter.hpp"
 #include "interfaces/editing/irasterdiff.hpp"
+namespace Addle {
 
 class ADDLE_CORE_EXPORT BrushOperationPresenter : public QObject, public IBrushOperationPresenter
 {
@@ -32,4 +33,5 @@ private:
     friend class BrushOperationPreview;
 };
 
+} // namespace Addle
 #endif // BRUSHOPERATIONPRESENTER_HPP

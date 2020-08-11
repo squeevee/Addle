@@ -11,6 +11,7 @@
 #include "interfaces/presenters/tools/isizeselectionpresenter.hpp"
 
 #include "../helpers/brushiconhelper.hpp"
+namespace Addle {
 
 class ADDLE_CORE_EXPORT BrushPresenter : public QObject, public IBrushPresenter
 {
@@ -67,4 +68,5 @@ private:
     InitializeHelper<BrushPresenter> _initHelper;
 };
 
+} // namespace Addle
 #endif // BRUSHPRESENTER_HPP

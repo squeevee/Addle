@@ -14,6 +14,7 @@
 
 #include "utilities/model/documentbuilder.hpp"
 
+namespace Addle {
 
 
 class IDocument : public virtual IFormatModel
@@ -50,7 +51,8 @@ signals:
 DECL_MAKEABLE(IDocument)
 DECL_EXPECTS_INITIALIZE(IDocument)
 DECL_IMPLEMENTED_AS_QOBJECT(IDocument)
-Q_DECLARE_METATYPE(QSharedPointer<IDocument>)
-Q_DECLARE_METATYPE(QWeakPointer<IDocument>)
+// Q_DECLARE_METATYPE(QSharedPointer<IDocument>)
+// Q_DECLARE_METATYPE(QWeakPointer<IDocument>)
 
+} // namespace Addle
 #endif // IDOCUMENT_HPP

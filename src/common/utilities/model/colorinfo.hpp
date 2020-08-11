@@ -8,6 +8,8 @@
 #include <QPoint>
 #include <QMetaType>
 
+namespace Addle {
+
 class ColorInfo
 {
     struct ColorInfoInner : QSharedData 
@@ -60,13 +62,17 @@ private:
 
 inline uint qHash(ColorInfo info, uint seed)
 { 
-    uint x = qHash(info.color().rgb(),seed) ^ qHash(info.name(), seed);
-    if (info.pos())
-        return qHash(info.pos()->x() ^ qHash(info.pos()->y(), seed), seed) ^ x;
-    else
-        return x;
+    return QT_PREPEND_NAMESPACE(qHash(((quint32)info.color().rgb(), seed))); // TODO fix this
+    // woof
+    //uint x = QT_PREPEND_NAMESPACE(qHash(info.color().rgb(),seed)) ^ QT_PREPEND_NAMESPACE(qHash(info.name(), seed));
+    //if (info.pos())
+        //return QT_PREPEND_NAMESPACE(qHash(info.pos()->x()) ^ QT_PREPEND_NAMESPACE(qHash(info.pos()->y(), seed)), seed) ^ x;
+    //else
+        //return x;
 }
 
-Q_DECLARE_METATYPE(ColorInfo);
+} // namespace Addle
+
+Q_DECLARE_METATYPE(Addle::ColorInfo);
 
 #endif // COLORINFO_HPP

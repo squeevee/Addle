@@ -6,6 +6,8 @@
 
 #include <QStyleOptionGraphicsItem>
 
+using namespace Addle;
+
 DocBackgroundItem::DocBackgroundItem(IDocumentPresenter& presenter)
     : _presenter(presenter)
 {

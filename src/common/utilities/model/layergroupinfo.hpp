@@ -3,6 +3,7 @@
 
 #include <QSharedData>
 #include <QMetaType>
+namespace Addle {
 
 class LayerGroupInfo
 {
@@ -22,8 +23,9 @@ public:
 private:
     QSharedDataPointer<Data> _data;
 };
+} // namespace Addle
 
-Q_DECLARE_TYPEINFO(LayerGroupInfo, Q_MOVABLE_TYPE);
-Q_DECLARE_METATYPE(LayerGroupInfo);
+Q_DECLARE_TYPEINFO(Addle::LayerGroupInfo, Q_MOVABLE_TYPE);
+Q_DECLARE_METATYPE(Addle::LayerGroupInfo);
 
 #endif // LAYERGROUPINFO_HPP

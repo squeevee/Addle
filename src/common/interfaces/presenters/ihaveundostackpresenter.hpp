@@ -6,6 +6,7 @@
 #include "interfaces/presenters/operations/iundooperationpresenter.hpp"
 
 #include "interfaces/traits.hpp"
+namespace Addle {
 
 class IHaveUndoStackPresenter
 {
@@ -27,4 +28,5 @@ signals:
 
 DECL_IMPLEMENTED_AS_QOBJECT(IHaveUndoStackPresenter)
 
+} // namespace Addle
 #endif // IHAVEUNDOSTACKPRESENTER_HPP

@@ -13,6 +13,8 @@
 
 #include "utilities/qtextensions/translation.hpp"
 
+namespace Addle {
+
 class ToolSetupHelper
 {
 public: 
@@ -69,5 +71,7 @@ private:
 
     IMainEditorPresenter& _mainEditorPresenter;
 };
+
+} // namespace Addle
 
 #endif // TOOLSETUPHELPER_HPP

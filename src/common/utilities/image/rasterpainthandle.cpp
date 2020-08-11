@@ -2,6 +2,8 @@
 
 #include "interfaces/editing/irastersurface.hpp"
 
+using namespace Addle;
+
 RasterPaintHandle::RasterPaintHandle(RasterPaintHandle&& other)
     : _surface(other._surface),
     _area(other._area),

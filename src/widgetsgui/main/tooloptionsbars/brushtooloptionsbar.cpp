@@ -18,6 +18,8 @@
 
 #include "interfaces/presenters/tools/iassetselectionpresenter.hpp"
 
+using namespace Addle;
+
 BrushToolOptionsBar::BrushToolOptionsBar(IBrushToolPresenter& presenter, QWidget* parent)
     : ToolOptionBarBase(presenter, parent),
     _presenter(presenter)

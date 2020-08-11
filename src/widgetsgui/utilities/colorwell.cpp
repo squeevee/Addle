@@ -6,6 +6,8 @@
 
 #include "guiutils.hpp"
 
+using namespace Addle;
+
 ColorWell::ColorWell(QWidget* parent)
     : QFrame(parent), _size(16, 16)
 {

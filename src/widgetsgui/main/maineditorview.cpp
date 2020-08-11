@@ -36,6 +36,8 @@
 
 #include <QtDebug>
 
+using namespace Addle;
+
 void MainEditorView::initialize(IMainEditorPresenter* presenter)
 {
     _initHelper.initializeBegin();

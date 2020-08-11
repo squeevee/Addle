@@ -8,6 +8,7 @@
 #include <QVariant>
 
 #include "utilities/indexvariant.hpp"
+namespace Addle {
 
 /**
  * @class PersistentId
@@ -93,7 +94,10 @@ protected:
 private:
     QSharedDataPointer<const PersistentIdData> _data;
 
-    friend uint qHash(const PersistentId& id, uint seed);
+    friend uint qHash(const PersistentId& id, uint seed = 0)
+    {
+        return qHash(id._data, seed);
+    }
 };
 
 #define PERSISTENT_ID_BOILERPLATE(T) \
@@ -109,12 +113,9 @@ private: \
     T::T(const PersistentId& other) : PersistentId(other.metaTypeId() == qMetaTypeId<T>() ? other : PersistentId()) {} \
     T::T(QString key, QHash<QString, QVariant> metadata) : PersistentId(qMetaTypeId<T>(), key, metadata) {}
     
-Q_DECLARE_METATYPE(PersistentId);
-Q_DECLARE_TYPEINFO(PersistentId, Q_MOVABLE_TYPE);
+} // namespace Addle
 
-inline uint qHash(const PersistentId& id, uint seed = 0)
-{
-    return qHash(id._data, seed);
-}
+Q_DECLARE_METATYPE(Addle::PersistentId);
+Q_DECLARE_TYPEINFO(Addle::PersistentId, Q_MOVABLE_TYPE);
 
 #endif // PERSISTENTID_HPP

@@ -8,18 +8,19 @@
 #include "compat.hpp"
 
 #include "utilities/initializehelper.hpp"
+namespace Addle {
 
 class ADDLE_CORE_EXPORT ColorSelectionPresenter : public QObject, public IColorSelectionPresenter
 {
     Q_OBJECT
     Q_PROPERTY(
-        ColorInfo color1
+        Addle::ColorInfo color1
         READ color1
         WRITE setColor1
         NOTIFY color1Changed
     )
     Q_PROPERTY(
-        ColorInfo color2
+        Addle::ColorInfo color2
         READ color2
         WRITE setColor2
         NOTIFY color2Changed
@@ -75,4 +76,5 @@ private:
     InitializeHelper<ColorSelectionPresenter> _initHelper;
 };
 
+} // namespace Addle
 #endif // COLORSELECTIONPRESENTER_HPP

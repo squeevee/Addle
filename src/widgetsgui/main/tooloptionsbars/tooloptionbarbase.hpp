@@ -8,6 +8,8 @@
 
 #include "utilities/qtextensions/qobject.hpp"
 
+namespace Addle {
+
 class ADDLE_WIDGETSGUI_EXPORT ToolOptionBarBase : public QToolBar 
 {
     Q_OBJECT 
@@ -27,5 +29,7 @@ private:
     IToolPresenter& _presenter;
     QWidget* _owner;
 };
+
+} // namespace Addle
 
 #endif // TOOLOPTIONBAR_HPP

@@ -7,6 +7,7 @@
 #include "utilities/render/renderutils.hpp"
 
 #include "servicelocator.hpp"
+using namespace Addle;
 
 void RasterDiff::initialize(
         /*const*/ IRasterSurface& source,

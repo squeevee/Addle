@@ -3,6 +3,7 @@
 
 #include "compat.hpp"
 #include "interfaces/editing/irasterdiff.hpp"
+namespace Addle {
 
 class ADDLE_CORE_EXPORT RasterDiff : public IRasterDiff
 {
@@ -36,5 +37,7 @@ private:
     QByteArray _uncompressed;
     QByteArray _compressed;
 };
+
+} // namespace Addle
 
 #endif // RASTERDIFF_HPP

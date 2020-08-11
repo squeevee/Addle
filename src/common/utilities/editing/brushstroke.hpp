@@ -12,6 +12,7 @@
 #include <QPainterPath>
 
 #include <QStack>
+namespace Addle {
 
 class IRasterSurface;
 class ADDLE_COMMON_EXPORT BrushStroke : public QObject
@@ -107,4 +108,5 @@ private:
     QStack<PainterState> _painterStates;
 };
 
+} // namespace Addle
 #endif // BRUSHSTROKE_HPP

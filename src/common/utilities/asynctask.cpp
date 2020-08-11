@@ -2,6 +2,8 @@
 
 #include "asynctask.hpp"
 
+using namespace Addle;
+
 AsyncTask::Worker::Worker(AsyncTask* owner)
     : _owner(owner)
 {

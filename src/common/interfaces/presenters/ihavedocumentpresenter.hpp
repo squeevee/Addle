@@ -3,6 +3,7 @@
 
 #include "interfaces/traits.hpp"
 #include <QSharedPointer>
+namespace Addle {
 
 class ILayerPresenter;
 class IDocumentPresenter;
@@ -29,4 +30,5 @@ signals:
 
 DECL_IMPLEMENTED_AS_QOBJECT(IHaveDocumentPresenter);
 
+} // namespace Addle
 #endif // IHAVEDOCUMENTPRESENTER_HPP

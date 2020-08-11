@@ -4,6 +4,7 @@
 #include "compat.hpp"
 #include <QRect>
 #include <QImage>
+namespace Addle {
 
 class IRasterSurface;
 class ADDLE_COMMON_EXPORT RasterBitReader
@@ -68,4 +69,5 @@ private:
     friend class IRasterSurface;
 };
 
+} // namespace Addle
 #endif // RASTERBITHANDLES_HPP

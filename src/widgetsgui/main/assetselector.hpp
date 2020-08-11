@@ -6,6 +6,8 @@
 
 #include "interfaces/presenters/tools/iassetselectionpresenter.hpp"
 
+namespace Addle {
+
 class AssetSelector : public QWidget
 {
     Q_OBJECT
@@ -28,5 +30,7 @@ private:
     QHash<PersistentId, QListWidgetItem*> _items;
     QHash<QListWidgetItem*, QSharedPointer<IAssetPresenter>> _itemValues;
 };
+
+} // namespace Addle
 
 #endif // ASSETSELECTOR_HPP

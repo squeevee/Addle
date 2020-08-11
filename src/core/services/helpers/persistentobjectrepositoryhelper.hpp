@@ -1,8 +1,10 @@
 #ifndef PERSISTENTOBJECTREPOSITORYHELPER_HPP
 #define PERSISTENTOBJECTREPOSITORYHELPER_HPP
 
-#include "interfaces/services/ipersistentobjectrepository.hpp"
+// OBSOLETE? 
 
+#include "interfaces/services/ipersistentobjectrepository.hpp"
+namespace Addle {
 template<class IdType, class ObjectType>
 class PersistentObjectRepositoryHelper
 {
@@ -50,4 +52,5 @@ private:
     IPersistentObjectRepository<IdType, ObjectType>& _owner;
 };
 
+} // namespace Addle
 #endif // PERSISTENTOBJECTREPOSITORYHELPER_HPP

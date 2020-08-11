@@ -7,6 +7,7 @@
 
 //throws verbose exceptions if a file is not readable
 //accesses the filesystem but not the file itself
+namespace Addle {
 
 QSharedPointer<FileException> checkCanReadFile(QFileInfo fileInfo, bool allowEmptyFile = false)
 {
@@ -39,5 +40,7 @@ void assertCanWriteFile(QFileInfo file)
 {
 
 }
+
+} // namespace Addle
 
 #endif // FILEASSERTIONS_HPP

@@ -10,6 +10,8 @@
 #include "interfaces/presenters/iviewportpresenter.hpp"
 #include "utilities/initializehelper.hpp"
 
+namespace Addle {
+
 class CanvasScene;
 class ICanvasPresenter;
 class IViewPortPresenter;
@@ -42,6 +44,6 @@ private:
     IDocumentPresenter* _documentPresenter = nullptr;
 };
 
-
+} // namespace Addle
 
 #endif // VIEWPORT_HPP

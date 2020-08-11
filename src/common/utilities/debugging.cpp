@@ -10,7 +10,9 @@
 #include "utilities/qtextensions/translation.hpp"
 #include "globals.hpp"
 
-void debugMessageHandler(QtMsgType type, const QMessageLogContext& context, const QString& message)
+using namespace Addle;
+
+void Addle::debugMessageHandler(QtMsgType type, const QMessageLogContext& context, const QString& message)
 {
     QString messageTypeString;
     bool errorish = false;
@@ -122,10 +124,10 @@ DebugBehavior::DebugBehaviorFlags& DebugBehavior::get()
 #ifdef ADDLE_DEBUG_BEHAVIOR
         _instance = DebugBehaviorFlags(ADDLE_DEBUG_BEHAVIOR);
 #else
-        if (qEnvironmentVariableIsSet(GlobalConstants::DEBUG_BEHAVIOR_ENV_VARIABLE_NAME))
+        if (qEnvironmentVariableIsSet(DEBUG_BEHAVIOR_ENV_VARIABLE_NAME))
         {
             bool ok;
-            int init = qEnvironmentVariableIntValue(GlobalConstants::DEBUG_BEHAVIOR_ENV_VARIABLE_NAME, &ok);
+            int init = qEnvironmentVariableIntValue(DEBUG_BEHAVIOR_ENV_VARIABLE_NAME, &ok);
             if (ok)
             {
                 _instance = DebugBehaviorFlags(init);

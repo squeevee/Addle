@@ -9,6 +9,7 @@
 
 #include "interfaces/servicelocator/iservicelocator.hpp"
 #include "interfaces/servicelocator/ifactory.hpp"
+namespace Addle {
 
 /**
  * A generic template-based object factory.
@@ -48,4 +49,5 @@ BaseServiceConfiguration::registerFactoryByType<Interface>(new AutoFactory<Inter
 #define CONFIG_AUTOFACTORY_BY_ID(Interface, id, Impl) \
 BaseServiceConfiguration::registerFactoryById<Interface>(new AutoFactory<Interface, Impl>(), id);
 
+} // namespace Addle
 #endif // AUTOFACTORY_HPP

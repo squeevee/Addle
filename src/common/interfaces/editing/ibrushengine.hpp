@@ -10,6 +10,7 @@
 #include "utilities/editing/brushstroke.hpp"
 
 #include "interfaces/traits.hpp"
+namespace Addle {
 
 class IBrushModel;
 class IBrushEngine
@@ -24,5 +25,6 @@ public:
 };
 
 DECL_PERSISTENT_OBJECT_TYPE(IBrushEngine, BrushEngineId);
+} // namespace Addle
 
 #endif // IBRUSHENGINE_HPP

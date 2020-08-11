@@ -10,6 +10,7 @@
 #include "toolhelpers/toolselecthelper.hpp"
 
 #include "utilities/presenter/propertycache.hpp"
+namespace Addle {
 
 class ADDLE_CORE_EXPORT NavigateToolPresenter : public QObject, public virtual INavigateToolPresenter
 {
@@ -72,4 +73,5 @@ private:
     InitializeHelper<NavigateToolPresenter> _initHelper;
 };
 
+} // namespace Addle
 #endif // NAVIGATETOOLPRESENTER_HPP

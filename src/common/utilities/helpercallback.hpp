@@ -3,6 +3,7 @@
 
 #include <QList>
 #include <functional>
+namespace Addle {
 
 /**
  * Minimalist observer-style callback handles to be exposed by helper and
@@ -158,5 +159,6 @@ private:
     QList<std::function<void()>> _callbacks;
     QList<std::function<void(ArgType)>> _callbacksArg;
 };
+} // namespace Addle
 
 #endif // HELPERCALLBACK_HPP

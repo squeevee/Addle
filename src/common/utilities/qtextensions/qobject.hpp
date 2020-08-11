@@ -14,6 +14,7 @@
 #include <QPointer>
 
 #include "interfaces/traits.hpp"
+namespace Addle {
 
 /**
  * @brief Wrapper for dynamic_cast<QObject*>(object), which requires
@@ -129,5 +130,6 @@ inline QMetaObject::Connection connect_interface2(
 
     return QObject::connect(qsender, signal, qreceiver, slot);
 }
+} // namespace Addle
 
 #endif // QTEXCEPTIONS__QOBJECT_HPP

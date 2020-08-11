@@ -5,6 +5,7 @@
 #include <QSharedPointer>
 
 #include "interfaces/traits.hpp"
+namespace Addle {
 
 class IUndoOperationPresenter
 {
@@ -20,4 +21,5 @@ public slots:
 
 DECL_IMPLEMENTED_AS_QOBJECT(IUndoOperationPresenter);
 
+} // namespace Addle
 #endif // IUNDOOPERATIONPRESENTER_HPP

@@ -3,6 +3,7 @@
 
 #include "compat.hpp"
 #include "interfaces/format/iformatdriver.hpp"
+namespace Addle {
 
 // An image format driver that uses Qt's image processing functionality as its
 // backend
@@ -28,4 +29,5 @@ private:
     const char* _name;
 };
 
+} // namespace Addle
 #endif // QTIMAGEFORMATDRIVER_HPP

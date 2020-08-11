@@ -11,6 +11,7 @@
 
 
 #include "interfaces/metaobjectinfo.hpp"
+namespace Addle {
 
 namespace IBrushToolPresenterAux
 {
@@ -74,4 +75,5 @@ DECL_MAKEABLE(IBrushToolPresenter)
 DECL_IMPLEMENTED_AS_QOBJECT(IBrushToolPresenter)
 DECL_EXPECTS_INITIALIZE(IBrushToolPresenter)
 
+} // namespace Addle
 #endif // IBRUSHTOOLPRESENTER_HPP

@@ -10,6 +10,7 @@
 
 
 #include "interfaces/metaobjectinfo.hpp"
+namespace Addle {
 
 class IPalettePresenter;
 class IColorSelectionPresenter
@@ -68,4 +69,5 @@ DECL_INTERFACE_META_PROPERTIES(IColorSelectionPresenter,
     DECL_INTERFACE_PROPERTY(active)
 );
 
+} // namespace Addle
 #endif // ICOLORSELECTIONPRESENTER_HPP

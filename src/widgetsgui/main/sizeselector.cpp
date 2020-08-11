@@ -17,6 +17,8 @@
 #include <QPaintEvent>
 #include <QPainter>
 
+using namespace Addle;
+
 SizeSelector::SizeSelector(QWidget* parent)
     : QWidget(parent)
 {

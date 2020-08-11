@@ -14,6 +14,7 @@
 #include "utilities/presenter/propertycache.hpp"
 #include "utilities/helpercallback.hpp"
 #include "servicelocator.hpp"
+namespace Addle {
 
 class DocumentLayersHelper
 {
@@ -204,5 +205,6 @@ private:
 
     IDocumentPresenter* _document;
 };
+} // namespace Addle
 
 #endif // DOCUMENTLAYERSHELPER_HPP

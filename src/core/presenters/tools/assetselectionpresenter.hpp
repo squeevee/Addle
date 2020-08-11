@@ -10,6 +10,7 @@
 #include "utilities/initializehelper.hpp"
 
 #include "interfaces/presenters/tools/iassetselectionpresenter.hpp"
+namespace Addle {
 
 class ADDLE_CORE_EXPORT AssetSelectionPresenter : public QObject, public IAssetSelectionPresenter
 {
@@ -83,4 +84,5 @@ public:
     InitializeHelper<AssetSelectionPresenter> _initHelper;
 };
 
+} // namespace Addle
 #endif // ASSETSELECTIONPRESENTER_HPP

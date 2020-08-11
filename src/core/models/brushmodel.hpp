@@ -5,7 +5,7 @@
 
 #include "interfaces/models/ibrushmodel.hpp"
 #include "utilities/initializehelper.hpp"
-
+namespace Addle {
 class ADDLE_CORE_EXPORT BrushModel : public IBrushModel
 {
 public:
@@ -57,4 +57,5 @@ private:
     InitializeHelper<BrushModel> _initHelper;
 };
 
+} // namespace Addle
 #endif // BRUSHMODEL_HPP

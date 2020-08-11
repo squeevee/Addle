@@ -7,6 +7,7 @@
 
 #include "utilities/qtextensions/qobject.hpp"
 #include "propertyobserver.hpp"
+namespace Addle {
 
 class ADDLE_COMMON_EXPORT BindingConverter
 {
@@ -108,5 +109,6 @@ private:
     const char* _localProperty;
     const char* _targetProperty;
 };
+} // namespace Addle
 
 #endif // PROPERTYBINDING_HPP

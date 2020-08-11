@@ -1,6 +1,8 @@
 #include "typeinforef.hpp"
 #include <typeindex>
 
+using namespace Addle;
+
 TypeInfoRef::TypeInfoRef()
     : _typeinfo_ptr(nullptr)
 {

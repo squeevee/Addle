@@ -3,6 +3,8 @@
 
 #include <QSlider>
 
+namespace Addle {
+
 class ZoomSlider : public QSlider
 {
     Q_OBJECT
@@ -41,5 +43,7 @@ private:
     double _maxZoom = 10.0;
     double _minZoom = 0.10;
 };
+
+} // namespace Addle
 
 #endif // ZOOMSLIDER_HPP

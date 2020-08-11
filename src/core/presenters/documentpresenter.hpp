@@ -9,6 +9,7 @@
 #include <memory>
 
 #include "helpers/documentlayershelper.hpp"
+namespace Addle {
 
 class ADDLE_CORE_EXPORT DocumentPresenter : public QObject, public IDocumentPresenter
 {
@@ -79,5 +80,6 @@ private:
 
     InitializeHelper<DocumentPresenter> _initHelper;
 };
+} // namespace Addle
 
 #endif // DOCUMENTPRESENTER_HPP

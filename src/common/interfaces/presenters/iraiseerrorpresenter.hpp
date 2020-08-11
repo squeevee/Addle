@@ -5,6 +5,7 @@
 
 #include <QSharedPointer>
 #include "ierrorpresenter.hpp"
+namespace Addle {
 
 class IRaiseErrorPresenter
 {
@@ -15,6 +16,7 @@ signals:
 };
 
 DECL_IMPLEMENTED_AS_QOBJECT(IRaiseErrorPresenter)
-Q_DECLARE_METATYPE(QSharedPointer<IErrorPresenter>)
+// Q_DECLARE_METATYPE(QSharedPointer<IErrorPresenter>)
 
+} // namespace Addle
 #endif // IRAISEERRORPRESENTER_HPP

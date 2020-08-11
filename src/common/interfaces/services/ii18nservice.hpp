@@ -12,6 +12,7 @@
 #include "interfaces/traits.hpp"
 
 #include <QString>
+namespace Addle {
 
 // Qt's support for internationalized text seems only well-suited with static 
 // (moc-time) hard-coded strings in source. I find this to be inflexible, and a
@@ -34,5 +35,6 @@ public:
 
 
 DECL_MAKEABLE(II18nService)
+} // namespace Addle
 
 #endif // II18NSERVICE_HPP

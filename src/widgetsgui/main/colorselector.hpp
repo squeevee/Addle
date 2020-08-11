@@ -7,6 +7,8 @@
 
 #include "interfaces/presenters/icolorselectionpresenter.hpp"
 
+namespace Addle {
+
 class PaletteView;
 class ColorWell;
 class ColorSelectionIndicator;
@@ -58,5 +60,7 @@ private:
 
     friend class ColorSelector;
 };
+
+} // namespace Addle
 
 #endif // COLORSELECTOR_HPP

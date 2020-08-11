@@ -6,6 +6,8 @@
 #include "colorinfo.hpp"
 #include "utilities/qmultiarray.hpp"
 
+namespace Addle {
+
 class PaletteBuilder
 {
     struct PaletteBuilderData : QSharedData
@@ -48,5 +50,7 @@ public:
 private:
     QSharedDataPointer<PaletteBuilderData> _data;
 };
+
+} // namespace Addle
 
 #endif // PALETTEBUILDER_HPP

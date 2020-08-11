@@ -6,6 +6,7 @@
 #include "interfaces/presenters/ilayerpresenter.hpp"
 #include "interfaces/rendering/irenderstep.hpp"
 #include "utilities/initializehelper.hpp"
+namespace Addle {
 
 class LayerPresenterRenderStep;
 class ADDLE_CORE_EXPORT LayerPresenter: public QObject, public ILayerPresenter
@@ -51,7 +52,6 @@ private:
 class LayerPresenterRenderStep : public QObject, public IRenderStep
 {
     Q_OBJECT
-    Q_INTERFACES(IRenderStep)
 public:
     LayerPresenterRenderStep(LayerPresenter& owner) : _owner(owner) { }
     virtual ~LayerPresenterRenderStep() = default;
@@ -67,5 +67,6 @@ signals:
 private:
     LayerPresenter& _owner;
 };
+} // namespace Addle
 
 #endif // LAYERPRESENTER_HPP

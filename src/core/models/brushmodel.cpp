@@ -2,6 +2,7 @@
 #include <QtDebug>
 
 #include "utilities/model/brushbuilder.hpp"
+using namespace Addle;
 
 void BrushModel::initialize(const BrushBuilder& builder)
 {

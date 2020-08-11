@@ -2,6 +2,7 @@
 #define IMAINVIEW_HPP
 
 #include "interfaces/traits.hpp"
+namespace Addle {
 
 class IMainView
 {
@@ -14,4 +15,5 @@ public slots:
 
 DECL_IMPLEMENTED_AS_QOBJECT(IMainView);
 
+} // namespace Addle
 #endif // IMAINVIEW_HPP

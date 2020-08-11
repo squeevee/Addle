@@ -4,11 +4,11 @@
 #include <QObject>
 #include "interfaces/rendering/irenderstep.hpp"
 #include "interfaces/rendering/irenderstack.hpp"
+namespace Addle {
 
 class RenderSubStack : public QObject, public IRenderStep
 {
     Q_OBJECT
-    Q_INTERFACES(IRenderStep)
 public:
     RenderSubStack(IRenderStack* stack, QObject* parent = nullptr);
     virtual ~RenderSubStack() = default;
@@ -26,5 +26,6 @@ private slots:
 private: 
     IRenderStack* _stack;
 };
+} // namespace Addle
 
 #endif // RENDERSUBSTACK_HPP

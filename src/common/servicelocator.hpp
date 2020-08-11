@@ -32,6 +32,7 @@
 
 
 #include "utilities/hashfunctions.hpp"
+namespace Addle {
 
 /**
  * @class ServiceLocator
@@ -543,4 +544,5 @@ private:
     friend class BaseServiceConfiguration;
 };
 
+} // namespace Addle
 #endif // SERVICELOCATOR_HPP

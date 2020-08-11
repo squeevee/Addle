@@ -6,12 +6,12 @@
 #include "interfaces/models/ipalette.hpp"
 
 #include "globals.hpp"
-
+namespace Addle {
 namespace CorePaletteBuilders
 {
 
 const static PaletteBuilder basic = PaletteBuilder()
-    .setId(GlobalConstants::CorePalettes::BasicPalette)
+    .setId(CorePalettes::BasicPalette)
     .setSize(QSize(16, 3))
     .setColor(0,0,QColor::fromRgb(255,255,255),"White")
     .setColor(0,1,QColor::fromRgb(218,218,218),"Light Gray")
@@ -63,4 +63,5 @@ const static PaletteBuilder basic = PaletteBuilder()
     .setColor(15,2,QColor::fromRgb(114,108,131),"Slate");
 
 }
+} // namespace Addle
 #endif // COREPALETTEBUILDERS_HPP

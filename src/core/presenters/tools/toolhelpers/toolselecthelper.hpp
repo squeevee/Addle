@@ -5,6 +5,7 @@
 #include "interfaces/presenters/tools/itoolpresenter.hpp"
 
 #include "utilities/helpercallback.hpp"
+namespace Addle {
 
 class ToolSelectHelper
 {
@@ -45,4 +46,5 @@ private:
     IToolPresenter& _owner;
 };
 
+} // namespace Addle
 #endif // TOOLSELECTHELPER_HPP

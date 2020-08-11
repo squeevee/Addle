@@ -11,6 +11,8 @@
 #include <cmath>
 #include <QtDebug>
 
+using namespace Addle;
+
 PaletteView::PaletteView(QWidget* parent)
     : QWidget(parent), _lastColorEmitted(-1, -1)
 {

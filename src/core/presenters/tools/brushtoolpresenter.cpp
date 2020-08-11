@@ -34,6 +34,7 @@
 #include "interfaces/presenters/operations/ibrushoperationpresenter.hpp"
 
 #include <QSharedPointer>
+using namespace Addle;
 
 using namespace IBrushToolPresenterAux;
 

@@ -19,17 +19,18 @@
 #include "idtypes/formatid.hpp"
 #include "utilities/canvas/canvasmouseevent.hpp"
 #include "utilities/model/brushbuilder.hpp"
+namespace Addle {
 
 inline void registerQMetaTypes()
 {
-    qRegisterMetaType<QSharedPointer<IAddleException>>();
+    //qRegisterMetaType<QSharedPointer<IAddleException>>();
 
-    qRegisterMetaType<QSharedPointer<IDocument>>();
-    qRegisterMetaType<QSharedPointer<IErrorPresenter>>();
+    //qRegisterMetaType<QSharedPointer<IDocument>>();
+    //qRegisterMetaType<QSharedPointer<IErrorPresenter>>();
     
     qRegisterMetaType<INavigateToolPresenter::NavigateOperationOptions>("NavigateOperationOptions");
     // qRegisterMetaType<IBrushPresenter::SizeOption>("SizeOption");
-    qRegisterMetaType<QSharedPointer<IAssetPresenter>>();
+    //qRegisterMetaType<QSharedPointer<IAssetPresenter>>();
 
     qRegisterMetaType<PersistentId>();
     IndexVariant::registerHasher<PersistentId>();
@@ -49,4 +50,5 @@ inline void registerQMetaTypes()
     CanvasMouseEvent::_type = QEvent::registerEventType(CanvasMouseEvent::_type);
 }
 
+} // namespace Addle
 #endif // REGISTERQMETATYPES_HPP

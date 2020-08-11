@@ -15,6 +15,7 @@
 #include "utilities/render/renderutils.hpp"
 
 #include "utils.hpp"
+using namespace Addle;
 
 QImage BrushIconHelper::_pattern8 = QImage();
 QImage BrushIconHelper::_pattern64 = QImage();

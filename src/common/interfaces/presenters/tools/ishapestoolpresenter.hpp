@@ -8,6 +8,7 @@
 #include "interfaces/traits.hpp"
 
 
+namespace Addle {
 
 class IShapesToolPresenter : public virtual IToolPresenter
 {
@@ -20,4 +21,5 @@ public:
 DECL_MAKEABLE(IShapesToolPresenter)
 DECL_IMPLEMENTED_AS_QOBJECT(IShapesToolPresenter)
 
+} // namespace Addle
 #endif // ISHAPESTOOLPRESENTER_HPP

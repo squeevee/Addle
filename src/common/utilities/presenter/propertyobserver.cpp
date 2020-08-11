@@ -3,6 +3,8 @@
 #include <QMetaMethod>
 #include <QMetaProperty>
 
+using namespace Addle;
+
 PropertyObserver::PropertyObserver(QObject* target, const char* propertyName, QObject* parent)
     : QObject(parent), _target(target), _propertyName(propertyName)
 {

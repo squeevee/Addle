@@ -5,6 +5,7 @@
 #include "interfaces/presenters/ierrorpresenter.hpp"
 
 #include "utilities/initializehelper.hpp"
+namespace Addle {
 
 class ADDLE_CORE_EXPORT ErrorPresenter : public IErrorPresenter
 {
@@ -27,4 +28,5 @@ private:
     InitializeHelper<ErrorPresenter> _initHelper;
 };
 
+} // namespace Addle
 #endif // ERRORPRESENTER_HPP

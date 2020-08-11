@@ -6,6 +6,7 @@
 #include <QVariant>
 #include <typeinfo>
 #include <typeindex>
+namespace Addle {
 
 /**
  * @class TypeInfoRef
@@ -30,6 +31,9 @@ inline uint qHash(const TypeInfoRef& ref, uint seed = 0)
 {
 	return QT_PREPEND_NAMESPACE(qHash(((const std::type_index&)ref).hash_code(), seed)); }
 
-Q_DECLARE_METATYPE(TypeInfoRef)
+
+} // namespace Addle
+
+Q_DECLARE_METATYPE(Addle::TypeInfoRef)
 
 #endif // TYPEINFOREF_HPP

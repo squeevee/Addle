@@ -17,6 +17,8 @@
 #include "utilities/qtextensions/translation.hpp"
 #include "baseaddleexception.hpp"
 
+namespace Addle {
+
 DECL_LOGIC_ERROR(InitializeException)
 class ADDLE_COMMON_EXPORT InitializeException : public BaseAddleException
 {
@@ -56,7 +58,7 @@ class ADDLE_COMMON_EXPORT NotInitializedException : public InitializeException
 
 public:
 #ifdef ADDLE_DEBUG
-    NotInitializedException(const char* senderTypeName = GlobalConstants::DEBUG__NONE_TYPE_NAME)
+    NotInitializedException(const char* senderTypeName = DEBUG__NONE_TYPE_NAME)
         : InitializeException(
             senderTypeName,
             fallback_translate(
@@ -90,7 +92,7 @@ class ADDLE_COMMON_EXPORT AlreadyInitializedException : public InitializeExcepti
 
 public:
 #ifdef ADDLE_DEBUG
-    AlreadyInitializedException(const char* senderTypeName = GlobalConstants::DEBUG__NONE_TYPE_NAME)
+    AlreadyInitializedException(const char* senderTypeName = DEBUG__NONE_TYPE_NAME)
         : InitializeException(
             senderTypeName,
             fallback_translate(
@@ -126,7 +128,7 @@ public:
     };
 
 #ifdef ADDLE_DEBUG
-    InvalidInitializeException(Why why, const char* senderTypeName = GlobalConstants::DEBUG__NONE_TYPE_NAME)
+    InvalidInitializeException(Why why, const char* senderTypeName = DEBUG__NONE_TYPE_NAME)
         : InitializeException(
             senderTypeName,
             fallback_translate(
@@ -155,5 +157,7 @@ public:
 private:
     const Why _why;
 };
+
+} // namespace Addle
 
 #endif // INITIALIZEEXCEPTIONS_HPP

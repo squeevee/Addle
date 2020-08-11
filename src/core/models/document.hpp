@@ -11,7 +11,7 @@
 #include "interfaces/models/ilayer.hpp"
 
 #include "utilities/initializehelper.hpp"
-
+namespace Addle {
 class ADDLE_CORE_EXPORT Document : public QObject, public IDocument
 {
     Q_OBJECT
@@ -89,4 +89,5 @@ protected:
     InitializeHelper<Document> _initHelper;
 };
 
+} // namespace Addle
 #endif // DOCUMENT_HPP

@@ -6,6 +6,7 @@
 
 #include "interfaces/editing/ibrushengine.hpp"
 #include "interfaces/models/ibrushmodel.hpp"
+namespace Addle {
 
 class ADDLE_CORE_EXPORT PathBrushEngine : public IBrushEngine
 {
@@ -24,5 +25,7 @@ public:
 private:
     QRect boundingRect(QPointF pos, double size) const;
 };
+
+} // namespace Addle
 
 #endif // PATHENGINE_HPP

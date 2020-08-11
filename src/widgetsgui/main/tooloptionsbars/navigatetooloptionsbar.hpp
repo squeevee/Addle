@@ -9,6 +9,8 @@
 #include "interfaces/presenters/tools/inavigatetoolpresenter.hpp"
 #include "tooloptionbarbase.hpp"
 
+namespace Addle {
+
 class ADDLE_WIDGETSGUI_EXPORT NavigateToolOptionsBar : public ToolOptionBarBase 
 {
     typedef INavigateToolPresenter::NavigateOperationOptions NavigateOperationOptions;
@@ -28,5 +30,6 @@ private:
     INavigateToolPresenter& _presenter;
 };
 
+} // namespace Addle
 
 #endif // NAVIGATETOOLOPTIONSBAR_HPP

@@ -14,11 +14,12 @@
 #include "utilities/fileassertions.hpp"
 //#include "utilities/taskmessages/formatmismatchmessage.hpp"
 
+using namespace Addle;
 FormatService::FormatService()
 {
     QList<IFormatDriver*> drivers = {
-        ServiceLocator::make<IFormatDriver>(GlobalConstants::CoreFormats::JPEG),
-        ServiceLocator::make<IFormatDriver>(GlobalConstants::CoreFormats::PNG)
+        ServiceLocator::make<IFormatDriver>(CoreFormats::JPEG),
+        ServiceLocator::make<IFormatDriver>(CoreFormats::PNG)
     };
 
     for (IFormatDriver* driver : drivers)

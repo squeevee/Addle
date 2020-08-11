@@ -12,6 +12,7 @@
 #include "interfaces/traits.hpp"
 
 
+namespace Addle {
 
 
 class IRasterSurface;
@@ -37,4 +38,5 @@ DECL_MAKEABLE(ILayer)
 DECL_EXPECTS_INITIALIZE(ILayer)
 DECL_IMPLEMENTED_AS_QOBJECT(ILayer)
 
+} // namespace Addle
 #endif // ILAYER_HPP

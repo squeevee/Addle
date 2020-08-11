@@ -3,6 +3,6 @@
 #include "interfaces/services/iappearanceservice.hpp"
 #include "servicelocator.hpp"
 
-#define ADDLE_ICON(identifier) ServiceLocator::get<IAppearanceService>().icon(identifier)
+#define ADDLE_ICON(identifier) ::Addle::ServiceLocator::get<IAppearanceService>().icon(identifier)
 
 #endif

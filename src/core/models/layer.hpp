@@ -15,7 +15,7 @@
 #include "interfaces/editing/irastersurface.hpp"
 
 #include "utilities/initializehelper.hpp"
-
+namespace Addle {
 class ADDLE_CORE_EXPORT Layer : public QObject, public ILayer
 {
     Q_OBJECT
@@ -48,4 +48,5 @@ private:
     InitializeHelper<Layer> _initHelper;
 };
 
+} // namespace Addle
 #endif // LAYER_HPP

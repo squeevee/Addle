@@ -2,6 +2,7 @@
 #define TOOLID_HPP
 
 #include "persistentid.hpp"
+namespace Addle {
 
 class ADDLE_COMMON_EXPORT ToolId : public PersistentId
 {
@@ -12,6 +13,9 @@ public:
     {
     }
 };
-Q_DECLARE_METATYPE(ToolId)
+
+} // namespace Addle
+
+Q_DECLARE_METATYPE(Addle::ToolId)
 
 #endif // TOOLID_HPP

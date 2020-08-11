@@ -1,5 +1,6 @@
 #ifndef METAOBJECTINFO_HPP
 #define METAOBJECTINFO_HPP
+namespace Addle {
 
 /**
  * These macros and classes expose information from interfaces about their
@@ -77,4 +78,5 @@ namespace InterfaceMetaObjectInfo \
 
 #define DECL_INTERFACE_METHOD(name, signature) static constexpr const char* name = #signature;
 
+} // namespace Addle
 #endif // METAOBJECTINFO_HPP

@@ -2,6 +2,7 @@
 #include <QtDebug>
 
 #include "utilities/render/renderutils.hpp"
+using namespace Addle;
 
 void RasterSurface::initialize(
         QRect area,

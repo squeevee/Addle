@@ -6,6 +6,7 @@
 #include <QSharedData>
 #include <QSharedDataPointer>
 #include "layerbuilder.hpp"
+namespace Addle {
 
 class DocumentBuilder
 {
@@ -31,5 +32,6 @@ public:
 private:
     QSharedDataPointer<DocumentBuilderData> _data;
 };
+} // namespace Addle
 
 #endif // DOCUMENTBUILDER_HPP

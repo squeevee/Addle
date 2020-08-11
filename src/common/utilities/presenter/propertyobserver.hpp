@@ -5,6 +5,7 @@
 #include <QObject>
 #include <QVariant>
 #include <QMetaObject>
+namespace Addle {
 
 /**
  * @class PropertyObserver
@@ -37,5 +38,6 @@ private:
     const char* _propertyName;
     int _propertyIndex;
 };
+} // namespace Addle
 
 #endif // PROPERTYOBSERVER_HPP

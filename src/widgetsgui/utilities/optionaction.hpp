@@ -3,6 +3,8 @@
 
 #include <QAction>
 
+namespace Addle {
+
 class OptionAction : public QAction
 {
     Q_OBJECT
@@ -21,5 +23,7 @@ public:
 private: 
     const QVariant _value;
 };
+
+} // namespace Addle
 
 #endif // OPTIONACTION_HPP

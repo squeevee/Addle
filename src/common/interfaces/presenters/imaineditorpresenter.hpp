@@ -15,6 +15,7 @@
 #include "ierrorpresenter.hpp"
 #include "ihavetoolspresenter.hpp"
 #include "iraiseerrorpresenter.hpp"
+namespace Addle {
 
 class IPalettePresenter;
 class ILayerPresenter;
@@ -86,4 +87,5 @@ DECL_INTERFACE_META_PROPERTIES(
     DECL_INTERFACE_PROPERTY(empty)
 )
 
+} // namespace Addle
 #endif // IMAINEDITORPRESENTER_HPP

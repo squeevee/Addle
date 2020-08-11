@@ -28,6 +28,8 @@
 
 #include <QScrollBar>
 
+using namespace Addle;
+
 ViewPort::ViewPort(IViewPortPresenter* presenter)
 {
     _presenter = presenter;

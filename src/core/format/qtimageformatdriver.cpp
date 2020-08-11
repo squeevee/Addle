@@ -6,6 +6,8 @@
 #include <QImage>
 #include <QString>
 
+using namespace Addle;
+
 IFormatModel* QtImageFormatDriver::importModel(QIODevice& device, ImportExportInfo info)
 {
     DocumentBuilder documentBuilder;

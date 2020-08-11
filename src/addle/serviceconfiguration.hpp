@@ -8,8 +8,12 @@
 
 #include "utilities/configuration/baseserviceconfiguration.hpp"
 
+namespace Addle {
+
 class ServiceConfiguration : public BaseServiceConfiguration
 {
 protected:
     void configure();
 };
+
+} // namespace Addle

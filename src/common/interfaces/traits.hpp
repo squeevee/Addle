@@ -4,6 +4,7 @@
 #include <QObject>
 #include <type_traits>
 #include "idtypes/persistentid.hpp"
+namespace Addle {
 
 // TODO: the names and semantics of these traits could use some work
 
@@ -53,7 +54,7 @@ struct implemented_as_QObject : std::false_type {};
  * @param Interface
  * The interface being declared with the trait and registered.
  */
-#define DECL_IMPLEMENTED_AS_QOBJECT(Interface) template<> struct implemented_as_QObject<Interface> : std::true_type {}; Q_DECLARE_INTERFACE(Interface, #Interface)
+#define DECL_IMPLEMENTED_AS_QOBJECT(Interface) template<> struct implemented_as_QObject<Interface> : std::true_type {};
 
 
 template<class Interface>
@@ -69,4 +70,5 @@ struct is_gettable_by_id : std::false_type { };
 template<> struct is_makeable_by_id<Interface> : std::true_type { typedef IdType_ IdType; }; \
 template<> struct is_gettable_by_id<Interface> : std::true_type { typedef IdType_ IdType; };
 
+} // namespace Addle
 #endif // TRAITS_HPP

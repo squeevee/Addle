@@ -9,6 +9,8 @@
 
 #include "utilities/view/documentlayersitemmodel.hpp"
 
+using namespace Addle;
+
 LayersManager::LayersManager(QWidget* parent)
     : QDockWidget(parent)
 {

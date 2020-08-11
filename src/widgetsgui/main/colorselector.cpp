@@ -11,6 +11,8 @@
 
 #include "utilities/presenter/propertybinding.hpp"
 
+using namespace Addle;
+
 ColorSelector::ColorSelector(IColorSelectionPresenter& presenter, QWidget* parent)
     : QDockWidget(parent), _presenter(presenter)
 {
@@ -96,7 +98,7 @@ void ColorSelector::onPaletteColorSelected(ColorInfo color)
 
 void ColorSelector::onButton_transparent()
 {
-    _presenter.setActiveColor(GlobalConstants::Transparent);
+    _presenter.setActiveColor(Transparent);
 }
 
 void ColorSelector::onPresenterColorSelected(int which, ColorInfo info)

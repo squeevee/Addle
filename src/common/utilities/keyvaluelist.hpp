@@ -6,6 +6,7 @@
 #include <QList>
 #include <QPair>
 #include <QHash>
+namespace Addle {
 
 template<typename KeyType, typename ValueType>
 class QKeyValueList : public QList<QPair<KeyType, ValueType>>
@@ -53,4 +54,5 @@ public:
     }
 };
 
+} // namespace Addle
 #endif // KEYVALUELIST_HPP

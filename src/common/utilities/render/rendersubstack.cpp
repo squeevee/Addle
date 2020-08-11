@@ -2,6 +2,8 @@
 
 #include "utilities/qtextensions/qobject.hpp"
 
+using namespace Addle;
+
 RenderSubStack::RenderSubStack(IRenderStack* stack, QObject* parent)
     : QObject(parent), _stack(stack)
 {

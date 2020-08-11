@@ -2,6 +2,8 @@
 
 #include "tooloptionbarbase.hpp"
 
+using namespace Addle;
+
 ToolOptionBarBase::ToolOptionBarBase(IToolPresenter& presenter, QWidget* parent)
     : QToolBar(parent),
     _presenter(presenter),
