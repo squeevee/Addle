@@ -11,7 +11,7 @@
 #include <QAction>
 #include <QActionGroup>
 
-#include "widgetsgui/utilities/optiongroup.hpp"
+#include "utilities/optiongroup.hpp"
 
 #include "interfaces/views/imaineditorview.hpp"
 #include "interfaces/presenters/imaineditorpresenter.hpp"

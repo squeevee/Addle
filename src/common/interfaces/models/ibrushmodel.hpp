@@ -7,10 +7,10 @@
 #include "idtypes/brushid.hpp"
 #include "idtypes/brushengineid.hpp"
 
-#include "interfaces/traits/initialize_trait.hpp"
-#include "interfaces/traits/makeable_trait.hpp"
+#include "interfaces/traits.hpp"
 
-#include "interfaces/traits/by_id_traits.hpp"
+
+
 
 class BrushBuilder;
 class IBrushModel

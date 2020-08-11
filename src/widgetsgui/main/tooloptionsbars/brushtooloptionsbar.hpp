@@ -2,8 +2,8 @@
 #define BRUSHTOOLOPTIONSBAR_HPP
 
 #include "compat.hpp"
-#include "widgetsgui/utilities/optionaction.hpp"
-#include "widgetsgui/utilities/optiongroup.hpp"
+#include "utilities/optionaction.hpp"
+#include "utilities/optiongroup.hpp"
 #include "interfaces/presenters/assets/ibrushpresenter.hpp"
 #include "interfaces/presenters/tools/ibrushtoolpresenter.hpp"
 #include "tooloptionbarbase.hpp"

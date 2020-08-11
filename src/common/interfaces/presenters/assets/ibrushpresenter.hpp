@@ -9,9 +9,9 @@
 
 #include "interfaces/models/ibrushmodel.hpp"
 
-#include "interfaces/traits/initialize_trait.hpp"
-#include "interfaces/traits/makeable_trait.hpp"
-#include "interfaces/traits/qobject_trait.hpp"
+#include "interfaces/traits.hpp"
+
+
 
 namespace IBrushPresenterAux
 {

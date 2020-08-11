@@ -6,9 +6,9 @@
 #include <QStringList>
 
 #include "interfaces/presenters/idocumentpresenter.hpp"
-#include "interfaces/traits/initialize_trait.hpp"
-#include "interfaces/traits/qobject_trait.hpp"
-#include "interfaces/traits/makeable_trait.hpp"
+#include "interfaces/traits.hpp"
+
+
 
 class IApplicationService : public virtual IService
 {

@@ -4,7 +4,7 @@
 #include <QString>
 #include <QSharedPointer>
 
-#include "interfaces/traits/qobject_trait.hpp"
+#include "interfaces/traits.hpp"
 
 class IUndoOperationPresenter
 {

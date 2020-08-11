@@ -14,7 +14,7 @@
 #include "utilities/editing/brushstroke.hpp"
 #include "utilities/render/renderutils.hpp"
 
-#include "utilities/mathutils.hpp"
+#include "utils.hpp"
 
 QImage BrushIconHelper::_pattern8 = QImage();
 QImage BrushIconHelper::_pattern64 = QImage();

@@ -1,9 +1,9 @@
 #ifndef ILAYERPRESENTER_HPP
 #define ILAYERPRESENTER_HPP
 
-#include "interfaces/traits/initialize_trait.hpp"
-#include "interfaces/traits/qobject_trait.hpp"
-#include "interfaces/traits/makeable_trait.hpp"
+#include "interfaces/traits.hpp"
+
+
 
 #include "idocumentpresenter.hpp"
 

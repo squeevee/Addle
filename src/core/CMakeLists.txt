@@ -1,10 +1,12 @@
 find_package(Qt5 REQUIRED COMPONENTS Core Widgets Concurrent)
 
+include_directories(.)
+
 set ( CMAKE_AUTOMOC ON)
 
 set (
     SOURCES
-    definitions.cpp
+    core.cpp
     editing/brushengines/pathbrushengine.cpp
     editing/brushengines/rasterbrushengine.cpp
     editing/rasterdiff.cpp

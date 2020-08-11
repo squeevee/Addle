@@ -6,7 +6,6 @@
 #include <set>
 
 #include "utils.hpp"
-#include "utilities/qtextensions/qhash.hpp"
 
 #include "interfaces/presenters/ilayerpresenter.hpp"
 #include "utilities/heirarchylist.hpp"
@@ -25,8 +24,8 @@ public:
     DocumentLayersHelper(IDocumentPresenter* document)
         : _document(document)
     {
-        _topSelectedLayer.calculateBy(std::bind(&DocumentLayersHelper::calculate_topLayer, this));
-        _topSelectedLayer.onChange([&](QSharedPointer<ILayerPresenter> layer) { onTopSelectedLayerChanged(layer); });
+        _topSelectedLayer.calculateBy(&DocumentLayersHelper::calculate_topLayer, this);
+        _topSelectedLayer.onChange += onTopSelectedLayerChanged;
     }
 
     void initialize(const QList<QSharedPointer<ILayer>>& layerModels)

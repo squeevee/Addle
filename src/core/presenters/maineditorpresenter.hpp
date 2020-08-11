@@ -64,7 +64,7 @@ public:
         _undoStackHelper(*this)
     {
         _isEmptyCache.calculateBy(&MainEditorPresenter::isEmpty_p, this);
-        _isEmptyCache.onChange(&MainEditorPresenter::isEmptyChanged, this);
+        _isEmptyCache.onChange.bind(&MainEditorPresenter::isEmptyChanged, this);
     }
     virtual ~MainEditorPresenter();
 

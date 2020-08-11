@@ -5,8 +5,8 @@
 
 #include "servicelocator.hpp"
 
-#include "interfaces/traits/makeable_trait.hpp"
-#include "interfaces/traits/by_id_traits.hpp"
+#include "interfaces/traits.hpp"
+
 #include "interfaces/servicelocator/iservicelocator.hpp"
 #include "interfaces/servicelocator/ifactory.hpp"
 

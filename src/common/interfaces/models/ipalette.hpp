@@ -4,10 +4,10 @@
 #include "utilities/qmultiarray.hpp"
 #include <QColor>
 
-#include "interfaces/traits/qobject_trait.hpp"
-#include "interfaces/traits/makeable_trait.hpp"
-#include "interfaces/traits/initialize_trait.hpp"
-#include "interfaces/traits/by_id_traits.hpp"
+#include "interfaces/traits.hpp"
+
+
+
 
 #include "utilities/model/colorinfo.hpp"
 #include "idtypes/paletteid.hpp"

@@ -7,7 +7,7 @@ set ( CMAKE_AUTORCC ON )
 set (common_sources
     ${INTERFACES}
     
-    staticdefinitions.cpp
+    common.cpp
     exceptions/baseaddleexception.cpp
     utilities/asynctask.cpp
     utilities/debugging.cpp

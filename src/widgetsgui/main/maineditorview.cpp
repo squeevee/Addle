@@ -24,7 +24,7 @@
 
 #include "utilities/presenter/propertybinding.hpp"
 
-#include "widgetsgui/utilities/widgetproperties.hpp"
+#include "utilities/widgetproperties.hpp"
 
 #include "helpers/toolsetuphelper.hpp"
 

@@ -8,12 +8,12 @@
 #include <QIcon>
 
 #include "itoolpresenter.hpp"
-#include "interfaces/traits/initialize_trait.hpp"
-#include "interfaces/traits/qobject_trait.hpp"
-#include "interfaces/traits/makeable_trait.hpp"
+#include "interfaces/traits.hpp"
+
+
 #include "interfaces/presenters/iviewportpresenter.hpp"
 
-#include "interfaces/traits/metaobjectinfo.hpp"
+#include "interfaces/metaobjectinfo.hpp"
 
 #include "inavigatetoolpresenteraux.hpp"
 

@@ -1,5 +1,7 @@
 find_package(Qt5 REQUIRED COMPONENTS Core Widgets)
 
+include_directories(.)
+
 set ( CMAKE_AUTOMOC ON )
 
 set (

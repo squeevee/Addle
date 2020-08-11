@@ -5,7 +5,7 @@
 
 #include "interfaces/presenters/operations/iundooperationpresenter.hpp"
 
-#include "interfaces/traits/qobject_trait.hpp"
+#include "interfaces/traits.hpp"
 
 class IHaveUndoStackPresenter
 {

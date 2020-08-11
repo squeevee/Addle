@@ -6,7 +6,7 @@
 #include "servicelocator.hpp"
 ServiceLocator* ServiceLocator::_instance = nullptr;
 
-#include "globalconstants.hpp"
+#include "globals.hpp"
 
 #include "interfaces/editing/rasterengineparams.hpp"
 #include "interfaces/editing/moc_rasterengineparams.cpp"

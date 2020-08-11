@@ -1,7 +1,7 @@
 #include "layeritem.hpp"
 
 #include "utilities/qtextensions/qobject.hpp"
-#include "utilities/mathutils.hpp"
+#include "utils.hpp"
 
 #include <QStyleOptionGraphicsItem>
 

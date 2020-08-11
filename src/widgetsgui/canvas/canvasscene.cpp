@@ -11,7 +11,7 @@
 
 #include "utilities/canvas/canvasmouseevent.hpp"
 
-#include "widgetsgui/utilities/guiutils.hpp"
+#include "utilities/guiutils.hpp"
 
 #include "docbackgrounditem.hpp"
 #include "layeritem.hpp"

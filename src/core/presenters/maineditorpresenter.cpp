@@ -34,7 +34,7 @@
 
 #include "interfaces/presenters/ipalettepresenter.hpp"
 #include "interfaces/models/ipalette.hpp"
-#include "globalconstants.hpp"
+#include "globals.hpp"
 
 using namespace IMainEditorPresenterAux;
 

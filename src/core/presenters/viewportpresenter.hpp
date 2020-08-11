@@ -110,22 +110,22 @@ public:
         : _initHelper(this)
     {
         _canNavigateCache.calculateBy(&ViewPortPresenter::canNavigate_p, this);
-        _canNavigateCache.onChange(&ViewPortPresenter::canNavigateChanged, this);
+        _canNavigateCache.onChange.bind(&ViewPortPresenter::canNavigateChanged, this);
         _canNavigateCache.onChange_Recalculate(_canZoomInCache);
         _canNavigateCache.onChange_Recalculate(_canZoomOutCache);
 
         _canZoomInCache.calculateBy(&ViewPortPresenter::canZoomIn_p, this);
-        _canZoomInCache.onChange(&ViewPortPresenter::canZoomInChanged, this);
+        _canZoomInCache.onChange.bind(&ViewPortPresenter::canZoomInChanged, this);
 
         _canZoomOutCache.calculateBy(&ViewPortPresenter::canZoomOut_p, this);
-        _canZoomOutCache.onChange(&ViewPortPresenter::canZoomOutChanged, this);
+        _canZoomOutCache.onChange.bind(&ViewPortPresenter::canZoomOutChanged, this);
 
         _transformCache.calculateBy(&ViewPortPresenter::getTransforms_p, this);
-        _transformCache.onChange(&ViewPortPresenter::transformsChanged, this);
+        _transformCache.onChange.bind(&ViewPortPresenter::transformsChanged, this);
         _transformCache.onChange_Recalculate(_scrollStateCache);
         
         _scrollStateCache.calculateBy(&ViewPortPresenter::getScrollState_p, this);
-        _scrollStateCache.onChange(&ViewPortPresenter::scrollStateChanged, this);
+        _scrollStateCache.onChange.bind(&ViewPortPresenter::scrollStateChanged, this);
     }
     virtual ~ViewPortPresenter() = default;
 

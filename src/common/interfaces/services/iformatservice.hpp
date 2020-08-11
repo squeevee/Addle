@@ -16,9 +16,9 @@
 
 //#include "interfaces/tasks/itaskstatuscontroller.hpp"
 
-#include "interfaces/traits/initialize_trait.hpp"
+#include "interfaces/traits.hpp"
 #include "utilities/model/importexportinfo.hpp"
-#include "interfaces/traits/makeable_trait.hpp"
+#include "interfaces/traits.hpp"
 
 /**
  * @class IFormatService

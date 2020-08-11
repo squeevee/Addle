@@ -28,10 +28,10 @@
 
 #include "exceptions/servicelocatorexceptions.hpp"
 
-#include "interfaces/traits/makeable_trait.hpp"
-#include "interfaces/traits/by_id_traits.hpp"
-#include "interfaces/traits/initialize_trait.hpp"
-#include "utilities/qtextensions/qhash.hpp"
+#include "interfaces/traits.hpp"
+
+
+#include "utilities/hashfunctions.hpp"
 
 /**
  * @class ServiceLocator

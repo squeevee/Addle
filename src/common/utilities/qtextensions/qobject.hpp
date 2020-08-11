@@ -13,7 +13,7 @@
 #include <QObject>
 #include <QPointer>
 
-#include "interfaces/traits/qobject_trait.hpp"
+#include "interfaces/traits.hpp"
 
 /**
  * @brief Wrapper for dynamic_cast<QObject*>(object), which requires

@@ -6,7 +6,7 @@
 #include "interfaces/presenters/tools/isizeselectionpresenter.hpp"
 
 #include "utilities/initializehelper.hpp"
-#include "utilities/presethelper2.hpp"
+#include "utilities/presethelper.hpp"
 
 class ADDLE_CORE_EXPORT SizeSelectionPresenter : public QObject, public ISizeSelectionPresenter
 {
@@ -71,7 +71,7 @@ private:
     QList<QIcon> _presetIcons;
 
     InitializeHelper<SizeSelectionPresenter> _initHelper;
-    PresetHelper2<> _presetHelper;
+    PresetHelper<> _presetHelper;
 };
 
 #endif // SIZESELECTIONPRESENTER_HPP

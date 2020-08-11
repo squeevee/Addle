@@ -1,9 +1,9 @@
 #ifndef ICANVASPRESENTER_HPP
 #define ICANVASPRESENTER_HPP
 
-#include "interfaces/traits/makeable_trait.hpp"
-#include "interfaces/traits/initialize_trait.hpp"
-#include "interfaces/traits/qobject_trait.hpp"
+#include "interfaces/traits.hpp"
+
+
 
 class IMainEditorPresenter;
 class ICanvasPresenter

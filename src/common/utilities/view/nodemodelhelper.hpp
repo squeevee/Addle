@@ -33,7 +33,7 @@
 // The helper groups changes together into contiguous sections, to minimize the
 // number of calls to `QAbstractItemModel::beginInsertRows()`, etc. Insertions
 // are processed root to leaf, top to bottom, while removals are processed in
-// reverse order to minimize re-indexing.
+// reverse order.
 
 // * Only information about the locations and relationships of relevant nodes is
 // actually emulated. This should not impose much cost, particularly not long-term.
@@ -46,7 +46,6 @@ template<typename Node>
 class NodeModelHelper
 {
     typedef typename Node::Comparator Comparator;
-    // typedef typename Node::ReverseComparator ReverseComparator;
     typedef typename Node::Removed NodeRemoved;
 
 public:

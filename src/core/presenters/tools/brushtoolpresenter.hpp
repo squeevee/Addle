@@ -37,14 +37,10 @@ public:
     BrushToolPresenter()
         : _selectHelper(*this)
     {
-        _mouseHelper.onEngage += std::bind(&BrushToolPresenter::onEngage, this);  
-        _mouseHelper.onMove += std::bind(&BrushToolPresenter::onMove, this);
-        _mouseHelper.onDisengage += std::bind(&BrushToolPresenter::onDisengage, this);
-#ifndef Q_CC_MSVC
-        _selectHelper.onIsSelectedChanged += std::bind(&BrushToolPresenter::onSelectedChanged, this, std::placeholders::_1);
-#else
-		_selectHelper.onIsSelectedChanged += BIND_MEMBER(onSelectedChanged, bool);
-#endif
+        _mouseHelper.onEngage.bind(&BrushToolPresenter::onEngage, this);  
+        _mouseHelper.onMove.bind(&BrushToolPresenter::onMove, this);
+        _mouseHelper.onDisengage.bind(&BrushToolPresenter::onDisengage, this);
+        _selectHelper.onIsSelectedChanged.bind(&BrushToolPresenter::onSelectedChanged, this);
     }
     virtual ~BrushToolPresenter() = default;
 

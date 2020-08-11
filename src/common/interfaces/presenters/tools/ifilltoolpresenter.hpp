@@ -1,10 +1,10 @@
 #ifndef IFILLTOOLPRESENTER_HPP
 #define IFILLTOOLPRESENTER_HPP
 
-#include "interfaces/traits/initialize_trait.hpp"
-#include "interfaces/traits/qobject_trait.hpp"
-#include "interfaces/traits/makeable_trait.hpp"
-#include "interfaces/traits/makeable_trait.hpp"
+#include "interfaces/traits.hpp"
+
+
+
 
 class IFillToolPresenter
 {

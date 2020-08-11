@@ -2,7 +2,7 @@
 
 #include "interfaces/presenters/idocumentpresenter.hpp"
 
-#include "widgetsgui/utilities/guiutils.hpp"
+#include "utilities/guiutils.hpp"
 
 #include <QStyleOptionGraphicsItem>
 

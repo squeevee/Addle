@@ -13,7 +13,7 @@
 #include <QObject>
 #include <QStringBuilder>
 
-#include "globalconstants.hpp"
+#include "globals.hpp"
 #include "utilities/qtextensions/translation.hpp"
 #include "baseaddleexception.hpp"
 

@@ -1,6 +1,6 @@
 #include "paletteview.hpp"
 
-#include "widgetsgui/utilities/colorwell.hpp"
+#include "utilities/colorwell.hpp"
 #include <QGridLayout>
 
 #include <QMouseEvent>

@@ -8,7 +8,7 @@
 #include <QWeakPointer>
 
 #include "utilities/presenter/presenterassignment.hpp"
-#include "widgetsgui/utilities/popupbutton.hpp"
+#include "utilities/popupbutton.hpp"
 
 #include "interfaces/presenters/tools/isizeselectionpresenter.hpp"
 

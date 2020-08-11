@@ -3,9 +3,9 @@
 
 #include <QWeakPointer>
 
-#include "interfaces/traits/makeable_trait.hpp"
-#include "interfaces/traits/initialize_trait.hpp"
-#include "interfaces/traits/qobject_trait.hpp"
+#include "interfaces/traits.hpp"
+
+
 #include "irenderstep.hpp"
 
 class IRenderStack

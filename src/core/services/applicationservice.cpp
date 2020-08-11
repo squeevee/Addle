@@ -13,7 +13,7 @@
 #include "interfaces/views/imaineditorview.hpp"
 
 #include "utilities/qtextensions/qobject.hpp"
-#include "globalconstants.hpp"
+#include "globals.hpp"
 #include "exceptions/commandlineexceptions.hpp"
 
 #ifdef ADDLE_DEBUG

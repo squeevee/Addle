@@ -1,7 +1,7 @@
 #ifndef IRAISEERRORPRESENTER_HPP
 #define IRAISEERRORPRESENTER_HPP
 
-#include "interfaces/traits/qobject_trait.hpp"
+#include "interfaces/traits.hpp"
 
 #include <QSharedPointer>
 #include "ierrorpresenter.hpp"

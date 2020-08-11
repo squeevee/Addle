@@ -4,7 +4,7 @@
 #include "utilities/model/brushbuilder.hpp"
 #include "interfaces/models/ibrushmodel.hpp"
 
-#include "globalconstants.hpp"
+#include "globals.hpp"
 
 namespace CoreBrushBuilders
 {

@@ -5,7 +5,7 @@
 #include <QCursor>
 #include <QFileSelector>
 
-#include "interfaces/traits/makeable_trait.hpp"
+#include "interfaces/traits.hpp"
 #include "iservice.hpp"
 
 class IAppearanceService : public virtual IService

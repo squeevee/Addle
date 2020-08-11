@@ -7,7 +7,7 @@
 
 #include "compat.hpp"
 #include "servicebase.hpp"
-#include "utilities/qtextensions/qhash.hpp"
+#include "utils.hpp"
 #include "interfaces/format/iformatdriver.hpp"
 #include "interfaces/services/iformatservice.hpp"
 

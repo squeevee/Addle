@@ -1,8 +1,15 @@
 #ifndef II18NSERVICE_HPP
 #define II18NSERVICE_HPP
 
+/**
+ * @file
+ * @warning This file is included by "utils.hpp", and is thus included by large
+ * amounts of Addle code. Be cautious about making changes, and especially about
+ * adding `#include` directives.
+ */
+
 #include "iservice.hpp"
-#include "interfaces/traits/makeable_trait.hpp"
+#include "interfaces/traits.hpp"
 
 #include <QString>
 

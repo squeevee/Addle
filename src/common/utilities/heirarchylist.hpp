@@ -3,8 +3,7 @@
 
 #include <boost/variant.hpp>
 
-#include "utilities/qtextensions/qhash.hpp"
-#include "utilities/qtextensions/qlist.hpp"
+#include "utilities/collections.hpp"
 
 #include <QSet>
 #include <QMetaType>
@@ -931,9 +930,9 @@ inline bool HeirarchyList<T>::compareNodes(const NodeType1& node1, const NodeTyp
         auto cursor2 = node2.parent();
 
         if (ParentAdapter2(cursor2) == node1)
-            return false;
-        else if (ParentAdapter1(cursor1) == node2)
             return true;
+        else if (ParentAdapter1(cursor1) == node2)
+            return false;
 
         int depth1 = node1.depth() - 1;
         int depth2 = node2.depth() - 1;

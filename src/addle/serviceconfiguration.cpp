@@ -5,7 +5,7 @@
  * See "LICENSE" for full details.
  */
 
-#include "globalconstants.hpp"
+#include "globals.hpp"
 #include "serviceconfiguration.hpp"
 
 #include "utilities/configuration/autofactory.hpp"

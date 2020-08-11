@@ -271,3 +271,19 @@ would be better praxis.)
 
 https://www.geeksforgeeks.org/sqrt-square-root-decomposition-set-2-lca-tree-osqrth-time/
 https://www.geeksforgeeks.org/lca-for-general-or-n-ary-trees-sparse-matrix-dp-approach-onlogn-ologn/
+
+
+I started making some "iterator adapters" in the collections utility header, to
+perform some higher-level list manipulation things in a relativley efficient way.
+When I started brainstorming ways to compose such operations together, I realized
+that what I'm trying to make is LINQ.
+
+There are several LINQ-like libraries for C++. I tentatively like the looks of
+the one at https://archive.codeplex.com/?p=cpplinq (BSD-like license, single-header).
+Its syntax seems both intuitive within C++ and faithful to LINQ-proper, and its
+extensibility is nice. It seems to be the most popular outright LINQ immitation,
+though I might also check out Boost.Ranges to see if it's any good for doing the
+same kinds of things.
+
+cpplinq documentation:
+https://web.archive.org/web/20160719221134/http://cpplinq.codeplex.com/documentation

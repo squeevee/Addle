@@ -5,8 +5,8 @@
 
 #include "utilities/addle_icon.hpp"
 #include "utilities/addle_text.hpp"
-#include "widgetsgui/utilities/optionaction.hpp"
-#include "widgetsgui/utilities/optiongroup.hpp"
+#include "utilities/optionaction.hpp"
+#include "utilities/optiongroup.hpp"
 
 #include "../maineditorview.hpp"
 #include "interfaces/presenters/imaineditorpresenter.hpp"

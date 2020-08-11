@@ -4,7 +4,7 @@
 
 #include "utilities/heirarchylist.hpp"
 
-class HeirarchyListTest_UTest : public QObject
+class HeirarchyList_UTest : public QObject
 {
     Q_OBJECT
 private slots:
@@ -312,6 +312,6 @@ private slots:
     // }
 };
 
-QTEST_MAIN(HeirarchyListTest_UTest)
+QTEST_MAIN(HeirarchyList_UTest)
 
 #include "heirarchylist_utest.moc"

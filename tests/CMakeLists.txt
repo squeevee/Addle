@@ -28,6 +28,7 @@ macro(addle_common_test name)
 endmacro()
 
 addle_common_test( heirarchylist_utest )
+addle_common_test( presethelper_utest )
 
 add_custom_target( all_tests DEPENDS ${ALL_TESTS_TARGET} )
 add_custom_target( common_tests DEPENDS ${COMMON_TESTS_TARGET} )

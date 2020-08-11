@@ -1,5 +1,5 @@
-#ifndef GLOBALCONSTANTS_HPP
-#define GLOBALCONSTANTS_HPP
+#ifndef GLOBALS_HPP
+#define GLOBALS_HPP
 
 #include "compat.hpp"
 #include "idtypes/brushengineid.hpp"
@@ -64,4 +64,4 @@ namespace GlobalConstants
     extern const ADDLE_COMMON_EXPORT ColorInfo Transparent;
 }
 
-#endif // GLOBALCONSTANTS_HPP
+#endif // GLOBALS_HPP

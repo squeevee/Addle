@@ -9,7 +9,7 @@
 
 #include "utilities/editing/brushstroke.hpp"
 
-#include "interfaces/traits/by_id_traits.hpp"
+#include "interfaces/traits.hpp"
 
 class IBrushModel;
 class IBrushEngine

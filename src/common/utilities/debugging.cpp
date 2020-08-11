@@ -8,7 +8,7 @@
 #include "debugging.hpp"
 
 #include "utilities/qtextensions/translation.hpp"
-#include "globalconstants.hpp"
+#include "globals.hpp"
 
 void debugMessageHandler(QtMsgType type, const QMessageLogContext& context, const QString& message)
 {

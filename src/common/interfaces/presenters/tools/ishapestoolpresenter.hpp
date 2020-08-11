@@ -5,9 +5,9 @@
 
 #include "../assets/ishapepresenter.hpp"
 #include "itoolpresenter.hpp"
-#include "interfaces/traits/initialize_trait.hpp"
-#include "interfaces/traits/qobject_trait.hpp"
-#include "interfaces/traits/makeable_trait.hpp"
+#include "interfaces/traits.hpp"
+
+
 
 class IShapesToolPresenter : public virtual IToolPresenter
 {

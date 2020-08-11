@@ -10,11 +10,11 @@
 
 #include "ilayer.hpp"
 #include "interfaces/format/iformatmodel.hpp"
-#include "interfaces/traits/makeable_trait.hpp"
+#include "interfaces/traits.hpp"
 
 #include "utilities/model/documentbuilder.hpp"
-#include "interfaces/traits/initialize_trait.hpp"
-#include "interfaces/traits/qobject_trait.hpp"
+
+
 
 class IDocument : public virtual IFormatModel
 {

@@ -12,14 +12,14 @@
 
 #include "interfaces/models/idocument.hpp"
 
-#include "interfaces/traits/qobject_trait.hpp"
-#include "interfaces/traits/initialize_trait.hpp"
-#include "interfaces/traits/makeable_trait.hpp"
-#include "interfaces/traits/metaobjectinfo.hpp"
+#include "interfaces/traits.hpp"
+
+
+#include "interfaces/metaobjectinfo.hpp"
 
 #include "utilities/heirarchylist.hpp"
 
-#include "utilities/qtextensions/qhash.hpp"
+#include "utilities/collections.hpp" //??
 
 class ICanvasPresenter;
 class ILayerPresenter;

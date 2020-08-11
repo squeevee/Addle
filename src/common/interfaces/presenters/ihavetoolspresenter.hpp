@@ -2,7 +2,7 @@
 #define IHAVETOOLSPRESENTER_HPP
 
 #include <QList>
-#include "interfaces/traits/qobject_trait.hpp"
+#include "interfaces/traits.hpp"
 #include "idtypes/toolid.hpp"
 
 class IToolPresenter;

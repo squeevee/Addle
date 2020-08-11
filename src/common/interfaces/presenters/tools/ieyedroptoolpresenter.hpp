@@ -2,10 +2,10 @@
 #define IEYEDROPTOOLPRESENTER_HPP
 
 #include "itoolpresenter.hpp"
-#include "interfaces/traits/initialize_trait.hpp"
-#include "interfaces/traits/qobject_trait.hpp"
+#include "interfaces/traits.hpp"
 
-#include "interfaces/traits/makeable_trait.hpp"
+
+
 class IEyedropToolPresenter : public virtual IToolPresenter
 {
 public:

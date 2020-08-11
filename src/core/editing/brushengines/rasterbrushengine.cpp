@@ -1,8 +1,8 @@
 #include <QtDebug>
 
 #include "rasterbrushengine.hpp"
-#include "globalconstants.hpp"
-#include "utilities/mathutils.hpp"
+#include "globals.hpp"
+#include "utils.hpp"
 
 #include "interfaces/editing/irastersurface.hpp"
 #include "interfaces/editing/rasterengineparams.hpp"

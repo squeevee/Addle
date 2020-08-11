@@ -8,13 +8,13 @@
 #include <QWidgetAction>
 
 #include "utilities/presenter/propertybinding.hpp"
-#include "widgetsgui/utilities/widgetproperties.hpp"
+#include "utilities/widgetproperties.hpp"
 #include "utilities/addle_text.hpp"
-#include "globalconstants.hpp"
+#include "globals.hpp"
 
 #include "../favoriteassetspicker.hpp"
 
-#include "widgetsgui/utilities/popupbutton.hpp"
+#include "utilities/popupbutton.hpp"
 
 #include "interfaces/presenters/tools/iassetselectionpresenter.hpp"
 

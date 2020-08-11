@@ -5,7 +5,7 @@
 #include "utilities/model/palettebuilder.hpp"
 #include "interfaces/models/ipalette.hpp"
 
-#include "globalconstants.hpp"
+#include "globals.hpp"
 
 namespace CorePaletteBuilders
 {

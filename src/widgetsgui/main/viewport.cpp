@@ -14,15 +14,15 @@
 
 #include "servicelocator.hpp"
 #include "utilities/qtextensions/qobject.hpp"
-#include "utilities/mathutils.hpp"
+#include "utils.hpp"
 
 #include "interfaces/presenters/imaineditorpresenter.hpp"
 #include "interfaces/presenters/tools/itoolpresenter.hpp"
 
-#include "widgetsgui/utilities/graphicsmouseeventblocker.hpp"
+#include "utilities/graphicsmouseeventblocker.hpp"
 #include "utilities/presenter/propertybinding.hpp"
-#include "widgetsgui/utilities/guiutils.hpp"
-#include "widgetsgui/canvas/canvasscene.hpp"
+#include "utilities/guiutils.hpp"
+#include "canvas/canvasscene.hpp"
 
 #include "interfaces/presenters/icanvaspresenter.hpp"
 

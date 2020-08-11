@@ -3,7 +3,7 @@
 
 #include <QPainterPath>
 
-#include "interfaces/traits/qobject_trait.hpp"
+#include "interfaces/traits.hpp"
 #include "utilities/render/renderdata.hpp"
 
 class IRenderStep

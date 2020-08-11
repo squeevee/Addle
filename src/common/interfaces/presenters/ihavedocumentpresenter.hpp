@@ -1,7 +1,7 @@
 #ifndef IHAVEDOCUMENTPRESENTER_HPP
 #define IHAVEDOCUMENTPRESENTER_HPP
 
-#include "interfaces/traits/qobject_trait.hpp"
+#include "interfaces/traits.hpp"
 #include <QSharedPointer>
 
 class ILayerPresenter;

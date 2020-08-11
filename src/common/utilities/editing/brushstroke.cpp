@@ -3,7 +3,7 @@
 
 #include "interfaces/editing/ibrushengine.hpp"
 
-#include "utilities/mathutils.hpp"
+#include "utils.hpp"
 
 BrushStroke::BrushStroke(BrushId id,
         QColor color,

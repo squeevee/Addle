@@ -5,11 +5,11 @@
 #include <QPointF>
 #include <QTransform>
 
-#include "interfaces/traits/makeable_trait.hpp"
-#include "interfaces/traits/initialize_trait.hpp"
-#include "interfaces/traits/qobject_trait.hpp"
+#include "interfaces/traits.hpp"
 
-#include "interfaces/traits/metaobjectinfo.hpp"
+
+
+#include "interfaces/metaobjectinfo.hpp"
 
 #include "iscrollstate.hpp"
 
@@ -20,7 +20,7 @@ public:
     INTERFACE_META(IViewPortPresenter)
 
     enum ZoomPreset {
-        nullzoom,
+        nullzoom = -1,
         _5percent,
         _10percent,
         onesixth,
@@ -39,7 +39,7 @@ public:
     };
 
     enum RotatePreset {
-        nullrotation,
+        nullrotation = -1,
         _0deg,
         _45deg,
         _90deg,

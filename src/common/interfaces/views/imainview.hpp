@@ -1,7 +1,7 @@
 #ifndef IMAINVIEW_HPP
 #define IMAINVIEW_HPP
 
-#include "interfaces/traits/qobject_trait.hpp"
+#include "interfaces/traits.hpp"
 
 class IMainView
 {

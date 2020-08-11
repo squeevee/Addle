@@ -43,6 +43,19 @@ public:
         return *this;
     }
 
+    inline HelperCallback& operator+=(HelperCallback& other)
+    {
+        _callbacks.append([&](){ other(); });
+        return *this;
+    }
+
+    template<typename OwnerType>
+    inline HelperCallback& bind(void (OwnerType::*member)(), OwnerType* owner)
+    {
+        _callbacks.append(std::bind(member, owner));
+        return *this;
+    }
+
     inline void operator()() const 
     {
         for (auto c : _callbacks)
@@ -55,7 +68,7 @@ private:
     QList<std::function<void()>> _callbacks;
 };
 
-template<typename... ArgTypes>
+template<typename ArgType>
 class HelperArgCallback
 {
 public:
@@ -70,27 +83,80 @@ public:
         return *this;
     }
 	
-    inline HelperArgCallback& operator+=(std::function<void(ArgTypes... args)> callback)
+    inline HelperArgCallback& operator+=(std::function<void(ArgType)> callback)
     {
-        _callbacksArgs.append(callback);
+        _callbacksArg.append(callback);
         return *this;
     }
 
-    inline void operator()(ArgTypes... args) const 
+    inline HelperArgCallback& operator+=(HelperCallback& other)
+    {
+        _callbacks.append([&](){ other(); });
+        return *this;
+    }
+
+    inline HelperArgCallback& operator+=(HelperArgCallback& other)
+    {
+#ifndef Q_CC_MSVC
+        _callbacksArg.append(std::bind(&HelperArgCallback::operator(), &other, std::placeholders::_1));
+#else
+        _callbacksArg.append([&](ArgType arg){ other(arg); });
+#endif
+        return *this;
+    }
+
+    template<typename OwnerType>
+    inline HelperArgCallback& bind(void (OwnerType::*member)(), OwnerType* owner)
+    {
+        _callbacks.append(std::bind(member, owner));
+        return *this;
+    }
+
+    template<typename OwnerType>
+    inline HelperArgCallback& bind(void (OwnerType::*member)() const, const OwnerType* owner)
+    {
+        _callbacks.append(std::bind(member, owner));
+        return *this;
+    }
+
+    template<typename OwnerType>
+    inline HelperArgCallback& bind(void (OwnerType::*member)(ArgType), OwnerType* owner)
+    {
+#ifndef Q_CC_MSVC
+        _callbacksArg.append(std::bind(member, owner, std::placeholders::_1));
+#else
+    // Workaround for https://developercommunity.visualstudio.com/content/problem/317991/stdis-convertible-is-broken-for-stdbind-functors.html
+        _callbacksArg.append([member, owner](ArgType arg){ emit (owner->*member)(arg); });
+#endif
+        return *this;
+    }
+
+    template<typename OwnerType>
+    inline HelperArgCallback& bind(void (OwnerType::*member)(ArgType) const, const OwnerType* owner)
+    {
+#ifndef Q_CC_MSVC
+        _callbacksArg.append(std::bind(member, owner, std::placeholders::_1));
+#else
+        _callbacksArg.append([member, owner](ArgType arg){ emit (owner->*member)(arg); });
+#endif
+        return *this;
+    }
+    
+    inline void operator()(ArgType arg) const 
     {
         for (auto c : _callbacks)
         {
             c();
         }
-        for (auto c : _callbacksArgs)
+        for (auto c : _callbacksArg)
         {
-            c(args...);
+            c(arg);
         }
     }
 
 private:
     QList<std::function<void()>> _callbacks;
-    QList<std::function<void(ArgTypes... args)>> _callbacksArgs;
+    QList<std::function<void(ArgType)>> _callbacksArg;
 };
 
 #endif // HELPERCALLBACK_HPP

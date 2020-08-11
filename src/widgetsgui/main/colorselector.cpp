@@ -1,13 +1,13 @@
 #include "colorselector.hpp"
 
-#include "widgetsgui/utilities/colorwell.hpp"
+#include "utilities/colorwell.hpp"
 
 #include <QEvent>
 #include <QHBoxLayout>
 #include <QSpacerItem>
 #include "paletteview.hpp"
 
-#include "globalconstants.hpp"
+#include "globals.hpp"
 
 #include "utilities/presenter/propertybinding.hpp"
 

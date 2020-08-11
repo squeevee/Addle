@@ -24,12 +24,12 @@ public:
     NavigateToolPresenter()
         : _selectHelper(*this)
     {
-        _mouseHelper.onMove += std::bind(&NavigateToolPresenter::onMove, this);
-        _mouseHelper.onEngage += std::bind(&PropertyCache<QCursor>::recalculate, &_cache_cursor);
-        _mouseHelper.onDisengage += std::bind(&PropertyCache<QCursor>::recalculate, &_cache_cursor);
+        _mouseHelper.onMove.bind(&NavigateToolPresenter::onMove, this);
+        _mouseHelper.onEngage.bind(&PropertyCache<QCursor>::recalculate, &_cache_cursor);
+        _mouseHelper.onDisengage.bind(&PropertyCache<QCursor>::recalculate, &_cache_cursor);
 
-        _cache_cursor.calculateBy(std::bind(&NavigateToolPresenter::cursor_p, this));
-        _cache_cursor.onChange(&NavigateToolPresenter::cursorChanged, this);
+        _cache_cursor.calculateBy(&NavigateToolPresenter::cursor_p, this);
+        _cache_cursor.onChange.bind(&NavigateToolPresenter::cursorChanged, this);
     }
     virtual ~NavigateToolPresenter() = default;
 

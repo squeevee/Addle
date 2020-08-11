@@ -13,8 +13,6 @@
 
 const PresetHelper<ViewPortPresenter::RotatePreset, double> ViewPortPresenter::_rotatePresetHelper
     = PresetHelper<RotatePreset, double>(
-            true,
-            RotatePreset::nullrotation,
             {
                 { RotatePreset::_0deg,   0.0 },
                 { RotatePreset::_45deg,  45.0 },
@@ -24,13 +22,12 @@ const PresetHelper<ViewPortPresenter::RotatePreset, double> ViewPortPresenter::_
                 { RotatePreset::_225deg, 225.0 },
                 { RotatePreset::_270deg, 270.0 },
                 { RotatePreset::_315deg, 315.0 }
-            }
+            },
+            true
         );
 
 const PresetHelper<ViewPortPresenter::ZoomPreset, double> ViewPortPresenter::_zoomPresetHelper
     = PresetHelper<ZoomPreset, double>(
-            false,
-            ZoomPreset::nullzoom,
             {
                 { ZoomPreset::_5percent,      0.05 },
                 { ZoomPreset::_10percent,     0.10 },
@@ -47,7 +44,8 @@ const PresetHelper<ViewPortPresenter::ZoomPreset, double> ViewPortPresenter::_zo
                 { ZoomPreset::_600percent,    6.00 },
                 { ZoomPreset::_800percent,    8.00 },
                 { ZoomPreset::_1600percent,  16.00 }
-            }
+            },
+            false
         );
 
 void ViewPortPresenter::initialize(IMainEditorPresenter* mainEditorPresenter)

@@ -18,7 +18,7 @@
 
 #include "interfaces/services/iapplicationsservice.hpp"
 
-#include "globalconstants.hpp"
+#include "globals.hpp"
 
 #ifdef ADDLE_DEBUG
 #include "utilities/debugging.hpp"

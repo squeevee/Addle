@@ -6,8 +6,8 @@
 #include "compat.hpp"
 
 #include <QFlags>
-#include "globalconstants.hpp"
-#include "interfaces/traits/qobject_trait.hpp"
+#include "globals.hpp"
+#include "interfaces/traits.hpp"
 
 ADDLE_COMMON_EXPORT void debugMessageHandler(QtMsgType type, const QMessageLogContext& context, const QString& message);
 

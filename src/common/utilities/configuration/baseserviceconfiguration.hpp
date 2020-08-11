@@ -9,9 +9,9 @@
 #include <QCoreApplication>
 
 #include "servicelocator.hpp"
-#include "interfaces/traits/makeable_trait.hpp"
-#include "interfaces/traits/qobject_trait.hpp"
-#include "interfaces/traits/initialize_trait.hpp"
+#include "interfaces/traits.hpp"
+
+
 
 #include "idtypes/persistentid.hpp"
 

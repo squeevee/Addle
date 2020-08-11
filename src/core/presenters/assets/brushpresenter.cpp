@@ -5,8 +5,8 @@
 
 #include "interfaces/models/ibrushmodel.hpp"
 
-#include "utilities/qtextensions/qlist.hpp"
-#include "globalconstants.hpp"
+#include "utils.hpp"
+#include "globals.hpp"
 
 #include "utilities/qtextensions/qobject.hpp"
 #include <QtDebug>

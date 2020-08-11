@@ -1,203 +1,275 @@
-#ifndef PRESETHELPERS_HPP
-#define PRESETHELPERS_HPP
-
-#include "interfaces/presenters/iviewportpresenter.hpp"
+#ifndef PRESETHELPER_HPP
+#define PRESETHELPER_HPP
 
 #include <initializer_list>
-#include <utility>
-#include <map>
-#include <set>
-//We're using STL for this helper class because Qt does not provide a direct
-//equivalent to std::set
+#include <type_traits>
+#include <limits>
+#include <cmath> // for std::floor
 
-// TODO: this class is OBSOLETE
-// use PresetHelper2, then when all references to this class are gone, rename 
-// PresetHelper2 to PresetHelper
+#include <QHash>
+#include <QMap>
 
-template<typename PresetType, typename ValueType>
+template<typename IdType = int, typename ValueType = double>
 class PresetHelper
 {
-private:
+    static_assert(
+        std::is_integral<IdType>::value ||
+        (std::is_enum<IdType>::value && std::is_convertible<IdType, int>::value),
+        "Unsupported IdType"
+    );
 
-    inline static std::set<PresetType> initPresets(const std::initializer_list<std::pair<PresetType, ValueType>>& presets)
+    static inline ValueType valueCap()
     {
-        std::set<PresetType> result;
-        for (auto entry : presets)
-        {
-            result.insert(entry.first);
-        }
-        return result;
-    }
-
-    inline static std::map<ValueType, PresetType> initPresetsByValue(const std::initializer_list<std::pair<PresetType, ValueType>>& presets)
-    {
-        std::map<ValueType, PresetType> result;
-        for (auto entry : presets)
-        {
-            result[entry.second] = entry.first;
-        }
-        return result;
-    }
-
-    inline static std::map<PresetType, ValueType> initValuesByPreset(const std::initializer_list<std::pair<PresetType, ValueType>>& presets)
-    {
-        std::map<PresetType, ValueType> result;
-        for (auto entry : presets)
-        {
-            result[entry.first] = entry.second;
-        }
-        return result;
-    }
-
-    inline static PresetType initLowestPreset(const std::set<PresetType>& presets)
-    {
-        return *(presets.begin());
-    }
-
-    inline static PresetType initHighestPreset(const std::set<PresetType>& presets)
-    {
-        return *(presets.rbegin());
+        if (std::numeric_limits<ValueType>::has_infinity)
+            return std::numeric_limits<ValueType>::infinity();
+        else
+            return std::numeric_limits<ValueType>::max();
     }
 
 public:
-    PresetHelper(
-        bool cyclic,
-        const PresetType nullPreset,
-        std::initializer_list<std::pair<PresetType, ValueType>> presetsAndValues
-    ) : _cyclic(cyclic),
-        _nullPreset(nullPreset),
-        _presets(initPresets(presetsAndValues)),
-        _presets_byValue(initPresetsByValue(presetsAndValues)),
-        _values_byPreset(initValuesByPreset(presetsAndValues)),
-        _lowestPreset(initLowestPreset(_presets)),
-        _highestPreset(initHighestPreset(_presets))
+    static constexpr IdType INVALID_ID = (IdType)(-1);
 
+    PresetHelper() = default;
+
+    PresetHelper(QHash<IdType, ValueType> presets, bool cyclic = false, ValueType gap = valueCap())
+        : _values(presets), _cyclic(cyclic), _gap(gap), _stale(true)
     {
     }
 
-    PresetType nearest(ValueType value, ValueType threshold = 0) const
+    PresetHelper(std::initializer_list<std::pair<IdType, ValueType>> presets, bool cyclic = false, ValueType gap = valueCap())
+        : _values(presets), _cyclic(cyclic), _gap(gap), _stale(true)
     {
-        auto iter = _presets_byValue.upper_bound(value);
-        auto upper = *iter;
-        if (iter == _presets_byValue.begin())
+    }
+
+    PresetHelper(std::initializer_list<ValueType> values, bool cyclic = false, ValueType gap = valueCap())
+        : _cyclic(cyclic), _gap(gap), _stale(true)
+    {
+        IdType index = 0;
+        for (ValueType value : values)
+        {
+            _values[index] = value;
+            index++;
+        }
+    }
+
+    void setPresets(QList<ValueType> values)
+    {
+        _values.clear();
+        _stale = true;
+
+        IdType index = 0;
+        for (ValueType value : values)
+        {
+            _values[index] = value;
+            index++;
+        }
+    }
+
+    void setPresets(QHash<IdType, ValueType> presets)
+    {
+        _values = presets;
+        _stale = true;
+    }
+
+    void setCyclic(bool cyclic, ValueType gap = valueCap())
+    {
+        _cyclic = cyclic;
+        if (gap != valueCap())
+        {
+            _gap = gap;
+            _stale = true;
+        }
+    }
+
+    ValueType valueOf(IdType id) const { return _values[id]; }
+
+    IdType nearest(ValueType target, ValueType margin = valueCap()) const
+    {
+        if (_stale) rebuildIndex();
+
+        if (_index_byValue.isEmpty()) return INVALID_ID;
+
+        target = normalizeTarget(target);
+
+        auto iter = _index_byValue.upperBound(target);
+
+        auto&& indexBegin = _index_byValue.begin();
+        auto&& indexEnd = _index_byValue.end();
+
+        if (!_cyclic && iter == indexBegin)
         {
             //The given value is smaller than all of the presets.
 
-            if (threshold == 0.0 || value + (threshold * value) >= upper.first) {
-                return upper.second;
-            }
-            else
-            {
-                return _cyclic ? _highestPreset : _nullPreset;
-            }
+            ValueType lowestValue = _index_byValue.first();
+
+            if ( qAbs(target - lowestValue) < margin )
+                return _index_byValue.first();
+            else 
+                return INVALID_ID;
         }
-        else if (iter == _presets_byValue.end())
+        else if (!_cyclic && iter == indexEnd)
         {
             //The given value is larger than all of the presets.
 
-            iter--;
-            auto lower = *iter;
+            ValueType highestValue = _index_byValue.last();
 
-            if (threshold == 0.0 || value - (threshold * value) <= lower.first) {
-                return lower.second;
-            }
+            if ( qAbs(target - highestValue) < margin )
+                return _index_byValue.last();
             else
-            {
-                return _cyclic ? _lowestPreset : _nullPreset;
-            }
+                return INVALID_ID;
         }
         else
         {
             //The given value is between two presets, or equal to one preset.
-            iter--;
-            auto lower = *iter;
+            ValueType lower;
+            ValueType upper;
 
-            auto nearer = _nullPreset;
+            IdType lowerId;
+            IdType upperId;
 
-            ValueType upperDiff = upper.first - value;
-            ValueType lowerDiff = value - lower.first;
-            if (upperDiff >= lowerDiff)
-                nearer = upper.second;
+            auto lowerIter = iter - 1;
+
+            if (_cyclic && iter == indexEnd)
+            {
+                lower = lowerIter.key();
+                lowerId = *lowerIter;
+
+                upper = lowerIter.key() + _gap;
+                upperId = _index_byValue.first();
+            }
             else
-                nearer = lower.second;
-            
-            bool withinUpper = value + (threshold * value) >= upper.first;
-            bool withinLower = value - (threshold * value) <= lower.first;
+            {
+                lower = lowerIter.key();
+                lowerId = *lowerIter;
 
-            if (threshold == 0.0 || (withinUpper && withinLower))
-                return nearer;
-            else if (withinUpper)
-                return upper.second;
-            else if (withinLower)
-                return lower.second;
-            else
-                return _nullPreset;
+                upper = iter.key();
+                upperId = *iter;
+            }
+
+            ValueType lowerDiff = qAbs(target - lower);
+            ValueType upperDiff = qAbs(target - upper);
+
+            if (lowerDiff <= upperDiff && lowerDiff <= margin)
+                return lowerId;
+            else if (lowerDiff > upperDiff && upperDiff <= margin)
+                return upperId;
+            else 
+                return INVALID_ID;
         }
     }
 
-    PresetType nextUp(ValueType value) const
+    IdType nextUp(ValueType target) const
     {
-        auto iter = _presets_byValue.upper_bound(value);
-        if (iter == _presets_byValue.end())
+        if (_stale) rebuildIndex();
+        if (_index_byValue.isEmpty()) return INVALID_ID;
+
+        target = normalizeTarget(target);
+
+        auto iter = _index_byValue.upperBound(target);
+        if (iter == _index_byValue.end())
         {
             //The given value is greater than all of the presets.
 
-            return _cyclic ? _lowestPreset : _nullPreset;
+            return _cyclic ? _index_byValue.first() : INVALID_ID;
         }
         else
         {
-            return iter->second;
-        }
-    }
-
-    PresetType nextUp(PresetType preset) const
-    {
-        auto iter = _presets.find(preset);
-        iter++;
-        if (iter == _presets.end())
-            return _cyclic ? _lowestPreset : _nullPreset;
-        else 
             return *iter;
+        }
     }
 
-    PresetType nextDown(ValueType value) const
+    IdType nextUp(IdType targetId) const
     {
-        auto iter = _presets_byValue.lower_bound(value);
-        if (iter == _presets_byValue.begin())
-        {
-            //The given value is smaller than all of the presets.
+        if (!_values.contains(targetId))
+            return INVALID_ID;
+        else
+            return nextUp(_values[targetId]);
+    }
 
-            return _cyclic ? _highestPreset : _nullPreset;
+    IdType nextDown(ValueType target) const
+    {
+        if (_stale) rebuildIndex();
+        if (_index_byValue.isEmpty()) return INVALID_ID;
+
+        target = normalizeTarget(target);
+
+        auto iter = _index_byValue.lowerBound(target);
+        if (iter == _index_byValue.begin())
+        {
+            //The given value is lower than all of the presets.
+
+            return _cyclic ? _index_byValue.last() : INVALID_ID;
         }
         else
         {
-            return (--iter)->second;
+            return *(iter - 1);
         }
     }
 
-    PresetType nextDown(PresetType preset) const
+    IdType nextDown(IdType targetId) const
     {
-        auto iter = _presets.find(preset);
-        if (iter == _presets.begin())
-            return _cyclic ? _highestPreset : _nullPreset;
-        else 
-            return *(--iter);
+        if (!_values.contains(targetId))
+            return INVALID_ID;
+        else
+            return nextDown(_values[targetId]);
     }
 
-    ValueType valueOf(PresetType preset) const
+    IdType lowest() const
     {
-        return _values_byPreset.at(preset);
+        if (_stale) rebuildIndex();
+        if (_index_byValue.isEmpty()) return INVALID_ID;
+        return _index_byValue.first();
+    }
+
+    IdType highest() const
+    {
+        if (_stale) rebuildIndex();
+        if (_index_byValue.isEmpty()) return INVALID_ID;
+        return _index_byValue.last();
     }
 
 private:
-    const std::set<PresetType> _presets;
-    const std::map<ValueType, PresetType> _presets_byValue;
-    const std::map<PresetType, ValueType> _values_byPreset;
 
-    const bool _cyclic;
-    const PresetType _nullPreset;
-    const PresetType _highestPreset;
-    const PresetType _lowestPreset;
+    void rebuildIndex() const
+    {
+        _index_byValue.clear();
+        for (auto iter = _values.begin(); iter != _values.end(); iter++)
+        {
+            IdType id = iter.key();
+            ValueType value = iter.value();
+            _index_byValue.insert(value, id);
+        }
+
+        if (_cyclic && _gap == valueCap() && _index_byValue.size() >= 2)
+        {
+            auto i = _index_byValue.end();
+            ValueType last = (--i).key();
+            ValueType secondToLast = (--i).key();
+            _gap = last - secondToLast;
+        }
+
+        _span = _index_byValue.lastKey() - _index_byValue.firstKey() + _gap;
+    }
+
+    ValueType normalizeTarget(ValueType target) const
+    {
+        if (!_cyclic)
+            return target;
+
+        ValueType lowest = _index_byValue.firstKey();
+        target = target - _span * std::floor(target / (_span - lowest)) + lowest;
+
+        return target;
+    }
+
+    bool _cyclic;
+    mutable ValueType _gap;
+    mutable ValueType _span;
+
+    QHash<IdType, ValueType> _values;
+
+    mutable QMap<ValueType, IdType> _index_byValue;
+    mutable bool _stale = false;
 };
 
-#endif // PRESETHELPERS_HPP
+#endif // PRESETHELPER_HPP

@@ -12,11 +12,10 @@
 
 #include "utilities/unhandledexceptionrouter.hpp"
 #include "utilities/qtextensions/qobject.hpp"
-#include "utilities/qtextensions/qlist.hpp"
+#include "utils.hpp"
 
 #include "brushtoolpresenter.hpp"
 #include "servicelocator.hpp"
-#include "utilities/mathutils.hpp"
 
 #include "interfaces/rendering/irenderstack.hpp"
 #include "utilities/canvas/canvasmouseevent.hpp"
@@ -291,10 +290,10 @@ void BrushToolPresenter::onDisengage()
 }
 
 BrushToolPresenter::HoverPreview::HoverPreview(BrushToolPresenter& owner)
-    : isVisible_cache(std::bind(&BrushToolPresenter::HoverPreview::calc_visible, this)),
-    _owner(owner)
+    : _owner(owner)
 {
-    isVisible_cache.onChange(&BrushToolPresenter::HoverPreview::update, this);
+    isVisible_cache.calculateBy(&BrushToolPresenter::HoverPreview::calc_visible, this),
+    isVisible_cache.onChange.bind(&BrushToolPresenter::HoverPreview::update, this);
     isVisible_cache.initialize(false);
 }
 

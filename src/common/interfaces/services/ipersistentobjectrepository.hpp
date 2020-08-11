@@ -7,7 +7,7 @@
 #include "idtypes/persistentid.hpp"
 
 #include <type_traits>
-#include "interfaces/traits/qobject_trait.hpp"
+#include "interfaces/traits.hpp"
 
 /**
  * A base interface for services that hold a collection of persisent objects

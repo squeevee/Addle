@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <QSharedPointer>
 
-#include "globalconstants.hpp"
+#include "globals.hpp"
 
 #include "servicelocator.hpp"
 #include "exceptions/formatexceptions.hpp"

@@ -7,10 +7,10 @@
 
 #include "idtypes/brushid.hpp"
 
-#include "interfaces/traits/initialize_trait.hpp"
-#include "interfaces/traits/qobject_trait.hpp"
-#include "interfaces/traits/makeable_trait.hpp"
-#include "interfaces/traits/metaobjectinfo.hpp"
+#include "interfaces/traits.hpp"
+
+
+#include "interfaces/metaobjectinfo.hpp"
 
 namespace IBrushToolPresenterAux
 {

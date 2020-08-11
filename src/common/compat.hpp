@@ -37,11 +37,4 @@
 
 #endif
 
-#ifdef Q_CC_MSVC
-
-// Workaround for https://developercommunity.visualstudio.com/content/problem/317991/stdis-convertible-is-broken-for-stdbind-functors.html
-#define BIND_MEMBER(member, argtype) [this] (argtype arg) { emit member(arg); }
-
-#endif
-
 #endif // COMMONCOMPAT_HPP

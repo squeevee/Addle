@@ -1,9 +1,9 @@
 #ifndef IASSETSELECTIONPRESENTER_HPP
 #define IASSETSELECTIONPRESENTER_HPP
 
-#include "interfaces/traits/makeable_trait.hpp"
-#include "interfaces/traits/qobject_trait.hpp"
-#include "interfaces/traits/initialize_trait.hpp"
+#include "interfaces/traits.hpp"
+
+
 #include "../assets/iassetpresenter.hpp"
 
 #include <QList>

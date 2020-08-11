@@ -3,8 +3,8 @@
 
 #include "iundooperationpresenter.hpp"
 
-#include "interfaces/traits/initialize_trait.hpp"
-#include "interfaces/traits/makeable_trait.hpp"
+#include "interfaces/traits.hpp"
+
 
 class BrushStroke;
 class ILayerPresenter;

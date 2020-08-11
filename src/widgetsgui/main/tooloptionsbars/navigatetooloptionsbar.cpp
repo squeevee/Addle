@@ -2,7 +2,7 @@
 
 #include "navigatetooloptionsbar.hpp"
 
-#include "widgetsgui/utilities/widgetproperties.hpp"
+#include "utilities/widgetproperties.hpp"
 #include "utilities/qtextensions/qobject.hpp"
 #include "utilities/addle_text.hpp"
 

@@ -1,11 +1,11 @@
 #include "pathbrushengine.hpp"
-#include "globalconstants.hpp"
+#include "globals.hpp"
 
 #include "interfaces/editing/irastersurface.hpp"
 #include <QPainter>
 #include <QPen>
 #include <QtDebug>
-#include "utilities/mathutils.hpp"
+#include "utils.hpp"
 
 #include <QColor>
 

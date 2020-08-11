@@ -1,9 +1,9 @@
 #ifndef IPALETTEPRESENTER_HPP
 #define IPALETTEPRESENTER_HPP
 
-#include "interfaces/traits/qobject_trait.hpp"
-#include "interfaces/traits/makeable_trait.hpp"
-#include "interfaces/traits/initialize_trait.hpp"
+#include "interfaces/traits.hpp"
+
+
 
 #include "utilities/model/colorinfo.hpp"
 #include "utilities/qmultiarray.hpp"

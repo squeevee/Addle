@@ -4,8 +4,8 @@
 #include "compat.hpp"
 #include <QActionGroup>
 
-#include "widgetsgui/utilities/optionaction.hpp"
-#include "widgetsgui/utilities/optiongroup.hpp"
+#include "utilities/optionaction.hpp"
+#include "utilities/optiongroup.hpp"
 #include "interfaces/presenters/tools/inavigatetoolpresenter.hpp"
 #include "tooloptionbarbase.hpp"
 
