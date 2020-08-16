@@ -2,6 +2,7 @@
 #define IFILLTOOLPRESENTER_HPP
 
 #include "interfaces/traits.hpp"
+#include "interfaces/iamqobject.hpp"
 
 
 namespace Addle {
@@ -16,7 +17,7 @@ public:
 };
 
 DECL_MAKEABLE(IFillToolPresenter)
-DECL_IMPLEMENTED_AS_QOBJECT(IFillToolPresenter)
+//DECL_IMPLEMENTED_AS_QOBJECT(IFillToolPresenter)
 
 } // namespace Addle
 #endif // IFILLTOOLPRESENTER_HPP

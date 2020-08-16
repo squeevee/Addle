@@ -12,6 +12,7 @@ namespace Addle {
 class ADDLE_CORE_EXPORT Palette : public QObject, public IPalette
 {
     Q_OBJECT
+    IAMQOBJECT_IMPL
 public:
     virtual ~Palette() = default;
 

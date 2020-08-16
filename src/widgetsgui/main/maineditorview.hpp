@@ -33,7 +33,7 @@ class LayersManager;
 class ADDLE_WIDGETSGUI_EXPORT MainEditorView : public QMainWindow, public virtual IMainEditorView
 {
     Q_OBJECT
-
+    IAMQOBJECT_IMPL
 public:
     MainEditorView() : _initHelper(this)
     {

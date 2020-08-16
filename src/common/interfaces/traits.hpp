@@ -42,19 +42,19 @@ struct expects_initialize : std::false_type
  */
 #define DECL_EXPECTS_INITIALIZE(Interface) template<> struct expects_initialize<Interface> : std::true_type {};
 
-template<class Interface>
-struct implemented_as_QObject : std::false_type {};
+// template<class Interface>
+// struct implemented_as_QObject : std::false_type {};
 
-/**
- * @def DECL_IMPLEMENTED_AS_QOBJECT
- * @brief
- * Convenience macro declaring that `Interface` has trait implemented_as_QObject,
- * and registering `Interface` as an interface in Qt.
- * 
- * @param Interface
- * The interface being declared with the trait and registered.
- */
-#define DECL_IMPLEMENTED_AS_QOBJECT(Interface) template<> struct implemented_as_QObject<Interface> : std::true_type {};
+// /**
+//  * @def DECL_IMPLEMENTED_AS_QOBJECT
+//  * @brief
+//  * Convenience macro declaring that `Interface` has trait implemented_as_QObject,
+//  * and registering `Interface` as an interface in Qt.
+//  * 
+//  * @param Interface
+//  * The interface being declared with the trait and registered.
+//  */
+// #define DECL_IMPLEMENTED_AS_QOBJECT(Interface) template<> struct implemented_as_QObject<Interface> : std::true_type {};
 
 
 template<class Interface>

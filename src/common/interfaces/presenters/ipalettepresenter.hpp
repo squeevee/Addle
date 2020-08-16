@@ -2,6 +2,7 @@
 #define IPALETTEPRESENTER_HPP
 
 #include "interfaces/traits.hpp"
+#include "interfaces/iamqobject.hpp"
 
 
 
@@ -12,7 +13,7 @@
 namespace Addle {
 
 class IPalette;
-class IPalettePresenter
+class IPalettePresenter : public virtual IAmQObject
 {
 public: 
     virtual ~IPalettePresenter() = default;
@@ -26,7 +27,7 @@ public:
 // Q_DECLARE_METATYPE(QSharedPointer<IPalettePresenter>);
 
 DECL_EXPECTS_INITIALIZE(IPalettePresenter);
-DECL_IMPLEMENTED_AS_QOBJECT(IPalettePresenter);
+//DECL_IMPLEMENTED_AS_QOBJECT(IPalettePresenter))
 DECL_MAKEABLE(IPalettePresenter);
 
 } // namespace Addle

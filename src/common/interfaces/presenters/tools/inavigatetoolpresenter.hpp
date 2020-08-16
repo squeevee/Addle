@@ -9,6 +9,7 @@
 
 #include "itoolpresenter.hpp"
 #include "interfaces/traits.hpp"
+#include "interfaces/iamqobject.hpp"
 
 
 #include "interfaces/presenters/iviewportpresenter.hpp"
@@ -18,7 +19,7 @@
 #include "inavigatetoolpresenteraux.hpp"
 namespace Addle {
 
-class INavigateToolPresenter : public virtual IToolPresenter
+class INavigateToolPresenter : public virtual IToolPresenter, public virtual IAmQObject
 {
 public:
     typedef INavigateToolPresenterAux::NavigateOperationOptions NavigateOperationOptions;
@@ -44,7 +45,7 @@ DECL_INTERFACE_META_PROPERTIES(
 
 DECL_MAKEABLE(INavigateToolPresenter)
 DECL_EXPECTS_INITIALIZE(INavigateToolPresenter)
-DECL_IMPLEMENTED_AS_QOBJECT(INavigateToolPresenter)
+//DECL_IMPLEMENTED_AS_QOBJECT(INavigateToolPresenter))
 
 } // namespace Addle
 #endif // INAVIGATETOOLPRESENTER_HPP

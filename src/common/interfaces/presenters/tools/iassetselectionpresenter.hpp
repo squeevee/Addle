@@ -2,6 +2,7 @@
 #define IASSETSELECTIONPRESENTER_HPP
 
 #include "interfaces/traits.hpp"
+#include "interfaces/iamqobject.hpp"
 
 
 #include "../assets/iassetpresenter.hpp"
@@ -9,7 +10,7 @@
 #include <QList>
 namespace Addle {
 
-class IAssetSelectionPresenter
+class IAssetSelectionPresenter : public virtual IAmQObject
 {
 public:
     virtual ~IAssetSelectionPresenter() = default;
@@ -53,7 +54,7 @@ signals:
 
 DECL_MAKEABLE(IAssetSelectionPresenter);
 DECL_EXPECTS_INITIALIZE(IAssetSelectionPresenter);
-DECL_IMPLEMENTED_AS_QOBJECT(IAssetSelectionPresenter);
+//DECL_IMPLEMENTED_AS_QOBJECT(IAssetSelectionPresenter))
 
 } // namespace Addle
 #endif // IASSETSELECTIONPRESENTER_HPP

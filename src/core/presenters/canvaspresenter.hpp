@@ -13,6 +13,7 @@ namespace Addle {
 class ADDLE_CORE_EXPORT CanvasPresenter : public QObject, public ICanvasPresenter
 {
     Q_OBJECT
+    IAMQOBJECT_IMPL
 public: 
     CanvasPresenter() : _initHelper(this) { }
     virtual ~CanvasPresenter() = default;

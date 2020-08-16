@@ -2,12 +2,13 @@
 #define ICANVASPRESENTER_HPP
 
 #include "interfaces/traits.hpp"
+#include "interfaces/iamqobject.hpp"
 
 namespace Addle {
 
 
 class IMainEditorPresenter;
-class ICanvasPresenter
+class ICanvasPresenter : public virtual IAmQObject
 {
 public:
     virtual ~ICanvasPresenter() = default; 
@@ -31,7 +32,7 @@ signals:
 
 DECL_MAKEABLE(ICanvasPresenter);
 DECL_EXPECTS_INITIALIZE(ICanvasPresenter);
-DECL_IMPLEMENTED_AS_QOBJECT(ICanvasPresenter);
+//DECL_IMPLEMENTED_AS_QOBJECT(ICanvasPresenter))
 
 } // namespace Addle
 #endif // ICANVASPRESENTER_HPP

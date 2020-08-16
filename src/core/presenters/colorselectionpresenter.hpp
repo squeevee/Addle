@@ -25,6 +25,7 @@ class ADDLE_CORE_EXPORT ColorSelectionPresenter : public QObject, public IColorS
         WRITE setColor2
         NOTIFY color2Changed
     )
+    IAMQOBJECT_IMPL
 
 public: 
     virtual ~ColorSelectionPresenter() = default;

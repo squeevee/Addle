@@ -2,6 +2,7 @@
 #define ILAYERPRESENTER_HPP
 
 #include "interfaces/traits.hpp"
+#include "interfaces/iamqobject.hpp"
 
 
 
@@ -15,7 +16,7 @@
 namespace Addle {
 
 class IRenderStack;
-class ILayerPresenter
+class ILayerPresenter: public virtual IAmQObject
 {
 public:
     virtual ~ILayerPresenter() = default;
@@ -38,7 +39,7 @@ signals:
 
 DECL_MAKEABLE(ILayerPresenter)
 DECL_EXPECTS_INITIALIZE(ILayerPresenter)
-DECL_IMPLEMENTED_AS_QOBJECT(ILayerPresenter)
+//DECL_IMPLEMENTED_AS_QOBJECT(ILayerPresenter))
 
 } // namespace Addle
 #endif // ILAYERPRESENTER_HPP

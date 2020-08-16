@@ -19,6 +19,7 @@ class ADDLE_CORE_EXPORT SizeSelectionPresenter : public QObject, public ISizeSel
         WRITE set
         NOTIFY changed
     )
+    IAMQOBJECT_IMPL
 public:
     virtual ~SizeSelectionPresenter() = default;
 

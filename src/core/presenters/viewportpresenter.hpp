@@ -6,19 +6,17 @@
 #include <QRect>
 
 #include "interfaces/presenters/iviewportpresenter.hpp"
-#include "utilities/presethelper.hpp"
 
 #include "utilities/initializehelper.hpp"
-
+#include "utilities/presethelper.hpp"
 #include "utilities/presenter/propertycache.hpp"
 
 namespace Addle {
-//The ViewPort is the main presenter for the Canvas, representing a rectangular
-//region onscreen that transforms and displays the Canvas' contents. The
-//ViewPort can be zoomed, moved, and rotated relative to the Canvas.
-class ADDLE_CORE_EXPORT ViewPortPresenter: public QObject, public virtual IViewPortPresenter
+
+class ADDLE_CORE_EXPORT ViewPortPresenter : public QObject, public IViewPortPresenter
 {
     Q_OBJECT
+    Q_INTERFACES(Addle::IViewPortPresenter)
     Q_PROPERTY(
         bool canNavigate
         READ canNavigate
@@ -40,6 +38,7 @@ class ADDLE_CORE_EXPORT ViewPortPresenter: public QObject, public virtual IViewP
         WRITE setZoom
         NOTIFY zoomChanged
     )
+    IAMQOBJECT_IMPL
 
     struct TransformPair
     {
@@ -52,7 +51,7 @@ class ADDLE_CORE_EXPORT ViewPortPresenter: public QObject, public virtual IViewP
         QTransform fromCanvas;
     };
 
-    class ScrollState : public IScrollState
+    class ScrollState : public IViewPortPresenter::IScrollState
     {
         int _rangeWidth = -1;
         int _rangeHeight = -1;
@@ -135,14 +134,13 @@ public:
     IMainEditorPresenter* mainEditorPresenter() { _initHelper.check(); return _mainEditorPresenter; }
 
 public:
-    bool canNavigate() { _initHelper.check(); return _canNavigateCache.value(); }
+    bool canNavigate() const { _initHelper.check(); return _canNavigateCache.value(); }
 
     bool hasFocus() const { _initHelper.check(); return _hasFocus; }
     void setHasFocus(bool value);
 
 signals:
     void canNavigateChanged(bool);
-
     void focusChanged(bool focus);
 
 private:
@@ -150,8 +148,8 @@ private:
 
     // # Scrolling / positioning
 public:
-    QPointF position() { _initHelper.check(); return _position; }
-    const IScrollState& scrollState() { _initHelper.check(); return _scrollStateCache.value(); }
+    QPointF position() const { _initHelper.check(); return _position; }
+    const IScrollState& scrollState() const { _initHelper.check(); return _scrollStateCache.value(); }
 
 public slots:
     void setPosition(QPointF center);
@@ -168,17 +166,17 @@ private:
     ScrollState scrollState_p();
 
 public:
-    bool canZoomIn() { _initHelper.check(); return _canZoomInCache.value(); }
-    bool canZoomOut() { _initHelper.check(); return _canZoomOutCache.value(); }
+    bool canZoomIn() const { _initHelper.check(); return _canZoomInCache.value(); }
+    bool canZoomOut() const { _initHelper.check(); return _canZoomOutCache.value(); }
 
-    double zoom() { _initHelper.check(); return _zoom; }
+    double zoom() const { _initHelper.check(); return _zoom; }
     void setZoom(double zoom);
     //void gripZoom(QPoint gripStart, QPoint gripEnd);
     
-    ZoomPreset zoomPreset() { _initHelper.check(); return _zoomPreset; }
+    ZoomPreset zoomPreset() const { _initHelper.check(); return _zoomPreset; }
     void setZoomPreset(ZoomPreset preset);
-    double maxZoomPresetValue() { _initHelper.check(); return _zoomPresetHelper.valueOf(MAX_ZOOM_PRESET); }
-    double minZoomPresetValue() { _initHelper.check(); return _zoomPresetHelper.valueOf(MIN_ZOOM_PRESET); }
+    double maxZoomPresetValue() const { _initHelper.check(); return _zoomPresetHelper.valueOf(MAX_ZOOM_PRESET); }
+    double minZoomPresetValue() const { _initHelper.check(); return _zoomPresetHelper.valueOf(MIN_ZOOM_PRESET); }
 
     ZoomPreset zoomTo(double zoom, bool snapToPreset = true);
 
@@ -202,9 +200,9 @@ private:
     void propagateCanNavigate();
 
 public:
-    double rotation() { _initHelper.check(); return _rotation; }
+    double rotation() const { _initHelper.check(); return _rotation; }
     void setRotation(double rotation);
-    RotatePreset rotatePreset() { _initHelper.check(); return _rotatePreset; }
+    RotatePreset rotatePreset() const { _initHelper.check(); return _rotatePreset; }
     void setRotatePreset(RotatePreset preset);
 
 public slots:
@@ -216,20 +214,15 @@ signals:
 
 public:
 
-    QSize size() { _initHelper.check(); return _size; }
-    virtual QPointF center() { _initHelper.check(); return _center; }
+    QSize size() const { _initHelper.check(); return _size; }
 
     void gripPivot(QPointF gripStart, QPointF gripEnd);
 
-    QTransform ontoCanvasTransform() { _initHelper.check(); return _transformCache.value().ontoCanvas; }
-    QTransform fromCanvasTransform() { _initHelper.check(); return _transformCache.value().fromCanvas; }
+    QTransform ontoCanvasTransform() const { _initHelper.check(); return _transformCache.value().ontoCanvas; }
+    QTransform fromCanvasTransform() const { _initHelper.check(); return _transformCache.value().fromCanvas; }
 
-//    void gripMove(QPoint gripStart, QPoint gripEnd);
-//    void nudgeMove(int dx, int dy);
-//    void gripRotate(QPoint gripStart, QPoint gripEnd);
-//    void twoGripTransform(QPoint grip1Start, QPoint grip1End, QPoint grip2Start, QPoint grip2End);
-
-    QPoint globalOffset() { _initHelper.check(); return _globalOffset; }
+    QPoint globalOffset() const { _initHelper.check(); return _globalOffset; }
+    virtual QPointF center() const { _initHelper.check(); return _center; }
 
 public slots:
     void resetTransforms();

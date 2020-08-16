@@ -16,6 +16,7 @@ namespace Addle {
 class ADDLE_CORE_EXPORT BrushPresenter : public QObject, public IBrushPresenter
 {
     Q_OBJECT 
+    IAMQOBJECT_IMPL
 public:
     BrushPresenter() : _initHelper(this) {}
     void initialize(IBrushModel& model, QSharedPointer<const PreviewInfoProvider> info = nullptr);

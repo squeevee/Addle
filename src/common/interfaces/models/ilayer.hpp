@@ -10,6 +10,7 @@
 
 #include "utilities/model/layerbuilder.hpp"
 #include "interfaces/traits.hpp"
+#include "interfaces/iamqobject.hpp"
 
 
 namespace Addle {
@@ -17,7 +18,7 @@ namespace Addle {
 
 class IRasterSurface;
 class IDocument;
-class ILayer
+class ILayer : public virtual IAmQObject
 {
 public:
     virtual ~ILayer() {}
@@ -36,7 +37,7 @@ public:
 
 DECL_MAKEABLE(ILayer)
 DECL_EXPECTS_INITIALIZE(ILayer)
-DECL_IMPLEMENTED_AS_QOBJECT(ILayer)
+//DECL_IMPLEMENTED_AS_QOBJECT(ILayer))
 
 } // namespace Addle
 #endif // ILAYER_HPP

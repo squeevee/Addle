@@ -13,6 +13,7 @@ namespace Addle {
 class ADDLE_CORE_EXPORT PalettePresenter : public QObject, public IPalettePresenter
 {
     Q_OBJECT
+    IAMQOBJECT_IMPL
 public:
     virtual ~PalettePresenter() = default;
 

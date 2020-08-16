@@ -5,11 +5,12 @@
 #include <QIcon>
 
 #include "interfaces/traits.hpp"
+#include "interfaces/iamqobject.hpp"
 
 namespace Addle {
 
 
-class ISizeSelectionPresenter
+class ISizeSelectionPresenter : public virtual IAmQObject
 {
 public:
     class IconProvider
@@ -55,7 +56,7 @@ signals:
 };
 
 DECL_EXPECTS_INITIALIZE(ISizeSelectionPresenter);
-DECL_IMPLEMENTED_AS_QOBJECT(ISizeSelectionPresenter);
+//DECL_IMPLEMENTED_AS_QOBJECT(ISizeSelectionPresenter))
 DECL_MAKEABLE(ISizeSelectionPresenter);
 
 } // namespace Addle

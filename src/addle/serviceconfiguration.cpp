@@ -1,6 +1,6 @@
 /**
  * Addle source code
- * Copyright 2019 Eleanor Hawk
+ * Copyright 2020 Eleanor Hawk
  * Modification and distribution permitted under the terms of the MIT License.
  * See "LICENSE" for full details.
  */

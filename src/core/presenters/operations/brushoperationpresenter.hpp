@@ -11,6 +11,7 @@ namespace Addle {
 class ADDLE_CORE_EXPORT BrushOperationPresenter : public QObject, public IBrushOperationPresenter
 {
     Q_OBJECT
+    IAMQOBJECT_IMPL
 public: 
     virtual ~BrushOperationPresenter() = default;
 

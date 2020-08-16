@@ -5,9 +5,10 @@
 #include <QSharedPointer>
 
 #include "interfaces/traits.hpp"
+#include "interfaces/iamqobject.hpp"
 namespace Addle {
 
-class IUndoOperationPresenter
+class IUndoOperationPresenter : public virtual IAmQObject
 {
 public: 
     virtual ~IUndoOperationPresenter() = default;
@@ -19,7 +20,7 @@ public slots:
     virtual void undo() = 0;
 };
 
-DECL_IMPLEMENTED_AS_QOBJECT(IUndoOperationPresenter);
+//DECL_IMPLEMENTED_AS_QOBJECT(IUndoOperationPresenter))
 
 } // namespace Addle
 #endif // IUNDOOPERATIONPRESENTER_HPP

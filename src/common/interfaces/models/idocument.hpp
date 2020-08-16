@@ -11,13 +11,14 @@
 #include "ilayer.hpp"
 #include "interfaces/format/iformatmodel.hpp"
 #include "interfaces/traits.hpp"
+#include "interfaces/iamqobject.hpp"
 
 #include "utilities/model/documentbuilder.hpp"
 
 namespace Addle {
 
 
-class IDocument : public virtual IFormatModel
+class IDocument : public virtual IFormatModel, public virtual IAmQObject
 {
 public:
     static const QColor DEFAULT_BACKGROUND_COLOR;
@@ -50,7 +51,7 @@ signals:
 
 DECL_MAKEABLE(IDocument)
 DECL_EXPECTS_INITIALIZE(IDocument)
-DECL_IMPLEMENTED_AS_QOBJECT(IDocument)
+//DECL_IMPLEMENTED_AS_QOBJECT(IDocument))
 // Q_DECLARE_METATYPE(QSharedPointer<IDocument>)
 // Q_DECLARE_METATYPE(QWeakPointer<IDocument>)
 

@@ -2,13 +2,16 @@
 #define IHAVEDOCUMENTPRESENTER_HPP
 
 #include "interfaces/traits.hpp"
+#include "interfaces/iamqobject.hpp"
 #include <QSharedPointer>
 namespace Addle {
+
+// TODO: combine with IMainEditorPresenter ?
 
 class ILayerPresenter;
 class IDocumentPresenter;
 class IDocumentView;
-class IHaveDocumentPresenter
+class IHaveDocumentPresenter : public virtual IAmQObject
 {
 public:
     virtual ~IHaveDocumentPresenter() = default;
@@ -28,7 +31,7 @@ signals:
     virtual void documentPresenterChanged(IDocumentPresenter* documentPresenter) = 0;
 };
 
-DECL_IMPLEMENTED_AS_QOBJECT(IHaveDocumentPresenter);
+//DECL_IMPLEMENTED_AS_QOBJECT(IHaveDocumentPresenter))
 
 } // namespace Addle
 #endif // IHAVEDOCUMENTPRESENTER_HPP

@@ -2,7 +2,7 @@
 #define IRASTERSURFACE_HPP
 
 #include "interfaces/traits.hpp"
-
+#include "interfaces/iamqobject.hpp"
 
 #include "interfaces/metaobjectinfo.hpp"
 
@@ -22,7 +22,7 @@ class IRasterDiff;
  * An "infinite" surface containing raster data. Paint operations must use
  * RasterPaintHandle to request the area on which they will operate.
  */
-class IRasterSurface
+class IRasterSurface : public virtual IAmQObject
 {
 public:
     // These may be used by makers of RasterSurface to indicate that special
@@ -110,7 +110,6 @@ protected:
 Q_DECLARE_OPERATORS_FOR_FLAGS(IRasterSurface::InitFlags)
 
 DECL_EXPECTS_INITIALIZE(IRasterSurface);
-DECL_IMPLEMENTED_AS_QOBJECT(IRasterSurface);
 DECL_MAKEABLE(IRasterSurface);
 
 } // namespace Addle

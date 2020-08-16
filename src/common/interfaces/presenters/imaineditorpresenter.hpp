@@ -5,6 +5,7 @@
 #include <QObject>
 
 #include "interfaces/traits.hpp"
+#include "interfaces/iamqobject.hpp"
 
 
 #include "interfaces/metaobjectinfo.hpp"
@@ -15,6 +16,7 @@
 #include "ierrorpresenter.hpp"
 #include "ihavetoolspresenter.hpp"
 #include "iraiseerrorpresenter.hpp"
+
 namespace Addle {
 
 class IPalettePresenter;
@@ -23,6 +25,7 @@ class IMainEditorView;
 class ICanvasPresenter;
 class IViewPortPresenter;
 class IColorSelectionPresenter;
+
 namespace IMainEditorPresenterAux
 {
     enum Mode
@@ -50,7 +53,8 @@ class IMainEditorPresenter
     : public virtual IHaveDocumentPresenter,
     public virtual IHaveToolsPresenter,
     public virtual IHaveUndoStackPresenter,
-    public virtual IRaiseErrorPresenter
+    public virtual IRaiseErrorPresenter,
+    public virtual IAmQObject
 {
 public:
     INTERFACE_META(IMainEditorPresenter);
@@ -79,7 +83,7 @@ signals:
 
 DECL_MAKEABLE(IMainEditorPresenter)
 DECL_EXPECTS_INITIALIZE(IMainEditorPresenter);
-DECL_IMPLEMENTED_AS_QOBJECT(IMainEditorPresenter)
+//DECL_IMPLEMENTED_AS_QOBJECT(IMainEditorPresenter))
 
 DECL_INTERFACE_META_PROPERTIES(
     IMainEditorPresenter,
@@ -88,4 +92,5 @@ DECL_INTERFACE_META_PROPERTIES(
 )
 
 } // namespace Addle
+
 #endif // IMAINEDITORPRESENTER_HPP

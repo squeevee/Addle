@@ -5,6 +5,7 @@
 #include <QColor>
 
 #include "interfaces/traits.hpp"
+#include "interfaces/iamqobject.hpp"
 
 #include "utilities/model/colorinfo.hpp"
 #include "idtypes/paletteid.hpp"
@@ -12,7 +13,7 @@
 
 namespace Addle {
 
-class IPalette
+class IPalette : public virtual IAmQObject
 {
 public:
     virtual ~IPalette() = default;
@@ -31,7 +32,7 @@ signals:
     virtual void colorsChanged() = 0;
 };
 
-DECL_IMPLEMENTED_AS_QOBJECT(IPalette);
+//DECL_IMPLEMENTED_AS_QOBJECT(IPalette))
 DECL_MAKEABLE(IPalette)
 DECL_EXPECTS_INITIALIZE(IPalette);
 DECL_PERSISTENT_OBJECT_TYPE(IPalette, PaletteId);

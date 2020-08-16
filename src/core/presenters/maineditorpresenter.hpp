@@ -51,7 +51,8 @@ class ADDLE_CORE_EXPORT MainEditorPresenter : public QObject, public virtual IMa
         READ isEmpty
         NOTIFY isEmptyChanged
     )
-
+    IAMQOBJECT_IMPL
+    
     enum InitCheckpoints
     {
         Check_CanvasPresenter,

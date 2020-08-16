@@ -4,10 +4,11 @@
 #include <QPainterPath>
 
 #include "interfaces/traits.hpp"
+#include "interfaces/iamqobject.hpp"
 #include "utilities/render/renderdata.hpp"
 namespace Addle {
 
-class IRenderStep
+class IRenderStep : public virtual IAmQObject
 {
 public:
     virtual ~IRenderStep() = default;
@@ -26,7 +27,7 @@ signals:
     // virtual void removeFromStack() = 0;
 };
 
-DECL_IMPLEMENTED_AS_QOBJECT(IRenderStep);
+//DECL_IMPLEMENTED_AS_QOBJECT(IRenderStep))
 
 } // namespace Addle
 

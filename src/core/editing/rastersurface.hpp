@@ -13,6 +13,7 @@ class RasterSurfaceRenderStep;
 class ADDLE_CORE_EXPORT RasterSurface : public QObject, public IRasterSurface
 {
     Q_OBJECT
+    IAMQOBJECT_IMPL
 public:
     RasterSurface() : _initHelper(this) {}
     virtual ~RasterSurface() = default; 
@@ -131,6 +132,7 @@ private:
 class RasterSurfaceRenderStep : public QObject, public IRenderStep
 {
     Q_OBJECT
+    IAMQOBJECT_IMPL
 public: 
     RasterSurfaceRenderStep(RasterSurface& owner) : _owner(owner) { }
     virtual ~RasterSurfaceRenderStep() = default;

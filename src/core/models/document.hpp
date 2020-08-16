@@ -15,6 +15,7 @@ namespace Addle {
 class ADDLE_CORE_EXPORT Document : public QObject, public IDocument
 {
     Q_OBJECT
+    IAMQOBJECT_IMPL
 public:
 
     Document() : _initHelper(this) {}

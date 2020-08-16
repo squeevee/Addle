@@ -8,13 +8,14 @@
 #include "../idocumentpresenter.hpp"
 
 #include "idtypes/toolid.hpp"
+#include "interfaces/iamqobject.hpp"
 
 #include "interfaces/traits.hpp"
 
 namespace Addle {
 
 class IMainEditorPresenter;
-class IToolPresenter
+class IToolPresenter : public virtual IAmQObject
 {
 public:
     virtual ~IToolPresenter() = default;
@@ -33,7 +34,7 @@ signals:
     virtual void cursorChanged(QCursor cursor) = 0;
 };
 
-DECL_IMPLEMENTED_AS_QOBJECT(IToolPresenter)
+//DECL_IMPLEMENTED_AS_QOBJECT(IToolPresenter))
 
 } // namespace Addle
 #endif // ITOOLPRESENTER_HPP

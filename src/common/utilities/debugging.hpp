@@ -55,25 +55,25 @@ private:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(DebugBehavior::DebugBehaviorFlags)
 
-template<class Interface>
-const char* qObjectClassName(Interface* object)
-{
-    static_assert(
-        implemented_as_QObject<Interface>::value,
-        "This function can only be used on interfaces implementing QObject"
-    );
+// template<class Interface>
+// const char* qObjectClassName(Interface* object)
+// {
+//     static_assert(
+//         implemented_as_QObject<Interface>::value,
+//         "This function can only be used on interfaces implementing QObject"
+//     );
 
-    QObject* q_object = dynamic_cast<QObject*>(object);
+//     QObject* q_object = dynamic_cast<QObject*>(object);
 
-    if (q_object)
-    {
-        return q_object->metaObject()->className();
-    }
-    else
-    {
-        return DEBUG__NONE_TYPE_NAME;
-    }
-}
+//     if (q_object)
+//     {
+//         return q_object->metaObject()->className();
+//     }
+//     else
+//     {
+//         return DEBUG__NONE_TYPE_NAME;
+//     }
+// }
 } // namespace Addle
 
 #endif // ADDLE_DEBUG

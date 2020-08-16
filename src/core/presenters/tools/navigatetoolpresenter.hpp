@@ -21,6 +21,7 @@ class ADDLE_CORE_EXPORT NavigateToolPresenter : public QObject, public virtual I
         WRITE setNavigateOperation
         NOTIFY navigateOperationChanged
     )
+    IAMQOBJECT_IMPL
 public:
     NavigateToolPresenter()
         : _selectHelper(*this)

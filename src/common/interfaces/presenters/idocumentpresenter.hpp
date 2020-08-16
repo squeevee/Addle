@@ -13,6 +13,7 @@
 #include "interfaces/models/idocument.hpp"
 
 #include "interfaces/traits.hpp"
+#include "interfaces/iamqobject.hpp"
 
 
 #include "interfaces/metaobjectinfo.hpp"
@@ -24,7 +25,7 @@ namespace Addle {
 
 class ICanvasPresenter;
 class ILayerPresenter;
-class IDocumentPresenter
+class IDocumentPresenter : public virtual IAmQObject
 {
 public:
     typedef HeirarchyList<QSharedPointer<ILayerPresenter>> LayerList;
@@ -82,7 +83,7 @@ signals:
 
 DECL_MAKEABLE(IDocumentPresenter);
 DECL_EXPECTS_INITIALIZE(IDocumentPresenter);
-DECL_IMPLEMENTED_AS_QOBJECT(IDocumentPresenter);
+//DECL_IMPLEMENTED_AS_QOBJECT(IDocumentPresenter))
 
 } // namespace Addle
 

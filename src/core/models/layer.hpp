@@ -19,6 +19,7 @@ namespace Addle {
 class ADDLE_CORE_EXPORT Layer : public QObject, public ILayer
 {
     Q_OBJECT
+    IAMQOBJECT_IMPL
 public:
     Layer() : _initHelper(this) { }
     virtual ~Layer() = default;

@@ -58,7 +58,7 @@ void ViewPortScrollWidget::setViewPort(ViewPort* viewPort)
 
 void ViewPortScrollWidget::onScrollStateChanged()
 {
-    const IScrollState& state = _presenter.scrollState();
+    const IViewPortPresenter::IScrollState& state = _presenter.scrollState();
 
     const QSignalBlocker horizontalBlocker(_scrollbar_horizontal);
     const QSignalBlocker verticalBlocker(_scrollbar_vertical);

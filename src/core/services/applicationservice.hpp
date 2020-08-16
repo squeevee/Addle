@@ -15,6 +15,7 @@ namespace Addle {
 class ADDLE_CORE_EXPORT ApplicationService : public QObject, public virtual ServiceBase, public virtual IApplicationService
 {
     Q_OBJECT
+    IAMQOBJECT_IMPL
 public:
     ApplicationService() : _threadHelper(this, ServiceThreadHelper_options::ThreadOption::application_thread)
     {

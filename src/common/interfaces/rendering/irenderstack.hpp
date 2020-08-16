@@ -4,12 +4,13 @@
 #include <QWeakPointer>
 
 #include "interfaces/traits.hpp"
+#include "interfaces/iamqobject.hpp"
 
 
 #include "irenderstep.hpp"
 namespace Addle {
 
-class IRenderStack
+class IRenderStack : public virtual IAmQObject
 {
 public:
     virtual ~IRenderStack() = default;
@@ -32,7 +33,7 @@ signals:
 
 DECL_MAKEABLE(IRenderStack);
 DECL_EXPECTS_INITIALIZE(IRenderStack);
-DECL_IMPLEMENTED_AS_QOBJECT(IRenderStack);
+//DECL_IMPLEMENTED_AS_QOBJECT(IRenderStack))
 } // namespace Addle
 
 #endif // IRENDERSTACK_HPP

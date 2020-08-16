@@ -3,11 +3,14 @@
 
 #include <QList>
 #include "interfaces/traits.hpp"
+#include "interfaces/iamqobject.hpp"
 #include "idtypes/toolid.hpp"
 namespace Addle {
 
+// TODO: combine with IMainEditorPresenter ?
+
 class IToolPresenter;
-class IHaveToolsPresenter
+class IHaveToolsPresenter : public virtual IAmQObject
 {
 public:
     virtual ~IHaveToolsPresenter() = default;
@@ -23,7 +26,7 @@ signals:
     virtual void currentToolChanged(ToolId tool) = 0;
 };
 
-DECL_IMPLEMENTED_AS_QOBJECT(IHaveToolsPresenter)
+//DECL_IMPLEMENTED_AS_QOBJECT(IHaveToolsPresenter))
 
 } // namespace Addle
 #endif //IHAVETOOLSPRESENTER_HPP

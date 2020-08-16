@@ -14,7 +14,8 @@ namespace Addle {
 class ADDLE_CORE_EXPORT DocumentPresenter : public QObject, public IDocumentPresenter
 {
     Q_OBJECT
-
+    IAMQOBJECT_IMPL
+    
     enum InitCheckpoints
     {
         Layers

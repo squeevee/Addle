@@ -7,6 +7,7 @@ namespace Addle {
 class ADDLE_CORE_EXPORT RenderStack : public QObject, public IRenderStack
 {
     Q_OBJECT 
+    IAMQOBJECT_IMPL
 public: 
     virtual ~RenderStack() = default;
 

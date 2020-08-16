@@ -15,8 +15,8 @@
 
 #include "idtypes/persistentid.hpp"
 
-#define ASSERT_IMPLEMENTATION_HINTS(Interface, Impl) \
-static_assert( !implemented_as_QObject<Interface>::value || std::is_base_of<QObject, Impl>::value, "This implementation was expected to be QObject, but was not." );
+// #define ASSERT_IMPLEMENTATION_HINTS(Interface, Impl) \
+// static_assert( !implemented_as_QObject<Interface>::value || std::is_base_of<QObject, Impl>::value, "This implementation was expected to be QObject, but was not." );
 namespace Addle {
 
 /**

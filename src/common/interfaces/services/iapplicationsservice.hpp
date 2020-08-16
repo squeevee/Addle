@@ -7,11 +7,12 @@
 
 #include "interfaces/presenters/idocumentpresenter.hpp"
 #include "interfaces/traits.hpp"
+#include "interfaces/iamqobject.hpp"
 
 
 namespace Addle {
 
-class IApplicationService : public virtual IService
+class IApplicationService : public virtual IService, public virtual IAmQObject
 {
 public:
     enum StartupMode
@@ -44,7 +45,7 @@ public slots:
 };
 
 DECL_MAKEABLE(IApplicationService)
-DECL_IMPLEMENTED_AS_QOBJECT(IApplicationService)
+//DECL_IMPLEMENTED_AS_QOBJECT(IApplicationService))
 
 } // namespace Addle
 #endif // IAPPLICATIONSERVICE_HPP

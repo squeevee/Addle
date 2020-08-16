@@ -15,6 +15,7 @@ namespace Addle {
 class ADDLE_CORE_EXPORT AssetSelectionPresenter : public QObject, public IAssetSelectionPresenter
 {
     Q_OBJECT
+    IAMQOBJECT_IMPL
 public:
     virtual ~AssetSelectionPresenter() = default;
 

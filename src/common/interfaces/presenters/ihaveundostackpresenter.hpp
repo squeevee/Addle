@@ -6,9 +6,10 @@
 #include "interfaces/presenters/operations/iundooperationpresenter.hpp"
 
 #include "interfaces/traits.hpp"
+#include "interfaces/iamqobject.hpp"
 namespace Addle {
 
-class IHaveUndoStackPresenter
+class IHaveUndoStackPresenter:  public virtual IAmQObject
 {
 public: 
     virtual ~IHaveUndoStackPresenter() = default;
@@ -26,7 +27,7 @@ signals:
     virtual void undoStateChanged() = 0;
 };
 
-DECL_IMPLEMENTED_AS_QOBJECT(IHaveUndoStackPresenter)
+//DECL_IMPLEMENTED_AS_QOBJECT(IHaveUndoStackPresenter))
 
 } // namespace Addle
 #endif // IHAVEUNDOSTACKPRESENTER_HPP

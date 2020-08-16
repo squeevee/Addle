@@ -1,26 +1,46 @@
+/**
+ * Addle source code
+ * 
+ * @file
+ * @copyright Copyright 2020 Eleanor Hawk
+ * @copyright Modification and distribution permitted under the terms of the
+ * MIT License. See "LICENSE" for full details.
+ */
+
 #ifndef IVIEWPORTPRESENTER_HPP
 #define IVIEWPORTPRESENTER_HPP
 
-#include <QObject>
 #include <QPointF>
 #include <QTransform>
 
 #include "interfaces/traits.hpp"
-
-
-
+#include "interfaces/iamqobject.hpp"
 #include "interfaces/metaobjectinfo.hpp"
 
-#include "iscrollstate.hpp"
 namespace Addle {
 
 class IMainEditorPresenter;
-class IViewPortPresenter
+class IScrollState;
+
+/**
+ * @class IViewPortPresenter
+ * The ViewPort adapts the canvas to the screen by transforming and truncating
+ * the canvas according to the state (e.g., position, zoom, rotation, and size)
+ * of the ViewPort. This presenter owns and manages the state of the ViewPort
+ * and provides useful ways to modify it.
+ * 
+ * Note that the actual transformations are handled by GUI code.
+ */
+class IViewPortPresenter : public virtual IAmQObject
 {
 public:
     INTERFACE_META(IViewPortPresenter)
 
     enum ZoomPreset {
+        // TODO: While "round numbers" look good when written out, at least a
+        // few more steps should be chosen on a logarithmic scale (which 
+        // "feel good" when zooming).
+
         nullzoom = -1,
         _5percent,
         _10percent,
@@ -37,6 +57,10 @@ public:
         _600percent,
         _800percent,
         _1600percent
+
+        // dynamic zoom presets
+        //Fit = 1024,
+        //FitToWidth = 1025
     };
 
     enum RotatePreset {
@@ -57,6 +81,24 @@ public:
 
     const RotatePreset DEFAULT_ROTATE_PRESET = RotatePreset::_0deg;
 
+    class IScrollState
+    {
+    public:
+        virtual ~IScrollState() = default;
+
+        virtual int pageWidth() const = 0;
+        virtual int pageHeight() const = 0;
+
+        virtual int horizontalValue() const = 0;
+        virtual int verticalValue() const = 0;
+
+        virtual int horizontalMinimum() const = 0;
+        virtual int verticalMinimum() const = 0;
+
+        virtual int horizontalMaximum() const = 0;
+        virtual int verticalMaximum() const = 0;
+    };
+
     virtual ~IViewPortPresenter() = default;
 
     virtual void initialize(IMainEditorPresenter* mainEditorPresenter) = 0;
@@ -64,20 +106,19 @@ public:
     virtual IMainEditorPresenter* mainEditorPresenter() = 0;
 
 public:
-    virtual bool canNavigate() = 0;
+    virtual bool canNavigate() const = 0;
 
     virtual bool hasFocus() const = 0;
     virtual void setHasFocus(bool value) = 0;
 
 signals:
     virtual void canNavigateChanged(bool) = 0;
-
     virtual void focusChanged(bool focus) = 0;
 
     // # Scrolling / positioning
 public:
-    virtual QPointF position() = 0;
-    virtual const IScrollState& scrollState() = 0;
+    virtual QPointF position() const = 0;
+    virtual const IScrollState& scrollState() const = 0;
 
 public slots:
     virtual void setPosition(QPointF center) = 0;
@@ -92,17 +133,18 @@ signals:
 
     // # Zooming
 public:
-    virtual bool canZoomIn() = 0;
-    virtual bool canZoomOut() = 0;
+    virtual bool canZoomIn() const = 0;
+    virtual bool canZoomOut() const = 0;
 
-    virtual double zoom() = 0;
+    virtual double zoom() const = 0;
     virtual void setZoom(double zoom) = 0;
     //virtual void gripZoom(QPoint gripStart, QPoint gripEnd) = 0;
 
-    virtual ZoomPreset zoomPreset() = 0;
+    virtual ZoomPreset zoomPreset() const = 0;
     virtual void setZoomPreset(ZoomPreset preset) = 0;
-    virtual double maxZoomPresetValue() = 0;
-    virtual double minZoomPresetValue() = 0;
+
+    virtual double maxZoomPresetValue() const = 0;
+    virtual double minZoomPresetValue() const = 0;
     
     virtual ZoomPreset zoomTo(double zoom, bool snapToPreset = true) = 0;
 
@@ -115,7 +157,7 @@ signals:
 
     // # Rotation
 public:
-    virtual double rotation() = 0;
+    virtual double rotation() const = 0;
     virtual void setRotation(double) = 0;
 
 
@@ -128,14 +170,15 @@ signals:
 
     // # General transforming
 public:
-    virtual QSize size() = 0;
-    virtual QPoint globalOffset() = 0;
-    virtual QPointF center() = 0;
+    virtual QSize size() const = 0;
 
     virtual void gripPivot(QPointF start, QPointF end) = 0;
 
-    virtual QTransform ontoCanvasTransform() = 0;
-    virtual QTransform fromCanvasTransform() = 0;
+    virtual QTransform ontoCanvasTransform() const = 0;
+    virtual QTransform fromCanvasTransform() const = 0;
+
+    virtual QPoint globalOffset() const = 0;
+    virtual QPointF center() const = 0;
 
 public slots:
     virtual void resetTransforms() = 0;
@@ -151,15 +194,18 @@ signals:
 
 DECL_INTERFACE_META_PROPERTIES(
     IViewPortPresenter,
-    DECL_INTERFACE_PROPERTY(canNavigate)
-    DECL_INTERFACE_PROPERTY(canZoomIn)
-    DECL_INTERFACE_PROPERTY(canZoomOut)
-    DECL_INTERFACE_PROPERTY(zoom)
+    DECL_INTERFACE_PROPERTY(canNavigate) // bool, read-only
+    DECL_INTERFACE_PROPERTY(canZoomIn)   // bool, read-only
+    DECL_INTERFACE_PROPERTY(canZoomOut)  // bool, read-only
+    DECL_INTERFACE_PROPERTY(zoom)        // double
 );
 
 DECL_MAKEABLE(IViewPortPresenter)
 DECL_EXPECTS_INITIALIZE(IViewPortPresenter)
-DECL_IMPLEMENTED_AS_QOBJECT(IViewPortPresenter)
+//DECL_IMPLEMENTED_AS_QOBJECT(IViewPortPresenter))
 
 } // namespace Addle
+
+Q_DECLARE_INTERFACE(Addle::IViewPortPresenter, "org.Addle.IViewportPresenter");
+
 #endif // IVIEWPORTPRESENTER_HPP

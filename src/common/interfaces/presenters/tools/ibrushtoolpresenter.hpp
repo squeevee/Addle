@@ -6,6 +6,7 @@
 #include "itoolpresenter.hpp"
 
 #include "idtypes/brushid.hpp"
+#include "interfaces/iamqobject.hpp"
 
 #include "interfaces/traits.hpp"
 
@@ -45,7 +46,7 @@ class IBrushPresenter;
 class ICanvasPresenter;
 class IViewPortPresenter;
 class IColorSelectionPresenter;
-class IBrushToolPresenter : public virtual IToolPresenter
+class IBrushToolPresenter : public virtual IToolPresenter, public virtual IAmQObject
 {
 public:
     INTERFACE_META(IBrushToolPresenter)
@@ -72,7 +73,7 @@ DECL_INTERFACE_META_PROPERTIES(IBrushToolPresenter,
 )
 
 DECL_MAKEABLE(IBrushToolPresenter)
-DECL_IMPLEMENTED_AS_QOBJECT(IBrushToolPresenter)
+//DECL_IMPLEMENTED_AS_QOBJECT(IBrushToolPresenter))
 DECL_EXPECTS_INITIALIZE(IBrushToolPresenter)
 
 } // namespace Addle

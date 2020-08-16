@@ -55,7 +55,7 @@ signals:
 //Q_DECLARE_METATYPE(ISelectToolPresenter::SelectionOperationOptions)
 
 DECL_MAKEABLE(ISelectToolPresenter)
-DECL_IMPLEMENTED_AS_QOBJECT(ISelectToolPresenter)
+//DECL_IMPLEMENTED_AS_QOBJECT(ISelectToolPresenter)
 
 } // namespace Addle
 #endif // ISELECTTOOLPRESENTER_HPP

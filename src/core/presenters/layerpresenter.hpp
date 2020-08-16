@@ -12,6 +12,7 @@ class LayerPresenterRenderStep;
 class ADDLE_CORE_EXPORT LayerPresenter: public QObject, public ILayerPresenter
 {
     Q_OBJECT
+    IAMQOBJECT_IMPL
 public:
     LayerPresenter() : _initHelper(this) { }
     virtual ~LayerPresenter();
@@ -52,6 +53,7 @@ private:
 class LayerPresenterRenderStep : public QObject, public IRenderStep
 {
     Q_OBJECT
+    IAMQOBJECT_IMPL
 public:
     LayerPresenterRenderStep(LayerPresenter& owner) : _owner(owner) { }
     virtual ~LayerPresenterRenderStep() = default;

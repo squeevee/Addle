@@ -1,7 +1,7 @@
 /**
  * Addle source code
  * @file qobject.h
- * @copyright Copyright 2019 Eleanor Hawk
+ * @copyright Copyright 2020 Eleanor Hawk
  * @copyright Modification and distribution permitted under the terms of the
  * MIT License. See "LICENSE" for full details.
  * 
@@ -13,24 +13,25 @@
 #include <QObject>
 #include <QPointer>
 
-#include "interfaces/traits.hpp"
+#include "interfaces/iamqobject.hpp"
 namespace Addle {
 
-/**
- * @brief Wrapper for dynamic_cast<QObject*>(object), which requires
- * at compile-time for `Interface` to be implemented as a QObject.
- * @param object
- * The object to be cast
- */
 template<class Interface>
-inline QObject* qobject_interface_cast(Interface* object)
+typename std::enable_if<
+    !std::is_const<Interface>::value,
+    QObject*
+>::type qobject_interface_cast(Interface* object)
 {
-    static_assert(
-        implemented_as_QObject<Interface>::value,
-        "qobject_interface_cast may only be done with interfaces for QObjects"
-    );
+    return static_cast<IAmQObject*>(object)->asQObject();
+}
 
-    return dynamic_cast<QObject*>(object);
+template<class Interface>
+typename std::enable_if<
+    !std::is_const<Interface>::value,
+    const QObject*
+>::type qobject_interface_cast(const Interface* object)
+{
+    return static_cast<const IAmQObject*>(object)->asQObject();
 }
 
 /**
@@ -39,16 +40,36 @@ inline QObject* qobject_interface_cast(Interface* object)
  * @param object
  * The object to be cast
  */
-template<class Interface>
-inline const QObject* qobject_interface_cast(const Interface* object)
-{
-    static_assert(
-        implemented_as_QObject<Interface>::value,
-        "qobject_interface_cast may only be done with interfaces for QObjects"
-    );
+// //TODO: enable_if
+// template<class Interface, typename = typename std::enable_if<!std::is_const<Interface>::value>::type>
+// QObject* qobject_interface_cast(Interface* object)
+// {
+//     // static_assert(
+//     //     implemented_as_QObject<Interface>::value,
+//     //     "qobject_interface_cast may only be done with interfaces for QObjects"
+//     // );
 
-    return dynamic_cast<const QObject*>(object);
-}
+//     // return dynamic_cast<QObject*>(object);
+//     return static_cast<IAmQObject*>(object)->asQObject();
+// }
+
+// /**
+//  * @brief Wrapper for dynamic_cast<QObject*>(object), which requires
+//  * at compile-time for `Interface` to be implemented as a QObject.
+//  * @param object
+//  * The object to be cast
+//  */
+// template<class Interface, typename = typename std::enable_if<!std::is_const<Interface>::value>::type>
+// const QObject* qobject_interface_cast(const Interface* object)
+// {
+//     // static_assert(
+//     //     implemented_as_QObject<Interface>::value,
+//     //     "qobject_interface_cast may only be done with interfaces for QObjects"
+//     // );
+
+//     // return dynamic_cast<const QObject*>(object);
+//     return static_cast<const IAmQObject*>(object)->asQObject();
+// }
 
 /**
  * @brief Wrapper for QObject::connect that automatically converts from
@@ -64,12 +85,12 @@ inline QMetaObject::Connection connect_interface(
         Qt::ConnectionType type = Qt::AutoConnection
     )
 {
-    static_assert(
-        implemented_as_QObject<Interface>::value,
-        "connect_interface may only be done with interfaces for QObjects"
-    );
+    // static_assert(
+    //     implemented_as_QObject<Interface>::value,
+    //     "connect_interface may only be done with interfaces for QObjects"
+    // );
 
-    const QObject* qsender = dynamic_cast<const QObject*>(sender);
+    const QObject* qsender = qobject_interface_cast(sender);//dynamic_cast<const QObject*>(sender);
 
     //dynamic assert
 
@@ -86,12 +107,12 @@ inline QMetaObject::Connection connect_interface(
         Qt::ConnectionType type = Qt::AutoConnection
     )
 {
-    static_assert(
-        implemented_as_QObject<Interface>::value,
-        "connect_interface may only be done with interfaces for QObjects"
-    );
+    // static_assert(
+    //     implemented_as_QObject<Interface>::value,
+    //     "connect_interface may only be done with interfaces for QObjects"
+    // );
 
-    const QObject* qreceiver = dynamic_cast<const QObject*>(receiver);
+    const QObject* qreceiver = qobject_interface_cast<Interface>(receiver); //dynamic_cast<const QObject*>(receiver);
 
 
     //dynamic assert
@@ -113,17 +134,17 @@ inline QMetaObject::Connection connect_interface2(
         const char* slot
     )
 {
-    static_assert(
-        implemented_as_QObject<SenderInterface>::value,
-        "connect_interface may only be done with interfaces for QObjects"
-    );
-    static_assert(
-        implemented_as_QObject<ReceiverInterface>::value,
-        "connect_interface may only be done with interfaces for QObjects"
-    );
+    // static_assert(
+    //     implemented_as_QObject<SenderInterface>::value,
+    //     "connect_interface may only be done with interfaces for QObjects"
+    // );
+    // static_assert(
+    //     implemented_as_QObject<ReceiverInterface>::value,
+    //     "connect_interface may only be done with interfaces for QObjects"
+    // );
 
-    const QObject* qsender = dynamic_cast<const QObject*>(sender);
-    const QObject* qreceiver = dynamic_cast<const QObject*>(receiver);
+    const QObject* qsender = qobject_interface_cast(sender);//dynamic_cast<const QObject*>(sender);
+    const QObject* qreceiver = qobject_interface_cast(receiver);//dynamic_cast<const QObject*>(receiver);
 
 
     //dynamic asserts

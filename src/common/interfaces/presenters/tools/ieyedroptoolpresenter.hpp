@@ -30,7 +30,7 @@ signals:
 //Q_DECLARE_METATYPE(IEyedropToolPresenter::SampleOptions)
 
 DECL_MAKEABLE(IEyedropToolPresenter)
-DECL_IMPLEMENTED_AS_QOBJECT(IEyedropToolPresenter)
+//DECL_IMPLEMENTED_AS_QOBJECT(IEyedropToolPresenter)
 
 } // namespace Addle
 #endif // IEYEDROPTOOLPRESENTER_HPP

@@ -7,13 +7,14 @@
 #include "utilities/model/colorinfo.hpp"
 
 #include "interfaces/traits.hpp"
+#include "interfaces/iamqobject.hpp"
 
 
 #include "interfaces/metaobjectinfo.hpp"
 namespace Addle {
 
 class IPalettePresenter;
-class IColorSelectionPresenter
+class IColorSelectionPresenter : public virtual IAmQObject
 {
 public:
     INTERFACE_META(IColorSelectionPresenter);
@@ -60,7 +61,7 @@ signals:
 };
 
 DECL_MAKEABLE(IColorSelectionPresenter);
-DECL_IMPLEMENTED_AS_QOBJECT(IColorSelectionPresenter);
+//DECL_IMPLEMENTED_AS_QOBJECT(IColorSelectionPresenter))
 DECL_EXPECTS_INITIALIZE(IColorSelectionPresenter);
 
 DECL_INTERFACE_META_PROPERTIES(IColorSelectionPresenter,

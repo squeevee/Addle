@@ -10,6 +10,7 @@
 #include "interfaces/models/ibrushmodel.hpp"
 
 #include "interfaces/traits.hpp"
+#include "interfaces/iamqobject.hpp"
 
 namespace Addle {
 
@@ -35,7 +36,7 @@ namespace IBrushPresenterAux
 // Brushes 
 class ISizeSelectionPresenter;
 class IBrushModel;
-class IBrushPresenter : public IAssetPresenter
+class IBrushPresenter : public IAssetPresenter, public virtual IAmQObject
 {
 public:
     class PreviewInfoProvider
@@ -63,7 +64,7 @@ public:
     virtual void setPreviewInfo(QSharedPointer<const PreviewInfoProvider> info) = 0;
 };
 
-DECL_IMPLEMENTED_AS_QOBJECT(IBrushPresenter)
+//DECL_IMPLEMENTED_AS_QOBJECT(IBrushPresenter))
 DECL_EXPECTS_INITIALIZE(IBrushPresenter)
 DECL_MAKEABLE(IBrushPresenter)
 

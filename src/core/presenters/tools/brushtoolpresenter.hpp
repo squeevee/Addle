@@ -34,6 +34,7 @@ class ADDLE_CORE_EXPORT BrushToolPresenter : public QObject, public virtual IBru
         WRITE selectBrush
         NOTIFY brushChanged
     )
+    IAMQOBJECT_IMPL
 public:
     BrushToolPresenter()
         : _selectHelper(*this)
