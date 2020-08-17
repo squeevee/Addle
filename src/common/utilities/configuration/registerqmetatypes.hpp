@@ -10,6 +10,8 @@
 #include "interfaces/presenters/tools/inavigatetoolpresenter.hpp"
 #include "interfaces/presenters/assets/ibrushpresenter.hpp"
 
+#include "interfaces/models/ipalette.hpp"
+
 #include "utilities/indexvariant.hpp"
 #include "idtypes/persistentid.hpp"
 #include "idtypes/brushid.hpp"
@@ -21,14 +23,7 @@ namespace Addle {
 
 inline void registerQMetaTypes()
 {
-    //qRegisterMetaType<QSharedPointer<AddleException>>();
-
-    //qRegisterMetaType<QSharedPointer<IDocument>>();
-    //qRegisterMetaType<QSharedPointer<IErrorPresenter>>();
-    
     qRegisterMetaType<INavigateToolPresenter::NavigateOperationOptions>("NavigateOperationOptions");
-    // qRegisterMetaType<IBrushPresenter::SizeOption>("SizeOption");
-    //qRegisterMetaType<QSharedPointer<IAssetPresenter>>();
 
     qRegisterMetaType<PersistentId>();
     IndexVariant::registerHasher<PersistentId>();
@@ -46,6 +41,8 @@ inline void registerQMetaTypes()
     IndexVariant::registerHasher<FormatId, PersistentId>();
 
     CanvasMouseEvent::_type = QEvent::registerEventType(CanvasMouseEvent::_type);
+
+    qRegisterMetaType<IPalette::ColorArray>("ColorArray");
 }
 
 } // namespace Addle

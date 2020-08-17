@@ -13,6 +13,7 @@
 #include <QWeakPointer>
 #include <QPainter>
 #include <QRectF>
+
 namespace Addle {
 
 class IRenderStack;
@@ -40,6 +41,8 @@ signals:
 DECL_MAKEABLE(ILayerPresenter)
 DECL_EXPECTS_INITIALIZE(ILayerPresenter)
 
-
 } // namespace Addle
+
+Q_DECLARE_INTERFACE(Addle::ILayerPresenter, "org.addle.ILayerPresenter")
+
 #endif // ILAYERPRESENTER_HPP

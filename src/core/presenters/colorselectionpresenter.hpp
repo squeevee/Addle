@@ -25,35 +25,33 @@ class ADDLE_CORE_EXPORT ColorSelectionPresenter : public QObject, public IColorS
         WRITE setColor2
         NOTIFY color2Changed
     )
+    Q_INTERFACES(Addle::IColorSelectionPresenter)
     IAMQOBJECT_IMPL
 
 public: 
     virtual ~ColorSelectionPresenter() = default;
 
     void initialize(QList<QSharedPointer<IPalettePresenter>> palettes);
-
+    
     QList<QSharedPointer<IPalettePresenter>> palettes() const { _initHelper.check(); return _palettes; }
-    void setPalettes(QList<QSharedPointer<IPalettePresenter>> palettes);
-
     QSharedPointer<IPalettePresenter> palette() const { _initHelper.check(); return _palette; }
-    void setPalette(QSharedPointer<IPalettePresenter> palette);
-
     ColorInfo color(int which) const;
-    void setColor(int which, ColorInfo color);
-
     ColorInfo color1() const { _initHelper.check(); return _color1; }
-    void setColor1(ColorInfo color);
-
     ColorInfo color2() const { _initHelper.check(); return _color2; }
-    void setColor2(ColorInfo color);
-
     ColorInfo activeColor() const { return color(_active); }
-    void setActiveColor(ColorInfo color) { setColor(_active, color); }
-
     int active() const { _initHelper.check(); return _active; }
+    
+    QList<ColorInfo> history() const { _initHelper.check(); return QList<ColorInfo>(); } // TODO
+
+public slots:
+    void setPalettes(QList<QSharedPointer<IPalettePresenter>> palettes);
+    void setPalette(QSharedPointer<IPalettePresenter> palette);
+    void setColor(int which, ColorInfo color);
+    void setColor1(ColorInfo color);
+    void setColor2(ColorInfo color);
+    void setActiveColor(ColorInfo color) { setColor(_active, color); }
     void setActive(int active);
 
-    QList<ColorInfo> history() const { _initHelper.check(); return QList<ColorInfo>(); } // TODO
 signals:
     void palettesChanged(QList<QSharedPointer<IPalettePresenter>>);
     void paletteChanged(QSharedPointer<IPalettePresenter>);
@@ -74,7 +72,7 @@ private:
     QList<QSharedPointer<IPalettePresenter>> _palettes;
     QSharedPointer<IPalettePresenter> _palette;
 
-    InitializeHelper<ColorSelectionPresenter> _initHelper;
+    InitializeHelper _initHelper;
 };
 
 } // namespace Addle

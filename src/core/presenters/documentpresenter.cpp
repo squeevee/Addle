@@ -1,6 +1,7 @@
 #include "documentpresenter.hpp"
 #include "servicelocator.hpp"
 
+#include "utilities/model/documentbuilder.hpp"
 
 #include "utils.hpp"
 #include "interfaces/presenters/ilayerpresenter.hpp"
@@ -8,7 +9,7 @@ using namespace Addle;
 
 void DocumentPresenter::initialize(EmptyInitOptions option)
 {
-    _initHelper.initializeBegin();
+    const Initializer init(_initHelper);
 
     switch(option)
     {
@@ -23,13 +24,11 @@ void DocumentPresenter::initialize(EmptyInitOptions option)
         initialize(QSize(800, 600), Qt::white); // TODO: not this
         break;
     }
-
-    _initHelper.initializeEnd();
 }
 
 void DocumentPresenter::initialize(QSize size, QColor backgroundColor)
 {
-    _initHelper.initializeBegin();
+    const Initializer init(_initHelper);
 
     LayerBuilder layer;
     layer.setBoundary(QRect(QPoint(), size));
@@ -39,21 +38,17 @@ void DocumentPresenter::initialize(QSize size, QColor backgroundColor)
     doc.setBackgroundColor(backgroundColor);
 
     initialize(ServiceLocator::makeShared<IDocument>(doc));
-
-    _initHelper.initializeEnd();
 }
 
 void DocumentPresenter::initialize(QSharedPointer<IDocument> model)
 {
-    _initHelper.initializeBegin();
+    const Initializer init(_initHelper);
 
     //assert model
     _model = model;
 
     _layersHelper.initialize(_model->layers());
     _initHelper.setCheckpoint(InitCheckpoints::Layers);
-
-    _initHelper.initializeEnd();
 }
 
 // void DocumentPresenter::addLayer(int index)

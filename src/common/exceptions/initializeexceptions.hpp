@@ -24,15 +24,10 @@ class ADDLE_COMMON_EXPORT InitializeException : public AddleException
 {
 #ifdef ADDLE_DEBUG
 public:
-    InitializeException(const char* senderTypeName, const QString what)
-        : AddleException(what),
-        _senderTypeName(senderTypeName)
+    InitializeException(const QString what)
+        : AddleException(what)
     {
     }
-
-private:
-    const char* _senderTypeName;
-
 #else
 public:
     InitializeException() = default;
@@ -58,15 +53,14 @@ class ADDLE_COMMON_EXPORT NotInitializedException : public InitializeException
 
 public:
 #ifdef ADDLE_DEBUG
-    NotInitializedException(const char* senderTypeName = DEBUG__NONE_TYPE_NAME)
+    NotInitializedException()
         : InitializeException(
-            senderTypeName,
             fallback_translate(
                 "NotInitializedException",
                 "what",
                 QStringLiteral(
-                    "Attempted operation on object of type \"%1\" that was not yet initialized."
-                ).arg(senderTypeName)
+                    "Attempted operation on object that was not yet initialized."
+                )
             )
         )
     {
@@ -92,15 +86,14 @@ class ADDLE_COMMON_EXPORT AlreadyInitializedException : public InitializeExcepti
 
 public:
 #ifdef ADDLE_DEBUG
-    AlreadyInitializedException(const char* senderTypeName = DEBUG__NONE_TYPE_NAME)
+    AlreadyInitializedException()
         : InitializeException(
-            senderTypeName,
             fallback_translate(
                 "AlreadyInitializedException",
                 "what",
                 QStringLiteral(
-                    "Attempted to initialize object of type \"%1\" that was already initialized."
-                ).arg(senderTypeName)
+                    "Attempted to initialize object that was already initialized."
+                )
             )
         )
     {
@@ -128,17 +121,14 @@ public:
     };
 
 #ifdef ADDLE_DEBUG
-    InvalidInitializeException(Why why, const char* senderTypeName = DEBUG__NONE_TYPE_NAME)
+    InvalidInitializeException(Why why)
         : InitializeException(
-            senderTypeName,
             fallback_translate(
                 "InvalidInitializeException",
                 "what",
                 QStringLiteral(
                     "A problem was encountered during initialization.\n"
-                    "Sender type: \"%1\"\n"
                     "Why code:    %2")
-                .arg(senderTypeName)
                 .arg(why)
             )
         ), _why(why)

@@ -7,6 +7,8 @@
 #include <QGraphicsScene>
 #include <QTransform>
 
+#include <QSharedPointer>
+
 #include "interfaces/presenters/iviewportpresenter.hpp"
 #include "utilities/initializehelper.hpp"
 
@@ -20,7 +22,7 @@ class ADDLE_WIDGETSGUI_EXPORT ViewPort : public QGraphicsView
 {
     Q_OBJECT
 public:
-    ViewPort(IViewPortPresenter* presenter);
+    ViewPort(IViewPortPresenter& presenter);
     virtual ~ViewPort() = default;
 
 protected:
@@ -31,17 +33,15 @@ protected:
     void focusOutEvent(QFocusEvent* focusEvent);
 
 private slots:
-    void setDocument(IDocumentPresenter* documentPresenter);
+    void setDocument(QSharedPointer<IDocumentPresenter> documentPresenter);
     void onTransformsChanged();
     void updateCursor();
 
 private:
     CanvasScene* _canvasScene;
 
-    IViewPortPresenter* _presenter;
-    IMainEditorPresenter* _mainEditorPresenter;
-    ICanvasPresenter* _canvasPresenter;
-    IDocumentPresenter* _documentPresenter = nullptr;
+    IViewPortPresenter& _presenter;
+    QSharedPointer<IDocumentPresenter> _documentPresenter;
 };
 
 } // namespace Addle

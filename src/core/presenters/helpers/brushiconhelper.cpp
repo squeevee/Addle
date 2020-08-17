@@ -8,7 +8,7 @@
 
 #include "servicelocator.hpp"
 
-#include "interfaces/models/ibrushmodel.hpp"
+#include "interfaces/models/ibrush.hpp"
 #include "interfaces/services/iappearanceservice.hpp"
 
 #include "utilities/editing/brushstroke.hpp"
@@ -124,8 +124,8 @@ void BrushIconHelper::BrushIconEngine::paint_p(QSize iconSize)
     double scale;
     QPointF center;
 
-    IBrushModel::PreviewHints hints = ServiceLocator::get<IBrushModel>(_helper->_brush).previewHints();
-    bool copyMode = ServiceLocator::get<IBrushModel>(_helper->_brush).copyMode();
+    IBrush::PreviewHints hints = ServiceLocator::get<IBrush>(_helper->_brush).previewHints();
+    bool copyMode = ServiceLocator::get<IBrush>(_helper->_brush).copyMode();
 
     const QRect iconRect(QPoint(), iconSize);
 
@@ -216,7 +216,7 @@ void BrushIconHelper::BrushIconEngine::paint_p(QSize iconSize)
     QPainter painter(&_cache);
 
     _helper->_underSurface->clear();
-    if (hints & IBrushModel::Subtractive)
+    if (hints & IBrush::Subtractive)
     {
         auto surfaceHandle = _helper->_underSurface->paintHandle(coarseBoundRect(canonicalRect));
         

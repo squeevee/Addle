@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QString>
 
-#include "interfaces/models/ibrushmodel.hpp"
+#include "interfaces/models/ibrush.hpp"
 
 #include "compat.hpp"
 #include "utilities/qtextensions/qmeta.hpp"
@@ -20,7 +20,7 @@ class ADDLE_COMMON_EXPORT RasterEngineParams final
     Q_GADGET
 public:
 
-    RasterEngineParams(const IBrushModel& model)
+    RasterEngineParams(const IBrush& model)
         : _model(model)
     {
     }
@@ -54,7 +54,7 @@ public:
     }
 
 private:
-    const IBrushModel& _model;
+    const IBrush& _model;
 };
 
 } // namespace Addle

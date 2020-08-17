@@ -22,9 +22,9 @@ public:
         if (_isSelected == (_owner.id() == _owner.owner()->currentTool())) return;
 
         if (isSelected)
-            _owner.owner()->selectTool(_owner.id());
+            _owner.owner()->setCurrentTool(_owner.id());
         else if (_owner.id() == _owner.owner()->currentTool())
-            _owner.owner()->selectTool(ToolId());
+            _owner.owner()->setCurrentTool(ToolId());
 
         _isSelected = isSelected;
 

@@ -10,21 +10,17 @@ using namespace Addle;
 
 void Layer::initialize()
 {
-    _initHelper.initializeBegin();
+    const Initializer init(_initHelper);
     LayerBuilder builder;
     initialize(builder);
-    _initHelper.initializeEnd();
 }
 
 void Layer::initialize(LayerBuilder& builder)
 {
-    _initHelper.initializeBegin();
+    const Initializer init(_initHelper);
 
     _boundary = builder.boundary();
     _empty = true;
     
     _rasterSurface = ServiceLocator::makeShared<IRasterSurface>(builder.image());
-    //qobject_interface_cast(_rasterSurface.data())->setParent(this);
-
-    _initHelper.initializeEnd();
 }

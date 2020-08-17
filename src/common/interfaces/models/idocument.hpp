@@ -21,39 +21,36 @@ namespace Addle {
 class IDocument : public virtual IFormatModel, public virtual IAmQObject
 {
 public:
-    static const QColor DEFAULT_BACKGROUND_COLOR;
+    static const QColor DEFAULT_BACKGROUND_COLOR; // ?
 
     virtual ~IDocument() {}
 
     virtual void initialize() = 0;
     virtual void initialize(DocumentBuilder& builder) = 0;
 
-    virtual void render(QRect area, QPaintDevice* device) = 0;
+    virtual void render(QRect area, QPaintDevice* device) const = 0;
 
-    virtual bool isEmpty() = 0;
+    virtual bool isEmpty() const = 0;
+    virtual QSize size() const = 0;
+    virtual QColor backgroundColor() const = 0;
 
-    virtual QSize size() = 0;
+    virtual QString filename() const = 0;
+    
+    virtual QList<QSharedPointer<ILayer>> layers() const = 0;
 
-    virtual QColor backgroundColor() = 0;
-
-    virtual QString filename() = 0;
+public slots:
     virtual void setFilename(QString filename) = 0;
 
-    virtual QList<QSharedPointer<ILayer>> layers() = 0;
-
 signals:
-    //void renderChanged(QRect area);
     void boundaryChanged(QRect newBoundary);
 
-    //void applyingDrawingOperation(const IDrawingOperation& operation);
-    //void appliedDrawingOperation(const IDrawingOperation& operation);
 };
 
 DECL_MAKEABLE(IDocument)
 DECL_EXPECTS_INITIALIZE(IDocument)
 
-
-
-
 } // namespace Addle
+
+Q_DECLARE_INTERFACE(Addle::IDocument, "org.addle.IDocument")
+
 #endif // IDOCUMENT_HPP

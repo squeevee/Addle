@@ -1,3 +1,11 @@
+/**
+ * Addle source code
+ * @file
+ * @copyright Copyright 2020 Eleanor Hawk
+ * @copyright Modification and distribution permitted under the terms of the
+ * MIT License. See "LICENSE" for full details.
+ */
+
 #ifndef INAVIGATETOOLPRESENTER_HPP
 #define INAVIGATETOOLPRESENTER_HPP
 
@@ -46,6 +54,8 @@ DECL_INTERFACE_META_PROPERTIES(
 DECL_MAKEABLE(INavigateToolPresenter)
 DECL_EXPECTS_INITIALIZE(INavigateToolPresenter)
 
-
 } // namespace Addle
+
+Q_DECLARE_INTERFACE(Addle::INavigateToolPresenter, "org.addle.INavigateToolPresenter")
+
 #endif // INAVIGATETOOLPRESENTER_HPP

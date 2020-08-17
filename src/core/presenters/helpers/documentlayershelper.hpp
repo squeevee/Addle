@@ -102,7 +102,7 @@ public:
 
     QSharedPointer<ILayerPresenter> topSelectedLayer() const { return _topSelectedLayer.value(); }
 
-    LayerNode& addLayer()
+    void addLayer()
     {
         LayerNode* cursor = getCursor();
 
@@ -119,11 +119,9 @@ public:
         onLayersChanged();
 
         setLayerSelection({ &result });
-
-        return result;
     }
 
-    LayerNode& addLayerGroup()
+    void addLayerGroup()
     {
         LayerNode* cursor = getCursor();
 
@@ -140,8 +138,6 @@ public:
         emit onLayersChanged();
 
         setLayerSelection({ &result });
-
-        return result;   
     }
     
     void removeSelectedLayers()

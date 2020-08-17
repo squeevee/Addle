@@ -61,7 +61,7 @@ public:
         disconnect();
     }
  
-    PresenterAssignment<PresenterType>& operator=(const PresenterAssignment<PresenterType>& other)
+    PresenterAssignment& operator=(const PresenterAssignment<PresenterType>& other)
     {
         disconnect();
 
@@ -72,7 +72,7 @@ public:
         return *this;
     }
 
-    PresenterAssignment<PresenterType>& operator=(PresenterAssignment<PresenterType>&& other)
+    PresenterAssignment& operator=(PresenterAssignment<PresenterType>&& other)
     {
         disconnect();
 
@@ -85,6 +85,31 @@ public:
         other._connections.clear();
 
         return *this;
+    }
+
+    PresenterAssignment& operator=(std::nullptr_t)
+    {
+        disconnect();
+
+        _presenter = nullptr;
+        _safe = nullptr;
+
+        return *this;
+    }
+
+    PresenterAssignment& operator=(QWeakPointer<PresenterType> pointer)
+    {
+        disconnect();
+
+        _presenter = pointer.data();
+        _safe = [=]() -> bool { return !pointer.isNull(); };
+
+        return *this;
+    }
+
+    PresenterAssignment& operator=(QSharedPointer<PresenterType> pointer)
+    {
+        return *this = pointer.toWeakRef();
     }
     
     inline bool isNull() const { return !_presenter || (_safe && !_safe()); }
@@ -113,6 +138,36 @@ public:
     }
 
     inline bool operator!=(const PresenterType& presenter) const
+    {
+        return !(presenter == *this);
+    }
+
+    inline bool operator==(std::nullptr_t) const
+    {
+        return isNull();
+    }
+
+    inline bool operator!=(std::nullptr_t) const
+    {
+        return !isNull();
+    }
+
+    inline bool operator==(QWeakPointer<PresenterType> presenter) const
+    {
+        return _presenter == presenter.toStrongRef().data();
+    }
+
+    inline bool operator!=(QWeakPointer<PresenterType> presenter) const
+    {
+        return !(presenter == *this);
+    }
+
+    inline bool operator==(QSharedPointer<PresenterType> presenter) const
+    {
+        return _presenter == presenter.data();
+    }
+
+    inline bool operator!=(QSharedPointer<PresenterType> presenter) const
     {
         return !(presenter == *this);
     }

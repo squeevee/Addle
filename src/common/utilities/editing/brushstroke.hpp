@@ -3,7 +3,7 @@
 
 #include "compat.hpp"
 
-#include "interfaces/models/ibrushmodel.hpp"
+#include "interfaces/models/ibrush.hpp"
 
 #include <QObject>
 
@@ -27,7 +27,7 @@ public:
     );
     
     inline BrushId id() const { return _id; }
-    inline IBrushModel& brush() const { return _brush; }
+    inline IBrush& brush() const { return _brush; }
     inline QSharedPointer<IRasterSurface> buffer() const { return _buffer; }
 
     void conform();
@@ -75,7 +75,7 @@ public:
 
 private:
     BrushId _id;
-    IBrushModel& _brush;
+    IBrush& _brush;
     QSharedPointer<IRasterSurface> _buffer;
 
     struct PainterState

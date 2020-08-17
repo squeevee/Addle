@@ -1,3 +1,11 @@
+/**
+ * Addle source code
+ * @file
+ * @copyright Copyright 2020 Eleanor Hawk
+ * @copyright Modification and distribution permitted under the terms of the
+ * MIT License. See "LICENSE" for full details.
+ */
+
 #ifndef ISIZESELECTIONPRESENTER_HPP
 #define ISIZESELECTIONPRESENTER_HPP
 
@@ -33,19 +41,19 @@ public:
     virtual QList<QIcon> presetIcons() const = 0;
 
     virtual double min() const = 0;
-    virtual void setMin(double min) = 0;
-
     virtual double max() const = 0;
-    virtual void setMax(double max) = 0;
 
     virtual bool strictSizing() const = 0;
-    virtual void setStrictSizing(bool strict) = 0;
 
 public slots:
-    virtual void setPresets(QList<double> presets) = 0;
-
     virtual void set(double size) = 0;
     virtual void selectPreset(int index) = 0;
+
+    virtual void setMin(double min) = 0;
+    virtual void setMax(double max) = 0;
+    
+    virtual void setStrictSizing(bool strict) = 0;
+    virtual void setPresets(QList<double> presets) = 0;
 
 signals:
     virtual void changed(double size) = 0;
@@ -56,8 +64,10 @@ signals:
 };
 
 DECL_EXPECTS_INITIALIZE(ISizeSelectionPresenter);
-
 DECL_MAKEABLE(ISizeSelectionPresenter);
 
 } // namespace Addle
+
+Q_DECLARE_INTERFACE(Addle::ISizeSelectionPresenter, "org.Addle.ISizeSelectionPresenter")
+
 #endif // ISIZESELECTIONPRESENTER_HPP

@@ -276,7 +276,7 @@ void ApplicationService::startGraphicalApplication()
         presenter->loadDocument(_startingUrl);
     }
 
-    presenter->view()->start();
+    presenter->view().start();
 }
 
 void ApplicationService::quitting()

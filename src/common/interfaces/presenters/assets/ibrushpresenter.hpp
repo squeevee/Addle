@@ -7,7 +7,7 @@
 #include "idtypes/brushid.hpp"
 #include "iassetpresenter.hpp"
 
-#include "interfaces/models/ibrushmodel.hpp"
+#include "interfaces/models/ibrush.hpp"
 
 #include "interfaces/traits.hpp"
 #include "interfaces/iamqobject.hpp"
@@ -35,7 +35,7 @@ namespace IBrushPresenterAux
 
 // Brushes 
 class ISizeSelectionPresenter;
-class IBrushModel;
+class IBrush;
 class IBrushPresenter : public IAssetPresenter, public virtual IAmQObject
 {
 public:
@@ -50,11 +50,11 @@ public:
 
     virtual ~IBrushPresenter() = default;
     
-    virtual void initialize(IBrushModel& model, QSharedPointer<const PreviewInfoProvider> info = nullptr) = 0;
+    virtual void initialize(IBrush& model, QSharedPointer<const PreviewInfoProvider> info = nullptr) = 0;
     virtual void initialize(BrushId id, QSharedPointer<const PreviewInfoProvider> info = nullptr) = 0;
 
     virtual BrushId brushId() = 0;
-    virtual IBrushModel& model() const = 0;
+    virtual IBrush& model() const = 0;
 
     virtual ISizeSelectionPresenter& sizeSelection() = 0;
 

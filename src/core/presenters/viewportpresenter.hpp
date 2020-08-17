@@ -7,6 +7,7 @@
 
 #include "interfaces/presenters/iviewportpresenter.hpp"
 
+#include "utils.hpp"
 #include "utilities/initializehelper.hpp"
 #include "utilities/presethelper.hpp"
 #include "utilities/presenter/propertycache.hpp"
@@ -107,7 +108,6 @@ class ADDLE_CORE_EXPORT ViewPortPresenter : public QObject, public IViewPortPres
 
 public:
     ViewPortPresenter()
-        : _initHelper(this)
     {
         _canNavigateCache.calculateBy(&ViewPortPresenter::canNavigate_p, this);
         _canNavigateCache.onChange.bind(&ViewPortPresenter::canNavigateChanged, this);
@@ -133,7 +133,6 @@ public:
 
     IMainEditorPresenter* mainEditorPresenter() { _initHelper.check(); return _mainEditorPresenter; }
 
-public:
     bool canNavigate() const { _initHelper.check(); return _canNavigateCache.value(); }
 
     bool hasFocus() const { _initHelper.check(); return _hasFocus; }
@@ -181,7 +180,6 @@ public:
     ZoomPreset zoomTo(double zoom, bool snapToPreset = true);
 
 public slots:
-
     ZoomPreset zoomIn(bool* zoomed = nullptr);
     ZoomPreset zoomOut(bool* zoomed = nullptr);
 
@@ -231,7 +229,7 @@ public slots:
 
     void setSize(QSize size);
 
-    void setGlobalOffset(QPoint offset) { _initHelper.check(); _globalOffset = offset; }
+    void setGlobalOffset(QPoint offset) { try { _initHelper.check(); _globalOffset = offset; } ADDLE_SLOT_CATCH }
 
 signals:
     void transformsChanged();
@@ -281,7 +279,7 @@ private:
     const double ZOOM_SNAP_THRESHOLD = 0.10;
     const int VIEW_MARGIN = 10;
 
-    InitializeHelper<ViewPortPresenter> _initHelper;
+    InitializeHelper _initHelper;
     
     static const PresetHelper<RotatePreset, double> _rotatePresetHelper;
     static const PresetHelper<ZoomPreset, double> _zoomPresetHelper;

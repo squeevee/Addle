@@ -5,7 +5,7 @@
 #include <QSharedData>
 #include <QIcon>
 
-#include "interfaces/models/ibrushmodel.hpp"
+#include "interfaces/models/ibrush.hpp"
 #include "idtypes/brushid.hpp"
 #include "idtypes/brushengineid.hpp"
 namespace Addle {
@@ -34,7 +34,7 @@ class BrushBuilder
         bool strictSizing = false;
         double preferredStartingSize = Q_QNAN;
 
-        IBrushModel::PreviewHints previewHints;
+        IBrush::PreviewHints previewHints;
     };
 
 public:
@@ -83,8 +83,8 @@ public:
     double preferredStartingSize() const { return _data->preferredStartingSize; }
     BrushBuilder& setPreferredStartingSize(double preferredStartingSize) { _data->preferredStartingSize = preferredStartingSize; return *this; }
 
-    IBrushModel::PreviewHints previewHints() const { return _data->previewHints; }
-    BrushBuilder& setPreviewHints(IBrushModel::PreviewHints previewHints) { _data->previewHints = previewHints; return *this; }
+    IBrush::PreviewHints previewHints() const { return _data->previewHints; }
+    BrushBuilder& setPreviewHints(IBrush::PreviewHints previewHints) { _data->previewHints = previewHints; return *this; }
 
 private:
     QSharedDataPointer<BrushBuilderData> _data;

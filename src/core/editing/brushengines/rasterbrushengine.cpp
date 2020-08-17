@@ -31,7 +31,7 @@ QPainterPath RasterBrushEngine::indicatorShape(const BrushStroke& painter) const
 
 void RasterBrushEngine::paint(BrushStroke& brushStroke) const
 {
-    RasterEngineParams params(ServiceLocator::get<IBrushModel>(brushStroke.id()));
+    RasterEngineParams params(ServiceLocator::get<IBrush>(brushStroke.id()));
 
     QPointF pos = brushStroke.positions().last();
     double size = brushStroke.size();

@@ -3,7 +3,7 @@ using namespace Addle;
 
 void AssetSelectionPresenter::initialize(QList<QSharedPointer<IAssetPresenter>> assets, bool canMultiSelect)
 {
-    _initHelper.initializeBegin();
+    const Initializer init(_initHelper);
 
     _assets = assets;
     for (auto asset : _assets)
@@ -13,8 +13,6 @@ void AssetSelectionPresenter::initialize(QList<QSharedPointer<IAssetPresenter>> 
     }
 
     _canMultiSelect = canMultiSelect;
-
-    _initHelper.initializeEnd();
 }
 
 void AssetSelectionPresenter::select(PersistentId assetId)

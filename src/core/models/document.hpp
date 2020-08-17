@@ -15,59 +15,33 @@ namespace Addle {
 class ADDLE_CORE_EXPORT Document : public QObject, public IDocument
 {
     Q_OBJECT
+    Q_INTERFACES(Addle::IDocument)
     IAMQOBJECT_IMPL
 public:
-
-    Document() : _initHelper(this) {}
     virtual ~Document() = default;
 
     void initialize();
     void initialize(DocumentBuilder& builder);
 
-    void render(QRect area, QPaintDevice* device);
+    void render(QRect area, QPaintDevice* device) const;
 
-    bool isEmpty() { _initHelper.check(); return _empty; }
+    bool isEmpty() const { _initHelper.check(); return _empty; }
 
-    QSize size() { _initHelper.check(); return _size; }
+    QSize size() const { _initHelper.check(); return _size; }
 
-    //void applyOperation(IDrawingOperation& operation);
+    QColor backgroundColor() const { _initHelper.check(); return _backgroundColor; }
 
-    QColor backgroundColor() { _initHelper.check(); return _backgroundColor; }
+    QString filename() const { _initHelper.check(); return _filename; }
 
-    QString filename() { _initHelper.check(); return _filename; }
-    void setFilename(QString filename) {}
-
-    QList<QSharedPointer<ILayer>> layers();
-    ILayer* layer(int index);
-    void addNewLayer(LayerBuilder& builder, int insertBefore = -1);
-    void addNewLayers(QList<LayerBuilder> builders, int insertBefore = -1);
-    void addNewEmptyLayer(int insertBefore = -1);
-    void addNewEmptyLayers(int count, int insertBefore = -1);
-    void deleteLayer(int index);
-    void deleteLayers(QList<int> indices);
-    void reorderLayer(int from, int to);
-    int indexOfLayer(ILayer* layer);
-    int layerCount();
+    QList<QSharedPointer<ILayer>> layers() const { _initHelper.check(); return _layers; }
 
     QImage exportImage();
 
+public slots:
+    void setFilename(QString filename) {}
+
 signals:
-    //void renderChanged(QRect area);
-    void boundaryChanging(QRect change);
     void boundaryChanged(QRect change);
-
-    //void applyingDrawingOperation(const IDrawingOperation& operation);
-    //void appliedDrawingOperation(const IDrawingOperation& operation);
-
-    void layersAdding(int count);
-    void layersAdded(int startIndex, int count);
-
-    void layersDeleting(QList<int> indices);
-    void layersDeleted(int count);
-
-    void layerReordering(int from, int to);
-    void layerReordered(int from, int to);
-
 
 private:
 
@@ -80,14 +54,12 @@ private:
 
     QString _filename;
 
-    void init(DocumentBuilder& builder);
-    void updateGeometry();
     void layersChanged(QList<ILayer*> layers);
 
     QRect unitedBoundary();
 
 protected:
-    InitializeHelper<Document> _initHelper;
+    InitializeHelper _initHelper;
 };
 
 } // namespace Addle

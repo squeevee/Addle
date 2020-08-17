@@ -19,6 +19,7 @@ class ADDLE_CORE_EXPORT SizeSelectionPresenter : public QObject, public ISizeSel
         WRITE set
         NOTIFY changed
     )
+    Q_INTERFACES(Addle::ISizeSelectionPresenter)
     IAMQOBJECT_IMPL
 public:
     virtual ~SizeSelectionPresenter() = default;
@@ -34,20 +35,20 @@ public:
     QList<QIcon> presetIcons() const { _initHelper.check(); return _presetIcons; }
 
     double min() const { return _min; }
-    void setMin(double min) { _min = min; }
-
     double max() const { return _max; }
-    void setMax(double max) { _max = max; }
 
     bool strictSizing() const { return _strictSizing; }
-    void setStrictSizing(bool strict) { _strictSizing = strict; }
 
 public slots:
-    void setPresets(QList<double> presets);
-
     void set(double size);
     void selectPreset(int index);
 
+    void setMin(double min) { _min = min; }
+    void setMax(double max) { _max = max; }
+
+    void setStrictSizing(bool strict) { _strictSizing = strict; }
+    void setPresets(QList<double> presets);
+    
 signals:
     void changed(double size);
     void selectedPresetChanged(int index);
@@ -73,7 +74,7 @@ private:
     QIcon _icon;
     QList<QIcon> _presetIcons;
 
-    InitializeHelper<SizeSelectionPresenter> _initHelper;
+    InitializeHelper _initHelper;
     PresetHelper<> _presetHelper;
 };
 

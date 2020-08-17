@@ -11,7 +11,7 @@ void RasterSurface::initialize(
     )
 {
     const QWriteLocker lock(&_lock);
-    _initHelper.initializeBegin();
+    const Initializer init(_initHelper);
 
     if (_area.isValid())
     {
@@ -20,7 +20,6 @@ void RasterSurface::initialize(
         _bufferOffset = _area.topLeft();
         _area = area;
     }
-    _initHelper.initializeEnd();
 }
 
 void RasterSurface::initialize(
@@ -31,13 +30,12 @@ void RasterSurface::initialize(
     )
 {
     const QWriteLocker lock(&_lock);
-    _initHelper.initializeBegin();
+    const Initializer init(_initHelper);
 
     if (image.format() != QImage::Format_ARGB32)
         image.convertTo(QImage::Format_ARGB32);
     _buffer = image;
     _area = QRect(offset, image.size());
-    _initHelper.initializeEnd();
 }
 
 QSharedPointer<IRenderStep> RasterSurface::renderStep()

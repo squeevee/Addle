@@ -1,29 +1,24 @@
 #include "maineditorview.hpp"
 
-#include "zoomrotatewidget.hpp"
-#include "viewportscrollwidget.hpp"
-
-#include "servicelocator.hpp"
-
-#include "utilities/addle_icon.hpp"
-#include "utilities/addle_text.hpp"
-#include <QCoreApplication>
-
-#include <QSignalBlocker>
-
-#include <QAbstractButton>
 #include <QFileDialog>
 #include <QStandardPaths>
 #include <QMessageBox>
 
-#include "viewport.hpp"
+#include "zoomrotatewidget.hpp"
+#include "viewportscrollwidget.hpp"
+
+#include "utils.hpp"
 
 #include "interfaces/presenters/tools/itoolpresenter.hpp"
 #include "interfaces/services/iapplicationsservice.hpp"
+
+#include "layers/layersmanager.hpp"
+
+#include "colorselector.hpp"
+#include "viewport.hpp"
+
 #include "utilities/qtextensions/qobject.hpp"
-
 #include "utilities/presenter/propertybinding.hpp"
-
 #include "utilities/widgetproperties.hpp"
 
 #include "helpers/toolsetuphelper.hpp"
@@ -31,16 +26,11 @@
 #include "tooloptionsbars/brushtooloptionsbar.hpp"
 #include "tooloptionsbars/navigatetooloptionsbar.hpp"
 
-#include "colorselector.hpp"
-#include "layers/layersmanager.hpp"
-
-#include <QtDebug>
-
 using namespace Addle;
 
 void MainEditorView::initialize(IMainEditorPresenter* presenter)
 {
-    _initHelper.initializeBegin();
+    const Initializer init(_initHelper);
 
     _presenter = presenter;
 
@@ -50,10 +40,8 @@ void MainEditorView::initialize(IMainEditorPresenter* presenter)
     connect_interface(_presenter, SIGNAL(undoStateChanged()),
                               this, SLOT(onUndoStateChanged()));
 
-    connect_interface(_presenter, SIGNAL(documentPresenterChanged(IDocumentPresenter*)),
-                              this, SLOT(onDocumentChanged(IDocumentPresenter*)));
-    
-    _initHelper.initializeEnd();
+    connect_interface(_presenter, SIGNAL(documentPresenterChanged(QSharedPointer<IDocumentPresenter>)),
+                              this, SLOT(onDocumentChanged(QSharedPointer<IDocumentPresenter>)));
 }
 
 void MainEditorView::setupUi()
@@ -78,10 +66,8 @@ void MainEditorView::setupUi()
         BindingConverter::negate()
     );
 
-    IViewPortPresenter* viewPortPresenter = _presenter->viewPortPresenter();
-
-    _viewPort = new ViewPort(viewPortPresenter);
-    _viewPortScrollWidget = new ViewPortScrollWidget(*viewPortPresenter, this);
+    _viewPort = new ViewPort(_presenter->viewPortPresenter());
+    _viewPortScrollWidget = new ViewPortScrollWidget(_presenter->viewPortPresenter(), this);
     _viewPortScrollWidget->setViewPort(_viewPort);
     QMainWindow::setCentralWidget(_viewPortScrollWidget);
     _viewPort->setFocus();
@@ -91,7 +77,7 @@ void MainEditorView::setupUi()
     _statusBar = new QStatusBar(this);
     QMainWindow::setStatusBar(_statusBar);
 
-    _zoomRotateWidget = new ZoomRotateWidget(*viewPortPresenter, this);
+    _zoomRotateWidget = new ZoomRotateWidget(_presenter->viewPortPresenter(), this);
     _statusBar->addPermanentWidget(_zoomRotateWidget);
     _zoomRotateWidget->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
 
@@ -138,19 +124,19 @@ void MainEditorView::setupUi()
     );
 
     setupHelper.addTool(
-        IMainEditorPresenter::DefaultTools::BRUSH,
+        IMainEditorPresenterAux::DefaultTools::Brush,
         &_action_selectBrushTool,
         &_optionsToolBar_brush
     );
 
     setupHelper.addTool(
-        IMainEditorPresenter::DefaultTools::ERASER,
+        IMainEditorPresenterAux::DefaultTools::Eraser,
         &_action_selectEraserTool,
         &_optionsToolBar_eraser
     );
 
     setupHelper.addTool(
-        IMainEditorPresenter::DefaultTools::NAVIGATE,
+        IMainEditorPresenterAux::DefaultTools::Navigate,
         &_action_selectNavigateTool,
         &_optionsToolBar_navigate
     );
@@ -252,7 +238,7 @@ void MainEditorView::onPresenterEmptyChanged(bool empty)
         _viewPort->setFocus();
 }
 
-void MainEditorView::onDocumentChanged(IDocumentPresenter* document)
+void MainEditorView::onDocumentChanged(QSharedPointer<IDocumentPresenter> document)
 {
-    _layersManager->setPresenter(*document);
+    _layersManager->setPresenter(document);
 }

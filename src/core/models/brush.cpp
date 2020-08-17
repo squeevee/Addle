@@ -1,12 +1,12 @@
-#include "brushmodel.hpp"
+#include "brush.hpp"
 #include <QtDebug>
 
 #include "utilities/model/brushbuilder.hpp"
 using namespace Addle;
 
-void BrushModel::initialize(const BrushBuilder& builder)
+void Brush::initialize(const BrushBuilder& builder)
 {
-    _initHelper.initializeBegin();
+    const Initializer init(_initHelper);
 
     _id = builder.id();
     _engineId = builder.engine();
@@ -27,6 +27,4 @@ void BrushModel::initialize(const BrushBuilder& builder)
     _preferredStartingSize = builder.preferredStartingSize();
 
     _previewHints = builder.previewHints();
-
-    _initHelper.initializeEnd();
 }

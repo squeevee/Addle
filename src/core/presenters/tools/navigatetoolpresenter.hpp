@@ -21,6 +21,7 @@ class ADDLE_CORE_EXPORT NavigateToolPresenter : public QObject, public virtual I
         WRITE setNavigateOperation
         NOTIFY navigateOperationChanged
     )
+    Q_INTERFACES(Addle::IToolPresenter Addle::INavigateToolPresenter)
     IAMQOBJECT_IMPL
 public:
     NavigateToolPresenter()
@@ -42,7 +43,7 @@ public:
 
     NavigateOperationOptions navigateOperation() { _initHelper.check(); return _operation; }
 
-    bool event(QEvent* e) override { _mouseHelper.event(e); return e->isAccepted() || QObject::event(e); }
+    bool event(QEvent* e) override;
 
     bool isSelected() const { return _selectHelper.isSelected(); }
     void setSelected(bool isSelected) { _selectHelper.setSelected(isSelected); }
@@ -71,7 +72,7 @@ private:
 
     MouseHelper _mouseHelper;
     ToolSelectHelper _selectHelper;
-    InitializeHelper<NavigateToolPresenter> _initHelper;
+    InitializeHelper _initHelper;
 };
 
 } // namespace Addle

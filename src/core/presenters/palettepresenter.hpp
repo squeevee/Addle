@@ -13,11 +13,13 @@ namespace Addle {
 class ADDLE_CORE_EXPORT PalettePresenter : public QObject, public IPalettePresenter
 {
     Q_OBJECT
+    Q_INTERFACES(Addle::IPalettePresenter)
     IAMQOBJECT_IMPL
 public:
     virtual ~PalettePresenter() = default;
 
     void initialize(IPalette& model);
+    void initialize(PaletteId id);
 
     IPalette& model() const { _initHelper.check(); return *_model; }
 
@@ -26,7 +28,7 @@ public:
 private:
     IPalette* _model;
 
-    InitializeHelper<PalettePresenter> _initHelper;
+    InitializeHelper _initHelper;
 };
 
 } // namespace Addle

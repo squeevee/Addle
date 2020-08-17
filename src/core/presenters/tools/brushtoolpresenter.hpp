@@ -1,6 +1,9 @@
 #ifndef BRUSHTOOLPRESENTER_HPP
 #define BRUSHTOOLPRESENTER_HPP
 
+#include <QQueue>
+#include <QPointer>
+
 #include "compat.hpp"
 #include "interfaces/presenters/tools/ibrushtoolpresenter.hpp"
 #include "interfaces/presenters/operations/ibrushoperationpresenter.hpp"
@@ -16,13 +19,13 @@
 #include "utilities/model/colorinfo.hpp"
 
 #include "servicelocator.hpp"
-#include <QQueue>
 
 #include "toolhelpers/toolselecthelper.hpp"
 #include "utilities/initializehelper.hpp"
 #include "toolhelpers/mousehelper.hpp"
 
 #include <memory>
+
 namespace Addle {
 
 class ADDLE_CORE_EXPORT BrushToolPresenter : public QObject, public virtual IBrushToolPresenter
@@ -34,6 +37,7 @@ class ADDLE_CORE_EXPORT BrushToolPresenter : public QObject, public virtual IBru
         WRITE selectBrush
         NOTIFY brushChanged
     )
+    Q_INTERFACES(Addle::IToolPresenter Addle::IBrushToolPresenter)
     IAMQOBJECT_IMPL
 public:
     BrushToolPresenter()
@@ -77,7 +81,7 @@ signals:
     void cursorChanged(QCursor cursor); 
     
 private slots:
-    void onDocumentChanged(IDocumentPresenter* document);
+    void onDocumentChanged(QSharedPointer<IDocumentPresenter> document);
     void onColorChanged(ColorInfo info);
     void onBrushSelectionChanged();
     void onSelectedLayerChanged();
@@ -103,7 +107,8 @@ private:
     IMainEditorPresenter* _mainEditor;
     ICanvasPresenter* _canvas;
     IViewPortPresenter* _viewPort;
-    IDocumentPresenter* _document = nullptr;
+    
+    QSharedPointer<IDocumentPresenter> _document;
 
     QSharedPointer<BrushStroke> _brushStroke;
     std::unique_ptr<IAssetSelectionPresenter> _brushSelection;
@@ -118,7 +123,7 @@ private:
 
     QSharedPointer<const IBrushPresenter::PreviewInfoProvider> _previewProvider;
 
-    InitializeHelper<BrushToolPresenter> _initHelper;
+    InitializeHelper _initHelper;
     friend class HoverPreview;
     friend class BrushPreviewProvider;
 };
@@ -171,4 +176,5 @@ private:
 };
 
 } // namespace Addle
+
 #endif // BRUSHTOOLPRESENTER_HPP

@@ -6,7 +6,6 @@
 
 namespace Addle {
 
-
 template<class Interface>
 typename std::enable_if<
     !std::is_const<Interface>::value,
@@ -22,8 +21,8 @@ typename std::enable_if<
 class IAmQObject
 {
 protected:
-    virtual QObject* asQObject() = 0;
-    virtual const QObject* asQObject() const = 0;
+    virtual QObject* asQObject_p() = 0;
+    virtual const QObject* asQObject_p() const = 0;
 
     template<class Interface>
     friend typename std::enable_if<
@@ -41,8 +40,8 @@ protected:
 
 #define IAMQOBJECT_IMPL \
 protected: \
-    QObject* asQObject() override { return this; } \
-    const QObject* asQObject() const override { return this; } \
+    QObject* asQObject_p() override { return this; } \
+    const QObject* asQObject_p() const override { return this; } \
 private:
 
 namespace Traits {

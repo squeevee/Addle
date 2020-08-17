@@ -2,40 +2,59 @@
 #include <QtDebug>
 #include <QMetaEnum>
 
+#include "utils.hpp"
 #include "utilities/canvas/canvasmouseevent.hpp"
+
 using namespace Addle;
 
 using namespace INavigateToolPresenterAux;
 
 void NavigateToolPresenter::initialize(IMainEditorPresenter* owner)
 {
-    _initHelper.initializeBegin();
+    const Initializer init(_initHelper);
     
     _owner = owner;
-    _viewPort = _owner->viewPortPresenter();
+    _viewPort = &_owner->viewPortPresenter();
+}
 
-    _initHelper.initializeEnd();
+bool NavigateToolPresenter::event(QEvent* e)
+{
+    try
+    {
+        _mouseHelper.event(e);
+    }
+    ADDLE_EVENT_CATCH
+
+    return e->isAccepted() || QObject::event(e);
 }
 
 void NavigateToolPresenter::setNavigateOperation(NavigateToolPresenter::NavigateOperationOptions operation)
 {
-    _initHelper.check();
-    _operation = operation;
-    _cache_cursor.recalculate();
-    emit navigateOperationChanged(_operation);
+    try
+    {
+        _initHelper.check();
+        _operation = operation;
+        _cache_cursor.recalculate();
+        emit navigateOperationChanged(_operation);
+    }
+    ADDLE_SLOT_CATCH
 }
 
 void NavigateToolPresenter::onMove()
 {
-    switch (_operation)
+    try
     {
-    case gripPan:
-        _viewPort->gripPan(_mouseHelper.firstPosition(), _mouseHelper.latestPosition());
-        break;
-    case gripPivot:
-        _viewPort->gripPivot(_mouseHelper.firstPosition(), _mouseHelper.latestPosition());
-        break;
+        switch (_operation)
+        {
+        case gripPan:
+            _viewPort->gripPan(_mouseHelper.firstPosition(), _mouseHelper.latestPosition());
+            break;
+        case gripPivot:
+            _viewPort->gripPivot(_mouseHelper.firstPosition(), _mouseHelper.latestPosition());
+            break;
+        }
     }
+    ADDLE_SLOT_CATCH
 }
 
 QCursor NavigateToolPresenter::cursor_p()

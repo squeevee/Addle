@@ -2,28 +2,33 @@
 #define DOCUMENTPRESENTER_HPP
 
 #include "compat.hpp"
+
+#include <memory>
 #include <QList>
 #include <QObject>
+
+#include "utils.hpp"
+
+#include "interfaces/models/idocument.hpp"
 #include "interfaces/presenters/idocumentpresenter.hpp"
 #include "utilities/initializehelper.hpp"
-#include <memory>
 
 #include "helpers/documentlayershelper.hpp"
+
 namespace Addle {
 
 class ADDLE_CORE_EXPORT DocumentPresenter : public QObject, public IDocumentPresenter
 {
     Q_OBJECT
+    Q_INTERFACES(Addle::IDocumentPresenter)
     IAMQOBJECT_IMPL
-    
     enum InitCheckpoints
     {
         Layers
     };
 public:
     DocumentPresenter()
-        : _initHelper(this),
-        _layersHelper(this)
+        : _layersHelper(this)
     {
         _layersHelper.onLayersChanged.bind(&DocumentPresenter::layersChanged, this);
         _layersHelper.onLayersAdded.bind(&DocumentPresenter::layersAdded, this);
@@ -55,10 +60,10 @@ public:
     QSharedPointer<ILayerPresenter> topSelectedLayer() const { _initHelper.check(); return _layersHelper.topSelectedLayer(); }
 
 public slots:
-    LayerNode& addLayer() { _initHelper.check(); return _layersHelper.addLayer(); }
-    LayerNode& addLayerGroup() { _initHelper.check(); return _layersHelper.addLayerGroup(); }
+    void addLayer() { try { _initHelper.check(); _layersHelper.addLayer(); } ADDLE_SLOT_CATCH }
+    void addLayerGroup() { try {_initHelper.check(); _layersHelper.addLayerGroup(); } ADDLE_SLOT_CATCH }
     
-    void removeSelectedLayers() { _initHelper.check(); _layersHelper.removeSelectedLayers(); }
+    void removeSelectedLayers() { try { _initHelper.check(); _layersHelper.removeSelectedLayers(); } ADDLE_SLOT_CATCH }
     void moveSelectedLayers(int destination) { }
     void mergeSelectedLayers() { }
 
@@ -79,7 +84,7 @@ private:
 
     DocumentLayersHelper _layersHelper;
 
-    InitializeHelper<DocumentPresenter> _initHelper;
+    InitializeHelper _initHelper;
 };
 } // namespace Addle
 

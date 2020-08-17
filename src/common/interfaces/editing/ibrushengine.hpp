@@ -12,7 +12,7 @@
 #include "interfaces/traits.hpp"
 namespace Addle {
 
-class IBrushModel;
+class IBrush;
 class IBrushEngine
 {
 public:

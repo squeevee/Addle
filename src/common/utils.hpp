@@ -19,6 +19,8 @@
 #include "utilities/qtextensions/qmeta.hpp"
 #include "utilities/qtextensions/qobject.hpp"
 
+#include "utilities/errors.hpp"
+
 #ifdef ADDLE_DEBUG
 #include "utilities/debugging.hpp"
 #endif

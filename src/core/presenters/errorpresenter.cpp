@@ -3,10 +3,8 @@ using namespace Addle;
 
 void ErrorPresenter::initialize(QString message, Severity severity)
 {
-    _initHelper.initializeBegin();
+    const Initializer init(_initHelper);
 
     _message = message;
     _severity = severity;
-
-    _initHelper.initializeEnd();
 }

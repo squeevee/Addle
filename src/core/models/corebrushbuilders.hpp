@@ -2,7 +2,7 @@
 #define COREBRUSHBUILDERS_HPP
 
 #include "utilities/model/brushbuilder.hpp"
-#include "interfaces/models/ibrushmodel.hpp"
+#include "interfaces/models/ibrush.hpp"
 
 #include "globals.hpp"
 namespace Addle {
@@ -29,7 +29,7 @@ const static BrushBuilder soft = BrushBuilder()
 const static BrushBuilder basicEraser = BrushBuilder()
     .setId(CoreBrushes::BasicEraser)
     .setEngine(CoreBrushEngines::PathEngine)
-    .setPreviewHints(IBrushModel::Subtractive)
+    .setPreviewHints(IBrush::Subtractive)
     .setEraserMode(true)
     .setPreferredStartingSize(21.0);
 

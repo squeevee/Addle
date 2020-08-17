@@ -8,6 +8,9 @@
 #include <QFlags>
 #include "globals.hpp"
 #include "interfaces/traits.hpp"
+
+#include <QtDebug>
+
 namespace Addle {
 
 ADDLE_COMMON_EXPORT void debugMessageHandler(QtMsgType type, const QMessageLogContext& context, const QString& message);

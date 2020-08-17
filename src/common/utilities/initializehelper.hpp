@@ -7,20 +7,16 @@
 
 #include <cstdint> // for INT_MAX
 
+#include "utilities/errors.hpp"
+
 #include "../exceptions/initializeexceptions.hpp"
 
-// TODO: this class needs a lot of work.
-// 1) There's no reason for it to be a template, that just kind of
-// vaguely inconveniences the process of writing implementation classes without
-// adding any genuinely useful diagnostic info: it's easy enough to get a stack
-// trace when a problem actually occurs.
-// 2) It might be better for this class to do *nothing* in release builds.
+// TODO: It might be better for this class to do *nothing* in release builds.
+// depends on whether we want objects to be uninitialized on purpose and use
+// exceptions to test for this state.
 
-// In general I think I anticipated initialization to be more of an issue than
-// it seems like it's gonna be. Frankly, if utility classes like this are as
-// simplistic as possible, that will mean more for the maintenance of Addle so
-// the behavior can be exhaustively validated by unit tests *once* and the issue
-// be put to rest for the rest of the project's lifetime.
+// If uninitialized objects aren't supported then we will want to switch these
+// from named runtime errors to generic logic errors
 
 /**
  * A helper class for objects that expect initialization. Tracks whether the
@@ -28,30 +24,12 @@
  */
 namespace Addle {
 
-#ifdef ADDLE_DEBUG
-template<class OwnerType>
-const char* _get_owner_typename(std::true_type)
-{
-    return OwnerType::staticMetaObject.className();
-}
-
-template<class OwnerType>
-const char* _get_owner_typename(std::false_type)
-{
-    return typeid(OwnerType).name();
-}
-#endif
-
-template<class OwnerType>
 class InitializeHelper
 {
 public:
-    InitializeHelper(OwnerType* owner = nullptr)
+    InitializeHelper()
         : _isInitialized(false),
           _depth(0)
-#ifdef ADDLE_DEBUG
-         , _ownerTypeName(_get_owner_typename<OwnerType>(std::is_base_of<QObject, OwnerType>()))
-#endif
     {
     }
     inline bool isInitialized() { return _isInitialized; }
@@ -69,31 +47,12 @@ public:
     {
         //potential threading hazard // meh
         if (_depth > 0 && checkpoint > _checkpoint)
-        {
-#ifdef ADDLE_DEBUG
-            InvalidInitializeException ex(
-                InvalidInitializeException::Why::improper_order,
-                _ownerTypeName
-            );
-#else
-            InvalidInitializeException ex(
+            ADDLE_THROW(InvalidInitializeException(
                 InvalidInitializeException::Why::improper_order
-            );
-#endif
-            ADDLE_THROW(ex);
-        }
+            ));
 
         if (!_isInitialized && checkpoint > _checkpoint)
-        {
-#ifdef ADDLE_DEBUG
-            NotInitializedException ex(
-                _ownerTypeName
-            );
-#else
-            NotInitializedException ex;
-#endif
-            ADDLE_THROW(ex);
-        }
+            ADDLE_THROW(NotInitializedException());
     }
 
     // Checkpoint values are arbitrary and internal to a class (and its
@@ -107,16 +66,7 @@ public:
     inline void assertNotInitialized()
     {
         if (_isInitialized)
-        {
-#ifdef ADDLE_DEBUG
-            AlreadyInitializedException ex(
-                _ownerTypeName
-            );
-#else
-            AlreadyInitializedException ex;
-#endif
-            ADDLE_THROW(ex);
-        }
+            ADDLE_THROW(AlreadyInitializedException());
     }
 
     //Call at the beginning of the initialize function block, before calling
@@ -136,28 +86,33 @@ public:
         if (_depth == 0)
             _isInitialized = true;
         else if (_depth < 0)
-        {
-#ifdef ADDLE_DEBUG
-            InvalidInitializeException ex(
-                InvalidInitializeException::Why::improper_order
-                    , _ownerTypeName
-            );
-#else
-            InvalidInitializeException ex(
-                InvalidInitializeException::Why::improper_order
-            );
-#endif
-            ADDLE_THROW(ex);
-        }
+            ADDLE_THROW(InvalidInitializeException(InvalidInitializeException::Why::improper_order));
     }
 
 private:
     bool _isInitialized;
     int _depth;
     int _checkpoint = -1;
-#ifdef ADDLE_DEBUG
-    const char* _ownerTypeName;
-#endif
+};
+
+class Initializer
+{
+public:
+    Initializer(InitializeHelper& helper)
+        : _helper(helper)
+    {
+        _helper.initializeBegin();
+    }
+
+    Initializer(const Initializer&) = delete;
+
+    ~Initializer()
+    {
+        _helper.initializeEnd();
+    }
+
+private:
+    InitializeHelper& _helper;
 };
 
 } // namespace Addle

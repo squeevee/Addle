@@ -3,7 +3,7 @@
 
 #include "utilities/addle_text.hpp"
 
-#include "interfaces/models/ibrushmodel.hpp"
+#include "interfaces/models/ibrush.hpp"
 
 #include "utils.hpp"
 #include "globals.hpp"
@@ -12,9 +12,9 @@
 #include <QtDebug>
 using namespace Addle;
 
-void BrushPresenter::initialize(IBrushModel& model, QSharedPointer<const PreviewInfoProvider> info)
+void BrushPresenter::initialize(IBrush& model, QSharedPointer<const PreviewInfoProvider> info)
 {
-    _initHelper.initializeBegin();
+    const Initializer init(_initHelper);
 
     _model = &model;
     _id = _model->id();
@@ -54,18 +54,13 @@ void BrushPresenter::initialize(IBrushModel& model, QSharedPointer<const Preview
     {
         _assetIcon = _iconHelper.icon();
     }
-
-    
-    _initHelper.initializeEnd();
 }
 
 void BrushPresenter::initialize(BrushId id, QSharedPointer<const PreviewInfoProvider> info)
 {
-    _initHelper.initializeBegin();
+    const Initializer init(_initHelper);
 
-    initialize(ServiceLocator::get<IBrushModel>(id), info);
-
-    _initHelper.initializeEnd();
+    initialize(ServiceLocator::get<IBrush>(id), info);
 }
 
 QIcon BrushPresenter::icon()

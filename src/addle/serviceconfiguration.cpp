@@ -11,7 +11,7 @@
 #include "utilities/configuration/autofactory.hpp"
 #include "utilities/configuration/customfactory.hpp"
 
-#include "interfaces/models/ibrushmodel.hpp"
+#include "interfaces/models/ibrush.hpp"
 
 #include "core/editing/brushengines/pathbrushengine.hpp"
 #include "core/editing/brushengines/rasterbrushengine.hpp"
@@ -21,7 +21,7 @@
 
 #include "core/models/layer.hpp"
 #include "core/models/document.hpp"
-#include "core/models/brushmodel.hpp"
+#include "core/models/brush.hpp"
 #include "core/models/palette.hpp"
 
 #include "core/presenters/maineditorpresenter.hpp"
@@ -119,14 +119,14 @@ void ServiceConfiguration::configure()
     CONFIG_AUTOFACTORY_BY_TYPE(IMainEditorView, MainEditorView);
 
     //CONFIG_AUTOFACTORY_BY_ID(IBrushPainter, CoreBrushes::BasicBrush, BasicBrushPainter);
-    //CONFIG_CUSTOMFACTORY_BY_ID(IBrushModel, CoreBrushes::BasicBrush, std::bind(&BrushModel::fromId, CoreBrushes::BasicBrush));
-    //CONFIG_CUSTOMFACTORY_BY_ID(IBrushModel, CoreBrushes::SoftBrush, std::bind(&BrushModel::fromId, CoreBrushes::SoftBrush));
+    //CONFIG_CUSTOMFACTORY_BY_ID(IBrush, CoreBrushes::BasicBrush, std::bind(&Brush::fromId, CoreBrushes::BasicBrush));
+    //CONFIG_CUSTOMFACTORY_BY_ID(IBrush, CoreBrushes::SoftBrush, std::bind(&Brush::fromId, CoreBrushes::SoftBrush));
 
-    CONFIG_AUTOFACTORY_BY_TYPE(IBrushModel, BrushModel);
+    CONFIG_AUTOFACTORY_BY_TYPE(IBrush, Brush);
 
-    buildPersistentObject<IBrushModel>(CoreBrushes::BasicBrush, CoreBrushBuilders::basic);
-    buildPersistentObject<IBrushModel>(CoreBrushes::SoftBrush, CoreBrushBuilders::soft);
-    buildPersistentObject<IBrushModel>(CoreBrushes::BasicEraser, CoreBrushBuilders::basicEraser);
+    buildPersistentObject<IBrush>(CoreBrushes::BasicBrush, CoreBrushBuilders::basic);
+    buildPersistentObject<IBrush>(CoreBrushes::SoftBrush, CoreBrushBuilders::soft);
+    buildPersistentObject<IBrush>(CoreBrushes::BasicEraser, CoreBrushBuilders::basicEraser);
 
     CONFIG_AUTOFACTORY_BY_TYPE(IPalette, Palette);
 

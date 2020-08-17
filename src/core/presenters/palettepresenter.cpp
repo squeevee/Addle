@@ -1,11 +1,20 @@
 #include "palettepresenter.hpp"
+#include "interfaces/models/ipalette.hpp"
+
+#include "servicelocator.hpp"
+
 using namespace Addle;
 
 void PalettePresenter::initialize(IPalette& model)
 {
-    _initHelper.initializeBegin();
+    const Initializer init(_initHelper);
 
     _model = &model;
+}
 
-    _initHelper.initializeEnd();
+void PalettePresenter::initialize(PaletteId id)
+{
+    const Initializer init(_initHelper);
+
+    _model = &ServiceLocator::get<IPalette>(id);
 }

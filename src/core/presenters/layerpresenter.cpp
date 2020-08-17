@@ -21,7 +21,7 @@ LayerPresenter::~LayerPresenter()
 
 void LayerPresenter::initialize(IDocumentPresenter* documentPresenter, QSharedPointer<ILayer> model)
 {
-    _initHelper.initializeBegin();
+    const Initializer init(_initHelper);
 
     _documentPresenter = documentPresenter;
     if (model)
@@ -39,8 +39,6 @@ void LayerPresenter::initialize(IDocumentPresenter* documentPresenter, QSharedPo
 
     _renderStep = QSharedPointer<IRenderStep>(new LayerPresenterRenderStep(*this));
     _rasterSurfaceStep = _model->rasterSurface()->renderStep();
-
-    _initHelper.initializeEnd();
 }
 
 IRenderStack& LayerPresenter::renderStack()

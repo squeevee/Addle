@@ -19,23 +19,26 @@ namespace Addle {
 class ADDLE_CORE_EXPORT Layer : public QObject, public ILayer
 {
     Q_OBJECT
+    Q_INTERFACES(Addle::ILayer)
     IAMQOBJECT_IMPL
 public:
-    Layer() : _initHelper(this) { }
     virtual ~Layer() = default;
     
     void initialize();
     void initialize(LayerBuilder& builder);
 
-    bool isEmpty() { _initHelper.check(); return _empty; }
+    bool isEmpty() const { _initHelper.check(); return _empty; }
 
-    QRect boundary() { _initHelper.check(); return _boundary; }
-    QPoint topLeft() { _initHelper.check(); return _boundary.topLeft(); }
-    void setTopLeft(QPoint) { _initHelper.check(); }
+    QRect boundary() const { _initHelper.check(); return _boundary; }
+    QPoint topLeft() const { _initHelper.check(); return _boundary.topLeft(); }
 
     QColor skirtColor() { _initHelper.check(); return Qt::GlobalColor::transparent; }
 
     QSharedPointer<IRasterSurface> rasterSurface() { return _rasterSurface; }
+
+public slots:
+
+    void setTopLeft(QPoint) { }
 
 private:
     QRect _boundary;
@@ -46,7 +49,7 @@ private:
 
     QSharedPointer<IRasterSurface> _rasterSurface;
 
-    InitializeHelper<Layer> _initHelper;
+    InitializeHelper _initHelper;
 };
 
 } // namespace Addle

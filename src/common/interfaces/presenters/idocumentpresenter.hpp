@@ -1,30 +1,30 @@
+/**
+ * Addle source code
+ * 
+ * @file
+ * @copyright Copyright 2020 Eleanor Hawk
+ * @copyright Modification and distribution permitted under the terms of the
+ * MIT License. See "LICENSE" for full details.
+ */
+
 #ifndef IDOCUMENTPRESENTER_HPP
 #define IDOCUMENTPRESENTER_HPP
 
-#include <QUrl>
-#include <QFileInfo>
-#include <QWeakPointer>
+#include <QList>
 #include <QSet>
-#include <QMap>
-
-#include "iraiseerrorpresenter.hpp"
-#include "ihavetoolspresenter.hpp"
-
-#include "interfaces/models/idocument.hpp"
 
 #include "interfaces/traits.hpp"
 #include "interfaces/iamqobject.hpp"
-
-
 #include "interfaces/metaobjectinfo.hpp"
 
 #include "utilities/heirarchylist.hpp"
 
-#include "utilities/collections.hpp" //??
 namespace Addle {
 
+class IDocument;
 class ICanvasPresenter;
 class ILayerPresenter;
+
 class IDocumentPresenter : public virtual IAmQObject
 {
 public:
@@ -62,8 +62,8 @@ public:
     virtual QSharedPointer<ILayerPresenter> topSelectedLayer() const = 0;
 
 public slots:
-    virtual LayerNode& addLayer() = 0;
-    virtual LayerNode& addLayerGroup() = 0;
+    virtual void addLayer() = 0;
+    virtual void addLayerGroup() = 0;
     
     virtual void removeSelectedLayers() = 0;
     virtual void moveSelectedLayers(int destination) = 0;
@@ -80,13 +80,12 @@ signals:
 
 };
 
-
 DECL_MAKEABLE(IDocumentPresenter);
 DECL_EXPECTS_INITIALIZE(IDocumentPresenter);
 
-
 } // namespace Addle
 
+Q_DECLARE_INTERFACE(Addle::IDocumentPresenter, "org.addle.IDocumentPresenter")
 Q_DECLARE_METATYPE(Addle::IDocumentPresenter::LayerNodeRemoved);
 
 #endif // IDOCUMENTPRESENTER_HPP

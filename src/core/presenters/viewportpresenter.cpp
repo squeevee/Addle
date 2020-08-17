@@ -6,7 +6,6 @@
 #include "utilities/qtextensions/qobject.hpp"
 #include "servicelocator.hpp"
 
-#include <QtDebug>
 
 #include <QLineF>
 #include <QPainter>
@@ -51,7 +50,7 @@ const PresetHelper<ViewPortPresenter::ZoomPreset, double> ViewPortPresenter::_zo
 
 void ViewPortPresenter::initialize(IMainEditorPresenter* mainEditorPresenter)
 {
-    _initHelper.initializeBegin();
+    const Initializer init(_initHelper);
     _mainEditorPresenter = mainEditorPresenter;
 
     connect_interface(
@@ -60,18 +59,20 @@ void ViewPortPresenter::initialize(IMainEditorPresenter* mainEditorPresenter)
         this,
         SLOT(onMainEditorPresenter_isEmptyChanged())
     );
-
-    _initHelper.initializeEnd();
 }
 
 void ViewPortPresenter::setPosition(QPointF position)
 {
-    _initHelper.check();
+    try
+    {
+        _initHelper.check();
 
-    _position = position;
-    _transformCache.recalculate();
+        _position = position;
+        _transformCache.recalculate();
 
-    emit positionChanged(_position);
+        emit positionChanged(_position);
+    }
+    ADDLE_SLOT_CATCH
 }
 
 ViewPortPresenter::ScrollState ViewPortPresenter::scrollState_p()
@@ -92,18 +93,26 @@ ViewPortPresenter::ScrollState ViewPortPresenter::scrollState_p()
 
 void ViewPortPresenter::scrollX(int x)
 {
-    QTransform ontoCanvas = ontoCanvasTransform();
-    auto& scrollState = _scrollStateCache.value();
+    try 
+    {
+        QTransform ontoCanvas = ontoCanvasTransform();
+        auto& scrollState = _scrollStateCache.value();
 
-    setPosition(ontoCanvas.map(QPointF(x - scrollState._x, 0) + _center));
+        setPosition(ontoCanvas.map(QPointF(x - scrollState._x, 0) + _center));
+    }
+    ADDLE_SLOT_CATCH
 }
 
 void ViewPortPresenter::scrollY(int y)
 {
-    QTransform ontoCanvas = ontoCanvasTransform();
-    auto& scrollState = _scrollStateCache.value();
+    try 
+    {
+        QTransform ontoCanvas = ontoCanvasTransform();
+        auto& scrollState = _scrollStateCache.value();
 
-    setPosition(ontoCanvas.map(QPointF(0, y - scrollState._y) + _center));
+        setPosition(ontoCanvas.map(QPointF(0, y - scrollState._y) + _center));
+    }
+    ADDLE_SLOT_CATCH
 }
 
 void ViewPortPresenter::gripPan(QPointF start, QPointF end)
@@ -195,9 +204,13 @@ void ViewPortPresenter::setRotation(double rotation)
 
 void ViewPortPresenter::resetTransforms()
 {
-    centerView();
-    setZoomPreset(DEFAULT_ZOOM_PRESET);
-    setRotatePreset(DEFAULT_ROTATE_PRESET);
+    try
+    {
+        centerView();
+        setZoomPreset(DEFAULT_ZOOM_PRESET);
+        setRotatePreset(DEFAULT_ROTATE_PRESET);
+    }
+    ADDLE_SLOT_CATCH
 }
 
 void ViewPortPresenter::fitWidth()
@@ -212,62 +225,70 @@ void ViewPortPresenter::fitCanvas()
 
 IViewPortPresenter::ZoomPreset ViewPortPresenter::zoomIn(bool* zoomed)
 {
-    _initHelper.check();
-    bool p_zoomed = false;
-
-    if (_zoomPreset != ZoomPreset::nullzoom) {
-        ZoomPreset newPreset = _zoomPresetHelper.nextUp(_zoomPreset);
-
-        if (newPreset != ZoomPreset::nullzoom)
-        {
-            setZoomPreset(newPreset);
-            p_zoomed = true;
-        }
-    }
-    else
+    try 
     {
-        ZoomPreset newPreset = _zoomPresetHelper.nextUp(zoom());
+        _initHelper.check();
+        bool p_zoomed = false;
 
-        if (newPreset != _zoomPreset)
-        {
-            setZoomPreset(newPreset);
-            p_zoomed = true;
+        if (_zoomPreset != ZoomPreset::nullzoom) {
+            ZoomPreset newPreset = _zoomPresetHelper.nextUp(_zoomPreset);
+
+            if (newPreset != ZoomPreset::nullzoom)
+            {
+                setZoomPreset(newPreset);
+                p_zoomed = true;
+            }
         }
-    }
+        else
+        {
+            ZoomPreset newPreset = _zoomPresetHelper.nextUp(zoom());
 
-    if (zoomed)
-        *zoomed = p_zoomed;
+            if (newPreset != _zoomPreset)
+            {
+                setZoomPreset(newPreset);
+                p_zoomed = true;
+            }
+        }
+
+        if (zoomed)
+            *zoomed = p_zoomed;
+    }
+    ADDLE_SLOT_CATCH
 
     return _zoomPreset;
 }
 
 IViewPortPresenter::ZoomPreset ViewPortPresenter::zoomOut(bool* zoomed)
 {
-    _initHelper.check();
-    bool p_zoomed = false;
-
-    if (_zoomPreset != ZoomPreset::nullzoom) {
-        ZoomPreset newPreset = _zoomPresetHelper.nextDown(_zoomPreset);
-
-        if (newPreset != ZoomPreset::nullzoom)
-        {
-            setZoomPreset(newPreset);
-            p_zoomed = true;
-        }
-    }
-    else
+    try
     {
-        ZoomPreset newPreset = _zoomPresetHelper.nextDown(zoom());
+        _initHelper.check();
+        bool p_zoomed = false;
 
-        if (newPreset != _zoomPreset)
-        {
-            setZoomPreset(newPreset);
-            p_zoomed = true;
+        if (_zoomPreset != ZoomPreset::nullzoom) {
+            ZoomPreset newPreset = _zoomPresetHelper.nextDown(_zoomPreset);
+
+            if (newPreset != ZoomPreset::nullzoom)
+            {
+                setZoomPreset(newPreset);
+                p_zoomed = true;
+            }
         }
-    }
+        else
+        {
+            ZoomPreset newPreset = _zoomPresetHelper.nextDown(zoom());
 
-    if (zoomed)
-        *zoomed = p_zoomed;
+            if (newPreset != _zoomPreset)
+            {
+                setZoomPreset(newPreset);
+                p_zoomed = true;
+            }
+        }
+
+        if (zoomed)
+            *zoomed = p_zoomed;
+    }
+    ADDLE_SLOT_CATCH
 
     return _zoomPreset;
 }
@@ -305,64 +326,72 @@ void ViewPortPresenter::setRotatePreset(RotatePreset preset)
 
 IViewPortPresenter::RotatePreset ViewPortPresenter::turntableCcw(bool* rotated)
 {
-    _initHelper.check();
-
-    bool p_rotated = false;
-
-    if (_rotatePreset != RotatePreset::nullrotation) {
-        RotatePreset newPreset = _rotatePresetHelper.nextDown(_rotatePreset);
-
-        if (newPreset != RotatePreset::nullrotation)
-        {
-            setRotatePreset(newPreset);
-            p_rotated = true;
-        }
-    }
-    else
+    try 
     {
-        RotatePreset newPreset = _rotatePresetHelper.nextDown(rotation());
+        _initHelper.check();
 
-        if (newPreset != _rotatePreset)
-        {
-            setRotatePreset(newPreset);
-            p_rotated = true;
+        bool p_rotated = false;
+
+        if (_rotatePreset != RotatePreset::nullrotation) {
+            RotatePreset newPreset = _rotatePresetHelper.nextDown(_rotatePreset);
+
+            if (newPreset != RotatePreset::nullrotation)
+            {
+                setRotatePreset(newPreset);
+                p_rotated = true;
+            }
         }
-    }
+        else
+        {
+            RotatePreset newPreset = _rotatePresetHelper.nextDown(rotation());
 
-    if (rotated)
-        *rotated = p_rotated;
+            if (newPreset != _rotatePreset)
+            {
+                setRotatePreset(newPreset);
+                p_rotated = true;
+            }
+        }
+
+        if (rotated)
+            *rotated = p_rotated;
+    }
+    ADDLE_SLOT_CATCH
 
     return _rotatePreset;
 }
 
 IViewPortPresenter::RotatePreset ViewPortPresenter::turntableCw(bool* rotated)
 {
-    _initHelper.check();
-
-    bool p_rotated = false;
-
-    if (_rotatePreset != RotatePreset::nullrotation) {
-        RotatePreset newPreset = _rotatePresetHelper.nextUp(_rotatePreset);
-
-        if (newPreset != RotatePreset::nullrotation)
-        {
-            setRotatePreset(newPreset);
-            p_rotated = true;
-        }
-    }
-    else
+    try 
     {
-        RotatePreset newPreset = _rotatePresetHelper.nextUp(rotation());
+        _initHelper.check();
 
-        if (newPreset != _rotatePreset)
-        {
-            setRotatePreset(newPreset);
-            p_rotated = true;
+        bool p_rotated = false;
+
+        if (_rotatePreset != RotatePreset::nullrotation) {
+            RotatePreset newPreset = _rotatePresetHelper.nextUp(_rotatePreset);
+
+            if (newPreset != RotatePreset::nullrotation)
+            {
+                setRotatePreset(newPreset);
+                p_rotated = true;
+            }
         }
-    }
+        else
+        {
+            RotatePreset newPreset = _rotatePresetHelper.nextUp(rotation());
 
-    if (rotated)
-        *rotated = p_rotated;
+            if (newPreset != _rotatePreset)
+            {
+                setRotatePreset(newPreset);
+                p_rotated = true;
+            }
+        }
+
+        if (rotated)
+            *rotated = p_rotated;
+    }
+    ADDLE_SLOT_CATCH
 
     return _rotatePreset;
 }
@@ -391,17 +420,25 @@ void ViewPortPresenter::gripPivot(QPointF gripStart, QPointF gripEnd)
 
 void ViewPortPresenter::setSize(QSize size)
 {
-    _initHelper.check();
-    _size = size;
-    _center = QPointF((double)(_size.width()) / 2.0, (double)(_size.height()) / 2.0);
-    _transformCache.recalculate();
+    try 
+    {
+        _initHelper.check();
+        _size = size;
+        _center = QPointF((double)(_size.width()) / 2.0, (double)(_size.height()) / 2.0);
+        _transformCache.recalculate();
+    }
+    ADDLE_SLOT_CATCH
 }
 
 void ViewPortPresenter::onMainEditorPresenter_isEmptyChanged()
 {
-    _canNavigateCache.recalculate();
-    _scrollStateCache.recalculate();
-    resetTransforms();
+    try
+    {
+        _canNavigateCache.recalculate();
+        _scrollStateCache.recalculate();
+        resetTransforms();
+    }
+    ADDLE_SLOT_CATCH
 }
 
 void ViewPortPresenter::propagateCanNavigate()

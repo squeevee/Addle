@@ -30,12 +30,9 @@
 
 using namespace Addle;
 
-ViewPort::ViewPort(IViewPortPresenter* presenter)
+ViewPort::ViewPort(IViewPortPresenter& presenter)
+    : _presenter(presenter)
 {
-    _presenter = presenter;
-    _mainEditorPresenter = _presenter->mainEditorPresenter();
-    _canvasPresenter = _mainEditorPresenter->canvasPresenter();
-
     QGraphicsView::setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     QGraphicsView::setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     
@@ -49,7 +46,7 @@ ViewPort::ViewPort(IViewPortPresenter* presenter)
     setMouseTracking(true);
 
     connect_interface(
-        _presenter,
+        &_presenter,
         SIGNAL(transformsChanged()),
         this,
         SLOT(onTransformsChanged()),
@@ -65,18 +62,18 @@ ViewPort::ViewPort(IViewPortPresenter* presenter)
     );
 
     connect_interface(
-        _mainEditorPresenter,
-        SIGNAL(documentPresenterChanged(IDocumentPresenter*)),
+        _presenter.mainEditorPresenter(),
+        SIGNAL(documentPresenterChanged(QSharedPointer<IDocumentPresenter>)),
         this,
-        SLOT(setDocument(IDocumentPresenter*))
+        SLOT(setDocument(QSharedPointer<IDocumentPresenter>))
     );
 
-    setDocument(_mainEditorPresenter->documentPresenter());
+    setDocument(_presenter.mainEditorPresenter()->documentPresenter());
 
-    _presenter->setHasFocus(hasFocus());
+    _presenter.setHasFocus(hasFocus());
 
     connect_interface(
-        _canvasPresenter,
+        &_presenter.mainEditorPresenter()->canvasPresenter(),
         SIGNAL(cursorChanged(QCursor)),
         this,
         SLOT(updateCursor())
@@ -87,13 +84,13 @@ ViewPort::ViewPort(IViewPortPresenter* presenter)
 void ViewPort::resizeEvent(QResizeEvent *event)
 {
     //auto s_presenter = _presenter.toStrongRef();
-    _presenter->setSize(QAbstractScrollArea::viewport()->contentsRect().size());
+    _presenter.setSize(QAbstractScrollArea::viewport()->contentsRect().size());
 }
 
 void ViewPort::moveEvent(QMoveEvent *event)
 {
     //auto s_presenter = _presenter.toStrongRef();
-    _presenter->setGlobalOffset(QWidget::mapToGlobal(QWidget::contentsRect().topLeft()));
+    _presenter.setGlobalOffset(QWidget::mapToGlobal(QWidget::contentsRect().topLeft()));
 }
 
 void ViewPort::onTransformsChanged()
@@ -106,7 +103,7 @@ void ViewPort::onTransformsChanged()
 
     //QPointF vptl = _cache_ontoCanvasTransform.map()
 
-    QRectF bound = _presenter->ontoCanvasTransform().mapRect(QRectF(QPointF(), _presenter->size()));
+    QRectF bound = _presenter.ontoCanvasTransform().mapRect(QRectF(QPointF(), _presenter.size()));
 
     // Moving the scene while the mouse is pressed can cause additional mouse
     // events to be sent with positions based on outdated transforms, and this
@@ -116,34 +113,34 @@ void ViewPort::onTransformsChanged()
     QGraphicsView::scene()->installEventFilter(&blocker);
 
     QGraphicsView::setSceneRect(bound);
-    QGraphicsView::setTransform(_presenter->fromCanvasTransform());
-    QGraphicsView::centerOn(_presenter->position());
+    QGraphicsView::setTransform(_presenter.fromCanvasTransform());
+    QGraphicsView::centerOn(_presenter.position());
 
     QGraphicsView::scene()->removeEventFilter(&blocker);
 }
 
-void ViewPort::setDocument(IDocumentPresenter* documentPresenter)
+void ViewPort::setDocument(QSharedPointer<IDocumentPresenter> documentPresenter)
 {
     _documentPresenter = documentPresenter;
 
     if (!documentPresenter)
         return;
 
-    _canvasScene = new CanvasScene(*_canvasPresenter, this);
+    _canvasScene = new CanvasScene(_presenter.mainEditorPresenter()->canvasPresenter(), this);
     setScene(_canvasScene);
 }
 
 void ViewPort::focusInEvent(QFocusEvent* focusEvent)
 {
-    _presenter->setHasFocus(true);
+    _presenter.setHasFocus(true);
 }
 
 void ViewPort::focusOutEvent(QFocusEvent* focusEvent)
 {
-    _presenter->setHasFocus(false);
+    _presenter.setHasFocus(false);
 }
 
 void ViewPort::updateCursor()
 {
-    setCursor(_canvasPresenter->cursor());
+    setCursor(_presenter.mainEditorPresenter()->canvasPresenter().cursor());
 }

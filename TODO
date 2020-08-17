@@ -27,8 +27,8 @@ General-purpose assert function that translates into a thrown AddleException
 which returns true for isLogicError() -- save some unneeded micro exception
 classes 
 
-error-wrap, but also combine some functionality between the 
-unhandledexceptionrouter and the debug message handler
+combine some functionality between the unhandledexceptionrouter and the debug
+message handler
 
 Tool options bars will need some more work.
 
@@ -50,18 +50,7 @@ handle to check against, during the paint call.
 ^ Giving graphics framework-based view access to their viewports probably does
 not represent enough of a performance hit to warrant much action here.
 
-InitHelper:
-
-- Where does it get off having no default constructor. This shouldn't be a
-  template class, it is *not* that important as a debugging or diagnostic tool.
-- Do less/nothing in release builds (optimization, low priority)
-- For init functions, make a scope-limited object whose constructor calls
-  initializeBegin() and whose destructor callse initializeEnd(), would simplify
-  some syntax
-
 Widgets gui focus issues
-
-style: Models should have Model in their names. ?
 
 Raster Surface lazy clear <- there seems to be a bug in this.
 + async safety
@@ -73,17 +62,7 @@ involving creation and release of resources were tied to those events.
 Async brush painting -- perform all (non-purely-presentational) drawing
 operations on a different thread? BEEF UP ASYNC TASK STUFF
 
-Is IService necessary? Services don't really seem to need a common interface,
-either for ServiceLocator or consuming code, and thanks to IFactory::delete_(),
-ServiceLocator can store services as void* and still call their destructors.
-Might also be better semantics, to distinguish between gettable singleton
-interfaces, and the more specific concept of a service.
-
-Also, tidy up the gettable_by_id trait vs DECL_PERSISTENT_OBJECT_TYPE thing 
-
-Don't allow ServiceLocator to publicly make objects that are meant to be
-persistent / singletons. befriend ServiceLocator to IFactory and make IFactory 
-methods protected.
+befriend ServiceLocator to IFactory and make IFactory methods protected.
 
 AsyncTask needs to be verified for correctness with unit tests
 

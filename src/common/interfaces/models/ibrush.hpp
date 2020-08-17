@@ -1,5 +1,5 @@
-#ifndef IBRUSHMODEL_HPP
-#define IBRUSHMODEL_HPP
+#ifndef IBRUSH_HPP
+#define IBRUSH_HPP
 
 #include <QIcon>
 #include <QList>
@@ -9,12 +9,10 @@
 
 #include "interfaces/traits.hpp"
 
-
 namespace Addle {
 
-
 class BrushBuilder;
-class IBrushModel
+class IBrush
 {
 public:
     enum PreviewHint
@@ -23,7 +21,7 @@ public:
     };
     Q_DECLARE_FLAGS(PreviewHints, PreviewHint);
 
-    virtual ~IBrushModel() = default;
+    virtual ~IBrush() = default;
 
     virtual void initialize(const BrushBuilder& builder) = 0;
 
@@ -52,9 +50,12 @@ public:
     virtual PreviewHints previewHints() const = 0;
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(IBrushModel::PreviewHints);
-DECL_MAKEABLE(IBrushModel);
-DECL_PERSISTENT_OBJECT_TYPE(IBrushModel, BrushId); // TODO: isn't actually makeable by ID ..?
+Q_DECLARE_OPERATORS_FOR_FLAGS(IBrush::PreviewHints);
+
+DECL_PERSISTENT_OBJECT_TYPE(IBrush, BrushId);
 
 } // namespace Addle
-#endif // IBRUSHMODEL_HPP
+
+Q_DECLARE_INTERFACE(Addle::IBrush, "org.addle.IBrush")
+
+#endif // IBRUSH_HPP

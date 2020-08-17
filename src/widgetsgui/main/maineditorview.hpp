@@ -35,9 +35,6 @@ class ADDLE_WIDGETSGUI_EXPORT MainEditorView : public QMainWindow, public virtua
     Q_OBJECT
     IAMQOBJECT_IMPL
 public:
-    MainEditorView() : _initHelper(this)
-    {
-    }
     virtual ~MainEditorView() = default;
 
     void initialize(IMainEditorPresenter* presenter);
@@ -59,7 +56,7 @@ private slots:
 
     void onPresenterEmptyChanged(bool);
 
-    void onDocumentChanged(IDocumentPresenter* document);
+    void onDocumentChanged(QSharedPointer<IDocumentPresenter> document);
 
 private:
     void setupUi();
@@ -120,7 +117,7 @@ private:
     LayersManager* _layersManager;
     ColorSelector* _colorSelector;
 
-    InitializeHelper<MainEditorView> _initHelper;
+    InitializeHelper _initHelper;
 
     friend class ToolSetupHelper;
 };

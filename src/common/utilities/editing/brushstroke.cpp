@@ -11,7 +11,7 @@ BrushStroke::BrushStroke(BrushId id,
         QColor color,
         double size,
         QSharedPointer<IRasterSurface> buffer)
-    : _id(id), _brush(ServiceLocator::get<IBrushModel>(id)), _buffer(buffer)
+    : _id(id), _brush(ServiceLocator::get<IBrush>(id)), _buffer(buffer)
 {
     _painterStates.push(PainterState(color, size));
 }

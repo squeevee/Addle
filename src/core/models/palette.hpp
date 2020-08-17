@@ -20,25 +20,28 @@ public:
 
     void initialize(const PaletteBuilder& builder);
 
-    QMultiArray<ColorInfo, 2> colors() const { _initHelper.check(); return _colors; }
-    void setColors(QMultiArray<ColorInfo, 2> colors);
+    ColorArray colors() const { _initHelper.check(); return _colors; }
 
     bool contains(QColor color) const { return _index.contains(color.rgb()); }
     ColorInfo infoFor(QColor color) const { return _index[color.rgb()]; }
 
+public slots:
+    void setColors(ColorArray colors);
+
 signals: 
-    void colorsChanged();
+    void colorsChanged(ColorArray colors);
 
 private:
     void buildIndex();
 
     PaletteId _id;
 
-    QMultiArray<ColorInfo, 2> _colors;
+    ColorArray _colors;
     QHash<QRgb, ColorInfo> _index;
 
-    InitializeHelper<Palette> _initHelper;
+    InitializeHelper _initHelper;
 };
 
 } // namespace Addle
+
 #endif // PALETTE_HPP

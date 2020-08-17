@@ -24,28 +24,22 @@ public:
     virtual void initialize(QList<QSharedPointer<IPalettePresenter>> palettes) = 0;
 
     virtual QList<QSharedPointer<IPalettePresenter>> palettes() const = 0;
-    virtual void setPalettes(QList<QSharedPointer<IPalettePresenter>> palettes) = 0;
-
     virtual QSharedPointer<IPalettePresenter> palette() const = 0;
-    virtual void setPalette(QSharedPointer<IPalettePresenter> palette) = 0;
-
     virtual ColorInfo color(int which) const = 0;
-    virtual void setColor(int which, ColorInfo color) = 0;
-    //virtual QHash<int, ColorInfo> colors() const = 0;
-
     virtual ColorInfo color1() const = 0;
-    virtual void setColor1(ColorInfo color) = 0;
-
     virtual ColorInfo color2() const = 0;
-    virtual void setColor2(ColorInfo color) = 0;
-
     virtual ColorInfo activeColor() const = 0;
-    virtual void setActiveColor(ColorInfo color) = 0;
-
     virtual int active() const = 0; // may be 1 or 2
-    virtual void setActive(int active) = 0;
-
     virtual QList<ColorInfo> history() const = 0;
+
+public slots:
+    virtual void setPalettes(QList<QSharedPointer<IPalettePresenter>> palettes) = 0;
+    virtual void setPalette(QSharedPointer<IPalettePresenter> palette) = 0;
+    virtual void setColor(int which, ColorInfo color) = 0;
+    virtual void setColor1(ColorInfo color) = 0;
+    virtual void setColor2(ColorInfo color) = 0;
+    virtual void setActiveColor(ColorInfo color) = 0;
+    virtual void setActive(int active) = 0;
 
 signals:
     virtual void palettesChanged(QList<QSharedPointer<IPalettePresenter>>) = 0;
@@ -71,4 +65,7 @@ DECL_INTERFACE_META_PROPERTIES(IColorSelectionPresenter,
 );
 
 } // namespace Addle
+
+Q_DECLARE_INTERFACE(Addle::IColorSelectionPresenter, "org.addle.IColorSelectionPresenter")
+
 #endif // ICOLORSELECTIONPRESENTER_HPP

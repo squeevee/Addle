@@ -68,30 +68,30 @@ public:
     AsyncTask(QObject* parent = nullptr);
     virtual ~AsyncTask();
 
-    double maxProgress() { const QMutexLocker lock(&_ioMutex); return _maxProgress; }
-    double minProgress() { const QMutexLocker lock(&_ioMutex); return _minProgress; }
-    double progress() { const QMutexLocker lock(&_ioMutex); return _progress; }
+    double maxProgress() const { const QMutexLocker lock(&_ioMutex); return _maxProgress; }
+    double minProgress() const { const QMutexLocker lock(&_ioMutex); return _minProgress; }
+    double progress() const { const QMutexLocker lock(&_ioMutex); return _progress; }
 
     // The task has started and has not yet stopped.
-    bool isRunning() { const QMutexLocker lock(&_stateMutex); return _isRunning; }
+    bool isRunning() const { const QMutexLocker lock(&_stateMutex); return _isRunning; }
 
     /**
      * The most recent run of the task completed successfully (and stopped). If
      * the task has output data, it should be available now.
      */
-    bool isCompleted() { const QMutexLocker lock(&_stateMutex); return _isCompleted; }
+    bool isCompleted() const { const QMutexLocker lock(&_stateMutex); return _isCompleted; }
 
     /**
      * The most recent run of the task stopped because the underlying operation
      * produced an error.
      */
-    bool isError() { const QMutexLocker lock(&_stateMutex); return _isError; }
+    bool isError() const { const QMutexLocker lock(&_stateMutex); return _isError; }
 
     /** 
      * If the most recent run of the task was stopped because of an error, this
      * accesses the error.
      */
-    QSharedPointer<AddleException> error() { const QMutexLocker lock(&_stateMutex); return _error; }
+    QSharedPointer<AddleException> error() const { const QMutexLocker lock(&_stateMutex); return _error; }
 
     void sync() { const QMutexLocker lock(&_stateMutex); while (_isRunning); }
 
@@ -126,7 +126,7 @@ protected:
     double setMinProgress(double minProgress);
     double setProgress(double progress);
 
-    inline std::unique_ptr<QMutexLocker> lockIO()
+    inline std::unique_ptr<QMutexLocker> lockIO() const
     {
         return std::unique_ptr<QMutexLocker>(new QMutexLocker(&_ioMutex));
     }
@@ -146,8 +146,8 @@ private:
     double _minProgress = 0.0;
     double _progress = 0.0;
 
-    QMutex _ioMutex;
-    QMutex _stateMutex;
+    mutable QMutex _ioMutex;
+    mutable QMutex _stateMutex;
 
     Worker* _worker = nullptr;
     friend class Worker;

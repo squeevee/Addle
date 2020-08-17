@@ -37,7 +37,7 @@ public:
         )
     {
         typedef typename ToolBarType::PresenterType PresenterType;
-        PresenterType* presenter = dynamic_cast<PresenterType*>(_mainEditorPresenter.toolPresenter(tool));
+        auto presenter = _mainEditorPresenter.tools().value(tool).dynamicCast<PresenterType>();
 
         OptionAction* selectAction = new OptionAction(tool, _owner);
         selectAction->setText(ADDLE_TEXT(QStringLiteral("tools.%1.text").arg(tool.key())));

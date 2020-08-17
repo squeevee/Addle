@@ -6,6 +6,7 @@
 #include "interfaces/traits.hpp"
 #include "interfaces/iamqobject.hpp"
 #include "utilities/render/renderdata.hpp"
+
 namespace Addle {
 
 class IRenderStep : public virtual IAmQObject
@@ -27,8 +28,8 @@ signals:
     // virtual void removeFromStack() = 0;
 };
 
-
-
 } // namespace Addle
+
+Q_DECLARE_INTERFACE(Addle::IRenderStep, "org.addle.IRenderStep")
 
 #endif // IRENDERSTEP_HPP

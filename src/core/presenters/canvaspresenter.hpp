@@ -13,17 +13,17 @@ namespace Addle {
 class ADDLE_CORE_EXPORT CanvasPresenter : public QObject, public ICanvasPresenter
 {
     Q_OBJECT
+    Q_INTERFACES(Addle::ICanvasPresenter)
     IAMQOBJECT_IMPL
 public: 
-    CanvasPresenter() : _initHelper(this) { }
     virtual ~CanvasPresenter() = default;
 
-    void initialize(IMainEditorPresenter* mainEditorPresenter);
+    void initialize(IMainEditorPresenter& mainEditorPresenter);
 
-    IMainEditorPresenter* mainEditorPresenter() { _initHelper.check(); return _mainEditorPresenter; }
+    IMainEditorPresenter& mainEditorPresenter() { _initHelper.check(); return *_mainEditorPresenter; }
 
-    QCursor cursor();
-    QString statusTip() { return QString(); }
+    QCursor cursor() const;
+    QString statusTip() const { return QString(); }
 
     bool event(QEvent* e);
 
@@ -46,7 +46,7 @@ private:
     QMetaObject::Connection _connection_toolCursor;
 
     IMainEditorPresenter* _mainEditorPresenter;
-    InitializeHelper<CanvasPresenter> _initHelper;
+    InitializeHelper _initHelper;
 };
 
 } // namespace Addle

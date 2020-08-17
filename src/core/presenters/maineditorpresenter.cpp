@@ -4,6 +4,8 @@
 
 #include "maineditorpresenter.hpp"
 
+#include "utils.hpp"
+
 #include "servicelocator.hpp"
 
 //#include "interfaces/services/itaskservice.hpp"
@@ -35,91 +37,67 @@
 #include "interfaces/presenters/ipalettepresenter.hpp"
 #include "interfaces/models/ipalette.hpp"
 #include "globals.hpp"
+
 using namespace Addle;
-
 using namespace IMainEditorPresenterAux;
-
-MainEditorPresenter::~MainEditorPresenter()
-{
-    for (IToolPresenter* tool : _toolPresenters)
-    {
-        delete tool;
-    }
-
-    if (_viewPortPresenter)
-        delete _viewPortPresenter;
-}
 
 void MainEditorPresenter::initialize(Mode mode)
 {
-    _initHelper.initializeBegin();
+    const Initializer init(_initHelper);
     
     _mode = mode;
 
-    _viewPortPresenter = ServiceLocator::make<IViewPortPresenter>(this);
+    _viewPortPresenter = ServiceLocator::makeUnique<IViewPortPresenter>(this);
     _initHelper.setCheckpoint(Check_ViewPortPresenter);
 
-    _canvasPresenter = ServiceLocator::make<ICanvasPresenter>(this);
+    _canvasPresenter = ServiceLocator::makeUnique<ICanvasPresenter>(std::ref(*this));
     _initHelper.setCheckpoint(Check_CanvasPresenter);
     
     _palettes = { 
-        ServiceLocator::makeShared<IPalettePresenter>(
-            std::ref(ServiceLocator::get<IPalette>(CorePalettes::BasicPalette))
-        ) // wow that's crunchy :)
+        ServiceLocator::makeShared<IPalettePresenter>(CorePalettes::BasicPalette)
     };
 
-    _colorSelection = ServiceLocator::make<IColorSelectionPresenter>(_palettes);
+    _colorSelection = ServiceLocator::makeUnique<IColorSelectionPresenter>(_palettes);
     _colorSelection->setPalette(_palettes.first());
     _initHelper.setCheckpoint(Check_ColorSelection);
+
+    _brushTool = ServiceLocator::makeShared<IBrushToolPresenter>(
+        this,
+        IBrushToolPresenter::Mode::Brush
+    );
+
+    _eraserTool = ServiceLocator::makeShared<IBrushToolPresenter>(
+        this,
+        IBrushToolPresenter::Mode::Eraser
+    );
+
+    _navigateTool = ServiceLocator::makeShared<INavigateToolPresenter>(
+        this
+    );
 
     _tools = {{
         Mode::Editor,
         {
-            DefaultTools::SELECT,
-            DefaultTools::BRUSH,
-            DefaultTools::ERASER,
-            DefaultTools::TEXT,
-            DefaultTools::SHAPES,
-            DefaultTools::STICKERS,
-            DefaultTools::EYEDROP,
-            DefaultTools::NAVIGATE,
-            DefaultTools::MEASURE
+            //{ DefaultTools::Select, nullptr },
+            { DefaultTools::Brush, _brushTool },
+            { DefaultTools::Eraser, _eraserTool },
+            //{ DefaultTools::Text, nullptr },
+            //{ DefaultTools::Shapes, nullptr },
+            //{ DefaultTools::Stickers, nullptr },
+            //{ DefaultTools::Eyedrop, nullptr },
+            { DefaultTools::Navigate, _navigateTool }
+            //{ DefaultTools::Measure, nullptr }
         }
     }};
 
-    _toolPresenters = {
-        {
-            DefaultTools::BRUSH,
-            _brushTool = ServiceLocator::make<IBrushToolPresenter>(
-                this,
-                IBrushToolPresenter::Mode::Brush
-            )
-        },
-        {
-            DefaultTools::ERASER,
-            _brushTool = ServiceLocator::make<IBrushToolPresenter>(
-                this,
-                IBrushToolPresenter::Mode::Eraser
-            )
-        },
-        {
-            DefaultTools::NAVIGATE,
-            _navigateTool = ServiceLocator::make<INavigateToolPresenter>(
-                this
-            )
-        }
-    };
-
-    _view = ServiceLocator::make<IMainEditorView>(this);
+    _view = ServiceLocator::makeUnique<IMainEditorView>(this);
     _initHelper.setCheckpoint(Check_View);
 
     _loadDocumentTask = new LoadDocumentTask(this);
     connect(_loadDocumentTask, &AsyncTask::completed, this, &MainEditorPresenter::onLoadDocumentCompleted);
-
-    _initHelper.initializeEnd();
 }
 
-void MainEditorPresenter::setDocumentPresenter(IDocumentPresenter* documentPresenter)
+void MainEditorPresenter::setDocumentPresenter(QSharedPointer<IDocumentPresenter> documentPresenter)
 {
     _initHelper.check(); 
 
@@ -164,62 +142,74 @@ void MainEditorPresenter::setMode(Mode mode)
 
 void MainEditorPresenter::newDocument()
 {
-    _initHelper.check(); 
-    if (_mode == Editor && !isEmpty())
+    try
     {
-        IMainEditorPresenter* newPresenter = ServiceLocator::make<IMainEditorPresenter>(_mode);
-        newPresenter->newDocument();
-        newPresenter->view()->start();
+        _initHelper.check(); 
+        if (_mode == Editor && !isEmpty())
+        {
+            IMainEditorPresenter* newPresenter = ServiceLocator::make<IMainEditorPresenter>(_mode);
+            newPresenter->newDocument();
+            newPresenter->view().start();
+        }
+        else
+        {
+            //leak
+            setDocumentPresenter(
+                ServiceLocator::makeShared<IDocumentPresenter>(IDocumentPresenter::initBlankDefaults)
+            );
+        }
     }
-    else
-    {
-        //leak
-        setDocumentPresenter(
-            ServiceLocator::make<IDocumentPresenter>(IDocumentPresenter::initBlankDefaults)
-        );
-    }
+    ADDLE_SLOT_CATCH
 }
 
 void MainEditorPresenter::loadDocument(QUrl url)
 {
-    _initHelper.check(); 
-    if (_mode == Editor && !isEmpty())
+    try
     {
-        IMainEditorPresenter* newPresenter = ServiceLocator::make<IMainEditorPresenter>(_mode);
-        newPresenter->loadDocument(url);
-        newPresenter->view()->start();
-    }
-    else
-    {            
-        if (!_loadDocumentTask->isRunning())
+        _initHelper.check(); 
+        if (_mode == Editor && !isEmpty())
         {
-            _loadDocumentTask->setUrl(url);
-            _loadDocumentTask->start();
+            IMainEditorPresenter* newPresenter = ServiceLocator::make<IMainEditorPresenter>(_mode);
+            newPresenter->loadDocument(url);
+            newPresenter->view().start();
+        }
+        else
+        {            
+            if (!_loadDocumentTask->isRunning())
+            {
+                _loadDocumentTask->setUrl(url);
+                _loadDocumentTask->start();
+            }
         }
     }
+    ADDLE_SLOT_CATCH
 }
 
 void MainEditorPresenter::onLoadDocumentCompleted()
 {
-    _initHelper.check(); 
-    setDocumentPresenter(_loadDocumentTask->documentPresenter());
+    try
+    {
+        _initHelper.check(); 
+        setDocumentPresenter(_loadDocumentTask->documentPresenter());
+    }
+    ADDLE_SLOT_CATCH
 }
 
-void MainEditorPresenter::selectTool(ToolId tool)
+void MainEditorPresenter::setCurrentTool(ToolId tool)
 {
     _initHelper.check(); 
     if (tool == _currentTool)
         return;
 
-    if (!_toolPresenters.contains(tool))
-    {
-        //throw or something i dunno
-        return;
-    }
+    const auto& toolPresenters = _tools.value(_mode);
+    ADDLE_ASSERT_M(
+        !tool || toolPresenters.contains(tool), 
+        "MainEditorPresenter does not contain the given tool"
+    );
 
     _currentTool = tool;
-    IToolPresenter* previousTool = _currentToolPresenter;
-    _currentToolPresenter = _toolPresenters.value(tool);
+    auto previousTool = _currentToolPresenter;
+    _currentToolPresenter = toolPresenters.value(tool);
     emit currentToolChanged(_currentTool);
     emit _currentToolPresenter->setSelected(true);
     if (previousTool)
@@ -238,7 +228,7 @@ void LoadDocumentTask::doTask()
         info.setFilename(loadedUrl.toLocalFile());
 
         auto doc = QSharedPointer<IDocument>(ServiceLocator::get<IFormatService>().importModel<IDocument>(file, info));
-        setDocumentPresenter(ServiceLocator::make<IDocumentPresenter>(doc));
+        setDocumentPresenter(ServiceLocator::makeShared<IDocumentPresenter>(doc));
     }
     else
     {

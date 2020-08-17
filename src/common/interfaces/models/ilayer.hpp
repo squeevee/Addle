@@ -6,15 +6,13 @@
 #include <QRect>
 #include <QPoint>
 #include <QImage>
-#include <QPaintDevice>
 
 #include "utilities/model/layerbuilder.hpp"
+
 #include "interfaces/traits.hpp"
 #include "interfaces/iamqobject.hpp"
 
-
 namespace Addle {
-
 
 class IRasterSurface;
 class IDocument;
@@ -26,18 +24,23 @@ public:
     virtual void initialize() = 0;
     virtual void initialize(LayerBuilder& builder) = 0;
 
-    virtual bool isEmpty() = 0;
+    virtual bool isEmpty() const = 0;
     
-    virtual QRect boundary() = 0;
-    virtual QPoint topLeft() = 0;
-    virtual void setTopLeft(QPoint) = 0;
+    virtual QRect boundary() const = 0;
+    virtual QPoint topLeft() const = 0;
 
     virtual QSharedPointer<IRasterSurface> rasterSurface() = 0;
+
+public slots:
+    virtual void setTopLeft(QPoint) = 0;
+
 };
 
 DECL_MAKEABLE(ILayer)
 DECL_EXPECTS_INITIALIZE(ILayer)
 
-
 } // namespace Addle
+
+Q_DECLARE_INTERFACE(Addle::ILayer, "org.addle.ILayer")
+
 #endif // ILAYER_HPP

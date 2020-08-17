@@ -18,13 +18,14 @@ class ADDLE_CORE_EXPORT BrushPresenter : public QObject, public IBrushPresenter
     Q_OBJECT 
     IAMQOBJECT_IMPL
 public:
-    BrushPresenter() : _initHelper(this) {}
-    void initialize(IBrushModel& model, QSharedPointer<const PreviewInfoProvider> info = nullptr);
+    virtual ~BrushPresenter() = default;
+
+    void initialize(IBrush& model, QSharedPointer<const PreviewInfoProvider> info = nullptr);
     void initialize(BrushId id, QSharedPointer<const PreviewInfoProvider> info = nullptr);
 
     PersistentId id() { return brushId(); }
     BrushId brushId() { _initHelper.check(); return _id; }
-    virtual IBrushModel& model() const { _initHelper.check(); return *_model; }
+    virtual IBrush& model() const { _initHelper.check(); return *_model; }
 
     QString name();
     QIcon icon();
@@ -61,12 +62,12 @@ private:
     QIcon _assetIcon;
 
     BrushId _id;
-    IBrushModel* _model;
+    IBrush* _model;
 
     std::unique_ptr<ISizeSelectionPresenter> _sizeSelection;
     BrushIconHelper _iconHelper;
 
-    InitializeHelper<BrushPresenter> _initHelper;
+    InitializeHelper _initHelper;
 };
 
 } // namespace Addle

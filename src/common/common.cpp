@@ -143,16 +143,16 @@ const ToolId IMeasureToolPresenter::MEASURE_TOOL_ID = ToolId(
     "measure-tool"
 );
 
-const ToolId IMainEditorPresenterAux::DefaultTools::SELECT   = ISelectToolPresenter::SELECT_TOOL_ID;
-const ToolId IMainEditorPresenterAux::DefaultTools::BRUSH    = IBrushToolPresenterAux::BRUSH_ID;
-const ToolId IMainEditorPresenterAux::DefaultTools::ERASER   = IBrushToolPresenterAux::ERASER_ID;
-const ToolId IMainEditorPresenterAux::DefaultTools::FILL     = IFillToolPresenter::FILL_TOOL_ID;
-const ToolId IMainEditorPresenterAux::DefaultTools::TEXT     = ITextToolPresenter::TEXT_TOOL_ID;
-const ToolId IMainEditorPresenterAux::DefaultTools::SHAPES   = IShapesToolPresenter::SHAPES_TOOL_ID;
-const ToolId IMainEditorPresenterAux::DefaultTools::STICKERS = IStickersToolPresenter::STICKERS_TOOL_ID;
-const ToolId IMainEditorPresenterAux::DefaultTools::EYEDROP  = IEyedropToolPresenter::EYEDROP_TOOL_ID;
-const ToolId IMainEditorPresenterAux::DefaultTools::NAVIGATE = INavigateToolPresenterAux::ID;
-const ToolId IMainEditorPresenterAux::DefaultTools::MEASURE  = IMeasureToolPresenter::MEASURE_TOOL_ID;
+const ToolId IMainEditorPresenterAux::DefaultTools::Select   = ISelectToolPresenter::SELECT_TOOL_ID;
+const ToolId IMainEditorPresenterAux::DefaultTools::Brush    = IBrushToolPresenterAux::BRUSH_ID;
+const ToolId IMainEditorPresenterAux::DefaultTools::Eraser   = IBrushToolPresenterAux::ERASER_ID;
+const ToolId IMainEditorPresenterAux::DefaultTools::Fill     = IFillToolPresenter::FILL_TOOL_ID;
+const ToolId IMainEditorPresenterAux::DefaultTools::Text     = ITextToolPresenter::TEXT_TOOL_ID;
+const ToolId IMainEditorPresenterAux::DefaultTools::Shapes   = IShapesToolPresenter::SHAPES_TOOL_ID;
+const ToolId IMainEditorPresenterAux::DefaultTools::Stickers = IStickersToolPresenter::STICKERS_TOOL_ID;
+const ToolId IMainEditorPresenterAux::DefaultTools::Eyedrop  = IEyedropToolPresenter::EYEDROP_TOOL_ID;
+const ToolId IMainEditorPresenterAux::DefaultTools::Navigate = INavigateToolPresenterAux::ID;
+const ToolId IMainEditorPresenterAux::DefaultTools::Measure  = IMeasureToolPresenter::MEASURE_TOOL_ID;
 
 const BrushId IBrushToolPresenterAux::DefaultBrushes::Basic  = CoreBrushes::BasicBrush;
 const BrushId IBrushToolPresenterAux::DefaultBrushes::Soft   = CoreBrushes::SoftBrush;

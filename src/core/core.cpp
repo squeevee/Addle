@@ -1,5 +1,5 @@
-//#include "models/brushmodels/corebrushmodel.hpp"
+//#include "models/brushs/corebrush.hpp"
 
-#include "models/brushmodel.hpp"
+#include "models/brush.hpp"
 
 using namespace Addle;

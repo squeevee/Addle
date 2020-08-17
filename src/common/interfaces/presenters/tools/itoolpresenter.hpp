@@ -1,3 +1,12 @@
+/**
+ * Addle source code
+ * 
+ * @file
+ * @copyright Copyright 2020 Eleanor Hawk
+ * @copyright Modification and distribution permitted under the terms of the
+ * MIT License. See "LICENSE" for full details.
+ */
+
 #ifndef ITOOLPRESENTER_HPP
 #define ITOOLPRESENTER_HPP
 
@@ -34,7 +43,8 @@ signals:
     virtual void cursorChanged(QCursor cursor) = 0;
 };
 
-
-
 } // namespace Addle
+
+Q_DECLARE_INTERFACE(Addle::IToolPresenter, "org.addle.IToolPresenter");
+
 #endif // ITOOLPRESENTER_HPP

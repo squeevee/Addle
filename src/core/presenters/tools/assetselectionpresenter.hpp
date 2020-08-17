@@ -15,6 +15,7 @@ namespace Addle {
 class ADDLE_CORE_EXPORT AssetSelectionPresenter : public QObject, public IAssetSelectionPresenter
 {
     Q_OBJECT
+    Q_INTERFACES(Addle::IAssetSelectionPresenter)
     IAMQOBJECT_IMPL
 public:
     virtual ~AssetSelectionPresenter() = default;
@@ -82,7 +83,7 @@ public:
     QHash<PersistentId, std::list<PersistentId>::iterator> _recentIndex;
     QList<PersistentId> _recentCache;
 
-    InitializeHelper<AssetSelectionPresenter> _initHelper;
+    InitializeHelper _initHelper;
 };
 
 } // namespace Addle

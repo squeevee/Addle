@@ -3,13 +3,11 @@ using namespace Addle;
 
 void Palette::initialize(const PaletteBuilder& builder)
 {
-    _initHelper.initializeBegin();
+    const Initializer init(_initHelper);
 
     _id = builder.id();
     _colors = builder.colors();
     buildIndex();
-
-    _initHelper.initializeEnd();
 }
 
 void Palette::setColors(QMultiArray<ColorInfo, 2> colors)
@@ -19,7 +17,7 @@ void Palette::setColors(QMultiArray<ColorInfo, 2> colors)
     _colors = colors;
     buildIndex();
 
-    emit colorsChanged();
+    emit colorsChanged(_colors);
 }
 
 void Palette::buildIndex()

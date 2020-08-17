@@ -26,16 +26,18 @@ CanvasScene::CanvasScene(ICanvasPresenter& presenter, QObject* parent)
     : QGraphicsScene(parent), _presenter(presenter)
 {
     _presenter = presenter;
-    
-    IMainEditorPresenter& mainEditorPresenter = *_presenter.mainEditorPresenter();
+
+    auto documentPresenter = _presenter.mainEditorPresenter().documentPresenter();
+    if (documentPresenter)
+    {
+        connect_interface(documentPresenter,
+            SIGNAL(layersChanged()),
+            this,
+            SLOT(layersUpdated())
+        );
+    }
 
     layersUpdated();
-
-    connect_interface(mainEditorPresenter.documentPresenter(),
-        SIGNAL(layersChanged()),
-        this,
-        SLOT(layersUpdated())
-    );
 }
 
 void CanvasScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
@@ -94,12 +96,12 @@ void CanvasScene::layersUpdated()
 {
     clear();
 
-    IDocumentPresenter* document = _presenter.mainEditorPresenter()->documentPresenter();
+    QSharedPointer<IDocumentPresenter> document = _presenter.mainEditorPresenter().documentPresenter();
 
     if (!document) return;
 
     
-    DocBackgroundItem* background = new DocBackgroundItem(*_presenter.mainEditorPresenter()->documentPresenter());
+    DocBackgroundItem* background = new DocBackgroundItem(*_presenter.mainEditorPresenter().documentPresenter());
 
     addItem(background);
 

@@ -1,20 +1,27 @@
+/**
+ * Addle source code
+ * 
+ * @file
+ * @copyright Copyright 2020 Eleanor Hawk
+ * @copyright Modification and distribution permitted under the terms of the
+ * MIT License. See "LICENSE" for full details.
+ */
+
 #ifndef IMAINEDITORPRESENTER_HPP
 #define IMAINEDITORPRESENTER_HPP
 
-#include "compat.hpp"
 #include <QObject>
+#include <QHash>
+
+#include "compat.hpp"
 
 #include "interfaces/traits.hpp"
 #include "interfaces/iamqobject.hpp"
-
-
 #include "interfaces/metaobjectinfo.hpp"
 
-#include "ierrorpresenter.hpp"
-#include "ihavedocumentpresenter.hpp"
+#include "idtypes/toolid.hpp"
+
 #include "ihaveundostackpresenter.hpp"
-#include "ierrorpresenter.hpp"
-#include "ihavetoolspresenter.hpp"
 #include "iraiseerrorpresenter.hpp"
 
 namespace Addle {
@@ -25,6 +32,8 @@ class IMainEditorView;
 class ICanvasPresenter;
 class IViewPortPresenter;
 class IColorSelectionPresenter;
+class IToolPresenter;
+class IDocumentPresenter;
 
 namespace IMainEditorPresenterAux
 {
@@ -34,56 +43,68 @@ namespace IMainEditorPresenterAux
         Viewer
     };
 
-    struct ADDLE_COMMON_EXPORT DefaultTools // namespace?
+    namespace DefaultTools
     {
-        static const ToolId SELECT;
-        static const ToolId BRUSH;
-        static const ToolId ERASER;
-        static const ToolId FILL;
-        static const ToolId TEXT;
-        static const ToolId SHAPES;
-        static const ToolId STICKERS;
-        static const ToolId EYEDROP;
-        static const ToolId NAVIGATE;
-        static const ToolId MEASURE;
-    };
+        extern ADDLE_COMMON_EXPORT const ToolId Select;
+        extern ADDLE_COMMON_EXPORT const ToolId Brush;
+        extern ADDLE_COMMON_EXPORT const ToolId Eraser;
+        extern ADDLE_COMMON_EXPORT const ToolId Fill;
+        extern ADDLE_COMMON_EXPORT const ToolId Text;
+        extern ADDLE_COMMON_EXPORT const ToolId Shapes;
+        extern ADDLE_COMMON_EXPORT const ToolId Stickers;
+        extern ADDLE_COMMON_EXPORT const ToolId Eyedrop;
+        extern ADDLE_COMMON_EXPORT const ToolId Navigate;
+        extern ADDLE_COMMON_EXPORT const ToolId Measure;
+    }
 }
 
-class IMainEditorPresenter
-    : public virtual IHaveDocumentPresenter,
-    public virtual IHaveToolsPresenter,
-    public virtual IHaveUndoStackPresenter,
-    public virtual IRaiseErrorPresenter,
+class IMainEditorPresenter 
+    : public IHaveUndoStackPresenter,
+    public IRaiseErrorPresenter,
     public virtual IAmQObject
 {
 public:
     INTERFACE_META(IMainEditorPresenter);
     
-    virtual ~IMainEditorPresenter() {}
+    virtual ~IMainEditorPresenter() = default;
 
     typedef IMainEditorPresenterAux::Mode Mode;
 
     virtual void initialize(Mode mode) = 0;
 
-    virtual IMainEditorView* view() = 0;
+    virtual IMainEditorView& view() const = 0;
 
-    virtual ICanvasPresenter* canvasPresenter() = 0;
-    virtual IViewPortPresenter* viewPortPresenter() = 0;
-    virtual IColorSelectionPresenter& colorSelection() = 0;
+    virtual ICanvasPresenter& canvasPresenter() const = 0;
+    virtual IViewPortPresenter& viewPortPresenter() const = 0;
+    virtual IColorSelectionPresenter& colorSelection() const = 0;
 
     virtual void setMode(Mode mode) = 0;
-    virtual Mode mode() = 0;
+    virtual Mode mode() const = 0;
 
-    typedef IMainEditorPresenterAux::DefaultTools DefaultTools;
+    virtual QSharedPointer<IDocumentPresenter> documentPresenter() const = 0;
+
+    virtual bool isEmpty() const = 0;
+
+    virtual QSharedPointer<ILayerPresenter> topSelectedLayer() const = 0;
+
+    virtual ToolId currentTool() const = 0;
+    virtual void setCurrentTool(ToolId tool) = 0;
+
+    virtual QHash<ToolId, QSharedPointer<IToolPresenter>> tools() const = 0;
+
+    virtual QSharedPointer<IToolPresenter> currentToolPresenter() const = 0;
+
+    virtual void newDocument() = 0;
+    virtual void loadDocument(QUrl url) = 0;
 
 signals:
-    virtual void documentPresenterChanged(IDocumentPresenter* documentPresenter) = 0;
+
+    virtual void currentToolChanged(ToolId tool) = 0;
+
+    virtual void topSelectedLayerChanged(QSharedPointer<ILayerPresenter>) = 0;
+    virtual void documentPresenterChanged(QSharedPointer<IDocumentPresenter> documentPresenter) = 0;
     virtual void isEmptyChanged(bool) = 0;
 };
-
-DECL_MAKEABLE(IMainEditorPresenter)
-DECL_EXPECTS_INITIALIZE(IMainEditorPresenter);
-
 
 DECL_INTERFACE_META_PROPERTIES(
     IMainEditorPresenter,
@@ -91,6 +112,11 @@ DECL_INTERFACE_META_PROPERTIES(
     DECL_INTERFACE_PROPERTY(empty)
 )
 
+DECL_MAKEABLE(IMainEditorPresenter)
+DECL_EXPECTS_INITIALIZE(IMainEditorPresenter);
+
 } // namespace Addle
+
+Q_DECLARE_INTERFACE(Addle::IMainEditorPresenter, "org.addle.IMainEditorPresenter")
 
 #endif // IMAINEDITORPRESENTER_HPP

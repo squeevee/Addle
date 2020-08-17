@@ -4,6 +4,7 @@
 
 #include "utilities/guiutils.hpp"
 
+#include <QPainter>
 #include <QStyleOptionGraphicsItem>
 
 using namespace Addle;

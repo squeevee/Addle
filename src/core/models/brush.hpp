@@ -1,12 +1,12 @@
-#ifndef BRUSHMODEL_HPP
-#define BRUSHMODEL_HPP
+#ifndef BRUSH_HPP
+#define BRUSH_HPP
 
 #include "compat.hpp"
 
-#include "interfaces/models/ibrushmodel.hpp"
+#include "interfaces/models/ibrush.hpp"
 #include "utilities/initializehelper.hpp"
 namespace Addle {
-class ADDLE_CORE_EXPORT BrushModel : public IBrushModel
+class ADDLE_CORE_EXPORT Brush : public IBrush
 {
 public:
 
@@ -54,8 +54,8 @@ private:
 
     PreviewHints _previewHints;
 
-    InitializeHelper<BrushModel> _initHelper;
+    InitializeHelper _initHelper;
 };
 
 } // namespace Addle
-#endif // BRUSHMODEL_HPP
+#endif // BRUSH_HPP

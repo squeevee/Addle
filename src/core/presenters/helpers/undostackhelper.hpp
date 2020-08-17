@@ -1,7 +1,10 @@
 #ifndef UNDOSTACKHELPER_HPP
 #define UNDOSTACKHELPER_HPP
 
+#include "interfaces/presenters/operations/iundooperationpresenter.hpp"
 #include "interfaces/presenters/ihaveundostackpresenter.hpp"
+
+#include "utilities/helpercallback.hpp"
 
 #include <QStack>
 namespace Addle {
@@ -9,20 +12,15 @@ namespace Addle {
 class UndoStackHelper 
 {
 public:
-    UndoStackHelper(IHaveUndoStackPresenter& presenter)
-        : _presenter(presenter)
-    {
-    }
-
-    bool canUndo() { return !_undoStack.isEmpty(); }
-    bool canRedo() { return !_redoStack.isEmpty(); }
+    bool canUndo() const { return !_undoStack.isEmpty(); }
+    bool canRedo() const { return !_redoStack.isEmpty(); }
 
     void push(QSharedPointer<IUndoOperationPresenter> operation)
     {
         _undoStack.push(operation);
         _redoStack.clear();
         operation->do_();
-        emit _presenter.undoStateChanged();
+        emit undoStateChanged();
     }
 
     void undo()
@@ -30,7 +28,7 @@ public:
         QSharedPointer<IUndoOperationPresenter> operation = _undoStack.pop();
         _redoStack.push(operation);
         operation->undo();
-        emit _presenter.undoStateChanged();
+        emit undoStateChanged();
     }
 
     void redo()
@@ -38,14 +36,13 @@ public:
         QSharedPointer<IUndoOperationPresenter> operation = _redoStack.pop();
         _undoStack.push(operation);
         operation->do_();
-        emit _presenter.undoStateChanged();
+        emit undoStateChanged();
     }
+
+    HelperCallback undoStateChanged;
 
     QStack<QSharedPointer<IUndoOperationPresenter>> _undoStack;
     QStack<QSharedPointer<IUndoOperationPresenter>> _redoStack;
-
-private:
-    IHaveUndoStackPresenter& _presenter;
 };
 
 } // namespace Addle

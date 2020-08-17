@@ -15,7 +15,6 @@ class ADDLE_CORE_EXPORT RasterSurface : public QObject, public IRasterSurface
     Q_OBJECT
     IAMQOBJECT_IMPL
 public:
-    RasterSurface() : _initHelper(this) {}
     virtual ~RasterSurface() = default; 
 
     void initialize(
@@ -124,7 +123,7 @@ private:
 
     QRect _area;
 
-    InitializeHelper<RasterSurface> _initHelper;
+    InitializeHelper _initHelper;
 
     friend class RasterSurfaceRenderStep;
 };

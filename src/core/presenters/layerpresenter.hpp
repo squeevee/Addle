@@ -12,9 +12,9 @@ class LayerPresenterRenderStep;
 class ADDLE_CORE_EXPORT LayerPresenter: public QObject, public ILayerPresenter
 {
     Q_OBJECT
+    Q_INTERFACES(Addle::ILayerPresenter)
     IAMQOBJECT_IMPL
 public:
-    LayerPresenter() : _initHelper(this) { }
     virtual ~LayerPresenter();
 
     void initialize(IDocumentPresenter* documentPresenter, QSharedPointer<ILayer> model);
@@ -45,7 +45,7 @@ private:
     QSharedPointer<IRenderStep> _renderStep;
     QSharedPointer<IRenderStep> _rasterSurfaceStep;
 
-    InitializeHelper<LayerPresenter> _initHelper;
+    InitializeHelper _initHelper;
 
     friend class LayerPresenterRenderStep;
 };
@@ -53,6 +53,7 @@ private:
 class LayerPresenterRenderStep : public QObject, public IRenderStep
 {
     Q_OBJECT
+    Q_INTERFACES(Addle::IRenderStep)
     IAMQOBJECT_IMPL
 public:
     LayerPresenterRenderStep(LayerPresenter& owner) : _owner(owner) { }

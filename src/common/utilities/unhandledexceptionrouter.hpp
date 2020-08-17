@@ -11,6 +11,8 @@ namespace Addle {
 
 class AddleUnhandledException;
 
+// TODO: Should this be a service?
+
 /**
  * @class UnhandledExceptionRouter
  * @brief Utility for reporting unhandled exceptions
@@ -28,8 +30,8 @@ class AddleUnhandledException;
  * code that is concerned with information about these errors, (for example the 
  * ApplicationService or a testing utility) may to connect to this signal.
  * 
- * Exceptions should generally be reported using the ADDLE_FALLBACK_CATCH macro,
- * or the ADDLE_FALLBACK_CATCH__SEVERITY if desired. These expand to a series of
+ * Exceptions should generally be reported using the ADDLE_EVENT_CATCH macro,
+ * or the ADDLE_EVENT_CATCH__SEVERITY if desired. These expand to a series of
  * catch blocks, so place them after a try block containing the protected code,
  * and after any other catch blocks.
  *  
@@ -44,7 +46,7 @@ void Class::slotName()
     {
         ...
     }
-    ADDLE_FALLBACK_CATCH
+    ADDLE_EVENT_CATCH
 }
  *
  * Exceptions are not allowed to bleed into the Qt event loop, so all slots and
@@ -174,12 +176,12 @@ private:
 };
 
 #ifdef ADDLE_DEBUG
-#define __ADDLE_UNHANDLED_EXCEPTION_FALLTHROUGH(x) UnhandledExceptionRouter::reportFallthrough(Q_FUNC_INFO, __FILE__, __LINE__, x);
+#define _ADDLE_UNHANDLED_EXCEPTION_FALLTHROUGH(x) UnhandledExceptionRouter::reportFallthrough(Q_FUNC_INFO, __FILE__, __LINE__, x);
 #else
-#define __ADDLE_UNHANDLED_EXCEPTION_FALLTHROUGH(x) UnhandledExceptionRouter::reportFallthrough(x);
+#define _ADDLE_UNHANDLED_EXCEPTION_FALLTHROUGH(x) UnhandledExceptionRouter::reportFallthrough(x);
 #endif 
 
-#define ADDLE_FALLBACK_CATCH__SEVERITY(x) \
+#define ADDLE_EVENT_CATCH_SEVERITY(x) \
 catch (AddleException& ex) \
 { \
     UnhandledExceptionRouter::report(ex, x); \
@@ -190,10 +192,35 @@ catch (std::exception& ex) \
 } \
 catch(...) \
 { \
-__ADDLE_UNHANDLED_EXCEPTION_FALLTHROUGH(x) \
+    _ADDLE_UNHANDLED_EXCEPTION_FALLTHROUGH(x) \
 }
 
-#define ADDLE_FALLBACK_CATCH ADDLE_FALLBACK_CATCH__SEVERITY(UnhandledExceptionRouter::Severity::normal)
+#define ADDLE_EVENT_CATCH ADDLE_EVENT_CATCH_SEVERITY(UnhandledExceptionRouter::Severity::normal)
+
+#define ADDLE_SLOT_CATCH_SEVERITY(x) \
+catch (AddleException& ex) \
+{ \
+    if (static_cast<bool>(sender())) \
+        UnhandledExceptionRouter::report(ex, x); \
+    else \
+        throw; \
+} \
+catch (std::exception& ex) \
+{ \
+    if (static_cast<bool>(sender())) \
+        UnhandledExceptionRouter::report(ex, x); \
+    else \
+        throw; \
+} \
+catch(...) \
+{ \
+    if (static_cast<bool>(sender())) \
+        _ADDLE_UNHANDLED_EXCEPTION_FALLTHROUGH(x) \
+    else \
+        throw; \
+}
+
+#define ADDLE_SLOT_CATCH ADDLE_SLOT_CATCH_SEVERITY(UnhandledExceptionRouter::Severity::normal)
 
 } // namespace Addle
 #endif // GLOBALEXCEPTIONHANDLER_HPP

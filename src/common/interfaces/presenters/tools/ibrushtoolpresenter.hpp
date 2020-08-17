@@ -1,3 +1,11 @@
+/**
+ * Addle source code
+ * @file
+ * @copyright Copyright 2020 Eleanor Hawk
+ * @copyright Modification and distribution permitted under the terms of the
+ * MIT License. See "LICENSE" for full details.
+ */
+
 #ifndef IBRUSHTOOLPRESENTER_HPP
 #define IBRUSHTOOLPRESENTER_HPP
 
@@ -46,6 +54,7 @@ class IBrushPresenter;
 class ICanvasPresenter;
 class IViewPortPresenter;
 class IColorSelectionPresenter;
+
 class IBrushToolPresenter : public virtual IToolPresenter, public virtual IAmQObject
 {
 public:
@@ -71,10 +80,11 @@ signals:
 DECL_INTERFACE_META_PROPERTIES(IBrushToolPresenter,
     DECL_INTERFACE_PROPERTY(selectedBrush)
 )
-
 DECL_MAKEABLE(IBrushToolPresenter)
-
 DECL_EXPECTS_INITIALIZE(IBrushToolPresenter)
 
 } // namespace Addle
+
+Q_DECLARE_INTERFACE(Addle::IBrushToolPresenter, "org.addle.IBrushToolPresenter");
+
 #endif // IBRUSHTOOLPRESENTER_HPP
