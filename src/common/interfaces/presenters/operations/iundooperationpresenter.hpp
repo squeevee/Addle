@@ -20,7 +20,7 @@ public slots:
     virtual void undo() = 0;
 };
 
-//DECL_IMPLEMENTED_AS_QOBJECT(IUndoOperationPresenter))
+
 
 } // namespace Addle
 #endif // IUNDOOPERATIONPRESENTER_HPP

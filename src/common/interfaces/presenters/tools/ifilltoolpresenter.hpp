@@ -17,7 +17,7 @@ public:
 };
 
 DECL_MAKEABLE(IFillToolPresenter)
-//DECL_IMPLEMENTED_AS_QOBJECT(IFillToolPresenter)
+
 
 } // namespace Addle
 #endif // IFILLTOOLPRESENTER_HPP

@@ -202,7 +202,7 @@ DECL_INTERFACE_META_PROPERTIES(
 
 DECL_MAKEABLE(IViewPortPresenter)
 DECL_EXPECTS_INITIALIZE(IViewPortPresenter)
-//DECL_IMPLEMENTED_AS_QOBJECT(IViewPortPresenter))
+
 
 } // namespace Addle
 

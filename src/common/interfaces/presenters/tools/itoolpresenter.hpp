@@ -34,7 +34,7 @@ signals:
     virtual void cursorChanged(QCursor cursor) = 0;
 };
 
-//DECL_IMPLEMENTED_AS_QOBJECT(IToolPresenter))
+
 
 } // namespace Addle
 #endif // ITOOLPRESENTER_HPP

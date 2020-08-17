@@ -2,8 +2,7 @@
 #define GLOBALEXCEPTIONHANDLER_HPP
 
 #include "compat.hpp"
-#include "interfaces/iaddleexception.hpp"
-#include "exceptions/baseaddleexception.hpp"
+#include "exceptions/addleexception.hpp"
 #include <exception>
 #include <QCoreApplication>
 #include <QObject>
@@ -91,7 +90,7 @@ public:
     const UnhandledExceptionRouter* instance() { return _instance; }
 
     static void report(AddleUnhandledException& ex);
-    static void report(IAddleException& ex, Severity severity = Severity::normal);
+    static void report(AddleException& ex, Severity severity = Severity::normal);
     static void report(std::exception& ex, Severity severity = Severity::normal);
 
 #ifdef ADDLE_DEBUG
@@ -118,13 +117,13 @@ private:
  * @class AddleUnhandledException
  * @brief Represents an error that was unhandled somewhere
  */
-class AddleUnhandledException : public BaseAddleException
+class AddleUnhandledException : public AddleException
 {
     ADDLE_EXCEPTION_BOILERPLATE(AddleUnhandledException)
     typedef UnhandledExceptionRouter::Severity Severity;
 public:
     AddleUnhandledException(Severity severity = Severity::normal)
-        : BaseAddleException(
+        : AddleException(
 #ifdef ADDLE_DEBUG
             QCoreApplication::translate(
                 "UnhandledAddleException",
@@ -136,7 +135,7 @@ public:
     {
     }
 
-    AddleUnhandledException(IAddleException& innerException, Severity severity = Severity::normal)
+    AddleUnhandledException(AddleException& innerException, Severity severity = Severity::normal)
         : AddleUnhandledException(severity)
     {
         _innerAddleException = innerException.clone();
@@ -165,11 +164,11 @@ public:
 
     bool severity() { return _severity; }
 
-    IAddleException* innerAddleException() { return _innerAddleException; }
+    AddleException* innerAddleException() { return _innerAddleException; }
     std::exception* innerStdException() { return _innerStdException; }
 
 private:
-    IAddleException* _innerAddleException = nullptr;
+    AddleException* _innerAddleException = nullptr;
     std::exception* _innerStdException = nullptr;
     Severity _severity;
 };
@@ -181,7 +180,7 @@ private:
 #endif 
 
 #define ADDLE_FALLBACK_CATCH__SEVERITY(x) \
-catch (IAddleException& ex) \
+catch (AddleException& ex) \
 { \
     UnhandledExceptionRouter::report(ex, x); \
 } \

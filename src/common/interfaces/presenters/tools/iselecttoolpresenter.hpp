@@ -51,11 +51,11 @@ signals:
     virtual void selectionOperationChanged(SelectionOperationOptions operation) = 0;
 };
 
-//Q_DECLARE_METATYPE(ISelectToolPresenter::SelectStyleOptions)
-//Q_DECLARE_METATYPE(ISelectToolPresenter::SelectionOperationOptions)
+
+
 
 DECL_MAKEABLE(ISelectToolPresenter)
-//DECL_IMPLEMENTED_AS_QOBJECT(ISelectToolPresenter)
+
 
 } // namespace Addle
 #endif // ISELECTTOOLPRESENTER_HPP

@@ -9,7 +9,6 @@
 #include <typeindex>
 #include <type_traits>
 
-#include "iservice.hpp"
 #include "interfaces/models/idocument.hpp"
 
 #include "interfaces/format/iformatmodel.hpp"
@@ -27,7 +26,7 @@ namespace Addle {
  * 
  * @ingroup interfaces
  */
-class IFormatService : public virtual IService
+class IFormatService
 {
 public:
     //virtual IDocument* loadFile(QString filename) = 0;
@@ -47,7 +46,7 @@ protected:
     virtual IFormatModel* importModel_p(const std::type_info& modelType, QIODevice& device, const ImportExportInfo& info) = 0;
 };
 
-DECL_MAKEABLE(IFormatService)
+DECL_SERVICE(IFormatService)
 
 } // namespace Addle
 #endif // IFORMATSERVICE_HPP

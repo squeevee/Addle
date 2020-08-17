@@ -1,13 +1,13 @@
 #ifndef FILEEXCEPTIONS_HPP
 #define FILEEXCEPTIONS_HPP
 
-#include "baseaddleexception.hpp"
+#include "addleexception.hpp"
 
 #include <QFileInfo>
 #include <QCoreApplication>
 namespace Addle {
 
-class ADDLE_COMMON_EXPORT FileException : public BaseAddleException
+class ADDLE_COMMON_EXPORT FileException : public AddleException
 {
 public:
     enum Action
@@ -18,7 +18,7 @@ public:
 
 #ifdef ADDLE_DEBUG
     FileException(QFileInfo fileInfo, Action action, const QString& what)
-        : BaseAddleException(what), _fileInfo(fileInfo), _action(action)
+        : AddleException(what), _fileInfo(fileInfo), _action(action)
     {
     }
 #else

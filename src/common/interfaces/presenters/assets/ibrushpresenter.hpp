@@ -64,7 +64,7 @@ public:
     virtual void setPreviewInfo(QSharedPointer<const PreviewInfoProvider> info) = 0;
 };
 
-//DECL_IMPLEMENTED_AS_QOBJECT(IBrushPresenter))
+
 DECL_EXPECTS_INITIALIZE(IBrushPresenter)
 DECL_MAKEABLE(IBrushPresenter)
 

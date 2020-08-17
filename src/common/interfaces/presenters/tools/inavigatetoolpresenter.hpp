@@ -45,7 +45,7 @@ DECL_INTERFACE_META_PROPERTIES(
 
 DECL_MAKEABLE(INavigateToolPresenter)
 DECL_EXPECTS_INITIALIZE(INavigateToolPresenter)
-//DECL_IMPLEMENTED_AS_QOBJECT(INavigateToolPresenter))
+
 
 } // namespace Addle
 #endif // INAVIGATETOOLPRESENTER_HPP

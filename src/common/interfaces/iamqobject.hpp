@@ -45,8 +45,12 @@ protected: \
     const QObject* asQObject() const override { return this; } \
 private:
 
+namespace Traits {
+
 template<class Interface>
 struct implemented_as_QObject : std::integral_constant<bool, std::is_base_of<IAmQObject, Interface>::value> {};
+
+} // namespace Traits
 
 } // namespace Addle
 

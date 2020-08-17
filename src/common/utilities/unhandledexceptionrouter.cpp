@@ -22,7 +22,7 @@ void UnhandledExceptionRouter::report(AddleUnhandledException& ex)
     emit _instance->unhandledException(&ex);
 }
     
-void UnhandledExceptionRouter::report(IAddleException& ex, Severity severity)
+void UnhandledExceptionRouter::report(AddleException& ex, Severity severity)
 {
     if (!_instance) return;
     AddleUnhandledException unhandled(ex, severity);

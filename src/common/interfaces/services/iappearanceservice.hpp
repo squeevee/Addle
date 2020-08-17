@@ -6,10 +6,9 @@
 #include <QFileSelector>
 
 #include "interfaces/traits.hpp"
-#include "iservice.hpp"
 namespace Addle {
 
-class IAppearanceService : public virtual IService
+class IAppearanceService
 {
 public:
     virtual ~IAppearanceService() = default;
@@ -20,7 +19,7 @@ public:
     virtual const QFileSelector& selector() = 0;
 };
 
-DECL_MAKEABLE(IAppearanceService);
+DECL_SERVICE(IAppearanceService);
 } // namespace Addle
 
 #endif // IAPPEARANCESERVICE_HPP

@@ -27,7 +27,7 @@ signals:
     virtual void undoStateChanged() = 0;
 };
 
-//DECL_IMPLEMENTED_AS_QOBJECT(IHaveUndoStackPresenter))
+
 
 } // namespace Addle
 #endif // IHAVEUNDOSTACKPRESENTER_HPP

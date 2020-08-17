@@ -6,7 +6,6 @@
 #include <QSet>
 
 #include "compat.hpp"
-#include "servicebase.hpp"
 #include "utils.hpp"
 #include "interfaces/format/iformatdriver.hpp"
 #include "interfaces/services/iformatservice.hpp"
@@ -15,7 +14,7 @@
 namespace Addle {
 
 
-class ADDLE_CORE_EXPORT FormatService : public virtual ServiceBase, public virtual IFormatService
+class ADDLE_CORE_EXPORT FormatService : public virtual IFormatService
 {
 public:
     FormatService();

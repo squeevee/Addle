@@ -1,18 +1,15 @@
 #ifndef IAPPLICATIONSERVICE_HPP
 #define IAPPLICATIONSERVICE_HPP
 
-#include "iservice.hpp"
-
 #include <QStringList>
 
 #include "interfaces/presenters/idocumentpresenter.hpp"
 #include "interfaces/traits.hpp"
 #include "interfaces/iamqobject.hpp"
 
-
 namespace Addle {
 
-class IApplicationService : public virtual IService, public virtual IAmQObject
+class IApplicationService : public virtual IAmQObject
 {
 public:
     enum StartupMode
@@ -44,8 +41,8 @@ public slots:
     virtual void quitting() = 0;
 };
 
-DECL_MAKEABLE(IApplicationService)
-//DECL_IMPLEMENTED_AS_QOBJECT(IApplicationService))
+DECL_SERVICE(IApplicationService)
+
 
 } // namespace Addle
 #endif // IAPPLICATIONSERVICE_HPP

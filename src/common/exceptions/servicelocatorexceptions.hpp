@@ -13,18 +13,18 @@
 #include <QStringBuilder>
 #include <stdexcept>
 
-#include "baseaddleexception.hpp"
+#include "addleexception.hpp"
 
 #include "utilities/qtextensions/translation.hpp"
 namespace Addle {
 
 DECL_LOGIC_ERROR(ServiceLocatorException)
-class ADDLE_COMMON_EXPORT ServiceLocatorException : public BaseAddleException
+class ADDLE_COMMON_EXPORT ServiceLocatorException : public AddleException
 {
 #ifdef ADDLE_DEBUG
 public:
     ServiceLocatorException(const QString what)
-        : BaseAddleException(what)
+        : AddleException(what)
     {
     }
 #else

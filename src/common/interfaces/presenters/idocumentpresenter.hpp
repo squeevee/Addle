@@ -83,7 +83,7 @@ signals:
 
 DECL_MAKEABLE(IDocumentPresenter);
 DECL_EXPECTS_INITIALIZE(IDocumentPresenter);
-//DECL_IMPLEMENTED_AS_QOBJECT(IDocumentPresenter))
+
 
 } // namespace Addle
 

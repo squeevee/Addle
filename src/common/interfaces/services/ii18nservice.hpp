@@ -8,7 +8,6 @@
  * adding `#include` directives.
  */
 
-#include "iservice.hpp"
 #include "interfaces/traits.hpp"
 
 #include <QString>
@@ -25,7 +24,7 @@ namespace Addle {
 // service -- i.e., if we end up using UIC or something where such a thing would
 // be convenient
 
-class II18nService : public IService
+class II18nService
 {
 public:
     virtual ~II18nService() = default;
@@ -33,8 +32,7 @@ public:
     virtual QString text(QString identifier) const = 0;
 };
 
-
-DECL_MAKEABLE(II18nService)
+DECL_SERVICE(II18nService)
 } // namespace Addle
 
 #endif // II18NSERVICE_HPP

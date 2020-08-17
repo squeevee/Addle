@@ -33,7 +33,7 @@ signals:
 
 DECL_MAKEABLE(IRenderStack);
 DECL_EXPECTS_INITIALIZE(IRenderStack);
-//DECL_IMPLEMENTED_AS_QOBJECT(IRenderStack))
+
 } // namespace Addle
 
 #endif // IRENDERSTACK_HPP

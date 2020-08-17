@@ -4,24 +4,24 @@
 #include <QObject>
 #include <QStringBuilder>
 
-#include "baseaddleexception.hpp"
+#include "addleexception.hpp"
 
 #include "utilities/model/importexportinfo.hpp"
 
 #include "utilities/qtextensions/translation.hpp"
 namespace Addle {
 
-class ADDLE_COMMON_EXPORT FormatException : public BaseAddleException
+class ADDLE_COMMON_EXPORT FormatException : public AddleException
 {
 public:
 #ifdef ADDLE_DEBUG
     FormatException(const QString& what, FormatId format)
-        : BaseAddleException(what), _format(format)
+        : AddleException(what), _format(format)
     {
     }
 
     FormatException(const ImportExportInfo& importExportInfo, FormatId format, const QString& what)
-        : BaseAddleException(what), _importExportInfo(importExportInfo), _format(format)
+        : AddleException(what), _importExportInfo(importExportInfo), _format(format)
     {
     }
 

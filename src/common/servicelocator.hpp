@@ -22,9 +22,7 @@
 #include <QMutex>
 #include <QSharedPointer>
 
-#include "interfaces/servicelocator/ifactory.hpp"
-#include "interfaces/servicelocator/iservicelocator.hpp"
-#include "interfaces/services/iservice.hpp"
+#include "interfaces/ifactory.hpp"
 
 #include "exceptions/servicelocatorexceptions.hpp"
 
@@ -49,7 +47,7 @@ namespace Addle {
  * is expected to be used infrequently by persistent objects. Be mindful of
  * situations where this may be too expensive.
  */
-class ADDLE_COMMON_EXPORT ServiceLocator : public IServiceLocator
+class ADDLE_COMMON_EXPORT ServiceLocator
 {
 public:
     /**
@@ -177,13 +175,13 @@ public:
      */
     template<class Interface, typename... ArgTypes,
         typename = typename std::enable_if<
-            !is_makeable_by_id<Interface>::value
+            !Traits::is_makeable_by_id<Interface>::value
         >::type
     >
     static Interface* make(ArgTypes... args)
     {
         static_assert(
-            expects_initialize<Interface>::value,
+            Traits::expects_initialize<Interface>::value,
             "Interface did not expect initialization and is not makeable by ID. "
             "at least one of these must be true to use `ServiceLocator::make(...)` "
             "with arguments."
@@ -236,7 +234,7 @@ public:
      */
     template<class Interface, class TypeId,
         typename = typename std::enable_if<
-            is_makeable_by_id<Interface>::value
+            Traits::is_public_makeable_by_id<Interface>::value
         >::type
     >
     static Interface* make(TypeId id)
@@ -287,13 +285,13 @@ public:
      */
     template<class Interface, class TypeId, typename... ArgTypes,
         typename = typename std::enable_if<
-            is_makeable_by_id<Interface>::value
+            Traits::is_public_makeable_by_id<Interface>::value
         >::type
     >
     static Interface* make(TypeId id, ArgTypes... args)
     {
         static_assert(
-            expects_initialize<Interface>::value,
+            Traits::expects_initialize<Interface>::value,
             "Interface must expect initialization to use "
             "`ServiceLocator::make(...)` with arguments after the id."
         );
@@ -350,13 +348,19 @@ private:
     ServiceLocator() = default;
     virtual ~ServiceLocator()
     {
-        //for (IFactory* factory : _factoryRegistry) delete factory;
-        for (IService* service : _services) delete service;
+        for (auto i = _services.keyValueBegin(); i != _services.keyValueEnd(); ++i)
+        {
+            std::type_index type = (*i).first;
+            void* service = (*i).second;
+            
+            _factoriesByType[type]->delete_(service);
+        }
+        for (const IFactory* factory : _factoriesByType) delete factory;
     }
 
     static ServiceLocator* _instance;
     
-    QHash<std::type_index, IService*> _services;
+    QHash<std::type_index, void*> _services;
     QHash<std::type_index, QSharedPointer<QMutex>> _serviceInitMutexes;
     QHash<std::type_index, const IFactory*> _factoriesByType;
 
@@ -368,16 +372,16 @@ private:
     Interface* get_p()
     {
         //todo: thread safety
-        static_assert(
-            std::is_base_of<IService, Interface>::value,
-            "Interface must derive from IService (in order to be gotten without "
-            "PersistentId)."
-        );
-        static_assert(
-            !std::is_same<IService, Interface>::value,
-            "IService is the common base interface of services. It cannot be "
-            "gotten directly."
-        );
+        // static_assert(
+        //     std::is_base_of<IService, Interface>::value,
+        //     "Interface must derive from IService (in order to be gotten without "
+        //     "PersistentId)."
+        // );
+        // static_assert(
+        //     !std::is_same<IService, Interface>::value,
+        //     "IService is the common base interface of services. It cannot be "
+        //     "gotten directly."
+        // );
         
         std::type_index interfaceIndex(typeid(Interface));
         
@@ -396,8 +400,8 @@ private:
         {   
             // This service has already been made. Return the locator's instance.
 
-            IService* service = _services[interfaceIndex];
-            return dynamic_cast<Interface*>(service);
+            void* service = _services[interfaceIndex];
+            return reinterpret_cast<Interface*>(service);
         }
         else
         {
@@ -407,7 +411,7 @@ private:
 
             Interface* service = make_p<Interface>();
             //service->setServiceLocator(this);
-            _services[interfaceIndex] = service;
+            _services[interfaceIndex] = reinterpret_cast<void*>(service);
 
             _serviceInitMutexes.remove(interfaceIndex);
             mutex->unlock();
@@ -421,7 +425,7 @@ private:
     Interface* get_p(IdType id)
     {
         static_assert(
-            is_gettable_by_id<Interface>::value,
+            Traits::is_gettable_by_id<Interface>::value,
             "Interface must be gettable by id."
         );
         static_assert(
@@ -451,7 +455,7 @@ private:
     Interface* make_p()
     {
         static_assert(
-            is_makeable<Interface>::value,
+            Traits::is_makeable<Interface>::value,
             "Interface must be makeable"
         );
 
@@ -483,11 +487,11 @@ private:
     Interface* make_p(IdType id)
     {
         static_assert(
-            is_makeable_by_id<Interface>::value,
+            Traits::is_makeable_by_id<Interface>::value,
             "Interface must be makeable by id"
         );
         static_assert(
-            std::is_same<typename is_makeable_by_id<Interface>::IdType, IdType>::value,
+            std::is_same<typename Traits::id_type<Interface>::type, IdType>::value,
             "Interface must be makeable by id of type IdType"
         );
         static_assert(
@@ -522,7 +526,7 @@ private:
 
     template<class Interface>
     static inline typename std::enable_if<
-        expects_initialize<Interface>::value
+       Traits:: expects_initialize<Interface>::value
     >::type noParameterInitializeHelper(Interface* object)
     {
         static_assert(
@@ -535,7 +539,7 @@ private:
     
     template<class Interface>
     static inline typename std::enable_if<
-        !expects_initialize<Interface>::value
+        !Traits::expects_initialize<Interface>::value
     >::type noParameterInitializeHelper(Interface* object) noexcept
     {
         Q_UNUSED(object)

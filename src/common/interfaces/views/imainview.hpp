@@ -14,7 +14,7 @@ public slots:
     virtual void start() = 0;
 };
 
-//DECL_IMPLEMENTED_AS_QOBJECT(IMainView))
+
 
 } // namespace Addle
 #endif // IMAINVIEW_HPP

@@ -22,7 +22,7 @@ public:
     virtual void selectInTool() = 0;
 };
 
-// Q_DECLARE_METATYPE(QSharedPointer<IAssetPresenter>)
+
 
 } // namespace Addle
 #endif // IASSETPRESENTER_HPP

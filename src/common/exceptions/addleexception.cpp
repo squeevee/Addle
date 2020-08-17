@@ -1,5 +1,5 @@
 #include <QtDebug>
-#include "baseaddleexception.hpp"
+#include "addleexception.hpp"
 #include <QStringBuilder>
 
 #include "utilities/qtextensions/translation.hpp"
@@ -10,14 +10,13 @@ using namespace Addle;
 
 #include "utilities/debugging.hpp"
 
-BaseAddleException::BaseAddleException(const QString& what)
+AddleException::AddleException(const QString& what)
     : _what(what)
 {
     updateWhat();
 }
 
-
-void BaseAddleException::debugRaise(const char* function, const char* file, const int line)
+void AddleException::debugRaise(const char* function, const char* file, const int line)
 {
     Location loc;
     loc.function = function;
@@ -33,7 +32,7 @@ void BaseAddleException::debugRaise(const char* function, const char* file, cons
             // Don't repeat this warning for re-thrown exceptions.
             qWarning() << qUtf8Printable(
                 fallback_translate(
-                    "BaseAddleException",
+                    "AddleException",
                     "warn-logic-error",
                     QStringLiteral(
                         "A logic error occurred:\n"
@@ -51,19 +50,19 @@ void BaseAddleException::debugRaise(const char* function, const char* file, cons
     raise();
 }
 
-void BaseAddleException::updateWhat()
+void AddleException::updateWhat()
 {
     QString what = _what;
     if (!_locations.isEmpty())
     {
         what = what % QCoreApplication::translate(
-            "BaseAddleException",
+            "AddleException",
             "\nthrown from:\n"
         );
         for (auto& loc : _locations)
         {
             what = what % fallback_translate(
-                "BaseAddleException",
+                "AddleException",
                 "unroll-location",
                 QStringLiteral(
                     "%1 (%2:%3)")
@@ -74,7 +73,6 @@ void BaseAddleException::updateWhat()
         }
     }
     _whatBytes = what.toUtf8();
-    _what_cstr = _whatBytes.constData();
 }
 
 #endif

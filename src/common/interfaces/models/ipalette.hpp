@@ -32,7 +32,7 @@ signals:
     virtual void colorsChanged() = 0;
 };
 
-//DECL_IMPLEMENTED_AS_QOBJECT(IPalette))
+
 DECL_MAKEABLE(IPalette)
 DECL_EXPECTS_INITIALIZE(IPalette);
 DECL_PERSISTENT_OBJECT_TYPE(IPalette, PaletteId);

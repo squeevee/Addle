@@ -4,8 +4,6 @@
 #include <QSharedPointer>
 #include <QMetaType>
 
-#include "interfaces/iaddleexception.hpp"
-
 #include "interfaces/models/idocument.hpp"
 #include "interfaces/presenters/iraiseerrorpresenter.hpp"
 
@@ -23,7 +21,7 @@ namespace Addle {
 
 inline void registerQMetaTypes()
 {
-    //qRegisterMetaType<QSharedPointer<IAddleException>>();
+    //qRegisterMetaType<QSharedPointer<AddleException>>();
 
     //qRegisterMetaType<QSharedPointer<IDocument>>();
     //qRegisterMetaType<QSharedPointer<IErrorPresenter>>();

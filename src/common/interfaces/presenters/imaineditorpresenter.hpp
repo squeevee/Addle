@@ -83,7 +83,7 @@ signals:
 
 DECL_MAKEABLE(IMainEditorPresenter)
 DECL_EXPECTS_INITIALIZE(IMainEditorPresenter);
-//DECL_IMPLEMENTED_AS_QOBJECT(IMainEditorPresenter))
+
 
 DECL_INTERFACE_META_PROPERTIES(
     IMainEditorPresenter,

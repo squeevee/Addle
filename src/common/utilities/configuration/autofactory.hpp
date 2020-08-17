@@ -7,8 +7,7 @@
 
 #include "interfaces/traits.hpp"
 
-#include "interfaces/servicelocator/iservicelocator.hpp"
-#include "interfaces/servicelocator/ifactory.hpp"
+#include "interfaces/ifactory.hpp"
 namespace Addle {
 
 /**
@@ -18,7 +17,7 @@ template<class Interface, class Impl>
 class AutoFactory : public IFactory
 {
     static_assert(
-        is_makeable<Interface>::value || is_makeable_by_id<Interface>::value,
+        Traits::is_makeable<Interface>::value,
         "Interface must be makeable"
     );
 

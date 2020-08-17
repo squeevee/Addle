@@ -54,7 +54,7 @@ signals:
 
 DECL_MAKEABLE(IAssetSelectionPresenter);
 DECL_EXPECTS_INITIALIZE(IAssetSelectionPresenter);
-//DECL_IMPLEMENTED_AS_QOBJECT(IAssetSelectionPresenter))
+
 
 } // namespace Addle
 #endif // IASSETSELECTIONPRESENTER_HPP

@@ -32,7 +32,7 @@ signals:
 
 DECL_MAKEABLE(ICanvasPresenter);
 DECL_EXPECTS_INITIALIZE(ICanvasPresenter);
-//DECL_IMPLEMENTED_AS_QOBJECT(ICanvasPresenter))
+
 
 } // namespace Addle
 #endif // ICANVASPRESENTER_HPP

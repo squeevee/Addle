@@ -8,7 +8,7 @@ set (common_sources
     ${INTERFACES}
     
     common.cpp
-    exceptions/baseaddleexception.cpp
+    exceptions/addleexception.cpp
     utilities/asynctask.cpp
     utilities/debugging.cpp
     utilities/indexvariant.cpp

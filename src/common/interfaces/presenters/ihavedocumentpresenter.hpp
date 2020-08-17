@@ -31,7 +31,7 @@ signals:
     virtual void documentPresenterChanged(IDocumentPresenter* documentPresenter) = 0;
 };
 
-//DECL_IMPLEMENTED_AS_QOBJECT(IHaveDocumentPresenter))
+
 
 } // namespace Addle
 #endif // IHAVEDOCUMENTPRESENTER_HPP

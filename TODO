@@ -1,5 +1,3 @@
-Color palette
-
 maybe add the feature where the viewport can be temporarily locked relative
 to the absolute global screen position -- so toolbars and dock widgets can
 be added arbitrarily without disrupting the viewport
@@ -25,14 +23,12 @@ Make a generalized fallback format driver based on Qt rather than a bunch of
 individual ones (dynamic negotiation based on QImageReader::supportedMimeTypes()
 for example)
 
-General-purpose assert function that translates into a thrown IAddleException
+General-purpose assert function that translates into a thrown AddleException
 which returns true for isLogicError() -- save some unneeded micro exception
 classes 
 
 error-wrap, but also combine some functionality between the 
 unhandledexceptionrouter and the debug message handler
-
-style: namespaces!!! (we'll support plugins eventually, might as well be courteous)
 
 Tool options bars will need some more work.
 
@@ -40,10 +36,6 @@ The whole UI needs work, lots and lots of work
 
 cut down on #include networks in interface classes with more forward-
 declarations to reduce compile times at least a little
-
-Is there some way to make qobject_interface_cast work via qobject_cast instead 
-of dynamic_cast ? Maybe interfaces implemented as qobject can be required to 
-expose a asQObject() method? Is it actually all that bad as is?
 
 Pass presenters with shared or weak pointers? const references to shared/weak 
 pointers (might be easier on the include network)? At least make init function
@@ -71,7 +63,7 @@ Widgets gui focus issues
 
 style: Models should have Model in their names. ?
 
-Raster Surface lazy clear
+Raster Surface lazy clear <- there seems to be a bug in this.
 + async safety
 
 I think I'd prefer the semantics if the tool mouse helper were constructed on 
@@ -83,16 +75,11 @@ operations on a different thread? BEEF UP ASYNC TASK STUFF
 
 Is IService necessary? Services don't really seem to need a common interface,
 either for ServiceLocator or consuming code, and thanks to IFactory::delete_(),
-ServiceLocator can store services as void* and still access their destructors.
+ServiceLocator can store services as void* and still call their destructors.
 Might also be better semantics, to distinguish between gettable singleton
 interfaces, and the more specific concept of a service.
 
 Also, tidy up the gettable_by_id trait vs DECL_PERSISTENT_OBJECT_TYPE thing 
-
-Maybe move stuff into a 'interfaces/meta' folder, or even distinguish between 
-'common' and perhaps 'framework'. (Probably would only be useful if I were going
-to make another SOLID application in Qt... so it can probably wait for a long
-while.)
 
 Don't allow ServiceLocator to publicly make objects that are meant to be
 persistent / singletons. befriend ServiceLocator to IFactory and make IFactory 
@@ -158,6 +145,8 @@ If I feel like a c'tor's initialization list is getting kind of cumbersome
 I can move the it to the implementation file. It'd look right at home next to
 the proper init function.
 
+(PropertyCache seems like it's basically a lazy property already)
+
 Anyway, tackle that when we're tightening up constness
 
 chuck QImage::offset() into more of the API
@@ -167,14 +156,7 @@ make renderstack auto-remove steps as they're deleted
 right-clicking in the middle of a tool operation causes it to disengage
 haphazardly
 
-okay but *reeeeaaallllyy* do I have to insist on get- property method names,
-because *nobody* else does that and it's not even consistent with C# (i.e., the
-counterexample I keep thinking of.)
-
 combine the raster bit reader and writer?
-
-All Addle code should be in Addle namespace, and global constants will not have
-a sub-namespace 
 
 get format drivers by id 
 
@@ -199,9 +181,10 @@ else has made one (MIT-compatible), I don't think it is worth the considerable
 undertaking of making one myself.
 
 Soft brush also has an artifact where part of the feathering is clipped sometimes.
+(does it still? I haven't seen it in a while)
 
 EVENTUALLY: simplify / modularize / optimize path brush engine's anti-aliasing
-repair logic.
+repair logic. Make it work with the eraser mode too
 
 Raster engine: figure out an easing function that can be adjusted for different
 hardnesses
@@ -222,8 +205,7 @@ kinda might as well)
   those values to be populated from within a const function (see above)
 - **qAsConst() must be employed on all range-based for loops over implicitly
   shared collection types to avoid lots and lots of unneeded copying** -- wowie (:
-
-Absolutely only one file for interface traits.
+  <- correction, noDetach should be used
 
 Shared pool of temporary/disposable raster surfaces for various kinds of brush 
 previews?
@@ -251,15 +233,8 @@ implementations in Qt 6.)
 
 combine HeirarchyList::Node::Iterator and HeirarchyList::NodePointer ?
 
-I'm pretty sure QVector doesn't need std::is_nothrow_move_constructible in alloc
-for the class to operate the same. That's only an if-else block, not any real 
-SFNIAE stuff: if move semantics made a difference there, I don't think it would
-compile. Maybe I'll file a bug report.
-
 The palette grid can probably be rendered more efficiently with primitives
 instead of every well being a QWidget
-
-style: layers added or layers inserted?
 
 I think I've made some `const Node*` and `Node* const` confusion in the logic of
 HeirarchyList. I'll need to look over the class and see if I'm satisfied with 
@@ -272,18 +247,9 @@ would be better praxis.)
 https://www.geeksforgeeks.org/sqrt-square-root-decomposition-set-2-lca-tree-osqrth-time/
 https://www.geeksforgeeks.org/lca-for-general-or-n-ary-trees-sparse-matrix-dp-approach-onlogn-ologn/
 
+Abstract HierarchyList
 
-I started making some "iterator adapters" in the collections utility header, to
-perform some higher-level list manipulation things in a relativley efficient way.
-When I started brainstorming ways to compose such operations together, I realized
-that what I'm trying to make is LINQ.
-
-There are several LINQ-like libraries for C++. I tentatively like the looks of
-the one at https://archive.codeplex.com/?p=cpplinq (BSD-like license, single-header).
-Its syntax seems both intuitive within C++ and faithful to LINQ-proper, and its
-extensibility is nice. It seems to be the most popular outright LINQ immitation,
-though I might also check out Boost.Ranges to see if it's any good for doing the
-same kinds of things.
+https://archive.codeplex.com/?p=cpplinq ?
 
 cpplinq documentation:
 https://web.archive.org/web/20160719221134/http://cpplinq.codeplex.com/documentation

@@ -2,7 +2,9 @@
 #define ASYNCTASK_HPP
 
 #include "compat.hpp"
-#include "interfaces/iaddleexception.hpp"
+#include "exceptions/addleexception.hpp"
+
+#include <QSharedPointer>
 
 #include <memory>
 #include <QObject>
@@ -89,7 +91,7 @@ public:
      * If the most recent run of the task was stopped because of an error, this
      * accesses the error.
      */
-    QSharedPointer<IAddleException> error() { const QMutexLocker lock(&_stateMutex); return _error; }
+    QSharedPointer<AddleException> error() { const QMutexLocker lock(&_stateMutex); return _error; }
 
     void sync() { const QMutexLocker lock(&_stateMutex); while (_isRunning); }
 
@@ -110,7 +112,7 @@ signals:
     void completed();
 
     // The task has stopped because of an error.
-    void error(QSharedPointer<IAddleException>);
+    void error(QSharedPointer<AddleException>);
 
     // todo: Rate-limit these signals like QFuture does
     void maxProgressChanged(double maxProgress);
@@ -138,7 +140,7 @@ private:
     bool _isCompleted = false;
     bool _isError = false;
 
-    QSharedPointer<IAddleException> _error;
+    QSharedPointer<AddleException> _error;
 
     double _maxProgress = 1.0;
     double _minProgress = 0.0;

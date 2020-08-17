@@ -27,7 +27,7 @@ signals:
     // virtual void removeFromStack() = 0;
 };
 
-//DECL_IMPLEMENTED_AS_QOBJECT(IRenderStep))
+
 
 } // namespace Addle
 

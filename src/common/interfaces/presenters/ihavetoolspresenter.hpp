@@ -26,7 +26,7 @@ signals:
     virtual void currentToolChanged(ToolId tool) = 0;
 };
 
-//DECL_IMPLEMENTED_AS_QOBJECT(IHaveToolsPresenter))
+
 
 } // namespace Addle
 #endif //IHAVETOOLSPRESENTER_HPP

@@ -34,7 +34,7 @@ void AsyncTask::Worker::run()
             _owner->_isRunning = true;
             _owner->_isCompleted = false;
             _owner->_isError = false;
-            _owner->_error = QSharedPointer<IAddleException>();
+            _owner->_error = QSharedPointer<AddleException>();
         }
 
         _owner->doTask();
@@ -49,14 +49,14 @@ void AsyncTask::Worker::run()
             emit _owner->completed();
         }
     }
-    catch (IAddleException& ex)
+    catch (AddleException& ex)
     {
         {
             if (!_owner) return;
             const QMutexLocker lock(&_owner->_stateMutex);
             _owner->_isRunning = false;
             _owner->_isError = true;
-            _owner->_error = QSharedPointer<IAddleException>(ex.clone());
+            _owner->_error = QSharedPointer<AddleException>(ex.clone());
 
             emit _owner->stopped();
             emit _owner->error(_owner->_error);

@@ -39,7 +39,7 @@ signals:
 
 DECL_MAKEABLE(ILayerPresenter)
 DECL_EXPECTS_INITIALIZE(ILayerPresenter)
-//DECL_IMPLEMENTED_AS_QOBJECT(ILayerPresenter))
+
 
 } // namespace Addle
 #endif // ILAYERPRESENTER_HPP

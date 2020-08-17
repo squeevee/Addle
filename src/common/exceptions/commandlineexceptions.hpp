@@ -8,11 +8,11 @@
 
 #include "utilities/qtextensions/translation.hpp"
 
-#include "baseaddleexception.hpp"
+#include "addleexception.hpp"
 namespace Addle {
 
 DECL_RUNTIME_ERROR(CommandLineException)
-class ADDLE_COMMON_EXPORT CommandLineException : public BaseAddleException
+class ADDLE_COMMON_EXPORT CommandLineException : public AddleException
 {
 public:
     CommandLineException(
@@ -20,7 +20,7 @@ public:
         )
         : _errorText(errorText)
 #ifdef ADDLE_DEBUG
-        , BaseAddleException(errorText)
+        , AddleException(errorText)
 #endif
     {
     }

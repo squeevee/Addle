@@ -4,20 +4,16 @@
 #include "compat.hpp"
 #include <QObject>
 #include <QUrl>
-#include "servicebase.hpp"
-
 #include "interfaces/services/iapplicationsservice.hpp"
-
-#include "helpers/servicethreadhelper.hpp"
 
 namespace Addle {
 
-class ADDLE_CORE_EXPORT ApplicationService : public QObject, public virtual ServiceBase, public virtual IApplicationService
+class ADDLE_CORE_EXPORT ApplicationService : public QObject, public IApplicationService
 {
     Q_OBJECT
     IAMQOBJECT_IMPL
 public:
-    ApplicationService() : _threadHelper(this, ServiceThreadHelper_options::ThreadOption::application_thread)
+    ApplicationService()
     {
     }
     virtual ~ApplicationService();
@@ -40,8 +36,6 @@ private:
 
     StartupMode _startupMode;
     int _exitCode;
-
-    ServiceThreadHelper<ApplicationService> _threadHelper;
 };
 
 } // namespace Addle

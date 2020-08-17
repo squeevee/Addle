@@ -16,7 +16,7 @@ public:
 };
 
 DECL_MAKEABLE(ITextToolPresenter)
-//DECL_IMPLEMENTED_AS_QOBJECT(ITextToolPresenter)
+
 
 } // namespace Addle
 

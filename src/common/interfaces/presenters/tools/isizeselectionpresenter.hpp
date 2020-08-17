@@ -56,7 +56,7 @@ signals:
 };
 
 DECL_EXPECTS_INITIALIZE(ISizeSelectionPresenter);
-//DECL_IMPLEMENTED_AS_QOBJECT(ISizeSelectionPresenter))
+
 DECL_MAKEABLE(ISizeSelectionPresenter);
 
 } // namespace Addle

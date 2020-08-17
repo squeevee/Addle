@@ -19,7 +19,7 @@ public:
 };
 
 DECL_MAKEABLE(IShapesToolPresenter)
-//DECL_IMPLEMENTED_AS_QOBJECT(IShapesToolPresenter)
+
 
 } // namespace Addle
 #endif // ISHAPESTOOLPRESENTER_HPP

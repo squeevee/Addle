@@ -15,17 +15,17 @@
 
 #include "globals.hpp"
 #include "utilities/qtextensions/translation.hpp"
-#include "baseaddleexception.hpp"
+#include "addleexception.hpp"
 
 namespace Addle {
 
 DECL_LOGIC_ERROR(InitializeException)
-class ADDLE_COMMON_EXPORT InitializeException : public BaseAddleException
+class ADDLE_COMMON_EXPORT InitializeException : public AddleException
 {
 #ifdef ADDLE_DEBUG
 public:
     InitializeException(const char* senderTypeName, const QString what)
-        : BaseAddleException(what),
+        : AddleException(what),
         _senderTypeName(senderTypeName)
     {
     }

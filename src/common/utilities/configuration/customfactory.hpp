@@ -4,7 +4,7 @@
 #include <functional>
 #include <memory>
 
-#include "interfaces/servicelocator/ifactory.hpp"
+#include "interfaces/ifactory.hpp"
 namespace Addle {
 
 template<class Interface>

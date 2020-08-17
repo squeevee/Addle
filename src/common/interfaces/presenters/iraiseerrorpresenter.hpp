@@ -16,8 +16,8 @@ signals:
     virtual void raiseError(QSharedPointer<IErrorPresenter> error) = 0;
 };
 
-//DECL_IMPLEMENTED_AS_QOBJECT(IRaiseErrorPresenter))
-// Q_DECLARE_METATYPE(QSharedPointer<IErrorPresenter>)
+
+
 
 } // namespace Addle
 #endif // IRAISEERRORPRESENTER_HPP

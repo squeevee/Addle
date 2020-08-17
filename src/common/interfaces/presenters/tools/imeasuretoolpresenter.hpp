@@ -28,10 +28,10 @@ signals:
     virtual void measureOperationChanged(MeasureOperationOptions operation) = 0;
 };
 
-//Q_DECLARE_METATYPE(IMeasureToolPresenter::MeasureOperationOptions)
+
 
 DECL_MAKEABLE(IMeasureToolPresenter)
-//DECL_IMPLEMENTED_AS_QOBJECT(IMeasureToolPresenter)
+
 
 } // namespace Addle
 #endif // IMEASURETOOLPRESENTER_HPP
