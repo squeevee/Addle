@@ -18,7 +18,7 @@ class ADDLE_CORE_EXPORT FormatService : public virtual IFormatService
 {
 public:
     FormatService();
-    virtual ~FormatService();
+    virtual ~FormatService() = default;
 
 protected:
     //IDocument* loadFile(QString filename);

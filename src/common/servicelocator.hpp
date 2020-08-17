@@ -17,6 +17,7 @@
 #include <memory>
 #include <functional>
 
+#include <QSet>
 #include <QHash>
 #include <QMultiHash>
 #include <QMutex>
@@ -28,7 +29,7 @@
 
 #include "interfaces/traits.hpp"
 
-
+#include "utilities/collections.hpp"
 #include "utilities/hashfunctions.hpp"
 namespace Addle {
 
@@ -103,6 +104,30 @@ public:
         return *_instance->get_p<Interface>(id);
     }
 
+    template<class Interface, class TypeId>
+    static bool has(TypeId id)
+    {
+        static_assert(
+            Traits::is_gettable_by_id<Interface>::value,
+            "Interface is not gettable by Id"
+        );
+        static_assert(
+            std::is_same<TypeId, typename Traits::id_type<Interface>::type>::value ||
+            std::is_same<TypeId, PersistentId>::value,
+            "Interface is not gettable by IdType"
+        );
+
+        if (!_instance)
+        {
+            ADDLE_THROW(ServiceLocatorNotInitializedException());
+        }
+
+        auto index = qMakePair(id, std::type_index(typeid(Interface)));
+
+        return _instance->_factoriesById.contains(index) ||
+            _instance->_persistentObjectsById.contains(index);
+    }
+
     /**
      * @brief Make an object.
      * 
@@ -126,6 +151,10 @@ public:
     template<class Interface>
     static Interface* make()
     {
+        static_assert(
+            Traits::is_public_makeable_by_type<Interface>::value,
+            "Interface must be publicly makeable."
+        );
         if (!_instance)
         {
             ADDLE_THROW(ServiceLocatorNotInitializedException());
@@ -181,6 +210,10 @@ public:
     static Interface* make(ArgTypes... args)
     {
         static_assert(
+            Traits::is_public_makeable_by_type<Interface>::value,
+            "Interface must be publicly makeable."
+        );
+        static_assert(
             Traits::expects_initialize<Interface>::value,
             "Interface did not expect initialization and is not makeable by ID. "
             "at least one of these must be true to use `ServiceLocator::make(...)` "
@@ -234,11 +267,16 @@ public:
      */
     template<class Interface, class TypeId,
         typename = typename std::enable_if<
-            Traits::is_public_makeable_by_id<Interface>::value
+            Traits::is_makeable_by_id<Interface>::value
         >::type
     >
     static Interface* make(TypeId id)
     {
+        static_assert(
+            Traits::is_public_makeable_by_id<Interface>::value,
+            "Interface must be publicly makeable."
+        );
+
         if (!_instance)
         {
             ADDLE_THROW(ServiceLocatorNotInitializedException());
@@ -341,6 +379,53 @@ public:
     static std::unique_ptr<Interface> makeUnique(ArgTypes... args)
     {
         return std::unique_ptr<Interface>(make<Interface>(args...));
+    }
+
+    template<class Interface>
+    static QSet<PersistentId> getIds()
+    {
+        static_assert(
+            Traits::is_gettable_by_id<Interface>::value,
+            "Interface must be gettable by Id"
+        );
+
+        QSet<PersistentId> result;
+
+        std::type_index interfaceIndex(typeid(Interface));
+
+        {
+            auto&& begin = noDetach(_instance->_factoriesById).keyBegin();
+            auto&& end = noDetach(_instance->_factoriesById).keyEnd();
+            for(auto i = begin; i != end; ++i)
+            {
+                auto id = (*i).first;
+                auto entryInterfaceIndex = (*i).second;
+
+                if (entryInterfaceIndex == interfaceIndex
+                    && !result.contains(id) )
+                {
+                    result.insert(id);
+                }
+            }
+        }
+
+        {
+            auto&& begin = noDetach(_instance->_persistentObjectsById).keyBegin();
+            auto&& end = noDetach(_instance->_persistentObjectsById).keyEnd();
+            for(auto i = begin; i != end; ++i)
+            {
+                auto id = (*i).first;
+                auto entryInterfaceIndex = (*i).second;
+
+                if (entryInterfaceIndex == interfaceIndex
+                    && !result.contains(id) )
+                {
+                    result.insert(id);
+                }
+            }
+        }
+
+        return result;
     }
 
 private:

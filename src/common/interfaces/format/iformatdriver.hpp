@@ -34,7 +34,7 @@ public:
     virtual void exportModel(IFormatModel* model, QIODevice& device, ImportExportInfo info) = 0;
 };
 
-//DECL_MAKEABLE_BY_ID(IFormatDriver, FormatId);
+DECL_PERSISTENT_OBJECT_TYPE(IFormatDriver, FormatId);
 
 } // namespace Addle
 #endif // IFORMATDRIVER_HPP
