@@ -1,12 +1,11 @@
 #include "brushpresenter.hpp"
 #include "servicelocator.hpp"
 
-#include "utilities/addle_text.hpp"
-
 #include "interfaces/models/ibrush.hpp"
 
 #include "utils.hpp"
 #include "globals.hpp"
+#include "utilities/strings.hpp"
 
 #include "utilities/qtextensions/qobject.hpp"
 #include <QtDebug>
@@ -70,7 +69,7 @@ QIcon BrushPresenter::icon()
 
 QString BrushPresenter::name()
 {
-    return ADDLE_TEXT(QString("brushes.%1.text").arg(_id.key()));
+    return dynamic_qtTrId({ "brushes", _id.key(), "name"});
 }
 
 void BrushPresenter::setPreviewInfo(QSharedPointer<const PreviewInfoProvider> info)

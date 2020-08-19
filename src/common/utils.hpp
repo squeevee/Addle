@@ -11,10 +11,11 @@
 #include "servicelocator.hpp"
 
 #include "utilities/addle_icon.hpp"
-#include "utilities/addle_text.hpp"
 
 #include "utilities/collections.hpp"
 #include "utilities/math.hpp"
+
+#include "utilities/strings.hpp"
 
 #include "utilities/qtextensions/qmeta.hpp"
 #include "utilities/qtextensions/qobject.hpp"

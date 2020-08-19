@@ -50,11 +50,11 @@ void MainEditorView::setupUi()
     QMainWindow::setMenuBar(_menuBar);
 
     _toolBar_documentActions = new QToolBar(this);
-    _toolBar_documentActions->setWindowTitle(ADDLE_TEXT("ui.document-actions.title"));
+    _toolBar_documentActions->setWindowTitle(qtTrId("ui.document-actions.title"));
     QMainWindow::addToolBar(Qt::ToolBarArea::TopToolBarArea, _toolBar_documentActions);
 
     _toolBar_editorToolSelection = new QToolBar(this);
-    _toolBar_editorToolSelection->setWindowTitle(ADDLE_TEXT("ui.tool-selection.title"));
+    _toolBar_editorToolSelection->setWindowTitle(qtTrId("ui.tool-selection.title"));
     QMainWindow::addToolBar(Qt::ToolBarArea::LeftToolBarArea, _toolBar_editorToolSelection);
 
     new PropertyBinding(
@@ -83,7 +83,7 @@ void MainEditorView::setupUi()
 
     _action_open = new QAction(this);
     _action_open->setIcon(ADDLE_ICON("open"));
-    _action_open->setToolTip(ADDLE_TEXT("ui.open.toolTip"));
+    _action_open->setToolTip(qtTrId("ui.open.toolTip"));
     connect(_action_open, &QAction::triggered, this, &MainEditorView::onAction_open);
 
     _optionGroup_toolSelection = new OptionGroup(this);
@@ -96,18 +96,18 @@ void MainEditorView::setupUi()
 
     _action_new = new QAction(this);
     _action_new->setIcon(ADDLE_ICON("new"));
-    _action_new->setToolTip(ADDLE_TEXT("ui.new.toolTip"));
+    _action_new->setToolTip(qtTrId("ui.new.toolTip"));
     connect_interface(_action_new, SIGNAL(triggered()), _presenter, SLOT(newDocument()));
 
     _action_undo = new QAction(this);
     _action_undo->setIcon(ADDLE_ICON("undo"));
-    _action_undo->setToolTip(ADDLE_TEXT("ui.undo.toolTip"));
+    _action_undo->setToolTip(qtTrId("ui.undo.toolTip"));
     _action_undo->setEnabled(_presenter->canUndo());
     connect_interface(_action_undo, SIGNAL(triggered()), _presenter, SLOT(undo()));
 
     _action_redo = new QAction(this);
     _action_redo->setIcon(ADDLE_ICON("redo"));
-    _action_redo->setToolTip(ADDLE_TEXT("ui.redo.toolTip"));
+    _action_redo->setToolTip(qtTrId("ui.redo.toolTip"));
     _action_redo->setEnabled(_presenter->canRedo());
     connect_interface(_action_redo, SIGNAL(triggered()), _presenter, SLOT(redo()));
     
@@ -194,7 +194,7 @@ void MainEditorView::onAction_open()
 {
     QUrl file = QFileDialog::getOpenFileUrl(
         this, 
-        "Open image",
+        qtTrId("ui.open-document.title"),
         QUrl::fromLocalFile(QStandardPaths::writableLocation(QStandardPaths::PicturesLocation))
     );
 

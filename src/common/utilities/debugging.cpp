@@ -7,112 +7,111 @@
 
 #include "debugging.hpp"
 
-#include "utilities/qtextensions/translation.hpp"
 #include "globals.hpp"
+
+#include "qtextensions/qmeta.hpp"
 
 using namespace Addle;
 
-void Addle::debugMessageHandler(QtMsgType type, const QMessageLogContext& context, const QString& message)
-{
-    QString messageTypeString;
-    bool errorish = false;
+// void Addle::debugMessageHandler(QtMsgType type, const QMessageLogContext& context, const QString& message)
+// {
+//     QString messageTypeString = QMetaEnum::fromType<QtMsgType>().valueToKey(type);
+//     bool errorish = false;
 
-    // Place a breakpoint in this switch block to break on a particular message
-    // type.
-    // TODO: do this with a meta enum instead of a switch block
-    switch(type)
-    {
-        case QtMsgType::QtCriticalMsg:
-            errorish = true;
-            messageTypeString = QCoreApplication::translate(
-                "debugMessageHandler",
-                "critical"
-            );
-            break;
-        case QtMsgType::QtDebugMsg:
-            messageTypeString = QCoreApplication::translate(
-                "debugMessageHandler",
-                "debug"
-            );
-            break;
-        case QtMsgType::QtFatalMsg:
-            errorish = true;
-            messageTypeString = QCoreApplication::translate(
-                "debugMessageHandler",
-                "fatal"
-            );
-            break;
-        case QtMsgType::QtInfoMsg:
-            messageTypeString = QCoreApplication::translate(
-                "debugMessageHandler",
-                "info"
-            );
-            break;
-        case QtMsgType::QtWarningMsg:
-            errorish = true;
-            messageTypeString = QCoreApplication::translate(
-                "debugMessageHandler",
-                "warning"
-            );
-            break;
-        default:
-            std::cerr << qPrintable(QCoreApplication::translate(
-                "debugMessageHandler",
-                "Unknown QtMsgType"
-            )) << std::endl;
-            std::cout << qPrintable(message) << std::endl;
-            return;
-    }
+//     // Place a breakpoint in this switch block to break on a particular message
+//     // type.
+//     // TODO: do this with a meta enum instead of a switch block
+//     // switch(type)
+//     // {
+//     //     case QtMsgType::QtCriticalMsg:
+//     //         errorish = true;
+//     //         messageTypeString = (
+//     //             "debugMessageHandler",
+//     //             "critical"
+//     //         );
+//     //         break;
+//     //     case QtMsgType::QtDebugMsg:
+//     //         messageTypeString = (
+//     //             "debugMessageHandler",
+//     //             "debug"
+//     //         );
+//     //         break;
+//     //     case QtMsgType::QtFatalMsg:
+//     //         errorish = true;
+//     //         messageTypeString = (
+//     //             "debugMessageHandler",
+//     //             "fatal"
+//     //         );
+//     //         break;
+//     //     case QtMsgType::QtInfoMsg:
+//     //         messageTypeString = (
+//     //             "debugMessageHandler",
+//     //             "info"
+//     //         );
+//     //         break;
+//     //     case QtMsgType::QtWarningMsg:
+//     //         errorish = true;
+//     //         messageTypeString = (
+//     //             "debugMessageHandler",
+//     //             "warning"
+//     //         );
+//     //         break;
+//     //     default:
+//     //         std::cerr << qPrintable((
+//     //             "debugMessageHandler",
+//     //             "Unknown QtMsgType"
+//     //         )) << std::endl;
+//     //         std::cout << qPrintable(message) << std::endl;
+//     //         return;
+//     // }
 
-    if (errorish)
-    {
-        if(context.function || context.file)
-        {
-            std::cerr << qPrintable(QStringLiteral(
-                "[%1] %2 (%3:%4): %5")
-                .arg(messageTypeString)
-                .arg(context.function)
-                .arg(context.file)
-                .arg(context.line)
-                .arg(message))
-                << std::endl;
-        }
-        else
-        {
-            std::cerr << qPrintable(fallback_translate(
-                "debugMessageHandler",
-                "errorish-unknown-location-template",
-                QStringLiteral(
-                    "[%1] <unknown location>: %2"
-                ))
-                .arg(messageTypeString)
-                .arg(message))
-                << std::endl;
-        }
-        if (DebugBehavior::test(DebugBehavior::abort_on_errorish_qtlog))
-            std::abort();
-    }
-    else
-    {
-        if(context.function)
-        {
-            std::cout << qPrintable(QStringLiteral(
-                "[%1] %2: %3")
-                .arg(messageTypeString)
-                .arg(context.function)
-                .arg(message))
-                << std::endl;
-        }
-        else
-        {
-            std::cout << qPrintable(QStringLiteral(
-                "[%1] %2")
-                .arg(messageTypeString)
-                .arg(message))
-                << std::endl;
-        }
-    }
-}
+//     if (errorish)
+//     {
+//         if(context.function || context.file)
+//         {
+//             std::cerr << qPrintable(QStringLiteral(
+//                 "[%1] %2 (%3:%4): %5")
+//                 .arg(messageTypeString)
+//                 .arg(context.function)
+//                 .arg(context.file)
+//                 .arg(context.line)
+//                 .arg(message))
+//                 << std::endl;
+//         }
+//         else
+//         {
+//             std::cerr << qPrintable(
+//                     //% "[%1] <unknown location>: %2"
+//                     qtTrId("debug-messages.log-message.unknown-location")
+//                         .arg(messageTypeString)
+//                         .arg(message)
+//                     )
+//                 << std::endl;
+//         }
+//         if (DebugBehavior::test(DebugBehavior::abort_on_errorish_qtlog))
+//             std::abort();
+//     }
+//     else
+//     {
+//         if(context.function)
+//         {
+//             std::cout << qPrintable(QStringLiteral(
+//                 "[%1] %2: %3")
+//                 .arg(messageTypeString)
+//                 .arg(context.function)
+//                 .arg(message))
+//                 << std::endl;
+//         }
+//         else
+//         {
+//             std::cout << qPrintable(QStringLiteral(
+//                 "[%1] %2")
+//                 .arg(messageTypeString)
+//                 .arg(message))
+//                 << std::endl;
+//         }
+//     }
+// }
 
 bool DebugBehavior::_instantiated = false;
 DebugBehavior::DebugBehaviorFlags DebugBehavior::_instance = DebugBehaviorFlags();

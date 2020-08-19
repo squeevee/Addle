@@ -19,12 +19,7 @@
 #include "interfaces/services/iapplicationsservice.hpp"
 
 #include "globals.hpp"
-
-#ifdef ADDLE_DEBUG
-#include "utilities/debugging.hpp"
-#endif //ADDLE_DEBUG
-
-#include "utilities/heirarchylist.hpp"
+#include "utils.hpp"
 
 #include "utilities/unhandledexceptionrouter.hpp"
 #include "core/presenters/tools/navigatetoolpresenter.hpp"
@@ -34,32 +29,30 @@ using namespace Addle;
 int main(int argc, char *argv[])
 {
 #ifdef ADDLE_DEBUG
-    qInstallMessageHandler(debugMessageHandler);
+    //qInstallMessageHandler(debugMessageHandler);
 #endif //ADDLE_DEBUG
     registerQMetaTypes();
 
     QApplication a(argc, argv);
     a.setApplicationVersion(ADDLE_VERSION);
 
+    QTranslator fallbackTranslator;
+    fallbackTranslator.load(":/l10n/fallback.qm");
+    a.installTranslator(&fallbackTranslator);
+
     QTranslator translator;
-    translator.load(QString(":/translations/en_US.qm"));
+    translator.load(QLocale(), QString(), QString(), ":/l10n", ".qm");
     a.installTranslator(&translator);
 
 #ifdef ADDLE_DEBUG
-    qDebug() << qUtf8Printable(QCoreApplication::translate(
-        "main",
-        "Starting Addle."
-    ));
-    qDebug() << qUtf8Printable(QCoreApplication::translate(
-        "main",
-        "This is a debug build."
-    ));
+    //% "Starting Addle. This is a debug build."
+    qDebug() << qUtf8Printable(qtTrId("debug-messages.starting-addle"));
     if (DebugBehavior::get())
     {
-        qDebug() << qUtf8Printable(QCoreApplication::translate(
-            "main",
-            "Debug behavior flag(s) set"
-        )) << DebugBehavior::get();
+        //% "Debug behavior flag(s) set"
+        qDebug() 
+            << qUtf8Printable(qtTrId("debug-messages.behavior-flags-set"))
+            << DebugBehavior::get();
     }
 #endif
 

@@ -20,7 +20,7 @@ public:
         QWeakPointer<ILayerPresenter> layer
     );
 
-    QString text() { return tr("Brush Stroke"); }
+    QString text() { return QString(); } // TODO
 
 public slots: 
     void do_();

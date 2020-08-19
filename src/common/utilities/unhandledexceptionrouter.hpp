@@ -127,10 +127,8 @@ public:
     AddleUnhandledException(Severity severity = Severity::normal)
         : AddleException(
 #ifdef ADDLE_DEBUG
-            QCoreApplication::translate(
-                "UnhandledAddleException",
-                "An unhandled exception occurred."
-            )
+            //% "An unhandled exception occurred."
+            qtTrId("debug-messages.unhandled-exception")
 #endif
         ),
         _severity(severity)

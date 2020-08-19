@@ -2,8 +2,9 @@
 <RCC version="1.0">
 
 <qresource>
-    <!-- I18n -->
-    <file>i18n/+en_US/text.json</file>
+    <!-- L10n -->
+    <file>l10n/fallback.qm</file>
+    <file>l10n/en_US.qm</file>
 
     <!-- Icons -->
     <file>icons/+dark/brush-tool.png</file>

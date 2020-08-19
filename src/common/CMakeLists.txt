@@ -12,6 +12,7 @@ set (common_sources
     utilities/asynctask.cpp
     utilities/debugging.cpp
     utilities/indexvariant.cpp
+    utilities/translatedstring.cpp
     utilities/typeinforef.cpp
     utilities/unhandledexceptionrouter.cpp
     utilities/editing/brushstroke.cpp

@@ -14,7 +14,6 @@
 #include <QStringBuilder>
 
 #include "globals.hpp"
-#include "utilities/qtextensions/translation.hpp"
 #include "addleexception.hpp"
 
 namespace Addle {
@@ -55,13 +54,8 @@ public:
 #ifdef ADDLE_DEBUG
     NotInitializedException()
         : InitializeException(
-            fallback_translate(
-                "NotInitializedException",
-                "what",
-                QStringLiteral(
-                    "Attempted operation on object that was not yet initialized."
-                )
-            )
+            //% "Attempted operation on object that was not yet initialized."
+            qtTrId("debug-messages.initialize-error.not-initialized")
         )
     {
     }
@@ -88,13 +82,8 @@ public:
 #ifdef ADDLE_DEBUG
     AlreadyInitializedException()
         : InitializeException(
-            fallback_translate(
-                "AlreadyInitializedException",
-                "what",
-                QStringLiteral(
-                    "Attempted to initialize object that was already initialized."
-                )
-            )
+            //% "Attempted to initialize object that was already initialized."
+            qtTrId("debug-messages.initialize-error.already-initialized")
         )
     {
     }
@@ -123,14 +112,10 @@ public:
 #ifdef ADDLE_DEBUG
     InvalidInitializeException(Why why)
         : InitializeException(
-            fallback_translate(
-                "InvalidInitializeException",
-                "what",
-                QStringLiteral(
-                    "A problem was encountered during initialization.\n"
-                    "Why code:    %2")
+            //% "A problem was encountered during initialization.\n"
+            //% "Why code:    %2"
+            qtTrId("debug-messages.initialize-error.other")
                 .arg(why)
-            )
         ), _why(why)
     {
     }

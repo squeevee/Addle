@@ -8,7 +8,6 @@
 
 #include "utilities/model/importexportinfo.hpp"
 
-#include "utilities/qtextensions/translation.hpp"
 namespace Addle {
 
 class ADDLE_COMMON_EXPORT FormatException : public AddleException
@@ -56,13 +55,10 @@ public:
         : FormatException(
             importExportInfo,
             FormatId(),
-            fallback_translate(
-                "FormatModelNotSupportedException",
-                "what", 
-                QStringLiteral(
-                    "Importing is not supported for the given format model.\n"
-                    " Model name: \"%1\""))
-            .arg(modelname)
+            //% "Importing is not supported for the given format model.\n"
+            //% " Model name: \"%1\""
+            qtTrId("debug-messages.format-error.model-not-supported")
+                .arg(modelname)
         ), _modelname(modelname)
     {
     }
@@ -90,15 +86,12 @@ public:
         : FormatException(
         importExportInfo,
         format,
-        fallback_translate(
-            "ImportNotSupportedException",
-            "what",
-            QStringLiteral(
-                "There is no driver for the given format.\n"
-                "format type: \"%1\"\n"
-                "   filename: \"%2\""))
-            .arg(format.mimeType())
-            .arg(importExportInfo.filename())
+            //% "There is no driver for the given format.\n"
+            //% " format type: \"%1\"\n"
+            //% "    filename: \"%2\""
+            qtTrId("debug-messages.format-error.format-not-supported")
+                .arg(format.mimeType())
+                .arg(importExportInfo.filename())
         )
     {
     }
@@ -125,13 +118,10 @@ public:
         : FormatException(
         importExportInfo,
         format,
-        fallback_translate(
-            "ImportNotSupportedException",
-            "what",
-            QStringLiteral(
-                "The driver for the format does not support importing.\n"
-                "format type: \"%1\"\n"
-                "   filename: \"%2\""))
+        //% "The driver for the format does not support importing.\n"
+        //% "format type: \"%1\"\n"
+        //% "   filename: \"%2\""
+        qtTrId("debug-messages.format-error.import-not-supported")
             .arg(format.mimeType())
             .arg(importExportInfo.filename())
         ), _driver(driver)
@@ -160,13 +150,10 @@ public:
         : FormatException(
         importExportInfo,
         FormatId(), 
-            fallback_translate(
-            "FormatInferrenceFailedException",
-            "what",
-            QStringLiteral(
-                "A format could not be inferred from the information given.\n"
-                "   filename: \"%1\""))
-            .arg(importExportInfo.filename())
+            //% "A format could not be inferred from the information given.\n"
+            //% "   filename: \"%1\""
+            qtTrId("debug-messages.format-error.inferrence-failed")
+                .arg(importExportInfo.filename())
         )
     {
     }

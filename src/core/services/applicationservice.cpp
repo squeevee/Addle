@@ -28,10 +28,8 @@ ApplicationService::~ApplicationService()
 bool ApplicationService::start()
 {
 #ifdef ADDLE_DEBUG
-    qDebug() << qUtf8Printable(QCoreApplication::translate(
-        "ApplicationService",
-        "Starting ApplicationService."
-    ));
+    //% "Starting ApplicationService."
+    qDebug() << qUtf8Printable(qtTrId("debug-messages.application-service.starting"));
 #endif
 
     try
@@ -44,10 +42,10 @@ bool ApplicationService::start()
         _exitCode = ErrorCodes::COMMAND_LINE_ERROR_CODE;
 
 #ifdef ADDLE_DEBUG
-        std::cerr << qPrintable(QCoreApplication::translate(
-            "handleCommandLineError",
-            "A command line error was encountered."
-        )) << std::endl;
+        std::cerr << qPrintable(
+            //% "A command line error was encountered."
+            qtTrId("debug-messages.application-service.command-line-error")
+        ) << std::endl;
         std::cerr << ex.what() << std::endl;
         if (DebugBehavior::test(DebugBehavior::abort_on_startup_error))
             std::abort();
@@ -70,10 +68,10 @@ bool ApplicationService::start()
         }
         catch (...)
         {       
-            std::cerr << qPrintable(QCoreApplication::translate(
-                "ApplicationService",
-                "An error occurred attempting to start the graphical application."
-            )) << std::endl;
+            std::cerr << qPrintable(
+                //% "An error occurred attempting to start the graphical application."
+                qtTrId("cli-messages.graphical-startup-error")
+            ) << std::endl;
 
 #ifdef ADDLE_DEBUG
             try
@@ -82,20 +80,20 @@ bool ApplicationService::start()
             }
             catch (std::exception& ex)
             {
-                std::cerr << qPrintable(QCoreApplication::translate(
-                    "ApplicationService",
-                    "Exception thrown:"
-                )) << std::endl;
+                std::cerr << qPrintable(
+                    //% "Exception thrown:"
+                    qtTrId("debug-messages.application-service.standard-exception")
+                ) << std::endl;
                 std::cerr << ex.what() << std::endl;
                 if (DebugBehavior::test(DebugBehavior::abort_on_startup_error))
                     std::abort();
             }
             catch(...)
             {
-                std::cerr << qPrintable(QCoreApplication::translate(
-                    "ApplicationService",
-                    "The error was not of type std::exception"
-                )) << std::endl;
+                std::cerr << qPrintable(
+                    //% "The error was not of type std::exception"
+                    qtTrId("debug-messages.application-service.non-standard-exception")
+                ) << std::endl;
             }
             if (DebugBehavior::test(DebugBehavior::abort_on_startup_error))
                 std::abort();
@@ -114,12 +112,7 @@ void ApplicationService::parseCommandLine()
 
     QCommandLineParser parser;
 
-    parser.setApplicationDescription(
-        QCoreApplication::translate(
-            "ApplicationService",
-            "Pretty little drawing program and image utility"
-        )
-    );
+    parser.setApplicationDescription(qtTrId(ADDLE_TAGLINE_TRID));
 
     QCommandLineOption helpOption = parser.addHelpOption();
     QCommandLineOption versionOption = parser.addVersionOption();
@@ -129,7 +122,8 @@ void ApplicationService::parseCommandLine()
             "e",
             "editor"
         }, 
-        QCoreApplication::translate("ApplicationService", "Explicitly start Addle in editor mode.")
+        //% "Explicitly start Addle in editor mode."
+        qtTrId("cli-messages.option-description.editor")
     );
     parser.addOption(editorOption);
 
@@ -138,13 +132,16 @@ void ApplicationService::parseCommandLine()
             "b",
             "browser"
         },
-        QCoreApplication::translate("ApplicationService", "Explicitly start Addle in browser mode.")
+        //% "Explicitly start Addle in browser mode."
+        qtTrId("cli-messages.option-description.browser")
     );
     parser.addOption(browserOption);
 
     parser.addPositionalArgument(
-        QCoreApplication::translate("ApplicationService", "open"),
-        QCoreApplication::translate("ApplicationService", "The file or url to open.")
+        //% "open"
+        qtTrId("cli-messages.option-description.open-arg-name"),
+        //% "The file or url to open."
+        qtTrId("cli-messages.option-description.open")
     );
 
     bool success = parser.parse(args);
@@ -181,29 +178,31 @@ void ApplicationService::parseCommandLine()
         {
             _startingUrl = openUrl;
 #ifdef ADDLE_DEBUG
-            qDebug() << qUtf8Printable(QCoreApplication::translate(
-                "ApplicationService",
-                "Command line arguments specified to open url \"%1\""
-            ).arg(_startingUrl.toString()));
+            qDebug() << qUtf8Printable(
+                //% "Command line arguments specified to open url \"%1\""
+                qtTrId("debug-messages.application-service.cli-open-url")
+                    .arg(_startingUrl.toString())
+            );
 #endif
         }
         else
         {
             _startingFilename = openString;
 #ifdef ADDLE_DEBUG
-            qDebug() << qUtf8Printable(QCoreApplication::translate(
-                "ApplicationService",
-                "Command line arguments specified to open file \"%1\""
-            ).arg(_startingFilename));
+            qDebug() << qUtf8Printable(
+                //% "Command line arguments specified to open file \"%1\""
+                qtTrId("debug-messages.application-service.cli-open-file")
+                    .arg(_startingFilename)
+            );
 #endif
         }
 
         if (parser.positionalArguments().size() > 1)
         {
-            qWarning() << qUtf8Printable(QCoreApplication::translate(
-                "ApplicationService",
-                "Multiple positional arguments were given, but only the first will be used."
-            ));
+            qWarning() << qUtf8Printable(
+                //% "Multiple positional arguments were given, but only the first will be used."
+                qtTrId("cli-messages.multiple-positional-arguments-warning")
+            );
         }
     }
 
@@ -216,10 +215,10 @@ void ApplicationService::parseCommandLine()
         _startupMode = StartupMode::editor;
 
 #ifdef ADDLE_DEBUG
-        qDebug() << qUtf8Printable(QCoreApplication::translate(
-            "ApplicationService",
-            "Explicitly starting in editor mode."
-        ));
+        qDebug() << qUtf8Printable(
+            //% "Explicitly starting in editor mode."
+            qtTrId("debug-messages.application-service.starting-editor-explicit")
+        );
 #endif
     }
     else if (parser.isSet(browserOption))
@@ -227,10 +226,10 @@ void ApplicationService::parseCommandLine()
         _startupMode = StartupMode::browser;
 
 #ifdef ADDLE_DEBUG
-        qDebug() << qUtf8Printable(QCoreApplication::translate(
-            "ApplicationService",
-            "Explicitly starting in browser mode."
-        ));
+        qDebug() << qUtf8Printable(
+            //% "Explicitly starting in browser mode."
+            qtTrId("debug-messages.application-service.starting-browser-explicit")
+        );
 #endif
     }
     else if (!parser.isSet(editorOption) && !parser.isSet(browserOption))
@@ -239,20 +238,20 @@ void ApplicationService::parseCommandLine()
         {
             _startupMode = StartupMode::editor;
 #ifdef ADDLE_DEBUG
-            qDebug() << qUtf8Printable(QCoreApplication::translate(
-                "ApplicationService",
-                "Implicitly starting in editor mode."
-            ));
+            qDebug() << qUtf8Printable(
+                //% "Implicitly starting in editor mode."
+                qtTrId("debug-messages.application-service.starting-editor-implicit")
+            );
 #endif
         }
         else
         {
             _startupMode = StartupMode::browser;
 #ifdef ADDLE_DEBUG
-            qDebug() << qUtf8Printable(QCoreApplication::translate(
-                "ApplicationService",
-                "Implicitly starting in browser mode."
-            ));
+            qDebug() << qUtf8Printable(
+                //% "Implicitly starting in browser mode."
+                qtTrId("debug-messages.application-service.starting-browser-implicit")
+            );
 #endif
         }
     }
@@ -282,9 +281,9 @@ void ApplicationService::startGraphicalApplication()
 void ApplicationService::quitting()
 {
 #ifdef ADDLE_DEBUG
-    qDebug() << qUtf8Printable(QCoreApplication::translate(
-        "ApplicationService",
-        "quitting() called"
-    ));
+    qDebug() << qUtf8Printable(
+        //% "Quitting application service"
+        qtTrId("debug-messages.application-service.quitting")
+    );
 #endif
 }

@@ -38,10 +38,8 @@ public:
     void initialize()
     {
 #ifdef ADDLE_DEBUG
-        qDebug() << qUtf8Printable(QCoreApplication::translate(
-            "BaseServiceConfiguration",
-            "Initializing service locator."
-        ));
+        //% "Initializing service locator."
+        qDebug() << qUtf8Printable(qtTrId("debug-messages.service-locator.initializing"));
 #endif
         if (ServiceLocator::_instance)
             throw ServiceLocatorAlreadyInitializedException();
@@ -56,10 +54,8 @@ public:
     void destroy()
     {
 #ifdef ADDLE_DEBUG
-        qDebug() << qUtf8Printable(QCoreApplication::translate(
-            "BaseServiceConfiguration",
-            "Destroying service locator."
-        ));
+        //% "Destroying service locator."
+        qDebug() << qUtf8Printable(qtTrId("debug-messages.service-locator.destroying"));
 #endif
 
         if (!ServiceLocator::_instance)

@@ -16,6 +16,8 @@ using namespace Addle;
 ColorSelector::ColorSelector(IColorSelectionPresenter& presenter, QWidget* parent)
     : QDockWidget(parent), _presenter(presenter)
 {
+    setWindowTitle(qtTrId("ui.color-selector.title"));
+
     QWidget* widget = new QWidget(this);
     setWidget(widget);
 
@@ -98,7 +100,7 @@ void ColorSelector::onPaletteColorSelected(ColorInfo color)
 
 void ColorSelector::onButton_transparent()
 {
-    _presenter.setActiveColor(Transparent);
+    _presenter.setActiveColor(GlobalColorInfo::Transparent);
 }
 
 void ColorSelector::onPresenterColorSelected(int which, ColorInfo info)

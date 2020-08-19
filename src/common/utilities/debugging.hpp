@@ -13,7 +13,7 @@
 
 namespace Addle {
 
-ADDLE_COMMON_EXPORT void debugMessageHandler(QtMsgType type, const QMessageLogContext& context, const QString& message);
+//ADDLE_COMMON_EXPORT void debugMessageHandler(QtMsgType type, const QMessageLogContext& context, const QString& message);
 
 // Modify various error handling and other debug-related behaviors
 // The environment variable `ADDLE_DEBUG_BEHAVIOR` can be set to an (base 10)

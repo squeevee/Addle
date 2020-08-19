@@ -45,11 +45,9 @@ public:
         : FileException(
             fileInfo,
             action,
-            fallback_translate(
-                "FileDoesNotExistException",
-                "what",
-                QStringLiteral("The requested file at \"%1\" does not exist."))
-            .arg(fileInfo.filePath())
+            //% "The requested file at \"%1\" does not exist."
+            qtTrId("debug-messages.file-error.does-not-exist")
+                .arg(fileInfo.filePath())
         )
     {
     }

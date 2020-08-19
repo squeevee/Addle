@@ -6,8 +6,6 @@
 #include <QObject>
 #include <QStringBuilder>
 
-#include "utilities/qtextensions/translation.hpp"
-
 #include "addleexception.hpp"
 namespace Addle {
 
@@ -42,11 +40,8 @@ public:
     CommandLineParserException(const QString errorText)
         : CommandLineException(
 #ifdef ADDLE_DEBUG
-            fallback_translate(
-                "CommandLineParserException",
-                "what",
-                QStringLiteral("The command-line parser encountered an error: \"%1\"")
-                ).arg(errorText)
+            //% "The command-line parser encountered an error: \"%1\""
+            qtTrId("error-messages.command-line.parser").arg(errorText)
 #else
             errorText
 #endif
@@ -61,10 +56,9 @@ class ADDLE_COMMON_EXPORT MultipleStartModesException : public CommandLineExcept
     ADDLE_EXCEPTION_BOILERPLATE(MultipleStartModesException)
 public: 
     MultipleStartModesException()
-        : CommandLineException( QCoreApplication::translate(
-            "MultipleStartModesException",
-            "You may not specify multiple modes to start Addle in."
-            )
+        : CommandLineException(
+            //% "You may not specify multiple modes to start Addle in."
+            qtTrId("error-messages.command-line.multiple-modes")
         )
     {
     }

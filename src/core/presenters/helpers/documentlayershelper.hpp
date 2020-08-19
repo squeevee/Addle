@@ -1,6 +1,7 @@
 #ifndef DOCUMENTLAYERSHELPER_HPP
 #define DOCUMENTLAYERSHELPER_HPP
 
+#include <QtGlobal>
 #include <QMap>
 #include <QSet>
 #include <set>
@@ -35,7 +36,9 @@ public:
         {
             auto layer = ServiceLocator::makeShared<ILayerPresenter>(_document, layerModel);
             _layers.addValue(layer);
-            layer->setName(QString("Layer %1").arg(_layerLabelNumber));
+
+            //% "Layer %1"
+            layer->setName(qtTrId("layer-name-template").arg(_layerLabelNumber));
             _layerLabelNumber++;
         }
                 
@@ -111,7 +114,7 @@ public:
         // verify cursor
 
         auto layer = ServiceLocator::makeShared<ILayerPresenter>(_document);
-        layer->setName(QString("Layer %1").arg(_layerLabelNumber)); //todo: i18n
+        layer->setName(qtTrId("layer-name-template").arg(_layerLabelNumber));
         LayerNode& result = parent->addValue(layer, index);
         _layerLabelNumber++;
 
@@ -130,7 +133,8 @@ public:
         // verify cursor
 
         LayerNode& result = parent->addGroup(index);
-        QString name = QString("Layer Group %1").arg(_layerGroupLabelNumber);
+        //% "Layer Group %1"
+        QString name = qtTrId("layer-group-name-template").arg(_layerGroupLabelNumber);
         result.setMetaData(QVariant::fromValue(LayerGroupInfo(name)));
         _layerGroupLabelNumber++;
 

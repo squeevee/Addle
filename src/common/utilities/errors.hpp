@@ -16,7 +16,8 @@ class GenericLogicError : public AddleException
     ADDLE_EXCEPTION_BOILERPLATE(GenericLogicError);
 public:
     GenericLogicError(const char* message = nullptr, const char* expression = nullptr)
-        : AddleException("Assertion failed"), _expression(expression), _message(message) //i18n
+            //% "A logic error occurred"
+        : AddleException(qtTrId("debug-messages.logic-error-occurred")), _expression(expression), _message(message)
     {
     }
 

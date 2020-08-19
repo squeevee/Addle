@@ -4,9 +4,10 @@
 #include <boost/optional.hpp>
 #include <QSharedData>
 #include <QColor>
-#include <QString>
 #include <QPoint>
 #include <QMetaType>
+
+#include "utilities/translatedstring.hpp"
 
 namespace Addle {
 
@@ -15,13 +16,13 @@ class ColorInfo
     struct ColorInfoInner : QSharedData 
     {
         ColorInfoInner() = default;
-        ColorInfoInner(QColor color_, QString name_, boost::optional<QPoint> pos_)
+        ColorInfoInner(QColor color_, TranslatedString name_, boost::optional<QPoint> pos_)
             : color(color_), name(name_), pos(pos_)
         {
         }
 
         QColor color;
-        QString name;
+        TranslatedString name;
 
         boost::optional<QPoint> pos;
     };
@@ -32,7 +33,7 @@ public:
     {
     }
 
-    ColorInfo(QColor color, QString name = QString(), boost::optional<QPoint> pos = boost::optional<QPoint>())
+    ColorInfo(QColor color, TranslatedString name = TranslatedString(), boost::optional<QPoint> pos = boost::optional<QPoint>())
         : _data( new ColorInfoInner(color, name, pos))
     {
     }
@@ -50,8 +51,8 @@ public:
     QColor color() const { return _data->color; }
     void setColor(QColor color) { _data->color = color; }
 
-    QString name() const { return _data->name; }
-    void setName(QString name) { _data->name = name; }
+    TranslatedString name() const { return _data->name; }
+    void setName(TranslatedString name) { _data->name = name; }
 
     boost::optional<QPoint> pos() const { return _data->pos; }
     void setPos(boost::optional<QPoint> pos) { _data->pos = pos; }

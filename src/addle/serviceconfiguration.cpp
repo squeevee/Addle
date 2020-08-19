@@ -44,12 +44,8 @@
 #include "core/services/appearanceservice.hpp"
 #include "core/services/applicationservice.hpp"
 #include "core/services/formatservice.hpp"
-#include "core/services/i18nservice.hpp"
-//#include "core/services/taskservice.hpp"
 
 #include "core/format/qtimageformatdriver.hpp"
-//#include "core/tasks/taskcontroller.hpp"
-//#include "core/tasks/loaddocumentfiletask.hpp"
 
 #include "widgetsgui/main/maineditorview.hpp"
 
@@ -72,6 +68,16 @@ void ServiceConfiguration::configure()
     // # Models
     CONFIG_AUTOFACTORY_BY_TYPE(ILayer, Layer);
     CONFIG_AUTOFACTORY_BY_TYPE(IDocument, Document);
+
+    CONFIG_AUTOFACTORY_BY_TYPE(IBrush, Brush);
+
+    buildPersistentObject<IBrush>(CoreBrushes::BasicBrush, CoreBrushBuilders::basic);
+    buildPersistentObject<IBrush>(CoreBrushes::SoftBrush, CoreBrushBuilders::soft);
+    buildPersistentObject<IBrush>(CoreBrushes::BasicEraser, CoreBrushBuilders::basicEraser);
+
+    CONFIG_AUTOFACTORY_BY_TYPE(IPalette, Palette);
+
+    buildPersistentObject<IPalette>(CorePalettes::BasicPalette, CorePaletteBuilders::basic);
 
     // # Presenters
     CONFIG_AUTOFACTORY_BY_TYPE(IMainEditorPresenter, MainEditorPresenter);
@@ -100,12 +106,6 @@ void ServiceConfiguration::configure()
     CONFIG_AUTOFACTORY_BY_TYPE(IAppearanceService, AppearanceService);
     CONFIG_AUTOFACTORY_BY_TYPE(IApplicationService, ApplicationService);
     CONFIG_AUTOFACTORY_BY_TYPE(IFormatService, FormatService);
-    CONFIG_AUTOFACTORY_BY_TYPE(II18nService, I18nService);
-    //CONFIG_AUTOFACTORY_BY_TYPE(ITaskService, TaskService);
-
-    // # Tasks
-    //CONFIG_AUTOFACTORY_BY_TYPE(ITaskController, TaskController);
-    //CONFIG_AUTOFACTORY_BY_TYPE(ILoadDocumentFileTask, LoadDocumentFileTask);
 
     // # Formats
     CONFIG_CUSTOMFACTORY_BY_ID(IFormatDriver, CoreFormats::JPEG, 
@@ -117,18 +117,4 @@ void ServiceConfiguration::configure()
 
     // # Views
     CONFIG_AUTOFACTORY_BY_TYPE(IMainEditorView, MainEditorView);
-
-    //CONFIG_AUTOFACTORY_BY_ID(IBrushPainter, CoreBrushes::BasicBrush, BasicBrushPainter);
-    //CONFIG_CUSTOMFACTORY_BY_ID(IBrush, CoreBrushes::BasicBrush, std::bind(&Brush::fromId, CoreBrushes::BasicBrush));
-    //CONFIG_CUSTOMFACTORY_BY_ID(IBrush, CoreBrushes::SoftBrush, std::bind(&Brush::fromId, CoreBrushes::SoftBrush));
-
-    CONFIG_AUTOFACTORY_BY_TYPE(IBrush, Brush);
-
-    buildPersistentObject<IBrush>(CoreBrushes::BasicBrush, CoreBrushBuilders::basic);
-    buildPersistentObject<IBrush>(CoreBrushes::SoftBrush, CoreBrushBuilders::soft);
-    buildPersistentObject<IBrush>(CoreBrushes::BasicEraser, CoreBrushBuilders::basicEraser);
-
-    CONFIG_AUTOFACTORY_BY_TYPE(IPalette, Palette);
-
-    buildPersistentObject<IPalette>(CorePalettes::BasicPalette, CorePaletteBuilders::basic);
 }

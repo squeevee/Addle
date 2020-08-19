@@ -14,7 +14,7 @@ AppearanceService::AppearanceService()
         _selector.setExtraSelectors({"light"});
 }
 
-QIcon AppearanceService::icon(QString identifier) const
+QIcon AppearanceService::icon(const char* identifier) const
 {
     return QIcon(_selector.select(QStringLiteral(":/icons/%1.png").arg(identifier)));
 }

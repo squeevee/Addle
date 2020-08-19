@@ -4,14 +4,13 @@
 #include <QToolBar>
 
 #include "utilities/addle_icon.hpp"
-#include "utilities/addle_text.hpp"
 #include "utilities/optionaction.hpp"
 #include "utilities/optiongroup.hpp"
 
+#include "utilities/strings.hpp"
+
 #include "../maineditorview.hpp"
 #include "interfaces/presenters/imaineditorpresenter.hpp"
-
-#include "utilities/qtextensions/translation.hpp"
 
 namespace Addle {
 
@@ -40,8 +39,8 @@ public:
         auto presenter = _mainEditorPresenter.tools().value(tool).dynamicCast<PresenterType>();
 
         OptionAction* selectAction = new OptionAction(tool, _owner);
-        selectAction->setText(ADDLE_TEXT(QStringLiteral("tools.%1.text").arg(tool.key())));
-        selectAction->setToolTip(ADDLE_TEXT(QStringLiteral("tools.%1.toolTip").arg(tool.key())));
+        selectAction->setText(dynamic_qtTrId({"tools", tool.key(), "name"}));
+        selectAction->setToolTip(dynamic_qtTrId({"tools", tool.key(), "description"}));
         selectAction->setIcon(ADDLE_ICON(tool.key()));
         *selectActionptr = selectAction;
 

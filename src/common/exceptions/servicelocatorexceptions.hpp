@@ -15,7 +15,6 @@
 
 #include "addleexception.hpp"
 
-#include "utilities/qtextensions/translation.hpp"
 namespace Addle {
 
 DECL_LOGIC_ERROR(ServiceLocatorException)
@@ -48,10 +47,10 @@ class ADDLE_COMMON_EXPORT ServiceLocatorNotInitializedException: public ServiceL
 #ifdef ADDLE_DEBUG
 public:
     ServiceLocatorNotInitializedException()
-        : ServiceLocatorException(QCoreApplication::translate(
-            "ServiceLocatorAlreadyInitializedException", 
-            "The service locator is not initialized."
-        ))
+        : ServiceLocatorException(
+            //% "The service locator is not initialized."
+            qtTrId("debug-messages.service-locator-error.not-initialized")
+        )
     {
     }
 #else
@@ -73,10 +72,10 @@ class ADDLE_COMMON_EXPORT ServiceLocatorAlreadyInitializedException : public Ser
 public: 
 #ifdef ADDLE_DEBUG
     ServiceLocatorAlreadyInitializedException()
-        : ServiceLocatorException(QCoreApplication::translate(
-            "ServiceLocatorAlreadyInitializedException", 
-            "The service locator has already been initialized."
-        ))
+        : ServiceLocatorException(
+            //% "The service locator has already been initialized."
+            qtTrId("debug-messages.service-locator-error.already-initialized")
+        )
     {
     }
 #else
@@ -100,12 +99,13 @@ public:
             const char* requestedInterfaceName,
             int factoryCount
         )
-        : ServiceLocatorException(fallback_translate("FactoryNotFoundException", "what", QStringLiteral(
-            "No factory was found for the requested interface.\n"
-            "requestedInterfaceName: \"%1\"\n"
-            "          factoryCount: %2"))
-            .arg(requestedInterfaceName)
-            .arg(factoryCount)
+        : ServiceLocatorException(
+            //% "No factory was found for the requested interface.\n"
+            //% "requestedInterfaceName: \"%1\"\n"
+            //% "          factoryCount: %2"
+            qtTrId("debug-messages.service-locator-error.factory-not-found")
+                .arg(requestedInterfaceName)
+                .arg(factoryCount)
         ),
         _requestedInterfaceName(requestedInterfaceName),
         _factoryCount(factoryCount)
@@ -137,14 +137,15 @@ public:
             const char* requestedInterfaceName,
             int serviceCount,
             int factoryCount
-        ) : ServiceLocatorException(fallback_translate("ServiceNotFoundException", "what", QStringLiteral(
-            "No service was found for the requested interface.\n"
-            "requestedInterfaceName: \"%1\"\n"
-            "          serviceCount: %2\n"
-            "          factoryCount: %3"))
-            .arg(requestedInterfaceName)
-            .arg(serviceCount)
-            .arg(factoryCount)
+        ) : ServiceLocatorException(
+            //% "No service was found for the requested interface.\n"
+            //% "requestedInterfaceName: \"%1\"\n"
+            //% "          serviceCount: %2\n"
+            //% "          factoryCount: %3"
+            qtTrId("debug-messages.service-locator-error.service-not-found")
+                .arg(requestedInterfaceName)
+                .arg(serviceCount)
+                .arg(factoryCount)
         ),
         _requestedInterfaceName(requestedInterfaceName),
         _serviceCount(serviceCount),
@@ -168,6 +169,7 @@ public:
  * @brief Thrown by ServiceLocator if the product from a factory did not 
  * implement the factory's interface.
  */
+// OBSOLETE?
 class ADDLE_COMMON_EXPORT InvalidFactoryProductException : public ServiceLocatorException
 {
     ADDLE_EXCEPTION_BOILERPLATE(InvalidFactoryProductException)
@@ -178,14 +180,15 @@ public:
             const char* requestedInterfaceName,
             const char* factoryProductName,
             const char* factoryName
-        ) : ServiceLocatorException(fallback_translate("InvalidFactoryProductException", "what", QStringLiteral(
-            "An invalid factory product was created.\n"
-            "requestedInterfaceName: \"%1\"\n"
-            "    factoryProductName: \"%2\"\n"
-            "           factoryName: \"%3\""))
-            .arg(requestedInterfaceName)
-            .arg(factoryProductName)
-            .arg(factoryName)),
+        ) : ServiceLocatorException(
+            //% "An invalid factory product was created.\n"
+            //% "requestedInterfaceName: \"%1\"\n"
+            //% "    factoryProductName: \"%2\"\n"
+            //% "           factoryName: \"%3\""
+            qtTrId("debug-messages.service-locator-error.invalid-product")
+                .arg(requestedInterfaceName)
+                .arg(factoryProductName)
+                .arg(factoryName)),
         _requestedInterfaceName(requestedInterfaceName),
         _factoryProductName(factoryProductName),
         _factoryName(factoryName)
@@ -218,14 +221,16 @@ public:
             Why why,
             const char* factoryProductName,
             const char* factoryName
-        ) : ServiceLocatorException(fallback_translate("FactoryException", "what", QStringLiteral(
-            "An error occurred in a factory.\n"
-            "    factoryProductName: \"%1\"\n"
-            "           factoryName: \"%2\"\n"
-            "              why code: %3"))
-            .arg(factoryProductName)
-            .arg(factoryName)
-            .arg(why)),
+        ) : ServiceLocatorException(
+            //% "An error occurred in a factory.\n"
+            //% "    factoryProductName: \"%1\"\n"
+            //% "           factoryName: \"%2\"\n"
+            //% "              why code: %3"
+            qtTrId("debug-messages.service-locator-error.factory-exception")
+                .arg(factoryProductName)
+                .arg(factoryName)
+                .arg(why)
+        ),
         _factoryProductName(factoryProductName),
         _factoryName(factoryName),
         _why(why)

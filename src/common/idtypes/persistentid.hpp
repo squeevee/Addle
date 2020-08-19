@@ -10,6 +10,10 @@
 #include "utilities/indexvariant.hpp"
 namespace Addle {
 
+// TODO: This design is a bit awkward. It might be preferable to make this
+// fundamentally a contant integral type (constexpr- and possibly even switch-
+// friendly) and have metadata stored separately in an associative container.
+
 /**
  * @class PersistentId
  * @brief Base class for identifier objects that are persistent and unique 
@@ -38,13 +42,13 @@ class ADDLE_COMMON_EXPORT PersistentId
 {
     struct PersistentIdData : QSharedData
     {
-        PersistentIdData(int metaTypeId_arg, QString key_arg, QHash<QString, QVariant> metadata_arg)
-            : metaTypeId(metaTypeId_arg), key(key_arg), metadata(metadata_arg)
+        PersistentIdData(int metaTypeId_, const char* key_, QHash<QString, QVariant> metadata_)
+            : metaTypeId(metaTypeId_), key(key_), metadata(metadata_)
         {
         }
 
         int metaTypeId;
-        QString key;
+        const char* key;
         QHash<QString, QVariant> metadata;
     };
 public:
@@ -54,7 +58,7 @@ public:
     {
     }
 
-    inline QString key() const { return _data->key; }
+    inline const char* key() const { return _data->key; }
 
     inline bool isNull() const { return !_data; }
     explicit inline operator bool() const { return !isNull(); }
@@ -83,7 +87,7 @@ public:
 protected:
     PersistentId(
             int metaTypeId,
-            QString key,
+            const char* key,
             QHash<QString, QVariant> metadata
         )
         : _data(new PersistentIdData(metaTypeId, key, metadata))
@@ -107,11 +111,11 @@ public: \
     inline operator QVariant() const { return QVariant::fromValue(*this); } \
     inline operator IndexVariant() const { return IndexVariant(QVariant::fromValue(*this)); } \
 private: \
-    T(QString key, QHash<QString, QVariant> metadata);
+    T(const char* key, QHash<QString, QVariant> metadata);
 
 #define STATIC_PERSISTENT_ID_BOILERPLATE(T) \
     T::T(const PersistentId& other) : PersistentId(other.metaTypeId() == qMetaTypeId<T>() ? other : PersistentId()) {} \
-    T::T(QString key, QHash<QString, QVariant> metadata) : PersistentId(qMetaTypeId<T>(), key, metadata) {}
+    T::T(const char* key, QHash<QString, QVariant> metadata) : PersistentId(qMetaTypeId<T>(), key, metadata) {}
     
 } // namespace Addle
 

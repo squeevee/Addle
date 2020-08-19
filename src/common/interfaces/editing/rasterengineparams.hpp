@@ -39,7 +39,7 @@ public:
         QString modeKey = _model.customEngineParameters()[QStringLiteral(RASTER_PARAM_MODE)].toString();
 
         // assert valid?
-        return valueFromKey<Mode>(modeKey.toLatin1());
+        return enumValueFromKey<Mode>(modeKey.toLatin1());
     }
 
     inline double hardness() const

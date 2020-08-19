@@ -15,7 +15,7 @@ public:
 
     virtual bool isDarkTheme() const = 0;
     
-    virtual QIcon icon(QString identifier) const = 0;
+    virtual QIcon icon(const char* identifier) const = 0;
     virtual const QFileSelector& selector() = 0;
 };
 

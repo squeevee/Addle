@@ -10,6 +10,8 @@ namespace Addle {
 namespace CorePaletteBuilders
 {
 
+// TODO: i18n
+
 const static PaletteBuilder basic = PaletteBuilder()
     .setId(CorePalettes::BasicPalette)
     .setSize(QSize(16, 3))

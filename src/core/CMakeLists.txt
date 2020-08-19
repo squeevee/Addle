@@ -33,7 +33,6 @@ set (
     rendering/renderstack.cpp
     services/appearanceservice.cpp
     services/applicationservice.cpp
-    services/i18nservice.cpp
     services/formatservice.cpp
     format/qtimageformatdriver.cpp
 )

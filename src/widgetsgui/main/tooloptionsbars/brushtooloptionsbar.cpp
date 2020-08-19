@@ -9,7 +9,6 @@
 
 #include "utilities/presenter/propertybinding.hpp"
 #include "utilities/widgetproperties.hpp"
-#include "utilities/addle_text.hpp"
 #include "globals.hpp"
 
 #include "../favoriteassetspicker.hpp"
@@ -32,7 +31,7 @@ BrushToolOptionsBar::BrushToolOptionsBar(IBrushToolPresenter& presenter, QWidget
     _button_brushSelector->setPopup(_brushSelector);
     connect(_brushSelector, &AssetSelector::changed, _button_brushSelector, &PopupButton::closePopup);
 
-    _button_brushSelector->setText("Brushes...");
+    _button_brushSelector->setText(qtTrId("brush-tool.brush-selection.text"));
 
     QToolBar::addWidget(_button_brushSelector);
 
@@ -41,8 +40,8 @@ BrushToolOptionsBar::BrushToolOptionsBar(IBrushToolPresenter& presenter, QWidget
     _button_sizeSelector = new SizeSelectorButton(this);
     _button_sizeSelector->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 
-    _button_sizeSelector->setText(ADDLE_TEXT("tools.brush-tool.size-selection.text"));
-    _button_sizeSelector->setToolTip(ADDLE_TEXT("tools.brush-tool.size-selection.toolTip"));
+    _button_sizeSelector->setText(qtTrId("tools.brush-tool.size-selection.text"));
+    _button_sizeSelector->setToolTip(qtTrId("tools.brush-tool.size-selection.toolTip"));
     
     QToolBar::addWidget(_button_sizeSelector);
 

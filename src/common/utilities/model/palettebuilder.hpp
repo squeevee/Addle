@@ -36,7 +36,7 @@ public:
         return *this;
     }
 
-    inline PaletteBuilder& setColor(int x, int y, QColor color, QString name = QString())
+    inline PaletteBuilder& setColor(int x, int y, QColor color, TranslatedString name = TranslatedString())
     {
         if (x >= _data->colors.width() || y >= _data->colors.height())
             _data->colors.resize(QSize(x - 1, y - 1));

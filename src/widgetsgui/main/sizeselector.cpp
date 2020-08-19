@@ -3,6 +3,7 @@
 #include "utilities/qtextensions/qobject.hpp"
 
 #include "utilities/presenter/propertybinding.hpp"
+#include "utilities/strings.hpp"
 
 #include <QtDebug>
 #include <QListWidget>
@@ -33,10 +34,11 @@ SizeSelector::SizeSelector(QWidget* parent)
     connect(_list, &QListWidget::itemSelectionChanged, this, &SizeSelector::onSelectionChanged);
     
     QLabel* customPxLabel = new QLabel(this);
-    customPxLabel->setText("Custom (px)");
+    customPxLabel->setText(qtTrId("ui.size-selector.custom-label"));
     layout->addWidget(customPxLabel, 1, 0);
 
     _customPxSpinBox = new QDoubleSpinBox(this);
+    _customPxSpinBox->setSuffix(qtTrId("units.pixels"));
     layout->addWidget(_customPxSpinBox, 1, 1);
 
     updatePresets();
@@ -69,7 +71,7 @@ void SizeSelector::updatePresets()
     for (double preset : _presenter->presets())
     {   
         QListWidgetItem* item = new QListWidgetItem(_list);
-        item->setText(QString("%1 px").arg(preset));
+        item->setText(affixUnits(LayoutUnits::pixels, preset));
 
         _items[preset] = item;
         _itemValues[item] = preset;
@@ -163,5 +165,5 @@ void SizeSelectorButton::onChange()
 
     double value = _presenter->get();
     if (!qIsNaN(value))
-        setText(QString("%1 px").arg(value));
+        setText(affixUnits(LayoutUnits::pixels, value));
 }

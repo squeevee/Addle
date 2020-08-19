@@ -14,7 +14,7 @@ public:
 
     bool isDarkTheme() const { return _isDarkTheme; }
 
-    QIcon icon(QString identifier) const override;
+    QIcon icon(const char* identifier) const override;
 
     const QFileSelector& selector() { return _selector; }
 

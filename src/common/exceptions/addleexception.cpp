@@ -2,8 +2,6 @@
 #include "addleexception.hpp"
 #include <QStringBuilder>
 
-#include "utilities/qtextensions/translation.hpp"
-
 using namespace Addle;
 
 #ifdef ADDLE_DEBUG
@@ -30,15 +28,13 @@ void AddleException::debugRaise(const char* function, const char* file, const in
         if (_locations.size() <= 1)
         {
             // Don't repeat this warning for re-thrown exceptions.
+            
             qWarning() << qUtf8Printable(
-                fallback_translate(
-                    "AddleException",
-                    "warn-logic-error",
-                    QStringLiteral(
-                        "A logic error occurred:\n"
-                        "%1"
-                    )).arg(what())
-                );
+                //% "A logic error occurred:\n"
+                //% "%1"    
+                qtTrId("debug-messages.logic-error-occurred")
+                    .arg(what())
+            );
         }
 
         if (DebugBehavior::test(DebugBehavior::abort_on_logic_error))
@@ -52,26 +48,33 @@ void AddleException::debugRaise(const char* function, const char* file, const in
 
 void AddleException::updateWhat()
 {
-    QString what = _what;
+    QString what;
     if (!_locations.isEmpty())
     {
-        what = what % QCoreApplication::translate(
-            "AddleException",
-            "\nthrown from:\n"
-        );
+        QString locationsString;
+
         for (auto& loc : _locations)
         {
-            what = what % fallback_translate(
-                "AddleException",
-                "unroll-location",
-                QStringLiteral(
-                    "%1 (%2:%3)")
+            locationsString = locationsString 
+                //% "%1 (%2:%3)\n"
+                % qtTrId("debug-messages.exception-location-formatter")
                     .arg(loc.function)
                     .arg(loc.file)
-                    .arg(loc.line)
-            );
+                    .arg(loc.line);
         }
+
+        //% "%1\n"
+        //% "thrown from:\n"
+        //% "%2"
+        what = qtTrId("debug-messages.exception-location-list-formatter")
+            .arg(what)
+            .arg(locationsString);
     }
+    else
+    {
+        what = _what;
+    }
+
     _whatBytes = what.toUtf8();
 }
 

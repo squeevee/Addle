@@ -232,6 +232,7 @@ void LoadDocumentTask::doTask()
     }
     else
     {
-        qWarning() << qUtf8Printable(tr("Loading a document from a remote URL is not yet supported."));
+        //% "Loading a document from a remote URL is not yet supported."
+        qWarning() << qUtf8Printable(qtTrId("temporary.remote-url-not-supported-message"));
     }
 }
