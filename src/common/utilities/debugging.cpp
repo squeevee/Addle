@@ -1,3 +1,11 @@
+/**
+ * Addle source code
+ * @file
+ * @copyright Copyright 2020 Eleanor Hawk
+ * @copyright Modification and distribution permitted under the terms of the
+ * MIT License. See "LICENSE" for full details.
+ */
+
 #ifdef ADDLE_DEBUG //TODO this is bad
 
 #include <QtGlobal>

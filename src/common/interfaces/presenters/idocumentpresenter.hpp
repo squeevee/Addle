@@ -1,6 +1,5 @@
 /**
  * Addle source code
- * 
  * @file
  * @copyright Copyright 2020 Eleanor Hawk
  * @copyright Modification and distribution permitted under the terms of the

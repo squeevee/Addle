@@ -163,12 +163,12 @@ requestedInterfaceName: "%1"
         <translation type="finished">Pretty little drawing program and image utility</translation>
     </message>
     <message id="debug-messages.service-locator.initializing">
-        <location filename="../../src/common/utilities/configuration/baseserviceconfiguration.hpp" line="42" />
+        <location filename="../../src/common/utilities/configuration/serviceconfigurationbase.hpp" line="42" />
         <source>Initializing service locator.</source>
         <translation type="finished">Initializing service locator.</translation>
     </message>
     <message id="debug-messages.service-locator.destroying">
-        <location filename="../../src/common/utilities/configuration/baseserviceconfiguration.hpp" line="58" />
+        <location filename="../../src/common/utilities/configuration/serviceconfigurationbase.hpp" line="58" />
         <source>Destroying service locator.</source>
         <translation type="finished">Destroying service locator.</translation>
     </message>

@@ -1,5 +1,13 @@
-#ifndef BASESERVICECONFIGURATION_HPP
-#define BASESERVICECONFIGURATION_HPP
+/**
+ * Addle source code
+ * @file
+ * @copyright Copyright 2020 Eleanor Hawk
+ * @copyright Modification and distribution permitted under the terms of the
+ * MIT License. See "LICENSE" for full details.
+ */
+
+#ifndef SERVICECONFIGURATIONBASE_HPP
+#define SERVICECONFIGURATIONBASE_HPP
 
 #include "compat.hpp"
 #include <QObject>
@@ -20,15 +28,15 @@
 namespace Addle {
 
 /**
- * @class BaseServiceConfiguration
+ * @class ServiceConfigurationBase
  * @brief
  * Used to configure the ServiceLocator
  * 
  * Inherit from this class to define a configuration for the ServiceLocator.
- * An instance of a subclass of BaseServiceConfiguration can be used to
+ * An instance of a subclass of ServiceConfigurationBase can be used to
  * initialize and destroy the ServiceLocator instance.
  */
-class ADDLE_COMMON_EXPORT BaseServiceConfiguration
+class ADDLE_COMMON_EXPORT ServiceConfigurationBase
 {
 public:
 
@@ -108,4 +116,4 @@ protected:
 };
 } // namespace Addle
 
-#endif // BASESERVICECONFIGURATION_HPP
+#endif // SERVICECONFIGURATIONBASE_HPP

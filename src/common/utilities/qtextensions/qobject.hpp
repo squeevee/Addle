@@ -1,12 +1,11 @@
 /**
  * Addle source code
- * @file qobject.h
+ * @file
  * @copyright Copyright 2020 Eleanor Hawk
  * @copyright Modification and distribution permitted under the terms of the
  * MIT License. See "LICENSE" for full details.
- * 
- * Specifies various general-purpose extensions to QObject functionality
  */
+
 #ifndef QTEXCEPTIONS__QOBJECT_HPP
 #define QTEXCEPTIONS__QOBJECT_HPP
 

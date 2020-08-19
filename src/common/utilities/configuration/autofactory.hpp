@@ -1,3 +1,11 @@
+/**
+ * Addle source code
+ * @file
+ * @copyright Copyright 2020 Eleanor Hawk
+ * @copyright Modification and distribution permitted under the terms of the
+ * MIT License. See "LICENSE" for full details.
+ */
+
 #ifndef AUTOFACTORY_HPP
 #define AUTOFACTORY_HPP
 
@@ -43,10 +51,10 @@ public:
 // mind for the future.
 
 #define CONFIG_AUTOFACTORY_BY_TYPE(Interface, Impl) \
-BaseServiceConfiguration::registerFactoryByType<Interface>(new AutoFactory<Interface, Impl>());
+ServiceConfigurationBase::registerFactoryByType<Interface>(new AutoFactory<Interface, Impl>());
 
 #define CONFIG_AUTOFACTORY_BY_ID(Interface, id, Impl) \
-BaseServiceConfiguration::registerFactoryById<Interface>(new AutoFactory<Interface, Impl>(), id);
+ServiceConfigurationBase::registerFactoryById<Interface>(new AutoFactory<Interface, Impl>(), id);
 
 } // namespace Addle
 #endif // AUTOFACTORY_HPP

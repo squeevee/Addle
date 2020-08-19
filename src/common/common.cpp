@@ -1,4 +1,10 @@
-// Definitions of Qt string and collection constants
+/**
+ * Addle source code
+ * @file
+ * @copyright Copyright 2020 Eleanor Hawk
+ * @copyright Modification and distribution permitted under the terms of the
+ * MIT License. See "LICENSE" for full details.
+ */
 
 #include <QString>
 #include <QByteArray>
@@ -35,7 +41,7 @@
 #include "exceptions/initializeexceptions.hpp"
 #include "exceptions/servicelocatorexceptions.hpp"
 
-#include "utilities/configuration/baseserviceconfiguration.hpp"
+#include "utilities/configuration/serviceconfigurationbase.hpp"
 #include "utilities/model/documentbuilder.hpp"
 #include "utilities/model/importexportinfo.hpp"
 #include "utilities/model/layerbuilder.hpp"

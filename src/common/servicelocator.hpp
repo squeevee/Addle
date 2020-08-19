@@ -1,6 +1,6 @@
 /**
  * Addle source code
- * @file servicelocator.h
+ * @file
  * @copyright Copyright 2020 Eleanor Hawk
  * @copyright Modification and distribution permitted under the terms of the
  * MIT License. See "LICENSE" for full details.
@@ -630,7 +630,7 @@ private:
         Q_UNUSED(object)
     }
 
-    friend class BaseServiceConfiguration;
+    friend class ServiceConfigurationBase;
 };
 
 } // namespace Addle

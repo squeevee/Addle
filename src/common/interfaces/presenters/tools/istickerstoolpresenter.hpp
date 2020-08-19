@@ -1,3 +1,11 @@
+/**
+ * Addle source code
+ * @file
+ * @copyright Copyright 2020 Eleanor Hawk
+ * @copyright Modification and distribution permitted under the terms of the
+ * MIT License. See "LICENSE" for full details.
+ */
+
 #ifndef ISTICKERSTOOLPRESENTER_HPP
 #define ISTICKERSTOOLPRESENTER_HPP
 
@@ -9,7 +17,7 @@
 
 namespace Addle {
 
-class IStickersToolPresenter //: public virtual IToolWithAssetsPresenter
+class IStickersToolPresenter
 {
 public:
     static const ToolId STICKERS_TOOL_ID;

@@ -1,3 +1,11 @@
+/**
+ * Addle source code
+ * @file
+ * @copyright Copyright 2020 Eleanor Hawk
+ * @copyright Modification and distribution permitted under the terms of the
+ * MIT License. See "LICENSE" for full details.
+ */
+
 #ifndef CUSTOMFACTORY_HPP
 #define CUSTOMFACTORY_HPP
 
@@ -37,10 +45,10 @@ private:
 };
 
 #define CONFIG_CUSTOMFACTORY_BY_TYPE(Interface, ...) \
-BaseServiceConfiguration::registerFactoryByType<Interface>(new CustomFactory<Interface>(__VA_ARGS__), id);
+ServiceConfigurationBase::registerFactoryByType<Interface>(new CustomFactory<Interface>(__VA_ARGS__), id);
 
 #define CONFIG_CUSTOMFACTORY_BY_ID(Interface, id, ...) \
-BaseServiceConfiguration::registerFactoryById<Interface>(new CustomFactory<Interface>(__VA_ARGS__), id);
+ServiceConfigurationBase::registerFactoryById<Interface>(new CustomFactory<Interface>(__VA_ARGS__), id);
 
 } // namespace Addle
 #endif // CUSTOMFACTORY_HPP

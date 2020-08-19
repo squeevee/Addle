@@ -1,3 +1,11 @@
+/**
+ * Addle source code
+ * @file
+ * @copyright Copyright 2020 Eleanor Hawk
+ * @copyright Modification and distribution permitted under the terms of the
+ * MIT License. See "LICENSE" for full details.
+ */
+
 #ifndef COMMANDLINEEXCEPTIONS_HPP
 #define COMMANDLINEEXCEPTIONS_HPP
 
@@ -7,6 +15,7 @@
 #include <QStringBuilder>
 
 #include "addleexception.hpp"
+
 namespace Addle {
 
 DECL_RUNTIME_ERROR(CommandLineException)

@@ -1,16 +1,16 @@
 /**
  * Addle source code
- * Copyright 2020 Eleanor Hawk
- * Modification and distribution permitted under the terms of the MIT License.
- * See "LICENSE" for full details.
+ * @file
+ * @copyright Copyright 2020 Eleanor Hawk
+ * @copyright Modification and distribution permitted under the terms of the
+ * MIT License. See "LICENSE" for full details.
  */
 
-
-#include "utilities/configuration/baseserviceconfiguration.hpp"
+#include "utilities/configuration/serviceconfigurationbase.hpp"
 
 namespace Addle {
 
-class ServiceConfiguration : public BaseServiceConfiguration
+class ServiceConfiguration : public ServiceConfigurationBase
 {
 protected:
     void configure();
