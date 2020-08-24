@@ -31,7 +31,7 @@ public:
     void initialize(IBrush& model, QSharedPointer<const PreviewInfoProvider> info = nullptr);
     void initialize(BrushId id, QSharedPointer<const PreviewInfoProvider> info = nullptr);
 
-    PersistentId id() { return brushId(); }
+    AddleId id() { return brushId(); }
     BrushId brushId() { _initHelper.check(); return _id; }
     virtual IBrush& model() const { _initHelper.check(); return *_model; }
 

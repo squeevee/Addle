@@ -13,19 +13,13 @@
 #include <QIODevice>
 #include <QString>
 #include <QFileInfo>
-#include <typeinfo>
-#include <typeindex>
-#include <type_traits>
+#include <QSharedPointer>
 
-#include "interfaces/models/idocument.hpp"
-
-#include "interfaces/format/iformatmodel.hpp"
-
-//#include "interfaces/tasks/itaskstatuscontroller.hpp"
+#include "utilities/format/importexportinfo.hpp"
+#include "utilities/format/genericformat.hpp"
 
 #include "interfaces/traits.hpp"
-#include "utilities/model/importexportinfo.hpp"
-#include "interfaces/traits.hpp"
+
 namespace Addle {
 
 /**
@@ -39,18 +33,13 @@ public:
     //virtual IDocument* loadFile(QString filename) = 0;
 
     template<class FormatModel>
-    FormatModel* importModel(QIODevice& device, const ImportExportInfo& info)
+    QSharedPointer<FormatModel> importModel(QIODevice& device, const ImportExportInfo<FormatModel>& info)
     {
-        static_assert (
-            std::is_base_of<IFormatModel, FormatModel>::value,
-            "FormatModel must inherit IFormatModel"
-        );
-
-        return dynamic_cast<FormatModel*>(importModel_p(typeid(FormatModel), device, info));
+        return QSharedPointer<FormatModel>(boost::get<FormatModel*>(importModel_p(device, info).variant()));
     }
 
 protected:
-    virtual IFormatModel* importModel_p(const std::type_info& modelType, QIODevice& device, const ImportExportInfo& info) = 0;
+    virtual GenericFormatModel importModel_p(QIODevice& device, const GenericImportExportInfo& info) = 0;
 };
 
 DECL_SERVICE(IFormatService)

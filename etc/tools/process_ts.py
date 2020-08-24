@@ -4,41 +4,36 @@
 # @copyright Copyright 2020 Eleanor Hawk
 # @copyright Modification and distribution permitted under the terms of the
 # MIT License. See "LICENSE" for full details.
+#
+# Run this script to generate/update l10n/en_US.ts
+#
+# The bulk of Addle text exposed to the user is kept fully out of source. Some
+# (en_US) text is provided in source, however, for e.g. debug messages. For
+# these, the version in source should be used in the en_US l10n.
 
-import xml.etree.ElementTree as ET
 import os.path
-import sys 
+import sys
+import subprocess
+import xml.etree.ElementTree
 
-if len(sys.argv) < 2:
-    exit('1 argument required')
+thisdir = os.path.dirname(os.path.realpath(__file__))
+filename = os.path.join(thisdir, '../l10n/en_US.ts')
 
-filename = os.path.join( os.path.dirname(os.path.realpath(__file__)), '../l10n', sys.argv[1] + '.ts')
+subprocess.run(['lupdate', '../../src',
+    '-source-language', 'en_US',
+    '-target-language', 'en_US',
+    '-ts', filename], cwd=thisdir, check=True )
 
-lang = sys.argv[1]
-if lang == 'fallback':
-    lang = 'en_US'
+tree = xml.etree.ElementTree.parse(filename)
 
-tree = ET.parse(filename)
+for messageNode in tree.findall('.//message'):
 
-tree.getroot().set('language', lang)
+    sourceNode = messageNode.find('source')
+    translationNode = messageNode.find('translation')
 
-for contextNode in tree.findall('.//context'):
-
-    for messageNode in contextNode.findall('.//message'):
-
-        sourceNode = messageNode.find('source')
-        translationNode = messageNode.find('translation')
-
-        if sys.argv[1] == 'en_US' and sourceNode.text:
-            contextNode.remove(messageNode)
-            continue
-
-        if (sys.argv[1] == 'fallback'):
-            if not sourceNode.text:
-                contextNode.remove(messageNode)
-                continue
-            
-            translationNode.text = sourceNode.text
-            translationNode.set('type', 'finished')
+    if sourceNode.text:
+        translationNode.text = sourceNode.text
+        if 'type' in translationNode.attrib:
+            del translationNode.attrib['type']
 
 tree.write(filename, 'UTF-8', True)

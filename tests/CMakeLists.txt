@@ -10,7 +10,7 @@ set(CMAKE_AUTOMOC ON)
 
 set(
     COMMON_DEPS
-    common
+    addlecommon
     Qt5::Core
     Qt5::Gui
     Qt5::Test

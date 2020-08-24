@@ -17,13 +17,13 @@
 
 #include "interfaces/traits.hpp"
 
-#include "utilities/model/importexportinfo.hpp"
+#include "utilities/format/importexportinfo.hpp"
 
 #include "idtypes/formatid.hpp"
 
-#include "iformatmodel.hpp"
 namespace Addle {
 
+template<class ModelType>
 class IFormatDriver
 {
 public:
@@ -34,13 +34,15 @@ public:
     virtual bool supportsImport() const = 0;
     virtual bool supportsExport() const = 0;
 
-    virtual FormatId id() const = 0;
+    virtual FormatId<ModelType> id() const = 0;
 
-    virtual IFormatModel* importModel(QIODevice& device, ImportExportInfo info) = 0;
-    virtual void exportModel(IFormatModel* model, QIODevice& device, ImportExportInfo info) = 0;
+    virtual ModelType* importModel(QIODevice& device, ImportExportInfo<ModelType> info) = 0;
+    virtual void exportModel(ModelType* model, QIODevice& device, ImportExportInfo<ModelType> info) = 0;
 };
 
-DECL_PERSISTENT_OBJECT_TYPE(IFormatDriver, FormatId);
+typedef IFormatDriver<IDocument> IDocumentFormatDriver;
+
+DECL_PERSISTENT_OBJECT_TYPE(IDocumentFormatDriver, DocumentFormatId);
 
 } // namespace Addle
 #endif // IFORMATDRIVER_HPP

@@ -9,21 +9,19 @@
 #ifndef PALETTEID_HPP
 #define PALETTEID_HPP
 
-#include "persistentid.hpp"
+#include "addleid.hpp"
 namespace Addle {
 
-class PaletteId : public PersistentId
+class PaletteId : public AddleId
 {
-    PERSISTENT_ID_BOILERPLATE(PaletteId)
-public:
-    PaletteId(const char* key)
-        : PaletteId(key, {})
-    {
-    }
+    ID_TYPE_BOILERPLATE(PaletteId)
 };
 
 } // namespace Addle
 
 Q_DECLARE_METATYPE(Addle::PaletteId);
+Q_DECLARE_TYPEINFO(Addle::PaletteId, Q_PRIMITIVE_TYPE);
+
+ID_TYPE_BOILERPLATE2(PaletteId)
 
 #endif // PALETTEID_HPP

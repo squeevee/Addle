@@ -9,21 +9,18 @@
 #ifndef BRUSHENGINEID_HPP
 #define BRUSHENGINEID_HPP
 
-#include "persistentid.hpp"
+#include "addleid.hpp"
 namespace Addle {
 
-class ADDLE_COMMON_EXPORT BrushEngineId : public PersistentId
+class ADDLE_COMMON_EXPORT BrushEngineId : public AddleId
 {
-    PERSISTENT_ID_BOILERPLATE(BrushEngineId)
-public:
-    BrushEngineId(const char* key)
-        : BrushEngineId(key, QHash<QString, QVariant>())
-    {
-    }
+    ID_TYPE_BOILERPLATE(BrushEngineId)
 };
 
 } // namespace Addle
 
 Q_DECLARE_METATYPE(Addle::BrushEngineId);
+Q_DECLARE_TYPEINFO(Addle::BrushEngineId, Q_PRIMITIVE_TYPE);
+ID_TYPE_BOILERPLATE2(BrushEngineId);
 
 #endif // BRUSHENGINEID_HPP

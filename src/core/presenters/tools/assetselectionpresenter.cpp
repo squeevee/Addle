@@ -23,7 +23,7 @@ void AssetSelectionPresenter::initialize(QList<QSharedPointer<IAssetPresenter>> 
     _canMultiSelect = canMultiSelect;
 }
 
-void AssetSelectionPresenter::select(PersistentId assetId)
+void AssetSelectionPresenter::select(AddleId assetId)
 {
     if (!_assets_ById.contains(assetId)) return; // error
 
@@ -34,7 +34,7 @@ void AssetSelectionPresenter::select(PersistentId assetId)
     emit selectionChanged(_selectedIds);
 }
 
-void AssetSelectionPresenter::select(QList<PersistentId> assetIds)
+void AssetSelectionPresenter::select(QList<AddleId> assetIds)
 {
     if (!_canMultiSelect)
     {
@@ -116,7 +116,7 @@ void AssetSelectionPresenter::setAssets(QList<QSharedPointer<IAssetPresenter>> a
     }
 }    
 
-void AssetSelectionPresenter::setFavorites(QList<PersistentId> favorites)
+void AssetSelectionPresenter::setFavorites(QList<AddleId> favorites)
 {
     _initHelper.check();
     if (favorites != _favorites)
@@ -126,7 +126,7 @@ void AssetSelectionPresenter::setFavorites(QList<PersistentId> favorites)
     }
 }
 
-void AssetSelectionPresenter::addFavorite(PersistentId id)
+void AssetSelectionPresenter::addFavorite(AddleId id)
 {
     _initHelper.check();
     if (!_favorites.contains(id)) 
@@ -136,7 +136,7 @@ void AssetSelectionPresenter::addFavorite(PersistentId id)
     }
 }
 
-void AssetSelectionPresenter::removeFavorite(PersistentId id)
+void AssetSelectionPresenter::removeFavorite(AddleId id)
 {
     _initHelper.check();
     if (_favorites.contains(id)) 
@@ -146,7 +146,7 @@ void AssetSelectionPresenter::removeFavorite(PersistentId id)
     }
 }
 
-void AssetSelectionPresenter::pushRecent(PersistentId id)
+void AssetSelectionPresenter::pushRecent(AddleId id)
 {
     if (_recentIndex.contains(id))
     {

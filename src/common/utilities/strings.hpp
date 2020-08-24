@@ -9,6 +9,8 @@
 #ifndef STRINGS_HPP
 #define STRINGS_HPP
 
+#include "compat.hpp"
+
 #include <QtGlobal>
 #include <QSet>
 #include <QString>
@@ -28,7 +30,7 @@ namespace Addle
 
 #ifdef ADDLE_DEBUG
 
-const extern QSet<QByteArray> _DYNAMIC_TRIDS_REGISTRY;
+const ADDLE_COMMON_EXPORT extern QSet<QByteArray> _DYNAMIC_TRIDS_REGISTRY;
 
 #endif // ADDLE_DEBUG
 
@@ -70,7 +72,7 @@ inline QString affixUnits(LayoutUnits unit, double a,
     const char* unitName = enumKeyFromValue(unit);
 
                     //% "%L1 %2"
-    return qtTrId("unit-affix-formatter")
+    return qtTrId("templates.affix-units")
         .arg(a, fieldwidth, format, precision, fillChar)
         .arg(dynamic_qtTrId({ "units", unitName }));
 }
@@ -80,7 +82,7 @@ inline QString affixUnits(LayoutUnits unit, int a,
 {
     const char* unitName = enumKeyFromValue(unit);
 
-    return qtTrId("unit-affix-formatter")
+    return qtTrId("templates.affix-units")
         .arg(a, fieldwidth, base, fillChar)
         .arg(dynamic_qtTrId({ "units", unitName }, a));
 }

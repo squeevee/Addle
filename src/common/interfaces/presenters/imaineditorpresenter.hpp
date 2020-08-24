@@ -34,29 +34,6 @@ class IColorSelectionPresenter;
 class IToolPresenter;
 class IDocumentPresenter;
 
-namespace IMainEditorPresenterAux
-{
-    enum Mode
-    {
-        Editor,
-        Viewer
-    };
-
-    namespace DefaultTools
-    {
-        extern ADDLE_COMMON_EXPORT const ToolId Select;
-        extern ADDLE_COMMON_EXPORT const ToolId Brush;
-        extern ADDLE_COMMON_EXPORT const ToolId Eraser;
-        extern ADDLE_COMMON_EXPORT const ToolId Fill;
-        extern ADDLE_COMMON_EXPORT const ToolId Text;
-        extern ADDLE_COMMON_EXPORT const ToolId Shapes;
-        extern ADDLE_COMMON_EXPORT const ToolId Stickers;
-        extern ADDLE_COMMON_EXPORT const ToolId Eyedrop;
-        extern ADDLE_COMMON_EXPORT const ToolId Navigate;
-        extern ADDLE_COMMON_EXPORT const ToolId Measure;
-    }
-}
-
 class IMainEditorPresenter 
     : public IHaveUndoStackPresenter,
     public IRaiseErrorPresenter,
@@ -66,8 +43,12 @@ public:
     INTERFACE_META(IMainEditorPresenter);
     
     virtual ~IMainEditorPresenter() = default;
-
-    typedef IMainEditorPresenterAux::Mode Mode;
+    
+    enum Mode
+    {
+        Editor,
+        Viewer
+    };
 
     virtual void initialize(Mode mode) = 0;
 

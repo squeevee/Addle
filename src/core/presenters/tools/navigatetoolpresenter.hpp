@@ -47,7 +47,7 @@ public:
     void initialize(IMainEditorPresenter* owner);
 
     IMainEditorPresenter* owner() { return _owner; }
-    ToolId id() { return INavigateToolPresenterAux::ID; }
+    ToolId id() { return CoreTools::Navigate; }
 
     NavigateOperationOptions navigateOperation() { _initHelper.check(); return _operation; }
 

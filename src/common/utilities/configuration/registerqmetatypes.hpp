@@ -21,7 +21,7 @@
 #include "interfaces/models/ipalette.hpp"
 
 #include "utilities/indexvariant.hpp"
-#include "idtypes/persistentid.hpp"
+#include "idtypes/addleid.hpp"
 #include "idtypes/brushid.hpp"
 #include "idtypes/toolid.hpp"
 #include "idtypes/formatid.hpp"
@@ -33,20 +33,20 @@ inline void registerQMetaTypes()
 {
     qRegisterMetaType<INavigateToolPresenter::NavigateOperationOptions>("NavigateOperationOptions");
 
-    qRegisterMetaType<PersistentId>();
-    IndexVariant::registerHasher<PersistentId>();
+    qRegisterMetaType<AddleId>();
+    IndexVariant::registerHasher<AddleId>();
 
     qRegisterMetaType<BrushId>();
-    QMetaType::registerConverter<BrushId, PersistentId>();
-    IndexVariant::registerHasher<BrushId, PersistentId>();
+    QMetaType::registerConverter<BrushId, AddleId>();
+    IndexVariant::registerHasher<BrushId, AddleId>();
 
     qRegisterMetaType<ToolId>();
-    QMetaType::registerConverter<ToolId, PersistentId>();
-    IndexVariant::registerHasher<ToolId, PersistentId>();
+    QMetaType::registerConverter<ToolId, AddleId>();
+    IndexVariant::registerHasher<ToolId, AddleId>();
 
-    qRegisterMetaType<FormatId>();
-    QMetaType::registerConverter<FormatId, PersistentId>();
-    IndexVariant::registerHasher<FormatId, PersistentId>();
+    qRegisterMetaType<DocumentFormatId>();
+    QMetaType::registerConverter<DocumentFormatId, AddleId>();
+    IndexVariant::registerHasher<DocumentFormatId, AddleId>();
 
     CanvasMouseEvent::_type = QEvent::registerEventType(CanvasMouseEvent::_type);
 

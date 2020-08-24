@@ -33,15 +33,22 @@ int main(int argc, char *argv[])
     registerQMetaTypes();
 
     QApplication a(argc, argv);
+    a.setApplicationName(ADDLE_NAME);
     a.setApplicationVersion(ADDLE_VERSION);
 
     QTranslator fallbackTranslator;
-    fallbackTranslator.load(":/l10n/fallback.qm");
+    QTranslator translator;
+
+    fallbackTranslator.load(":/l10n/en_US.qm");
     a.installTranslator(&fallbackTranslator);
 
-    QTranslator translator;
-    translator.load(QLocale(), QString(), QString(), ":/l10n", ".qm");
-    a.installTranslator(&translator);
+    if (!QLocale().uiLanguages().contains("en_US"))
+    {
+        translator.load(QLocale(), QString(), QString(), ":/l10n", ".qm");
+        a.installTranslator(&translator);
+    }
+
+    a.setApplicationDisplayName(qtTrId(ADDLE_NAME_TRID));
 
 #ifdef ADDLE_DEBUG
     //% "Starting Addle. This is a debug build."

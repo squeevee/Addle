@@ -22,14 +22,14 @@ FavoriteAssetsPicker::FavoriteAssetsPicker(IAssetSelectionPresenter& presenter, 
 
     connect_interface(
         &_presenter,
-        SIGNAL(favoritesChanged(QList<PersistentId>)),
+        SIGNAL(favoritesChanged(QList<AddleId>)),
         this,
         SLOT(onFavoritesChanged())
     );
 
     connect_interface(
         &_presenter,
-        SIGNAL(selectionChanged(QList<PersistentId>)),
+        SIGNAL(selectionChanged(QList<AddleId>)),
         this,
         SLOT(onSelectionChanged())
     );

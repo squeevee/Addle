@@ -9,6 +9,7 @@
 #include "formatservice.hpp"
 
 #include "interfaces/format/iformatdriver.hpp"
+#include "interfaces/models/idocument.hpp"
 
 #include <typeinfo>
 #include <algorithm>
@@ -30,38 +31,16 @@ FormatService::FormatService()
     //     ServiceLocator::make<IFormatDriver>(CoreFormats::PNG)
     // };
 
-    auto formats = ServiceLocator::getIds<IFormatDriver>();
-
-    for (FormatId format : formats)
-    {
-        auto& driver = ServiceLocator::get<IFormatDriver>(format);
-        _drivers_byFormat.insert(format, &driver);
-        _formats_byMimeType.insert(format.mimeType(), format);
-
-        int length = format.fileSignature().length();
-        if (length > 0)
-        {
-            _formats_bySignature.insert(format.fileSignature(), format);
-            if (length > _maxSignatureLength)
-                _maxSignatureLength = length;
-        }
-        
-        _formats_byModelType[std::type_index(format.modelType())].insert(format);
-
-        for (QString& extension : format.fileExtensions())
-        {
-            _formats_byExtension.insert(extension, format);
-        }
-    }
+    setupFormat<IDocument>();
 }
 
-IFormatModel* FormatService::importModel_p(const std::type_info& modelType, QIODevice& device, const ImportExportInfo& info)
+GenericFormatModel FormatService::importModel_p(QIODevice& device, const GenericImportExportInfo& info)
 { 
-    std::type_index modelTypeIndex(modelType);
+    std::type_index modelTypeIndex(info.modelType());
     if (!_formats_byModelType.contains(modelTypeIndex))
     {
 #ifdef ADDLE_DEBUG
-        FormatModelNotSupportedException ex(info, modelType.name());
+        FormatModelNotSupportedException ex(info, info.modelType().name());
 #else
         FormatModelNotSupportedException ex(info);
 #endif
@@ -71,16 +50,16 @@ IFormatModel* FormatService::importModel_p(const std::type_info& modelType, QIOD
     if (!info.filename().isEmpty())
         assertCanReadFile(info.fileInfo());
 
-    FormatId impliedBySuffix = _formats_byExtension.value(info.fileInfo().completeSuffix());
+    GenericFormatId impliedBySuffix = _formats_byExtension.value(info.fileInfo().completeSuffix());
 
-    FormatId format;
+    GenericFormatId format;
     if (
-        (format = info.formatId()) ||
+        (format = info.format()) ||
         (format = inferFormatFromSignature(device)) ||
         (format = impliedBySuffix)
     )
     {
-        IFormatDriver* driver;
+        GenericFormatDriver driver;
         if (!_drivers_byFormat.contains(format))
         {
             ADDLE_THROW(FormatNotSupportedException(info, format));
@@ -88,12 +67,12 @@ IFormatModel* FormatService::importModel_p(const std::type_info& modelType, QIOD
 
         driver = _drivers_byFormat.value(format);
 
-        if (!driver->supportsImport())
-        {
-            ADDLE_THROW(ImportNotSupportedException(info, format, driver));
-        }
+        // if (!driver->supportsImport())
+        // {
+        //     ADDLE_THROW(ImportNotSupportedException(info, format, driver));
+        // }
 
-        IFormatModel* result = driver->importModel(device, info);
+        GenericFormatModel result = driver.importModel(device, info);
 
         // if (status && format != impliedBySuffix)
         // {
@@ -108,14 +87,14 @@ IFormatModel* FormatService::importModel_p(const std::type_info& modelType, QIOD
     }
     else
     {
-        ADDLE_THROW(FormatInferrenceFailedException(info));
+        //ADDLE_THROW(FormatInferrenceFailedException(info));
     }
 }
 
-FormatId FormatService::inferFormatFromSignature(QIODevice& device)
+GenericFormatId FormatService::inferFormatFromSignature(QIODevice& device)
 {
     if (device.isSequential())
-        return FormatId(); //Inferrence by signature not supported for sequential devices.
+        return GenericFormatId(); //Inferrence by signature not supported for sequential devices.
 
     if (!device.isOpen())
         device.open(QIODevice::ReadOnly);
@@ -133,5 +112,38 @@ FormatId FormatService::inferFormatFromSignature(QIODevice& device)
         }
     }
 
-    return FormatId();
+    return GenericFormatId();
+}
+
+template<class ModelType>
+void FormatService::setupFormat()
+{
+    QSet<FormatId<ModelType>> formats;
+    for (AddleId id : noDetach(ServiceLocator::getIds<IFormatDriver<ModelType>>()))
+    {
+        // gotta get linq or something
+        formats.insert(static_cast<FormatId<ModelType>>(id));
+    }
+
+    for (FormatId<ModelType> format : formats)
+    {
+        auto& driver = ServiceLocator::get<IFormatDriver<ModelType>>(format);
+        _drivers_byFormat.insert(format, GenericFormatDriver(driver));
+        _formats_byMimeType.insert(format.mimeType(), GenericFormatId(format));
+
+        int length = format.fileSignature().length();
+        if (length > 0)
+        {
+            _formats_bySignature.insert(format.fileSignature(), format);
+            if (length > _maxSignatureLength)
+                _maxSignatureLength = length;
+        }
+        
+        _formats_byModelType[std::type_index(typeid(ModelType))].insert(format);
+
+        for (QString& extension : format.fileExtensions())
+        {
+            _formats_byExtension.insert(extension, format);
+        }
+    }
 }

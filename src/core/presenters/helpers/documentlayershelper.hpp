@@ -46,7 +46,7 @@ public:
             _layers.addValue(layer);
 
             //% "Layer %1"
-            layer->setName(qtTrId("layer-name-template").arg(_layerLabelNumber));
+            layer->setName(qtTrId("templates.layer-name").arg(_layerLabelNumber));
             _layerLabelNumber++;
         }
                 
@@ -122,7 +122,7 @@ public:
         // verify cursor
 
         auto layer = ServiceLocator::makeShared<ILayerPresenter>(_document);
-        layer->setName(qtTrId("layer-name-template").arg(_layerLabelNumber));
+        layer->setName(qtTrId("templates.layer-name").arg(_layerLabelNumber));
         LayerNode& result = parent->addValue(layer, index);
         _layerLabelNumber++;
 
@@ -142,7 +142,7 @@ public:
 
         LayerNode& result = parent->addGroup(index);
         //% "Layer Group %1"
-        QString name = qtTrId("layer-group-name-template").arg(_layerGroupLabelNumber);
+        QString name = qtTrId("templates.layer-group-name").arg(_layerGroupLabelNumber);
         result.setMetaData(QVariant::fromValue(LayerGroupInfo(name)));
         _layerGroupLabelNumber++;
 

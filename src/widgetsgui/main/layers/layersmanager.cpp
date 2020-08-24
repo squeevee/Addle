@@ -33,8 +33,8 @@ LayersManager::LayersManager(QWidget* parent)
     QBoxLayout* aboveRow = new QBoxLayout(QBoxLayout::LeftToRight);
     mainLayout->addLayout(aboveRow);
 
-    _action_selectAllLayers = new QAction(qtTrId("ui.select-all-layers.text"), this);
-    _action_unSelectAllLayers = new QAction(qtTrId("ui.unselect-all-layers.text"), this);
+    _action_selectAllLayers = new QAction(qtTrId("ui.select-all-layers.name"), this);
+    _action_unSelectAllLayers = new QAction(qtTrId("ui.unselect-all-layers.name"), this);
 
     _button_massSelection = new QToolButton();
     _button_massSelection->setDefaultAction(_action_selectAllLayers);
@@ -68,19 +68,19 @@ LayersManager::LayersManager(QWidget* parent)
     QBoxLayout* belowRow = new QBoxLayout(QBoxLayout::LeftToRight);
     mainLayout->addLayout(belowRow);
 
-    _action_addLayer = new QAction(qtTrId("ui.add-layer.text"), this);
+    _action_addLayer = new QAction(qtTrId("ui.add-layer.name"), this);
 
     _button_addLayer = new QToolButton();
     _button_addLayer->setDefaultAction(_action_addLayer);
     belowRow->addWidget(_button_addLayer);
 
-    _action_addLayerGroup = new QAction(qtTrId("ui.add-layer-group.text"), this);
+    _action_addLayerGroup = new QAction(qtTrId("ui.add-layer-group.name"), this);
 
     _button_addLayerGroup = new QToolButton();
     _button_addLayerGroup->setDefaultAction(_action_addLayerGroup);
     belowRow->addWidget(_button_addLayerGroup);
 
-    _action_removeLayers = new QAction(qtTrId("ui.remove-layer.text"), this);
+    _action_removeLayers = new QAction(qtTrId("ui.remove-layer.name"), this);
 
     _button_removeLayers = new QToolButton();
     _button_removeLayers->setDefaultAction(_action_removeLayers);

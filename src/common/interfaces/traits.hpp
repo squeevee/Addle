@@ -11,7 +11,7 @@
 
 #include <QObject>
 #include <type_traits>
-#include "idtypes/persistentid.hpp"
+#include "idtypes/addleid.hpp"
 
 namespace Addle {
 namespace Traits {

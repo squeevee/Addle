@@ -44,8 +44,6 @@
 #include <QSharedPointer>
 using namespace Addle;
 
-using namespace IBrushToolPresenterAux;
-
 void BrushToolPresenter::initialize(IMainEditorPresenter* owner, Mode mode)
 {
     const Initializer init(_initHelper);
@@ -66,31 +64,31 @@ void BrushToolPresenter::initialize(IMainEditorPresenter* owner, Mode mode)
     case Mode::Brush:
         _brushSelection = ServiceLocator::makeUnique<IAssetSelectionPresenter>(
             QList<QSharedPointer<IAssetPresenter>>({
-                ServiceLocator::makeShared<IBrushPresenter>(DefaultBrushes::Basic, _previewProvider),
-                ServiceLocator::makeShared<IBrushPresenter>(DefaultBrushes::Soft, _previewProvider)
+                ServiceLocator::makeShared<IBrushPresenter>(CoreBrushes::BasicBrush, _previewProvider),
+                ServiceLocator::makeShared<IBrushPresenter>(CoreBrushes::SoftBrush, _previewProvider)
             }),
             false
         );
         _brushSelection->setFavorites({ 
-            DefaultBrushes::Basic, 
-            DefaultBrushes::Soft 
+            CoreBrushes::BasicBrush, 
+            CoreBrushes::SoftBrush 
         });
 
-        _brushSelection->select(IBrushToolPresenterAux::DEFAULT_BRUSH);
+        _brushSelection->select(CoreBrushes::BasicBrush);
         break;
 
     case Mode::Eraser:
         _brushSelection = ServiceLocator::makeUnique<IAssetSelectionPresenter>(
             QList<QSharedPointer<IAssetPresenter>>({
-                ServiceLocator::makeShared<IBrushPresenter>(DefaultErasers::Basic, _previewProvider)
+                ServiceLocator::makeShared<IBrushPresenter>(CoreBrushes::BasicEraser, _previewProvider)
             }),
             false
         );
         _brushSelection->setFavorites({ 
-            DefaultErasers::Basic
+            CoreBrushes::BasicEraser
         });
 
-        _brushSelection->select(IBrushToolPresenterAux::DEFAULT_ERASER);
+        _brushSelection->select(CoreBrushes::BasicEraser);
         break;
     }
 
@@ -98,7 +96,7 @@ void BrushToolPresenter::initialize(IMainEditorPresenter* owner, Mode mode)
 
     connect_interface(_mainEditor, SIGNAL(documentPresenterChanged(QSharedPointer<IDocumentPresenter>)), this, SLOT(onDocumentChanged(QSharedPointer<IDocumentPresenter>)));
     connect_interface(_canvas, SIGNAL(hasMouseChanged(bool)), this, SLOT(onCanvasHasMouseChanged(bool)));
-    connect_interface(_brushSelection.get(), SIGNAL(selectionChanged(QList<PersistentId>)), this, SLOT(onBrushSelectionChanged()));
+    connect_interface(_brushSelection.get(), SIGNAL(selectionChanged(QList<AddleId>)), this, SLOT(onBrushSelectionChanged()));
     connect_interface(_viewPort, SIGNAL(zoomChanged(double)), this, SLOT(onViewPortZoomChanged(double)));
     connect_interface(_colorSelection, SIGNAL(color1Changed(ColorInfo)), this, SLOT(onColorChanged(ColorInfo)));
     connect_interface(_mainEditor, SIGNAL(topSelectedLayerChanged(QSharedPointer<ILayerPresenter>)), this, SLOT(onSelectedLayerChanged()));
@@ -110,9 +108,9 @@ ToolId BrushToolPresenter::id()
     switch(_mode)
     {
     case Mode::Brush:
-        return IBrushToolPresenterAux::BRUSH_ID;
+        return CoreTools::Brush;
     case Mode::Eraser:
-        return IBrushToolPresenterAux::ERASER_ID;
+        return CoreTools::Eraser;
     default:
         return ToolId();
     }

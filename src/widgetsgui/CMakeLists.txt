@@ -37,5 +37,9 @@ set (
 )
 
 add_definitions(-DADDLE_EXPORTING_WIDGETSGUI)
-add_library(widgetsgui SHARED ${SOURCES})
-target_link_libraries(widgetsgui common Qt5::Core Qt5::Widgets )
+add_library(addlewidgetsgui SHARED ${SOURCES})
+target_link_libraries(addlewidgetsgui addlecommon Qt5::Core Qt5::Widgets )
+
+if(UNIX)
+    install(TARGETS addlewidgetsgui)
+endif()

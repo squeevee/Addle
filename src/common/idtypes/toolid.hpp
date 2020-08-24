@@ -9,21 +9,19 @@
 #ifndef TOOLID_HPP
 #define TOOLID_HPP
 
-#include "persistentid.hpp"
+#include "addleid.hpp"
 namespace Addle {
 
-class ADDLE_COMMON_EXPORT ToolId : public PersistentId
+class ADDLE_COMMON_EXPORT ToolId : public AddleId
 {
-    PERSISTENT_ID_BOILERPLATE(ToolId)
-public:
-    ToolId(const char* key)
-        : ToolId(key, QHash<QString, QVariant>())
-    {
-    }
+    ID_TYPE_BOILERPLATE(ToolId)
 };
 
 } // namespace Addle
 
 Q_DECLARE_METATYPE(Addle::ToolId)
+Q_DECLARE_TYPEINFO(Addle::ToolId, Q_PRIMITIVE_TYPE);
+
+ID_TYPE_BOILERPLATE2(ToolId)
 
 #endif // TOOLID_HPP

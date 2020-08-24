@@ -25,6 +25,7 @@
 #include "interfaces/presenters/ilayerpresenter.hpp"
 #include "interfaces/presenters/idocumentpresenter.hpp"
 
+#include "interfaces/models/idocument.hpp"
 #include "utilities/qtextensions/qobject.hpp"
 
 #include "exceptions/fileexceptions.hpp"
@@ -47,7 +48,6 @@
 #include "globals.hpp"
 
 using namespace Addle;
-using namespace IMainEditorPresenterAux;
 
 void MainEditorPresenter::initialize(Mode mode)
 {
@@ -87,13 +87,13 @@ void MainEditorPresenter::initialize(Mode mode)
         Mode::Editor,
         {
             //{ DefaultTools::Select, nullptr },
-            { DefaultTools::Brush, _brushTool },
-            { DefaultTools::Eraser, _eraserTool },
+            { CoreTools::Brush, _brushTool },
+            { CoreTools::Eraser, _eraserTool },
             //{ DefaultTools::Text, nullptr },
             //{ DefaultTools::Shapes, nullptr },
             //{ DefaultTools::Stickers, nullptr },
             //{ DefaultTools::Eyedrop, nullptr },
-            { DefaultTools::Navigate, _navigateTool }
+            { CoreTools::Navigate, _navigateTool }
             //{ DefaultTools::Measure, nullptr }
         }
     }};
@@ -212,7 +212,8 @@ void MainEditorPresenter::setCurrentTool(ToolId tool)
     const auto& toolPresenters = _tools.value(_mode);
     ADDLE_ASSERT_M(
         !tool || toolPresenters.contains(tool), 
-        "MainEditorPresenter does not contain the given tool"
+        //% "MainEditorPresenter does not contain the given tool"
+        QT_TRID_NOOP("debug-messages.main-editor-presenter.tool-not-found")
     );
 
     _currentTool = tool;
@@ -232,15 +233,15 @@ void LoadDocumentTask::doTask()
     {
         QFile file(loadedUrl.toLocalFile());
 
-        ImportExportInfo info;
+        DocumentImportExportInfo info;
         info.setFilename(loadedUrl.toLocalFile());
 
-        auto doc = QSharedPointer<IDocument>(ServiceLocator::get<IFormatService>().importModel<IDocument>(file, info));
+        auto doc = QSharedPointer<IDocument>(ServiceLocator::get<IFormatService>().importModel(file, info));
         setDocumentPresenter(ServiceLocator::makeShared<IDocumentPresenter>(doc));
     }
     else
     {
         //% "Loading a document from a remote URL is not yet supported."
-        qWarning() << qUtf8Printable(qtTrId("temporary.remote-url-not-supported-message"));
+        qWarning() << qUtf8Printable(qtTrId("debug-messages.remote-url-not-supported"));
     }
 }

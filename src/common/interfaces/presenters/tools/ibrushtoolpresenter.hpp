@@ -11,6 +11,7 @@
 
 #include "compat.hpp"
 
+#include "globals.hpp"
 #include "itoolpresenter.hpp"
 
 #include "idtypes/brushid.hpp"
@@ -21,32 +22,6 @@
 
 #include "interfaces/metaobjectinfo.hpp"
 namespace Addle {
-
-namespace IBrushToolPresenterAux
-{
-    ADDLE_COMMON_EXPORT extern const ToolId BRUSH_ID;
-    ADDLE_COMMON_EXPORT extern const ToolId ERASER_ID;
-
-    enum Mode
-    {
-        Brush,
-        Eraser
-    };
-
-    struct ADDLE_COMMON_EXPORT DefaultBrushes
-    {
-        static const BrushId Basic;
-        static const BrushId Soft;
-    };
-
-    struct ADDLE_COMMON_EXPORT DefaultErasers
-    {
-        static const BrushId Basic;
-    };
-
-    ADDLE_COMMON_EXPORT extern const BrushId DEFAULT_BRUSH; // DefaultBrushes::Basic
-    ADDLE_COMMON_EXPORT extern const BrushId DEFAULT_ERASER;
-}
 
 class IMainEditorPresenter;
 class IAssetSelectionPresenter;
@@ -60,7 +35,11 @@ class IBrushToolPresenter : public virtual IToolPresenter, public virtual IAmQOb
 public:
     INTERFACE_META(IBrushToolPresenter)
 
-    typedef IBrushToolPresenterAux::Mode Mode;
+    enum Mode
+    {
+        Brush,
+        Eraser
+    };
 
     virtual ~IBrushToolPresenter() = default;
 

@@ -29,19 +29,19 @@ public:
     virtual ~FormatService() = default;
 
 protected:
-    //IDocument* loadFile(QString filename);
-    IFormatModel* importModel_p(const std::type_info& modelType, QIODevice& device, const ImportExportInfo& info);
+    GenericFormatModel importModel_p(QIODevice& device, const GenericImportExportInfo& info);
 
 private:
+    template <class ModelType>
+    void setupFormat();
 
-    QHash<QString, FormatId> _formats_byExtension;
-    QHash<QString, FormatId> _formats_byMimeType;
-    QHash<QByteArray, FormatId> _formats_bySignature;
-    QHash<std::type_index, QSet<FormatId>> _formats_byModelType;
+    QHash<QString, GenericFormatId> _formats_byExtension;
+    QHash<QString, GenericFormatId> _formats_byMimeType;
+    QHash<QByteArray, GenericFormatId> _formats_bySignature;
+    QHash<std::type_index, QSet<GenericFormatId>> _formats_byModelType;
+    QHash<GenericFormatId, GenericFormatDriver> _drivers_byFormat;
 
-    QHash<FormatId, IFormatDriver*> _drivers_byFormat;
-
-    FormatId inferFormatFromSignature(QIODevice& device);
+    GenericFormatId inferFormatFromSignature(QIODevice& device);
 
     int _maxSignatureLength = 0;
 };

@@ -3,7 +3,6 @@
 
 <qresource>
     <!-- L10n -->
-    <file>l10n/fallback.qm</file>
     <file>l10n/en_US.qm</file>
 
     <!-- Icons -->

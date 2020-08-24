@@ -45,5 +45,9 @@ set (
 
 add_definitions(-DADDLE_EXPORTING_CORE)
 
-add_library(core SHARED ${SOURCES})
-target_link_libraries(core common Qt5::Core Qt5::Widgets Qt5::Concurrent)
+add_library(addlecore SHARED ${SOURCES})
+target_link_libraries(addlecore addlecommon Qt5::Core Qt5::Widgets Qt5::Concurrent)
+
+if (UNIX)
+    install (TARGETS addlecore)
+endif()

@@ -35,7 +35,7 @@ private:
 
     QListWidget* _list;
 
-    QHash<PersistentId, QListWidgetItem*> _items;
+    QHash<AddleId, QListWidgetItem*> _items;
     QHash<QListWidgetItem*, QSharedPointer<IAssetPresenter>> _itemValues;
 };
 

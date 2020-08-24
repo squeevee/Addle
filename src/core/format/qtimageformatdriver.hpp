@@ -10,15 +10,17 @@
 #define QTIMAGEFORMATDRIVER_HPP
 
 #include "compat.hpp"
+
+#include "interfaces/models/idocument.hpp"
 #include "interfaces/format/iformatdriver.hpp"
 namespace Addle {
 
 // An image format driver that uses Qt's image processing functionality as its
 // backend
-class ADDLE_CORE_EXPORT QtImageFormatDriver : public virtual IFormatDriver
+class ADDLE_CORE_EXPORT QtImageFormatDriver : public IFormatDriver<IDocument>
 {
 public:
-    QtImageFormatDriver(FormatId id, const char* name)
+    QtImageFormatDriver(DocumentFormatId id, const char* name)
         : _id(id), _name(name)
     {
     }
@@ -27,13 +29,13 @@ public:
     bool supportsImport() const { return true; }
     bool supportsExport() const { return false; }
 
-    FormatId id() const { return _id; }
+    DocumentFormatId id() const { return _id; }
 
-    IFormatModel* importModel(QIODevice& device, ImportExportInfo info);
-    void exportModel(IFormatModel* model, QIODevice& device, ImportExportInfo info);
+    IDocument* importModel(QIODevice& device, DocumentImportExportInfo info);
+    void exportModel(IDocument* model, QIODevice& device, DocumentImportExportInfo info);
 
 private:
-    const FormatId _id;
+    const DocumentFormatId _id;
     const char* _name;
 };
 

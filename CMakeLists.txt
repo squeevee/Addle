@@ -19,6 +19,12 @@ if (CMAKE_COMPILER_IS_GNUCC)
 
 endif ()
 
+if (WIN32)
+
+    set(CMAKE_INSTALL_PREFIX, "C:\\Program Files\\Addle")
+
+endif ()
+
 include_directories(
     .
     src

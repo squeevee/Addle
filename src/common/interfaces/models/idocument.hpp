@@ -17,7 +17,6 @@
 #include <QSharedPointer>
 
 #include "ilayer.hpp"
-#include "interfaces/format/iformatmodel.hpp"
 #include "interfaces/traits.hpp"
 #include "interfaces/iamqobject.hpp"
 
@@ -26,7 +25,7 @@
 namespace Addle {
 
 
-class IDocument : public virtual IFormatModel, public virtual IAmQObject
+class IDocument : public virtual IAmQObject
 {
 public:
     static const QColor DEFAULT_BACKGROUND_COLOR; // ?

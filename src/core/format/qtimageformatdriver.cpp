@@ -16,7 +16,7 @@
 
 using namespace Addle;
 
-IFormatModel* QtImageFormatDriver::importModel(QIODevice& device, ImportExportInfo info)
+IDocument* QtImageFormatDriver::importModel(QIODevice& device, DocumentImportExportInfo info)
 {
     DocumentBuilder documentBuilder;
     documentBuilder.setFilename(info.filename());
@@ -36,7 +36,7 @@ IFormatModel* QtImageFormatDriver::importModel(QIODevice& device, ImportExportIn
 }
 
 
-void QtImageFormatDriver::exportModel(IFormatModel* model, QIODevice& device, ImportExportInfo info)
+void QtImageFormatDriver::exportModel(IDocument* model, QIODevice& device, DocumentImportExportInfo info)
 {
 
 }

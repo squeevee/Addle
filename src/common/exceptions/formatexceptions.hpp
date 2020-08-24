@@ -14,7 +14,8 @@
 
 #include "addleexception.hpp"
 
-#include "utilities/model/importexportinfo.hpp"
+#include "utilities/format/importexportinfo.hpp"
+#include "utilities/format/genericformat.hpp"
 
 namespace Addle {
 
@@ -22,31 +23,31 @@ class ADDLE_COMMON_EXPORT FormatException : public AddleException
 {
 public:
 #ifdef ADDLE_DEBUG
-    FormatException(const QString& what, FormatId format)
+    FormatException(const QString& what, GenericFormatId format)
         : AddleException(what), _format(format)
     {
     }
 
-    FormatException(const ImportExportInfo& importExportInfo, FormatId format, const QString& what)
+    FormatException(const GenericImportExportInfo& importExportInfo, GenericFormatId format, const QString& what)
         : AddleException(what), _importExportInfo(importExportInfo), _format(format)
     {
     }
 
 #else
     FormatException() = default;
-    FormatException(const ImportExportInfo& importExportInfo, FormatId format)
+    FormatException(const GenericImportExportInfo& importExportInfo, GenericFormatId format)
         : _importExportInfo(importExportInfo), _format(format)
     {
     }
 #endif
     virtual ~FormatException() = default;
 
-    const ImportExportInfo& importExportInfo() const { return _importExportInfo; }
-    FormatId formatId() const { return _format; }
+    const GenericImportExportInfo& importExportInfo() const { return _importExportInfo; }
+    GenericFormatId formatId() const { return _format; }
 
 private:
-    const ImportExportInfo _importExportInfo;
-    const FormatId _format;
+    const GenericImportExportInfo _importExportInfo;
+    const GenericFormatId _format;
 };
 
 DECL_LOGIC_ERROR(FormatModelNotSupportedException)
@@ -57,12 +58,12 @@ public:
 
 #ifdef ADDLE_DEBUG
     FormatModelNotSupportedException (
-        const ImportExportInfo& importExportInfo,
+        const GenericImportExportInfo& importExportInfo,
         const char* modelname
         ) 
         : FormatException(
             importExportInfo,
-            FormatId(),
+            GenericFormatId(),
             //% "Importing is not supported for the given format model.\n"
             //% " Model name: \"%1\""
             qtTrId("debug-messages.format-error.model-not-supported")
@@ -72,8 +73,8 @@ public:
     }
 #else
 public:
-    FormatModelNotSupportedException( const ImportExportInfo& importExportInfo )
-        : FormatException(importExportInfo, FormatId())
+    FormatModelNotSupportedException( const GenericImportExportInfo& importExportInfo )
+        : FormatException(importExportInfo, GenericFormatId())
     {
     }
 #endif
@@ -90,7 +91,7 @@ class ADDLE_COMMON_EXPORT FormatNotSupportedException : public FormatException
     ADDLE_EXCEPTION_BOILERPLATE(FormatNotSupportedException)
 public:
 #ifdef ADDLE_DEBUG
-    FormatNotSupportedException(const ImportExportInfo& importExportInfo, FormatId format)
+    FormatNotSupportedException(const GenericImportExportInfo& importExportInfo, GenericFormatId format)
         : FormatException(
         importExportInfo,
         format,
@@ -105,7 +106,7 @@ public:
     }
 #else
 public:
-    FormatNotSupportedException(const ImportExportInfo& importExportInfo, FormatId format)
+    FormatNotSupportedException(const GenericImportExportInfo& importExportInfo, GenericFormatId format)
         : FormatException(importExportInfo, format)
     {
     }
@@ -114,67 +115,68 @@ public:
     virtual ~FormatNotSupportedException() = default;
 };
 
-class IFormatDriver;
+// template<class ModelType>
+// class IFormatDriver;
 
-DECL_RUNTIME_ERROR(ImportNotSupportedException)
-class ADDLE_COMMON_EXPORT ImportNotSupportedException : public FormatException
-{
-    ADDLE_EXCEPTION_BOILERPLATE(ImportNotSupportedException)
-public:
-#ifdef ADDLE_DEBUG
-    ImportNotSupportedException(const ImportExportInfo& importExportInfo, FormatId format, IFormatDriver* driver = nullptr)
-        : FormatException(
-        importExportInfo,
-        format,
-        //% "The driver for the format does not support importing.\n"
-        //% "format type: \"%1\"\n"
-        //% "   filename: \"%2\""
-        qtTrId("debug-messages.format-error.import-not-supported")
-            .arg(format.mimeType())
-            .arg(importExportInfo.filename())
-        ), _driver(driver)
-    {
-    }
-#else
-public:
-    ImportNotSupportedException(const ImportExportInfo& importExportInfo, FormatId format, IFormatDriver* driver = nullptr)
-        : FormatException(importExportInfo, format), _driver(driver)
-    {
-    }
-#endif
-public:
-    virtual ~ImportNotSupportedException() = default;
-private:
-    const IFormatDriver* _driver;
-};
+//DECL_RUNTIME_ERROR(ImportNotSupportedException)
+// class ADDLE_COMMON_EXPORT ImportNotSupportedException : public FormatException
+// {
+//     ADDLE_EXCEPTION_BOILERPLATE(ImportNotSupportedException)
+// public:
+// #ifdef ADDLE_DEBUG
+//     ImportNotSupportedException(const GenericImportExportInfo& importExportInfo, GenericFormatId format, IFormatDriver* driver = nullptr)
+//         : FormatException(
+//         importExportInfo,
+//         format,
+//         //% "The driver for the format does not support importing.\n"
+//         //% "format type: \"%1\"\n"
+//         //% "   filename: \"%2\""
+//         qtTrId("debug-messages.format-error.import-not-supported")
+//             .arg(format.key())
+//             .arg(importExportInfo.filename())
+//         ), _driver(driver)
+//     {
+//     }
+// #else
+// public:
+//     ImportNotSupportedException(const GenericImportExportInfo& importExportInfo, GenericFormatId format, IFormatDriver* driver = nullptr)
+//         : FormatException(importExportInfo, format), _driver(driver)
+//     {
+//     }
+// #endif
+// public:
+//     virtual ~ImportNotSupportedException() = default;
+// private:
+//     const IFormatDriver* _driver;
+// };
 
-DECL_RUNTIME_ERROR(FormatInferrenceFailedException)
-class ADDLE_COMMON_EXPORT FormatInferrenceFailedException : public FormatException
-{
-    ADDLE_EXCEPTION_BOILERPLATE(FormatInferrenceFailedException)
-public:
-#ifdef ADDLE_DEBUG
-    FormatInferrenceFailedException(const ImportExportInfo& importExportInfo)
-        : FormatException(
-        importExportInfo,
-        FormatId(), 
-            //% "A format could not be inferred from the information given.\n"
-            //% "   filename: \"%1\""
-            qtTrId("debug-messages.format-error.inferrence-failed")
-                .arg(importExportInfo.filename())
-        )
-    {
-    }
-#else
-public:
-    FormatInferrenceFailedException(const ImportExportInfo& importExportInfo)
-        : FormatException(importExportInfo, FormatId())
-    {
-    }
-#endif
-public:
-    virtual ~FormatInferrenceFailedException() = default;
-};
+// DECL_RUNTIME_ERROR(FormatInferrenceFailedException)
+// class ADDLE_COMMON_EXPORT FormatInferrenceFailedException : public FormatException
+// {
+//     ADDLE_EXCEPTION_BOILERPLATE(FormatInferrenceFailedException)
+// public:
+// #ifdef ADDLE_DEBUG
+//     FormatInferrenceFailedException(const GenericImportExportInfo& importExportInfo)
+//         : FormatException(
+//         importExportInfo,
+//         GenericFormatId(), 
+//             //% "A format could not be inferred from the information given.\n"
+//             //% "   filename: \"%1\""
+//             qtTrId("debug-messages.format-error.inferrence-failed")
+//                 .arg(importExportInfo.filename())
+//         )
+//     {
+//     }
+// #else
+// public:
+//     FormatInferrenceFailedException(const GenericImportExportInfo& importExportInfo)
+//         : FormatException(importExportInfo, GenericFormatId())
+//     {
+//     }
+// #endif
+// public:
+//     virtual ~FormatInferrenceFailedException() = default;
+// };
 
 } // namespace Addle
 

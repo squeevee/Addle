@@ -131,7 +131,7 @@ void ApplicationService::parseCommandLine()
             "editor"
         }, 
         //% "Explicitly start Addle in editor mode."
-        qtTrId("cli-messages.option-description.editor")
+        qtTrId("cli-messages.options.editor-mode-description")
     );
     parser.addOption(editorOption);
 
@@ -141,15 +141,15 @@ void ApplicationService::parseCommandLine()
             "browser"
         },
         //% "Explicitly start Addle in browser mode."
-        qtTrId("cli-messages.option-description.browser")
+        qtTrId("cli-messages.options.browser-mode-description")
     );
     parser.addOption(browserOption);
 
     parser.addPositionalArgument(
         //% "open"
-        qtTrId("cli-messages.option-description.open-arg-name"),
+        qtTrId("cli-messages.options.open-name"),
         //% "The file or url to open."
-        qtTrId("cli-messages.option-description.open")
+        qtTrId("cli-messages.options.open.description")
     );
 
     bool success = parser.parse(args);
@@ -270,7 +270,7 @@ void ApplicationService::startGraphicalApplication()
     IMainEditorPresenter* presenter;
     //if (_startupMode == StartupMode::editor) always use editor view for now.
     //{
-    presenter = ServiceLocator::make<IMainEditorPresenter>(IMainEditorPresenterAux::Editor);
+    presenter = ServiceLocator::make<IMainEditorPresenter>(IMainEditorPresenter::Editor);
 
     //}
 

@@ -50,7 +50,7 @@ public:
         : CommandLineException(
 #ifdef ADDLE_DEBUG
             //% "The command-line parser encountered an error: \"%1\""
-            qtTrId("error-messages.command-line.parser").arg(errorText)
+            qtTrId("cli-messages.parser-error").arg(errorText)
 #else
             errorText
 #endif
@@ -67,7 +67,7 @@ public:
     MultipleStartModesException()
         : CommandLineException(
             //% "You may not specify multiple modes to start Addle in."
-            qtTrId("error-messages.command-line.multiple-modes")
+            qtTrId("cli-messages.multiple-modes-error")
         )
     {
     }

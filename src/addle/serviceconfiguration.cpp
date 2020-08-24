@@ -109,11 +109,11 @@ void ServiceConfiguration::configure()
     CONFIG_AUTOFACTORY_BY_TYPE(IFormatService, FormatService);
 
     // # Formats
-    CONFIG_CUSTOMFACTORY_BY_ID(IFormatDriver, CoreFormats::JPEG, 
-        []() -> IFormatDriver* { return new QtImageFormatDriver(CoreFormats::JPEG, "JPEG"); }
+    CONFIG_CUSTOMFACTORY_BY_ID(IFormatDriver<IDocument>, CoreFormats::JPEG, 
+        []() -> IFormatDriver<IDocument>* { return new QtImageFormatDriver(CoreFormats::JPEG, "JPEG"); }
     );
-    CONFIG_CUSTOMFACTORY_BY_ID(IFormatDriver, CoreFormats::PNG, 
-        []() -> IFormatDriver* { return new QtImageFormatDriver(CoreFormats::PNG, "PNG"); }
+    CONFIG_CUSTOMFACTORY_BY_ID(IFormatDriver<IDocument>, CoreFormats::PNG, 
+        []() -> IFormatDriver<IDocument>* { return new QtImageFormatDriver(CoreFormats::PNG, "PNG"); }
     );
 
     // # Views

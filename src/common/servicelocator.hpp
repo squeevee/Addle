@@ -84,7 +84,7 @@ public:
      * 
      * @param id
      * The persistent ID identifying the desired object. (Must be derived type
-     * of PersistentId)
+     * of AddleId)
      * 
      * @tparam Interface
      * The interface of the desired object.
@@ -113,7 +113,7 @@ public:
         );
         static_assert(
             std::is_same<TypeId, typename Traits::id_type<Interface>::type>::value ||
-            std::is_same<TypeId, PersistentId>::value,
+            std::is_same<TypeId, AddleId>::value,
             "Interface is not gettable by IdType"
         );
 
@@ -382,14 +382,14 @@ public:
     }
 
     template<class Interface>
-    static QSet<PersistentId> getIds()
+    static QSet<AddleId> getIds()
     {
         static_assert(
             Traits::is_gettable_by_id<Interface>::value,
             "Interface must be gettable by Id"
         );
 
-        QSet<PersistentId> result;
+        QSet<AddleId> result;
 
         std::type_index interfaceIndex(typeid(Interface));
 
@@ -449,8 +449,8 @@ private:
     QHash<std::type_index, QSharedPointer<QMutex>> _serviceInitMutexes;
     QHash<std::type_index, const IFactory*> _factoriesByType;
 
-    QHash<QPair<PersistentId, std::type_index>, const IFactory*> _factoriesById;
-    QHash<QPair<PersistentId, std::type_index>, void*> _persistentObjectsById;
+    QHash<QPair<AddleId, std::type_index>, const IFactory*> _factoriesById;
+    QHash<QPair<AddleId, std::type_index>, void*> _persistentObjectsById;
     
     // internal get by interface
     template<class Interface>
@@ -460,7 +460,7 @@ private:
         // static_assert(
         //     std::is_base_of<IService, Interface>::value,
         //     "Interface must derive from IService (in order to be gotten without "
-        //     "PersistentId)."
+        //     "AddleId)."
         // );
         // static_assert(
         //     !std::is_same<IService, Interface>::value,
@@ -514,8 +514,8 @@ private:
             "Interface must be gettable by id."
         );
         static_assert(
-            std::is_base_of<PersistentId, IdType>::value,
-            "IdType must be PersistentId"
+            std::is_base_of<AddleId, IdType>::value,
+            "IdType must be AddleId"
         );
 
         //mutex
@@ -580,8 +580,8 @@ private:
             "Interface must be makeable by id of type IdType"
         );
         static_assert(
-            std::is_base_of<PersistentId, IdType>::value,
-            "IdType must be PersistentId"
+            std::is_base_of<AddleId, IdType>::value,
+            "IdType must be AddleId"
         );
 
         auto index = qMakePair(id, std::type_index(typeid(Interface)));

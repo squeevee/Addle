@@ -14,7 +14,7 @@
 
 #include "interfaces/editing/rasterengineparams.hpp"
 
-#include "idtypes/persistentid.hpp"
+#include "idtypes/addleid.hpp"
 #include "idtypes/brushengineid.hpp"
 #include "idtypes/brushid.hpp"
 #include "idtypes/paletteid.hpp"
@@ -43,132 +43,105 @@
 
 #include "utilities/configuration/serviceconfigurationbase.hpp"
 #include "utilities/model/documentbuilder.hpp"
-#include "utilities/model/importexportinfo.hpp"
+#include "utilities/format/importexportinfo.hpp"
 #include "utilities/model/layerbuilder.hpp"
 
 namespace Addle {
 
 ServiceLocator* ServiceLocator::_instance = nullptr;
 
-STATIC_PERSISTENT_ID_BOILERPLATE(BrushEngineId)
+#define DEFINE_STATIC_METADATA_CUSTOM(x, DataType, ...) \
+const QSharedPointer<const AddleId::BaseMetaData> GET_STATIC_ID_METADATA(x)::_metaData \
+    = QSharedPointer<const AddleId::BaseMetaData>(new DataType( \
+    GET_STATIC_ID_METADATA(x)::key, \
+    ::qMetaTypeId<std::remove_const<decltype(x)>::type>(), \
+    __VA_ARGS__ \
+));
+#define DEFINE_STATIC_METADATA(x) \
+const QSharedPointer<const AddleId::BaseMetaData> GET_STATIC_ID_METADATA(x)::_metaData \
+    = QSharedPointer<const AddleId::BaseMetaData>(new AddleId::BaseMetaData( \
+    GET_STATIC_ID_METADATA(x)::key, \
+    ::qMetaTypeId<std::remove_const<decltype(x)>::type>(), \
+    QUuid() \
+));
+#define STATIC_ID_METADATA_ENTRY(x) { x, GET_STATIC_ID_METADATA(x)::_metaData }
 
-STATIC_PERSISTENT_ID_BOILERPLATE(BrushId)
+// Static ID metadata definitions
 
-STATIC_PERSISTENT_ID_BOILERPLATE(PaletteId)
+DEFINE_STATIC_METADATA(CoreBrushEngines::PathEngine);
+DEFINE_STATIC_METADATA(CoreBrushEngines::RasterEngine);
 
-STATIC_PERSISTENT_ID_BOILERPLATE(FormatId)
+DEFINE_STATIC_METADATA(CoreBrushes::BasicBrush);
+DEFINE_STATIC_METADATA(CoreBrushes::SoftBrush);
+DEFINE_STATIC_METADATA(CoreBrushes::BasicEraser);
 
-STATIC_PERSISTENT_ID_BOILERPLATE(ToolId)
-
-const BrushEngineId CoreBrushEngines::PathEngine = BrushEngineId(
-    "path-engine"
+DEFINE_STATIC_METADATA_CUSTOM(CoreFormats::PNG, DocumentFormatId::MetaData,
+                    QUuid(),
+    /*mime type:*/  QStringLiteral("image/png"),
+    /*file ext:*/   QStringLiteral("png"),          
+    /*file sig:*/   QByteArrayLiteral("\x89\x50\x4E\x47\x0D\x0A\x1A\x0A")
 );
 
-const BrushEngineId CoreBrushEngines::RasterEngine = BrushEngineId(
-    "raster-engine"
+DEFINE_STATIC_METADATA_CUSTOM(CoreFormats::JPEG, DocumentFormatId::MetaData,
+                    QUuid(),
+    /*mime type:*/  QStringLiteral("image/jpeg"),
+    /*file exts:*/  {
+                        QStringLiteral("jpg"),
+                        QStringLiteral("jpeg"),
+                        QStringLiteral("jpe"),
+                        QStringLiteral("jfif"),
+                        QStringLiteral("jif")
+                    },          
+    /*file sig:*/   QByteArrayLiteral("\xFF\xD8\xFF")
 );
 
-const BrushId CoreBrushes::BasicBrush = BrushId(
-    "basic-brush"
-);
+DEFINE_STATIC_METADATA(CorePalettes::BasicPalette);
 
-const BrushId CoreBrushes::SoftBrush = BrushId(
-    "soft-brush"
-);
+DEFINE_STATIC_METADATA(CoreTools::Select);
+DEFINE_STATIC_METADATA(CoreTools::Brush);
+DEFINE_STATIC_METADATA(CoreTools::Eraser);
+DEFINE_STATIC_METADATA(CoreTools::Fill);
+DEFINE_STATIC_METADATA(CoreTools::Text);
+DEFINE_STATIC_METADATA(CoreTools::Shapes);
+DEFINE_STATIC_METADATA(CoreTools::Stickers);
+DEFINE_STATIC_METADATA(CoreTools::Eyedrop);
+DEFINE_STATIC_METADATA(CoreTools::Navigate);
+DEFINE_STATIC_METADATA(CoreTools::Measure);
 
-const BrushId CoreBrushes::BasicEraser = BrushId(
-    "basic-eraser"
-);
+// Dynamic ID metadata definition
 
-const PaletteId CorePalettes::BasicPalette = PaletteId(
-    "basic-palette"
-);
+QHash<AddleId, QSharedPointer<const AddleId::BaseMetaData>> AddleId::_dynamicMetaData = {
+    STATIC_ID_METADATA_ENTRY(CoreBrushEngines::PathEngine),
+    STATIC_ID_METADATA_ENTRY(CoreBrushEngines::RasterEngine),
+
+    STATIC_ID_METADATA_ENTRY(CoreBrushes::BasicBrush),
+    STATIC_ID_METADATA_ENTRY(CoreBrushes::SoftBrush),
+    STATIC_ID_METADATA_ENTRY(CoreBrushes::BasicEraser),
+
+    STATIC_ID_METADATA_ENTRY(CoreFormats::PNG),
+    STATIC_ID_METADATA_ENTRY(CoreFormats::JPEG),
+
+    STATIC_ID_METADATA_ENTRY(CorePalettes::BasicPalette),
+
+    STATIC_ID_METADATA_ENTRY(CoreTools::Select),
+    STATIC_ID_METADATA_ENTRY(CoreTools::Brush),
+    STATIC_ID_METADATA_ENTRY(CoreTools::Eraser),
+    STATIC_ID_METADATA_ENTRY(CoreTools::Fill),
+    STATIC_ID_METADATA_ENTRY(CoreTools::Text),
+    STATIC_ID_METADATA_ENTRY(CoreTools::Shapes),
+    STATIC_ID_METADATA_ENTRY(CoreTools::Stickers),
+    STATIC_ID_METADATA_ENTRY(CoreTools::Eyedrop),
+    STATIC_ID_METADATA_ENTRY(CoreTools::Navigate),
+    STATIC_ID_METADATA_ENTRY(CoreTools::Measure)
+};
+
+#undef DEFINE_STATIC_METADATA_CUSTOM
+#undef DEFINE_STATIC_METADATA
+#undef STATIC_ID_METADATA_ENTRY
 
 int CanvasMouseEvent::_type = QEvent::User;
 
 const QColor DefaultBackgroundColor = Qt::white;
-
-
-const FormatId CoreFormats::PNG = FormatId(
-    "png-format-id",
-    QStringLiteral("image/png"),
-    typeid(IDocument),
-    QStringLiteral("png"),
-    QByteArrayLiteral("\x89\x50\x4E\x47\x0D\x0A\x1A\x0A")
-);
-
-const FormatId CoreFormats::JPEG = FormatId(
-    "jpeg-format-id",
-    QStringLiteral("image/jpeg"),
-    typeid(IDocument),
-    {
-        QStringLiteral("jpg"),
-        QStringLiteral("jpeg"),
-        QStringLiteral("jpe"),
-        QStringLiteral("jfif"),
-        QStringLiteral("jif")
-    },
-    QByteArrayLiteral("\xFF\xD8\xFF")
-);
-const ToolId ISelectToolPresenter::SELECT_TOOL_ID = ToolId(
-    "select-tool"
-);
-
-const ToolId IBrushToolPresenterAux::BRUSH_ID = ToolId(
-    "brush-tool"
-);
-
-const ToolId IBrushToolPresenterAux::ERASER_ID = ToolId(
-    "eraser-tool"
-);
-
-const ToolId IFillToolPresenter::FILL_TOOL_ID = ToolId(
-    "fill-tool"
-);
-
-const ToolId ITextToolPresenter::TEXT_TOOL_ID = ToolId(
-    "text-tool"
-);
-
-const ToolId IShapesToolPresenter::SHAPES_TOOL_ID = ToolId(
-    "shapes-tool"
-);
-
-const ToolId IStickersToolPresenter::STICKERS_TOOL_ID = ToolId(
-    "stickers-tool"
-);
-
-const ToolId IEyedropToolPresenter::EYEDROP_TOOL_ID = ToolId(
-    "eyedrop-tool"
-);
-
-const ToolId INavigateToolPresenterAux::ID = ToolId(
-    "navigate-tool"
-);
-
-const ToolId IMeasureToolPresenter::MEASURE_TOOL_ID = ToolId(
-    "measure-tool"
-);
-
-const ToolId IMainEditorPresenterAux::DefaultTools::Select   = ISelectToolPresenter::SELECT_TOOL_ID;
-const ToolId IMainEditorPresenterAux::DefaultTools::Brush    = IBrushToolPresenterAux::BRUSH_ID;
-const ToolId IMainEditorPresenterAux::DefaultTools::Eraser   = IBrushToolPresenterAux::ERASER_ID;
-const ToolId IMainEditorPresenterAux::DefaultTools::Fill     = IFillToolPresenter::FILL_TOOL_ID;
-const ToolId IMainEditorPresenterAux::DefaultTools::Text     = ITextToolPresenter::TEXT_TOOL_ID;
-const ToolId IMainEditorPresenterAux::DefaultTools::Shapes   = IShapesToolPresenter::SHAPES_TOOL_ID;
-const ToolId IMainEditorPresenterAux::DefaultTools::Stickers = IStickersToolPresenter::STICKERS_TOOL_ID;
-const ToolId IMainEditorPresenterAux::DefaultTools::Eyedrop  = IEyedropToolPresenter::EYEDROP_TOOL_ID;
-const ToolId IMainEditorPresenterAux::DefaultTools::Navigate = INavigateToolPresenterAux::ID;
-const ToolId IMainEditorPresenterAux::DefaultTools::Measure  = IMeasureToolPresenter::MEASURE_TOOL_ID;
-
-const BrushId IBrushToolPresenterAux::DefaultBrushes::Basic  = CoreBrushes::BasicBrush;
-const BrushId IBrushToolPresenterAux::DefaultBrushes::Soft   = CoreBrushes::SoftBrush;
-
-const BrushId IBrushToolPresenterAux::DEFAULT_BRUSH = IBrushToolPresenterAux::DefaultBrushes::Basic;
-
-const BrushId IBrushToolPresenterAux::DefaultErasers::Basic  = CoreBrushes::BasicEraser;
-
-const BrushId IBrushToolPresenterAux::DEFAULT_ERASER = IBrushToolPresenterAux::DefaultErasers::Basic;
 
 const ColorInfo GlobalColorInfo::Black = ColorInfo(
                 //: Name of the color black (#000000)
@@ -186,9 +159,9 @@ const ColorInfo GlobalColorInfo::Transparent = ColorInfo(
 );
 
 const QHash<QRgb, ColorInfo> GlobalColorInfo::ByRGB = {
-    { QColor(Qt::black).rgba(), Black },
-    { QColor(Qt::white).rgba(), White },
-    { QColor(Qt::transparent).rgba(), Transparent }
+    { QColor(Qt::black).rgba(), GlobalColorInfo::Black },
+    { QColor(Qt::white).rgba(), GlobalColorInfo::White },
+    { QColor(Qt::transparent).rgba(), GlobalColorInfo::Transparent }
 };
 
 

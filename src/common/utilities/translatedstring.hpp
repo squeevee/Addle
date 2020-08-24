@@ -9,6 +9,8 @@
 #ifndef LOCALIZEDSTRING_HPP
 #define LOCALIZEDSTRING_HPP
 
+#include "compat.hpp"
+
 #include <QMetaType>
 #include <QLocale>
 #include <QString>
@@ -19,7 +21,7 @@ namespace Addle {
 // Represents an internationalized string, containing either a manually defined
 // set of translations to a set of locales (e.g., loaded from externally-
 // internationalized data), or a TrId for use with QTranslator.
-class TranslatedString
+class ADDLE_COMMON_EXPORT TranslatedString
 {
 public:
     TranslatedString() = default;

@@ -9,23 +9,20 @@
 #ifndef BRUSHID_HPP
 #define BRUSHID_HPP
 
-#include "persistentid.hpp"
+#include "addleid.hpp"
 #include "brushengineid.hpp"
 
 namespace Addle {
 
-class ADDLE_COMMON_EXPORT BrushId : public PersistentId
+class ADDLE_COMMON_EXPORT BrushId : public AddleId
 {
-    PERSISTENT_ID_BOILERPLATE(BrushId)
-public:
-    BrushId(const char* key)
-        : BrushId(key, {})
-    {
-    }
+    ID_TYPE_BOILERPLATE(BrushId)
 };
 
 } // namespace Addle
 
 Q_DECLARE_METATYPE(Addle::BrushId)
+Q_DECLARE_TYPEINFO(Addle::BrushId, Q_PRIMITIVE_TYPE);
+ID_TYPE_BOILERPLATE2(BrushId);
 
 #endif // BRUSHID_HPP

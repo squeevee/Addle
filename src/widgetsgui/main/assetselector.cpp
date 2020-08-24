@@ -43,13 +43,13 @@ AssetSelector::AssetSelector(IAssetSelectionPresenter& presenter, QWidget* paren
         _list->addItem(item);
     }
 
-    connect_interface(&_presenter, SIGNAL(selectionChanged(QList<PersistentId>)), this, SLOT(onPresenterSelectionChanged()));
+    connect_interface(&_presenter, SIGNAL(selectionChanged(QList<AddleId>)), this, SLOT(onPresenterSelectionChanged()));
     onPresenterSelectionChanged();
 }
 
 void AssetSelector::onListSelectionChanged()
 {
-    QList<PersistentId> selected;
+    QList<AddleId> selected;
     for (auto item : _list->selectedItems())
     {
         selected.append(_itemValues[item]->id());
