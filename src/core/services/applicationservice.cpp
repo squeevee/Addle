@@ -13,19 +13,22 @@
 #include <iostream>
 #include <cstdlib>
 
+#include "utils.hpp"
+
 #include "applicationservice.hpp"
 
 #include "servicelocator.hpp"
 
+#include "interfaces/services/ierrorservice.hpp"
 #include "interfaces/presenters/imaineditorpresenter.hpp"
 #include "interfaces/views/imaineditorview.hpp"
 
-#include "utilities/qtextensions/qobject.hpp"
+#include "utilities/qobject.hpp"
 #include "globals.hpp"
 #include "exceptions/commandlineexceptions.hpp"
 
 #ifdef ADDLE_DEBUG
-#include "utilities/debugging.hpp"
+#include "utilities/debugging/debugbehavior.hpp"
 #endif
 
 using namespace Addle;
@@ -39,6 +42,8 @@ bool ApplicationService::start()
     //% "Starting ApplicationService."
     qDebug() << qUtf8Printable(qtTrId("debug-messages.application-service.starting"));
 #endif
+
+    ServiceLocator::get<IErrorService>();
 
     try
     {
@@ -55,7 +60,7 @@ bool ApplicationService::start()
             qtTrId("debug-messages.application-service.command-line-error")
         ) << std::endl;
         std::cerr << ex.what() << std::endl;
-        if (DebugBehavior::test(DebugBehavior::abort_on_startup_error))
+        if (DebugBehavior::test(DebugBehavior::AbortOnStartupError))
             std::abort();
 #else
         std::cerr << qPrintable(ex.errorText()) << std::endl;
@@ -89,11 +94,11 @@ bool ApplicationService::start()
             catch (std::exception& ex)
             {
                 std::cerr << qPrintable(
-                    //% "Exception thrown:"
+                    //% "  exception thrown:"
                     qtTrId("debug-messages.application-service.standard-exception")
                 ) << std::endl;
                 std::cerr << ex.what() << std::endl;
-                if (DebugBehavior::test(DebugBehavior::abort_on_startup_error))
+                if (DebugBehavior::test(DebugBehavior::AbortOnStartupError))
                     std::abort();
             }
             catch(...)
@@ -103,7 +108,7 @@ bool ApplicationService::start()
                     qtTrId("debug-messages.application-service.non-standard-exception")
                 ) << std::endl;
             }
-            if (DebugBehavior::test(DebugBehavior::abort_on_startup_error))
+            if (DebugBehavior::test(DebugBehavior::AbortOnStartupError))
                 std::abort();
 #endif
             _exitCode = ErrorCodes::UNKNOWN_ERROR_CODE;
@@ -283,7 +288,7 @@ void ApplicationService::startGraphicalApplication()
         presenter->loadDocument(_startingUrl);
     }
 
-    presenter->view().start();
+    presenter->view().show();
 }
 
 void ApplicationService::quitting()
@@ -294,4 +299,26 @@ void ApplicationService::quitting()
         qtTrId("debug-messages.application-service.quitting")
     );
 #endif
+}
+
+void ApplicationService::registerMainEditorPresenter(IMainEditorPresenter* presenter)
+{
+    _mainEditorPresenters.insert(presenter);
+    _mainEditorPresenters_byQObjects[qobject_interface_cast(presenter)] = presenter;
+    connect_interface(presenter, SIGNAL(destroyed()), this, SLOT(onMainEditorPresenterDestroyed()));
+}
+
+void ApplicationService::onMainEditorPresenterDestroyed()
+{
+    try 
+    {
+        // can't qobject_cast on a destroyed() signal
+        auto presenter = _mainEditorPresenters_byQObjects[sender()];
+        
+        ADDLE_ASSERT(presenter);
+        ADDLE_ASSERT(_mainEditorPresenters.contains(presenter));
+        _mainEditorPresenters.remove(presenter);
+        _mainEditorPresenters_byQObjects.remove(sender());
+    }
+    ADDLE_SLOT_CATCH
 }

@@ -14,7 +14,7 @@
 
 #include "utilities/addle_icon.hpp"
 
-#include "utilities/qtextensions/qobject.hpp"
+#include "utilities/qobject.hpp"
 #include "utilities/presenter/propertybinding.hpp"
 #include "utilities/widgetproperties.hpp"
 

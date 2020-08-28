@@ -382,14 +382,14 @@ public:
     }
 
     template<class Interface>
-    static QSet<AddleId> getIds()
+    static QSet<typename Traits::id_type<Interface>::type> getIds()
     {
         static_assert(
             Traits::is_gettable_by_id<Interface>::value,
             "Interface must be gettable by Id"
         );
 
-        QSet<AddleId> result;
+        QSet<typename Traits::id_type<Interface>::type> result;
 
         std::type_index interfaceIndex(typeid(Interface));
 
@@ -457,16 +457,6 @@ private:
     Interface* get_p()
     {
         //todo: thread safety
-        // static_assert(
-        //     std::is_base_of<IService, Interface>::value,
-        //     "Interface must derive from IService (in order to be gotten without "
-        //     "AddleId)."
-        // );
-        // static_assert(
-        //     !std::is_same<IService, Interface>::value,
-        //     "IService is the common base interface of services. It cannot be "
-        //     "gotten directly."
-        // );
         
         std::type_index interfaceIndex(typeid(Interface));
         
@@ -493,6 +483,16 @@ private:
             auto mutex = QSharedPointer<QMutex>(new QMutex);
             _serviceInitMutexes.insert(interfaceIndex, mutex);
             mutex->lock();
+
+            if (!_factoriesByType.contains(interfaceIndex))
+            {         
+#ifdef ADDLE_DEBUG
+                ServiceNotFoundException ex(typeid(Interface).name());
+#else
+                ServiceNotFoundException ex;
+#endif 
+                ADDLE_THROW(ex);
+            }
 
             Interface* service = make_p<Interface>();
             //service->setServiceLocator(this);
@@ -528,6 +528,16 @@ private:
         }
         else 
         {
+            if (!_factoriesById.contains(index))
+            {
+#ifdef ADDLE_DEBUG
+                PersistentObjectNotFoundException ex(typeid(Interface).name(), id);
+#else
+                PersistentObjectNotFoundException ex;
+#endif 
+                ADDLE_THROW(ex);
+            }
+
             Interface* object = make_p<Interface>(id);
             _persistentObjectsById[index] = object;
 
@@ -549,12 +559,8 @@ private:
 
         if (!_factoriesByType.contains(index))
         {
-            
 #ifdef ADDLE_DEBUG
-            FactoryNotFoundException ex(
-                typeid(Interface).name(),
-                _factoriesByType.count()
-            );
+            FactoryNotFoundException ex(typeid(Interface).name());
 #else
             FactoryNotFoundException ex;
 #endif
@@ -588,12 +594,8 @@ private:
 
         if (!_factoriesById.contains(index))
         {
-            
 #ifdef ADDLE_DEBUG
-            FactoryNotFoundException ex(
-                typeid(Interface).name(),
-                _factoriesById.count()
-            );
+            FactoryNotFoundException ex(typeid(Interface).name(), id);
 #else
             FactoryNotFoundException ex;
 #endif

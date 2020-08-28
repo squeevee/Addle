@@ -19,6 +19,7 @@
 
 #include "servicelocator.hpp"
 #include "exceptions/formatexceptions.hpp"
+#include "utilities/errors.hpp"
 
 #include "utilities/fileassertions.hpp"
 //#include "utilities/taskmessages/formatmismatchmessage.hpp"
@@ -26,26 +27,14 @@
 using namespace Addle;
 FormatService::FormatService()
 {
-    // QList<IFormatDriver*> drivers = {
-    //     ServiceLocator::make<IFormatDriver>(CoreFormats::JPEG),
-    //     ServiceLocator::make<IFormatDriver>(CoreFormats::PNG)
-    // };
-
     setupFormat<IDocument>();
 }
 
 GenericFormatModel FormatService::importModel_p(QIODevice& device, const GenericImportExportInfo& info)
 { 
     std::type_index modelTypeIndex(info.modelType());
-    if (!_formats_byModelType.contains(modelTypeIndex))
-    {
-#ifdef ADDLE_DEBUG
-        FormatModelNotSupportedException ex(info, info.modelType().name());
-#else
-        FormatModelNotSupportedException ex(info);
-#endif
-        ADDLE_THROW(ex);
-    }
+
+    ADDLE_ASSERT(_formats_byModelType.contains(modelTypeIndex));
 
     if (!info.filename().isEmpty())
         assertCanReadFile(info.fileInfo());
@@ -59,18 +48,14 @@ GenericFormatModel FormatService::importModel_p(QIODevice& device, const Generic
         (format = impliedBySuffix)
     )
     {
-        GenericFormatDriver driver;
-        if (!_drivers_byFormat.contains(format))
+        if(!_drivers_byFormat.contains(format))
         {
-            ADDLE_THROW(FormatNotSupportedException(info, format));
+            ADDLE_THROW(FormatException(FormatException::WrongModelType, format, info));
         }
 
-        driver = _drivers_byFormat.value(format);
+        GenericFormatDriver driver = _drivers_byFormat.value(format);
 
-        // if (!driver->supportsImport())
-        // {
-        //     ADDLE_THROW(ImportNotSupportedException(info, format, driver));
-        // }
+        ADDLE_ASSERT(driver.supportsImport());
 
         GenericFormatModel result = driver.importModel(device, info);
 
@@ -87,7 +72,7 @@ GenericFormatModel FormatService::importModel_p(QIODevice& device, const Generic
     }
     else
     {
-        //ADDLE_THROW(FormatInferrenceFailedException(info));
+        ADDLE_THROW(FormatException(FormatException::FormatNotRecognized, GenericFormatId(), info));
     }
 }
 

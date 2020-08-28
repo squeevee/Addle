@@ -7,7 +7,7 @@
  */
 
 #include "assetselector.hpp"
-#include "utilities/qtextensions/qobject.hpp"
+#include "utilities/qobject.hpp"
 #include "interfaces/presenters/assets/iassetpresenter.hpp"
 #include <QGridLayout>
 

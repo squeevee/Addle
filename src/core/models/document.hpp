@@ -33,15 +33,15 @@ public:
 
     void render(QRect area, QPaintDevice* device) const;
 
-    bool isEmpty() const { _initHelper.check(); return _empty; }
+    bool isEmpty() const { ASSERT_INIT; return _empty; }
 
-    QSize size() const { _initHelper.check(); return _size; }
+    QSize size() const { ASSERT_INIT; return _size; }
 
-    QColor backgroundColor() const { _initHelper.check(); return _backgroundColor; }
+    QColor backgroundColor() const { ASSERT_INIT; return _backgroundColor; }
 
-    QString filename() const { _initHelper.check(); return _filename; }
+    QString filename() const { ASSERT_INIT; return _filename; }
 
-    QList<QSharedPointer<ILayer>> layers() const { _initHelper.check(); return _layers; }
+    QList<QSharedPointer<ILayer>> layers() const { ASSERT_INIT; return _layers; }
 
     QImage exportImage();
 

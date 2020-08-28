@@ -21,10 +21,10 @@
 #include "idtypes/toolid.hpp"
 
 #include "ihaveundostackpresenter.hpp"
-#include "iraiseerrorpresenter.hpp"
 
 namespace Addle {
 
+class IErrorPresenter;
 class IPalettePresenter;
 class ILayerPresenter;
 class IMainEditorView;
@@ -36,7 +36,6 @@ class IDocumentPresenter;
 
 class IMainEditorPresenter 
     : public IHaveUndoStackPresenter,
-    public IRaiseErrorPresenter,
     public virtual IAmQObject
 {
 public:
@@ -84,6 +83,8 @@ signals:
     virtual void topSelectedLayerChanged(QSharedPointer<ILayerPresenter>) = 0;
     virtual void documentPresenterChanged(QSharedPointer<IDocumentPresenter> documentPresenter) = 0;
     virtual void isEmptyChanged(bool) = 0;
+
+    virtual void error(QSharedPointer<IErrorPresenter> error) = 0;
 };
 
 DECL_INTERFACE_META_PROPERTIES(

@@ -1,28 +1,36 @@
-#ifndef IEDITORVIEW_HPP
-#define IEDITORVIEW_HPP
+/**
+ * Addle source code
+ * @file
+ * @copyright Copyright 2020 Eleanor Hawk
+ * @copyright Modification and distribution permitted under the terms of the
+ * MIT License. See "LICENSE" for full details.
+ */
 
-#include "imainview.hpp"
+#ifndef IMAINEDITORVIEW_HPP
+#define IMAINEDITORVIEW_HPP
+
+#include "itoplevelview.hpp"
 
 #include "interfaces/traits.hpp"
-
 
 namespace Addle {
 
 class IMainEditorPresenter;
-class IViewPortPresenter;
-class ICanvasPresenter;
-class IMainEditorView: public virtual IMainView
+class IMainEditorView : public ITopLevelView
 {
 public:
     virtual ~IMainEditorView() = default;
 
-    virtual void initialize(IMainEditorPresenter* presenter) = 0;
+    virtual void initialize(IMainEditorPresenter& presenter) = 0;
 
-    virtual IMainEditorPresenter* presenter() = 0;
+    virtual IMainEditorPresenter& presenter() const = 0;
 };
 
 DECL_MAKEABLE(IMainEditorView)
 DECL_EXPECTS_INITIALIZE(IMainEditorView)
 
 } // namespace Addle
-#endif // IEDITORVIEW_HPP
+
+Q_DECLARE_INTERFACE(Addle::IMainEditorView, "org.addle.IMainEditorView")
+
+#endif // IMAINEDITORVIEW_HPP

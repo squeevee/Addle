@@ -16,8 +16,7 @@
 #include <QString>
 #include <QByteArray>
 #include <QByteArrayList>
-
-#include "qtextensions/qmeta.hpp"
+#include <QMetaEnum>
 
 #include "globals.hpp"
 
@@ -69,22 +68,18 @@ inline QString affixUnits(LayoutUnits unit, double a,
     int fieldwidth = 0, char format = 'g', int precision = -1,
     QChar fillChar = QLatin1Char(' '))
 {
-    const char* unitName = enumKeyFromValue(unit);
-
                     //% "%L1 %2"
     return qtTrId("templates.affix-units")
         .arg(a, fieldwidth, format, precision, fillChar)
-        .arg(dynamic_qtTrId({ "units", unitName }));
+        .arg(dynamic_qtTrId({ "units", QMetaEnum::fromType<LayoutUnits>().valueToKey(unit) }));
 }
 
 inline QString affixUnits(LayoutUnits unit, int a, 
     int fieldwidth = 0, int base = 10, QChar fillChar = QLatin1Char(' '))
 {
-    const char* unitName = enumKeyFromValue(unit);
-
     return qtTrId("templates.affix-units")
         .arg(a, fieldwidth, base, fillChar)
-        .arg(dynamic_qtTrId({ "units", unitName }, a));
+        .arg(dynamic_qtTrId({ "units", QMetaEnum::fromType<LayoutUnits>().valueToKey(unit) }, a));
 }
 
 } // namespace Addle

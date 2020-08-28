@@ -28,7 +28,7 @@ public:
 
     void initialize(IMainEditorPresenter& mainEditorPresenter);
 
-    IMainEditorPresenter& mainEditorPresenter() { _initHelper.check(); return *_mainEditorPresenter; }
+    IMainEditorPresenter& mainEditorPresenter() { ASSERT_INIT; return *_mainEditorPresenter; }
 
     QCursor cursor() const;
     QString statusTip() const { return QString(); }

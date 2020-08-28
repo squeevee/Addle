@@ -9,10 +9,8 @@
 #ifndef SERVICELOCATOREXCEPTIONS_HPP
 #define SERVICELOCATOREXCEPTIONS_HPP
 
-#include <QStringBuilder>
-#include <stdexcept>
-
 #include "addleexception.hpp"
+#include "idtypes/addleid.hpp"
 
 namespace Addle {
 
@@ -48,7 +46,7 @@ public:
     ServiceLocatorNotInitializedException()
         : ServiceLocatorException(
             //% "The service locator is not initialized."
-            qtTrId("debug-messages.service-locator-error.not-initialized")
+            qtTrId("debug-messages.service-locator.not-initialized-error")
         )
     {
     }
@@ -57,32 +55,6 @@ public:
 #endif
 
     virtual ~ServiceLocatorNotInitializedException() = default;
-};
-
-/**
- * @class ServiceLocatorAlreadyInitializedException
- * @brief Thrown if the ServiceLocator is not expected to be initialized, but
- * is, (e.g., there were multiple attempts to configure the ServiceLocator)
- */
-class ADDLE_COMMON_EXPORT ServiceLocatorAlreadyInitializedException : public ServiceLocatorException
-{
-    ADDLE_EXCEPTION_BOILERPLATE(ServiceLocatorAlreadyInitializedException)
-
-public: 
-#ifdef ADDLE_DEBUG
-    ServiceLocatorAlreadyInitializedException()
-        : ServiceLocatorException(
-            //% "The service locator has already been initialized."
-            qtTrId("debug-messages.service-locator-error.already-initialized")
-        )
-    {
-    }
-#else
-public:
-    ServiceLocatorAlreadyInitializedException() = default;
-#endif
-public:
-    virtual ~ServiceLocatorAlreadyInitializedException() = default;
 };
 
 /**
@@ -95,24 +67,33 @@ class ADDLE_COMMON_EXPORT FactoryNotFoundException : public ServiceLocatorExcept
 #ifdef ADDLE_DEBUG
 public:
     FactoryNotFoundException(
-            const char* requestedInterfaceName,
-            int factoryCount
+            const char* requestedInterfaceName
         )
         : ServiceLocatorException(
-            //% "No factory was found for the requested interface.\n"
-            //% "requestedInterfaceName: \"%1\"\n"
-            //% "          factoryCount: %2"
-            qtTrId("debug-messages.service-locator-error.factory-not-found")
+            //% "No factory was found for the interface \"%1\"."
+            qtTrId("debug-messages.service-locator.factory-by-type-not-found-error")
                 .arg(requestedInterfaceName)
-                .arg(factoryCount)
+        ),
+        _requestedInterfaceName(requestedInterfaceName)
+    {
+    }
+    FactoryNotFoundException(
+            const char* requestedInterfaceName,
+            AddleId id
+        )
+        : ServiceLocatorException(
+            //% "No factory was found for the interface \"%1\" at the ID \"%2\"."
+            qtTrId("debug-messages.service-locator.factory-by-id-not-found-error")
+                .arg(requestedInterfaceName)
+                .arg(id.key())
         ),
         _requestedInterfaceName(requestedInterfaceName),
-        _factoryCount(factoryCount)
+        _id(id)
     {
     }
 private:
     const char* _requestedInterfaceName;
-    int _factoryCount;
+    const AddleId _id;
 #else
 public:
     FactoryNotFoundException() = default;
@@ -133,28 +114,17 @@ class ADDLE_COMMON_EXPORT ServiceNotFoundException : public ServiceLocatorExcept
 #ifdef ADDLE_DEBUG
 public:
     ServiceNotFoundException(
-            const char* requestedInterfaceName,
-            int serviceCount,
-            int factoryCount
+            const char* requestedInterfaceName
         ) : ServiceLocatorException(
-            //% "No service was found for the requested interface.\n"
-            //% "requestedInterfaceName: \"%1\"\n"
-            //% "          serviceCount: %2\n"
-            //% "          factoryCount: %3"
-            qtTrId("debug-messages.service-locator-error.service-not-found")
+            //% "No service was found for the interface \"%1\"."
+            qtTrId("debug-messages.service-locator.service-not-found-error")
                 .arg(requestedInterfaceName)
-                .arg(serviceCount)
-                .arg(factoryCount)
         ),
-        _requestedInterfaceName(requestedInterfaceName),
-        _serviceCount(serviceCount),
-        _factoryCount(factoryCount)
+        _requestedInterfaceName(requestedInterfaceName)
     {
     }    
 private:
     const char* _requestedInterfaceName;
-    int _serviceCount;
-    int _factoryCount;
 #else
 public:
     ServiceNotFoundException() = default;
@@ -163,93 +133,33 @@ public:
     virtual ~ServiceNotFoundException() = default;
 };
 
-/**
- * @class InvalidFactoryProductException
- * @brief Thrown by ServiceLocator if the product from a factory did not 
- * implement the factory's interface.
- */
-// OBSOLETE?
-class ADDLE_COMMON_EXPORT InvalidFactoryProductException : public ServiceLocatorException
+class ADDLE_COMMON_EXPORT PersistentObjectNotFoundException : public ServiceLocatorException
 {
-    ADDLE_EXCEPTION_BOILERPLATE(InvalidFactoryProductException)
-
+    ADDLE_EXCEPTION_BOILERPLATE(PersistentObjectNotFoundException)
 #ifdef ADDLE_DEBUG
 public:
-    InvalidFactoryProductException(
+    PersistentObjectNotFoundException(
             const char* requestedInterfaceName,
-            const char* factoryProductName,
-            const char* factoryName
+            AddleId id
         ) : ServiceLocatorException(
-            //% "An invalid factory product was created.\n"
-            //% "requestedInterfaceName: \"%1\"\n"
-            //% "    factoryProductName: \"%2\"\n"
-            //% "           factoryName: \"%3\""
-            qtTrId("debug-messages.service-locator-error.invalid-product")
+            //% "No persistent object was found for the interface \"%1\" at the ID \"%2\"."
+            qtTrId("debug-messages.service-locator.service-not-found-error")
                 .arg(requestedInterfaceName)
-                .arg(factoryProductName)
-                .arg(factoryName)),
-        _requestedInterfaceName(requestedInterfaceName),
-        _factoryProductName(factoryProductName),
-        _factoryName(factoryName)
-    {  
-    }    
-private:
-    const char* _requestedInterfaceName;
-    const char* _factoryProductName;
-    const char* _factoryName;
-#else
-public:
-    InvalidFactoryProductException() = default;
-#endif
-public:
-    virtual ~InvalidFactoryProductException() = default;
-};
-
-class ADDLE_COMMON_EXPORT FactoryException : public ServiceLocatorException
-{
-    ADDLE_EXCEPTION_BOILERPLATE(FactoryException)
-
-    enum Why
-    {
-        wrong_thread
-    };
-
-    #ifdef ADDLE_DEBUG
-public:
-    FactoryException(
-            Why why,
-            const char* factoryProductName,
-            const char* factoryName
-        ) : ServiceLocatorException(
-            //% "An error occurred in a factory.\n"
-            //% "    factoryProductName: \"%1\"\n"
-            //% "           factoryName: \"%2\"\n"
-            //% "              why code: %3"
-            qtTrId("debug-messages.service-locator-error.factory-exception")
-                .arg(factoryProductName)
-                .arg(factoryName)
-                .arg(why)
+                .arg(id)
         ),
-        _factoryProductName(factoryProductName),
-        _factoryName(factoryName),
-        _why(why)
-    {  
+        _requestedInterfaceName(requestedInterfaceName),
+        _id(id)
+    {
     }    
 private:
-    const char* _factoryProductName;
-    const char* _factoryName;
+    const AddleId _id;
+    const char* _requestedInterfaceName;
 #else
 public:
-    FactoryException(Why why)
-        : _why(why)
-    {
-    }
+    PersistentObjectNotFoundException() = default;
 #endif
 public:
-    virtual ~FactoryException() = default;
-
-private:
-    const Why _why;
+    virtual ~PersistentObjectNotFoundException() = default;
 };
 
 } // namespace Addle

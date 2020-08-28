@@ -10,12 +10,10 @@ set (common_sources
     common.cpp
     exceptions/addleexception.cpp
     utilities/asynctask.cpp
-    utilities/debugging.cpp
     utilities/errors.cpp
     utilities/indexvariant.cpp
     utilities/translatedstring.cpp
     utilities/typeinforef.cpp
-    utilities/unhandledexceptionrouter.cpp
     utilities/editing/brushstroke.cpp
     utilities/format/genericformat.cpp
     utilities/image/rasterbithandles.cpp
@@ -27,6 +25,13 @@ set (common_sources
 
     ../../resources/resources.qrc
 )
+
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set (common_sources
+        ${common_sources}
+        utilities/debugging/debugbehavior.cpp
+    )
+endif()
 
 add_definitions(-DADDLE_EXPORTING_COMMON)
 

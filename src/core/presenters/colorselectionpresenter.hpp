@@ -41,15 +41,15 @@ public:
 
     void initialize(QList<QSharedPointer<IPalettePresenter>> palettes);
     
-    QList<QSharedPointer<IPalettePresenter>> palettes() const { _initHelper.check(); return _palettes; }
-    QSharedPointer<IPalettePresenter> palette() const { _initHelper.check(); return _palette; }
+    QList<QSharedPointer<IPalettePresenter>> palettes() const { ASSERT_INIT; return _palettes; }
+    QSharedPointer<IPalettePresenter> palette() const { ASSERT_INIT; return _palette; }
     ColorInfo color(int which) const;
-    ColorInfo color1() const { _initHelper.check(); return _color1; }
-    ColorInfo color2() const { _initHelper.check(); return _color2; }
+    ColorInfo color1() const { ASSERT_INIT; return _color1; }
+    ColorInfo color2() const { ASSERT_INIT; return _color2; }
     ColorInfo activeColor() const { return color(_active); }
-    int active() const { _initHelper.check(); return _active; }
+    int active() const { ASSERT_INIT; return _active; }
     
-    QList<ColorInfo> history() const { _initHelper.check(); return QList<ColorInfo>(); } // TODO
+    QList<ColorInfo> history() const { ASSERT_INIT; return QList<ColorInfo>(); } // TODO
 
 public slots:
     void setPalettes(QList<QSharedPointer<IPalettePresenter>> palettes);

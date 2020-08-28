@@ -9,7 +9,7 @@
 #include "layer.hpp"
 #include "interfaces/editing/irastersurface.hpp"
 
-#include "utilities/qtextensions/qobject.hpp"
+#include "utilities/qobject.hpp"
 
 #include "servicelocator.hpp"
 

@@ -21,9 +21,7 @@ class ADDLE_CORE_EXPORT ApplicationService : public QObject, public IApplication
     Q_OBJECT
     IAMQOBJECT_IMPL
 public:
-    ApplicationService()
-    {
-    }
+
     virtual ~ApplicationService();
 
     bool start();
@@ -32,8 +30,14 @@ public:
 
     int exitCode() { return _exitCode; }
 
+    void registerMainEditorPresenter(IMainEditorPresenter* presenter);
+    QSet<IMainEditorPresenter*> mainEditorPresenters() const { return _mainEditorPresenters; }
+
 public slots:
     void quitting();
+
+private slots:
+    void onMainEditorPresenterDestroyed();
 
 private:
     void parseCommandLine();
@@ -44,6 +48,9 @@ private:
 
     StartupMode _startupMode;
     int _exitCode;
+
+    QSet<IMainEditorPresenter*> _mainEditorPresenters;
+    QHash<QObject*, IMainEditorPresenter*> _mainEditorPresenters_byQObjects;
 };
 
 } // namespace Addle

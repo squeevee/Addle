@@ -19,15 +19,15 @@ void SizeSelectionPresenter::initialize(QSharedPointer<IconProvider> iconProvide
     _iconProvider = iconProvider;
 }
 
-QList<double> SizeSelectionPresenter::presets() const { _initHelper.check(); return _presets; }
-double SizeSelectionPresenter::get() const { _initHelper.check(); return _size; }
-int SizeSelectionPresenter::selectedPreset() const { _initHelper.check(); return _selectedPreset; }
+QList<double> SizeSelectionPresenter::presets() const { ASSERT_INIT; return _presets; }
+double SizeSelectionPresenter::get() const { ASSERT_INIT; return _size; }
+int SizeSelectionPresenter::selectedPreset() const { ASSERT_INIT; return _selectedPreset; }
 
 void SizeSelectionPresenter::setPresets(QList<double> presets)
 {
     try 
     {
-        _initHelper.check();
+        ASSERT_INIT;
         _presets = presets;
 
         int index = 0;
@@ -71,7 +71,7 @@ void SizeSelectionPresenter::selectPreset(int index)
 {
     try 
     {
-        _initHelper.check();
+        ASSERT_INIT;
         _selectedPreset = index;
         if (index == -1)
             _size = qQNaN();

@@ -49,7 +49,7 @@ public:
     IMainEditorPresenter* owner() { return _owner; }
     ToolId id() { return CoreTools::Navigate; }
 
-    NavigateOperationOptions navigateOperation() { _initHelper.check(); return _operation; }
+    NavigateOperationOptions navigateOperation() { ASSERT_INIT; return _operation; }
 
     bool event(QEvent* e) override;
 

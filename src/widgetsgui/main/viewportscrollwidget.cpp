@@ -12,7 +12,7 @@
 #include "viewportscrollwidget.hpp"
 #include "zoomrotatewidget.hpp"
 
-#include "utilities/qtextensions/qobject.hpp"
+#include "utilities/qobject.hpp"
 
 #include "utilities/presenter/propertybinding.hpp"
 #include "utilities/widgetproperties.hpp"

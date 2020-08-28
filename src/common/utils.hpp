@@ -18,20 +18,10 @@
 
 #include "servicelocator.hpp"
 
-#include "utilities/addle_icon.hpp"
-
 #include "utilities/collections.hpp"
 #include "utilities/math.hpp"
-
 #include "utilities/strings.hpp"
-
-#include "utilities/qtextensions/qmeta.hpp"
-#include "utilities/qtextensions/qobject.hpp"
-
+#include "utilities/qobject.hpp"
 #include "utilities/errors.hpp"
-
-#ifdef ADDLE_DEBUG
-#include "utilities/debugging.hpp"
-#endif
 
 #endif // UTILS_HPP

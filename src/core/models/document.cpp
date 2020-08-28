@@ -37,7 +37,7 @@ void Document::initialize()
 
 void Document::render(QRect area, QPaintDevice* device) const
 {
-    _initHelper.check();
+    ASSERT_INIT;
 
 }
 
@@ -75,7 +75,7 @@ QRect Document::unitedBoundary()
 
 QImage Document::exportImage()
 {
-    _initHelper.check();
+    ASSERT_INIT;
     QImage result(size(), QImage::Format::Format_ARGB32);
     
     render(QRect(QPoint(), size()), &result);

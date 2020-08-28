@@ -6,8 +6,8 @@
  * MIT License. See "LICENSE" for full details.
  */
 
-#ifndef QTEXCEPTIONS__QOBJECT_HPP
-#define QTEXCEPTIONS__QOBJECT_HPP
+#ifndef QOBJECT_HPP
+#define QOBJECT_HPP
 
 #include <QObject>
 #include <QPointer>
@@ -155,4 +155,4 @@ inline QMetaObject::Connection connect_interface2(
 }
 } // namespace Addle
 
-#endif // QTEXCEPTIONS__QOBJECT_HPP
+#endif // QOBJECT_HPP

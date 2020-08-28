@@ -18,6 +18,9 @@
 #include <QString>
 #include <QByteArray>
 
+#include <QMetaType>
+#include <QSharedPointer>
+
 namespace Addle {
 
 class ADDLE_COMMON_EXPORT AddleException : public std::exception
@@ -38,7 +41,6 @@ public:
 public:
     virtual ~AddleException() = default;
 
-    virtual const std::type_info& type_info() const = 0;
     virtual bool isLogicError() const = 0;
     virtual bool isRuntimeError() const = 0;
     [[noreturn]] virtual void raise() const = 0;
@@ -60,7 +62,6 @@ private:
 public: \
     [[noreturn]] void raise() const { throw *this; } \
     AddleException* clone() const { return new T(*this); } \
-    const std::type_info& type_info() const { return typeid(T); } \
     bool isLogicError() const { return is_logic_error<T>::value; } \
     bool isRuntimeError() const { return is_runtime_error<T>::value; }
 
@@ -99,6 +100,8 @@ struct is_runtime_error : std::false_type {};
 #endif
 
 } // namespace Addle
+
+Q_DECLARE_METATYPE(QSharedPointer<Addle::AddleException>);
 
 #endif // ADDLEEXCEPTION_HPP
 

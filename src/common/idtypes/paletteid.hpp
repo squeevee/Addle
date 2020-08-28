@@ -12,7 +12,7 @@
 #include "addleid.hpp"
 namespace Addle {
 
-class PaletteId : public AddleId
+class PaletteId final : public AddleId
 {
     ID_TYPE_BOILERPLATE(PaletteId)
 };

@@ -9,14 +9,14 @@
 #ifndef IAPPLICATIONSERVICE_HPP
 #define IAPPLICATIONSERVICE_HPP
 
-#include <QStringList>
+#include <QSet>
 
-#include "interfaces/presenters/idocumentpresenter.hpp"
 #include "interfaces/traits.hpp"
 #include "interfaces/iamqobject.hpp"
 
 namespace Addle {
 
+class IMainEditorPresenter;
 class IApplicationService : public virtual IAmQObject
 {
 public:
@@ -35,15 +35,8 @@ public:
 
     virtual int exitCode() = 0;
 
-//#define ADDLE_STRING__IAPPLICATIONSERVICE__CMD_EDITOR_OPTION "editor"
-//#define ADDLE_STRING__IAPPLICATIONSERVICE__CMD_EDITOR_SHORT_OPTION "e"
-//#define ADDLE_STRING__IAPPLICATIONSERVICE__CMD_BROWSER_OPTION "browser"
-//#define ADDLE_STRING__IAPPLICATIONSERVICE__CMD_BROWSER_SHORT_OPTION "b"
-
-    //static const QString CMD_EDITOR_OPTION;
-    //static const QString CMD_EDITOR_SHORT_OPTION;
-    //static const QString CMD_BROWSER_OPTION;
-    //static const QString CMD_BROWSER_SHORT_OPTION;
+    virtual void registerMainEditorPresenter(IMainEditorPresenter* presenter) = 0;
+    virtual QSet<IMainEditorPresenter*> mainEditorPresenters() const = 0;
 
 public slots:
     virtual void quitting() = 0;

@@ -14,6 +14,8 @@
 #include <QTimer>
 #include <QtDebug>
 
+#include "utilities/errors.hpp"
+
 #include <QCoreApplication>
 
 #include "servicelocator.hpp"
@@ -49,8 +51,11 @@ public:
         //% "Initializing service locator."
         qDebug() << qUtf8Printable(qtTrId("debug-messages.service-locator.initializing"));
 #endif
-        if (ServiceLocator::_instance)
-            throw ServiceLocatorAlreadyInitializedException();
+        ADDLE_ASSERT_M(
+            !ServiceLocator::_instance,
+            //% "Service Locator has already been initialized"
+            qtTrId("debug-messages.service-locator.already-initialized-error")
+        )
 
         ServiceLocator::_instance = new ServiceLocator();
         configure();

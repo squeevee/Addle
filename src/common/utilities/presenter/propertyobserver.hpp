@@ -15,10 +15,7 @@
 #include <QMetaObject>
 namespace Addle {
 
-/**
- * @class PropertyObserver
- * @brief Convenience class that exposes accessors on a 
- */
+// TODO: merge wtih PropertyBinding
 class ADDLE_COMMON_EXPORT PropertyObserver : public QObject
 {
     Q_OBJECT

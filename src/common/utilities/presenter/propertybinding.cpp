@@ -8,6 +8,7 @@
 
 #include <QSet>
 #include "propertybinding.hpp"
+#include "utils.hpp"
 
 using namespace Addle;
 
@@ -109,7 +110,7 @@ void PropertyBinding::disable()
 
 void PropertyBinding::onTargetValueChanged(QVariant value)
 {
-    // Assert reads
+    ADDLE_ASSERT(reads());
 
     if (_converter._in)
         value = _converter._in(value);
@@ -125,7 +126,7 @@ void PropertyBinding::onTargetValueChanged(QVariant value)
 
 void PropertyBinding::onLocalValueChanged(QVariant value)
 {
-    // Assert writes
+    ADDLE_ASSERT(writes());
 
     if (_converter._out)
         value = _converter._out(value);

@@ -54,13 +54,12 @@ public:
             fileInfo,
             action,
             //% "The requested file at \"%1\" does not exist."
-            qtTrId("debug-messages.file-error.does-not-exist")
+            qtTrId("error-messages.file-error.does-not-exist")
                 .arg(fileInfo.filePath())
         )
     {
     }
 #else
-public:
     FileDoesNotExistException(QFileInfo fileInfo, Action action = Action::read)
         : FileException(fileInfo, action)
     {

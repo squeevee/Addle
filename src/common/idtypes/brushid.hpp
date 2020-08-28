@@ -14,7 +14,7 @@
 
 namespace Addle {
 
-class ADDLE_COMMON_EXPORT BrushId : public AddleId
+class ADDLE_COMMON_EXPORT BrushId final : public AddleId
 {
     ID_TYPE_BOILERPLATE(BrushId)
 };

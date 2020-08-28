@@ -8,7 +8,7 @@
 
 #include "renderstack.hpp"
 
-#include "utilities/qtextensions/qobject.hpp"
+#include "utilities/qobject.hpp"
 
 #include <QVector>
 

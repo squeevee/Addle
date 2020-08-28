@@ -40,8 +40,8 @@ void AsyncTask::Worker::run()
             if (!_owner) return;
             const QMutexLocker lock(&_owner->_stateMutex);
             _owner->_isRunning = true;
-            _owner->_isCompleted = false;
-            _owner->_isError = false;
+            _owner->_hasCompleted = false;
+            _owner->_hasFailed = false;
             _owner->_error = QSharedPointer<AddleException>();
         }
 
@@ -51,7 +51,7 @@ void AsyncTask::Worker::run()
             if (!_owner) return;
             const QMutexLocker lock(&_owner->_stateMutex);
             _owner->_isRunning = false;
-            _owner->_isCompleted = true;
+            _owner->_hasCompleted = true;
 
             emit _owner->stopped();
             emit _owner->completed();
@@ -63,11 +63,11 @@ void AsyncTask::Worker::run()
             if (!_owner) return;
             const QMutexLocker lock(&_owner->_stateMutex);
             _owner->_isRunning = false;
-            _owner->_isError = true;
+            _owner->_hasFailed = true;
             _owner->_error = QSharedPointer<AddleException>(ex.clone());
 
             emit _owner->stopped();
-            emit _owner->error(_owner->_error);
+            emit _owner->failed(_owner->_error);
         }
     }
     // catch(...) ?

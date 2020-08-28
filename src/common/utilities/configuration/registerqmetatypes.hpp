@@ -12,11 +12,10 @@
 #include <QSharedPointer>
 #include <QMetaType>
 
-#include "interfaces/models/idocument.hpp"
-#include "interfaces/presenters/iraiseerrorpresenter.hpp"
+#include "exceptions/addleexception.hpp"
+#include "exceptions/unhandledexception.hpp"
 
 #include "interfaces/presenters/tools/inavigatetoolpresenter.hpp"
-#include "interfaces/presenters/assets/ibrushpresenter.hpp"
 
 #include "interfaces/models/ipalette.hpp"
 
@@ -31,6 +30,9 @@ namespace Addle {
 
 inline void registerQMetaTypes()
 {
+    qRegisterMetaType<QSharedPointer<AddleException>>("QSharedPointer<AddleException>");
+    qRegisterMetaType<QSharedPointer<UnhandledException>>("QSharedPointer<UnhandledException>");
+
     qRegisterMetaType<INavigateToolPresenter::NavigateOperationOptions>("NavigateOperationOptions");
 
     qRegisterMetaType<AddleId>();

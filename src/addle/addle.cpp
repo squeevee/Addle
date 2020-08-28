@@ -13,22 +13,24 @@
 
 #include "serviceconfiguration.hpp"
 #include "utilities/configuration/registerqmetatypes.hpp"
-#include "utilities/qtextensions/qobject.hpp"
+#include "utilities/qobject.hpp"
 
 #include "interfaces/services/iapplicationsservice.hpp"
 
 #include "globals.hpp"
 #include "utils.hpp"
 
-#include "utilities/unhandledexceptionrouter.hpp"
 #include "core/presenters/tools/navigatetoolpresenter.hpp"
+
+#ifdef ADDLE_DEBUG
+#include "utilities/debugging/messagehandler.hpp"
+#endif
 
 using namespace Addle;
 
 int main(int argc, char *argv[])
 {
 #ifdef ADDLE_DEBUG
-    //qInstallMessageHandler(debugMessageHandler);
 #endif //ADDLE_DEBUG
     registerQMetaTypes();
 
@@ -53,19 +55,15 @@ int main(int argc, char *argv[])
 #ifdef ADDLE_DEBUG
     //% "Starting Addle. This is a debug build."
     qDebug() << qUtf8Printable(qtTrId("debug-messages.starting-addle"));
-    if (DebugBehavior::get())
-    {
-        //% "Debug behavior flag(s) set"
-        qDebug() 
-            << qUtf8Printable(qtTrId("debug-messages.behavior-flags-set"))
-            << DebugBehavior::get();
-    }
 #endif
-
-    UnhandledExceptionRouter::initialize();
 
     ServiceConfiguration serviceConfiguration;
     serviceConfiguration.initialize();
+
+#ifdef ADDLE_DEBUG
+    DebugBehavior::get(); // initialize flags before installing message handler
+    qInstallMessageHandler(&addleMessageHandler);
+#endif
     
     IApplicationService& appService = ServiceLocator::get<IApplicationService>();
 

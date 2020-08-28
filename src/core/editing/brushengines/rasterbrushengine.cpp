@@ -13,7 +13,7 @@
 #include "utils.hpp"
 
 #include "interfaces/editing/irastersurface.hpp"
-#include "interfaces/editing/rasterengineparams.hpp"
+#include "utilities/editing/rasterengineparams.hpp"
 #include "utilities/editing/brushstroke.hpp"
 
 #include "servicelocator.hpp"

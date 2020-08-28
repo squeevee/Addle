@@ -9,7 +9,7 @@
 #ifndef PRESENTERASSIGNMENT_HPP
 #define PRESENTERASSIGNMENT_HPP
 
-#include "utilities/qtextensions/qobject.hpp"
+#include "utilities/qobject.hpp"
 
 #include <functional>
 #include <QSharedPointer>

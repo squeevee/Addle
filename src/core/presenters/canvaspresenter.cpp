@@ -13,7 +13,7 @@
 #include "interfaces/presenters/imaineditorpresenter.hpp"
 #include "interfaces/presenters/tools/itoolpresenter.hpp"
 
-#include "utilities/qtextensions/qobject.hpp"
+#include "utilities/qobject.hpp"
 #include "utilities/canvas/canvasmouseevent.hpp"
 
 using namespace Addle;
@@ -34,7 +34,7 @@ void CanvasPresenter::initialize(IMainEditorPresenter& mainEditorPresenter)
 
 QCursor CanvasPresenter::cursor() const
 {
-    _initHelper.check();
+    ASSERT_INIT;
 
     if (_mainEditorPresenter->currentToolPresenter())
         return _mainEditorPresenter->currentToolPresenter()->cursor();
@@ -46,7 +46,7 @@ bool CanvasPresenter::event(QEvent* e)
 {
     try 
     {
-        _initHelper.check();
+        ASSERT_INIT;
         
         if (e->type() == CanvasMouseEvent::type())
         {
@@ -64,7 +64,7 @@ bool CanvasPresenter::event(QEvent* e)
 
 void CanvasPresenter::setHasMouse(bool value)
 {
-    _initHelper.check();
+    ASSERT_INIT;
 
     if (_hasMouse != value)
     {
@@ -77,7 +77,7 @@ void CanvasPresenter::onEditorToolChanged()
 {
     try
     {
-        _initHelper.check();
+        ASSERT_INIT;
 
         if (_connection_toolCursor)
             disconnect(_connection_toolCursor);
@@ -102,7 +102,7 @@ void CanvasPresenter::onToolCursorChanged()
 {
     try
     {
-        _initHelper.check();
+        ASSERT_INIT;
         emit cursorChanged(cursor());
     }
     ADDLE_SLOT_CATCH

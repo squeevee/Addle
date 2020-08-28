@@ -15,7 +15,7 @@
 #include "globals.hpp"
 #include "utilities/strings.hpp"
 
-#include "utilities/qtextensions/qobject.hpp"
+#include "utilities/qobject.hpp"
 #include <QtDebug>
 using namespace Addle;
 

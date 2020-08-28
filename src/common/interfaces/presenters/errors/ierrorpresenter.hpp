@@ -10,35 +10,29 @@
 #define IERRORPRESENTER_HPP
 
 #include <QString>
+#include <QSharedPointer>
 
-#include "interfaces/traits.hpp"
 namespace Addle {
 
-
+class AddleException;
 class IErrorPresenter 
 {
 public:
-
     enum Severity
     {
-        info,
-        warning,
-        critial
+        Info,
+        Warning,
+        Critical
     };
 
     virtual ~IErrorPresenter() = default;
 
-    virtual void initialize(QString message = QString(), Severity severity = Severity::warning) = 0;
+    virtual Severity severity() const = 0;
+    virtual QString message() const = 0;
 
-    virtual Severity severity() = 0;
-    virtual void setSeverity(Severity severity) = 0;
-
-    virtual QString message() = 0;
-    virtual void setMessage(QString message) = 0;
+    virtual QSharedPointer<AddleException> exception() const = 0;
 };
 
-DECL_MAKEABLE(IErrorPresenter)
-DECL_EXPECTS_INITIALIZE(IErrorPresenter)
-
 } // namespace Addle
+
 #endif // IERRORPRESENTER_HPP

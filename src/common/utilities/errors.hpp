@@ -9,58 +9,170 @@
 #ifndef ERRORS_HPP
 #define ERRORS_HPP
 
-#include "exceptions/addleexception.hpp"
-#include "unhandledexceptionrouter.hpp"
-
 #include <cstdlib>
+#include <iostream>
+
+#include <QtGlobal>
+
+#include "compat.hpp"
+
+#include "interfaces/services/ierrorservice.hpp"
+
+#include "exceptions/addleexception.hpp"
+#include "exceptions/unhandledexception.hpp"
+
+#include "servicelocator.hpp"
 
 namespace Addle {
 
+DECL_LOGIC_ERROR(GenericLogicError);
+
 #ifdef ADDLE_DEBUG
 
-DECL_LOGIC_ERROR(GenericLogicError);
-class GenericLogicError : public AddleException
+/**
+ * A general-purpose AddleException for logic errors.
+ */
+class ADDLE_COMMON_EXPORT GenericLogicError : public AddleException
 {
     ADDLE_EXCEPTION_BOILERPLATE(GenericLogicError);
 public:
-    GenericLogicError(const char* message = nullptr, const char* expression = nullptr);
+    GenericLogicError(const char* expression = nullptr, QString message = QString());
     virtual ~GenericLogicError() = default;
 
 private:
     const char* const _expression;
-    const char* const _message;
+    QString _message;
 };
 
-// Throws a generic logic error exception if `expression` is false.
-#define ADDLE_ASSERT_M(expression, message) do { if (!static_cast<bool>(expression)) { ADDLE_THROW(GenericLogicError(message, #expression)); } } while(false);
-#define ADDLE_ASSERT(expression) ADDLE_ASSERT_M(expression, nullptr)
+/**
+ * @def ADDLE_ASSERT_M(expression, message)
+ * Asserts that the given expression resolves to true.
+ * If the assertion fails, a logic error AddleException with the given message
+ * is thrown.
+ */
+#define ADDLE_ASSERT_M(expression, message) \
+if (!static_cast<bool>(expression)) { ADDLE_THROW(GenericLogicError(#expression, message)); }
 
-// Reports a generic logic error as an unhandled exception and returns if `expression`
-// is false.
-#define ADDLE_SAFE_ASSERT_M(expression, message) do { if (!static_cast<bool>(expression)) { GenericLogicError ex(message, #expression); UnhandledExceptionRouter::report(ex); return; } } while(false);
-#define ADDLE_SAFE_ASSERT(expression) ADDLE_SAFE_ASSERT_M(expression, nullptr)
+/**
+ * @def ADDLE_ASSERT(expression)
+ * Asserts that the given expression resolves to true.
+ * If the assertion fails, a logic error AddleException is thrown.
+ */
+#define ADDLE_ASSERT(expression) \
+ADDLE_ASSERT_M(expression, QString())
 
-// Reports a generic logic error as an unhandled exception and returns `retval`
-// if `expression` is false.
-#define ADDLE_SAFE_ASSRT_NONVOID_M(expression, message, retval) do { if (!static_cast<bool>(expression)) { GenericLogicError ex(message, #expression); UnhandledExceptionRouter::report(ex); return retval; } } while(false);
-#define ADDLE_SAFE_ASSERT_NONVOID(expression, retval) ADDLE_SAFE_ASSRT_NONVOID_M(expression, nullptr, retval)
+/**
+ * @def ADDLE_LOGIC_ERROR_M(message)
+ * Indiscriminately throws a logic error AddleException with the given message.
+ */
+#define ADDLE_LOGIC_ERROR_M(message) \
+ADDLE_THROW(GenericLogicError(nullptr, message));
 
-#define ADDLE_LOGIC_ERROR ADDLE_THROW(GenericLogicError());
-#define ADDLE_LOGIC_ERROR_M(message) ADDLE_THROW(GenericLogicError(message));
+//% "An exception of an unknown type was caught."
+#define _LAST_DITCH_CATCH(x) ServiceLocator::get<IErrorService>().reportUnhandledError(GenericLogicError(nullptr, qtTrId("debug-messages.last-ditch-catch")));
 
-#else
+[[noreturn]] void ADDLE_COMMON_EXPORT _cannotReportError_impl(const std::exception* primaryEx);
 
-#define ADDLE_ASSERT_M(expression, message) do { if (!static_cast<bool>(expression)) { std::abort(); } } while(false);
-#define ADDLE_ASSERT(expression) ADDLE_ASSERT_M(expression, 0)
-#define ADDLE_SAFE_ASSERT_M(expression, message) ADDLE_ASSERT(expression, 0);
-#define ADDLE_SAFE_ASSERT(expression) ADDLE_ASSERT(expression, 0);
-#define ADDLE_SAFE_ASSRT_NONVOID_M(expression, message, retval) ADDLE_ASSERT(expression, 0);
-#define ADDLE_SAFE_ASSRT_NONVOID(expression, retval) ADDLE_ASSERT(expression, 0);
+#define _CANNOT_REPORT_ERROR_1 _cannotReportError_impl(&ex);
+#define _CANNOT_REPORT_ERROR_2 _cannotReportError_impl(nullptr);
 
-#define ADDLE_LOGIC_ERROR std::abort();
-#define ADDLE_LOGIC_ERROR_M(message) std::abort();
+#else // ADDLE_DEBUG
 
-#endif
+class ADDLE_COMMON_EXPORT GenericLogicError : public AddleException
+{
+    ADDLE_EXCEPTION_BOILERPLATE(GenericLogicError);
+public:
+    virtual ~GenericLogicError() = default;
+};
+
+#define ADDLE_ASSERT_M(expression, message) if (!static_cast<bool>(expression)) { ADDLE_THROW(GenericLogicError()); }
+#define ADDLE_ASSERT(expression) ADDLE_ASSERT_M(expression, NULL)
+
+#define ADDLE_LOGIC_ERROR_M(message) ADDLE_THROW(GenericLogicError());
+
+#define _LAST_DITCH_CATCH(x) ServiceLocator::get<IErrorService>().reportUnhandledError(GenericLogicError());
+
+#define _CANNOT_REPORT_ERROR_1 std::abort();
+#define _CANNOT_REPORT_ERROR_2 std::abort();
+
+#endif //ADDLE_DEBUG
+
+
+#define ADDLE_SLOT_CATCH_SEVERITY(x) \
+catch (const AddleException& ex) \
+{ \
+    if (static_cast<bool>(sender())) \
+    { \
+        try { ServiceLocator::get<IErrorService>().reportUnhandledError(ex, x); } \
+        catch(...) { _CANNOT_REPORT_ERROR_1 } \
+    } \
+    else throw; \
+} \
+catch (const std::exception& ex) \
+{ \
+    if (static_cast<bool>(sender())) \
+    { \
+        try { ServiceLocator::get<IErrorService>().reportUnhandledError(ex, x); } \
+        catch(...) { _CANNOT_REPORT_ERROR_1 } \
+    } \
+    else throw; \
+} \
+catch(...) \
+{ \
+    if (static_cast<bool>(sender())) \
+    { \
+        try { _LAST_DITCH_CATCH(x) } \
+        catch(...) { _CANNOT_REPORT_ERROR_2 } \
+    } \
+    else throw; \
+}
+
+/**
+ * @def ADDLE_SLOT_CATCH
+ * A catch umbrella for use in the body of a Qt slot. If the slot is invoked by
+ * the Qt event system, this will quietly report exceptions to IErrorService. If
+ * the slot was called directly, the exceptions will be propagated to the 
+ * caller.
+ * 
+ * Example:
+ * ```c++
+ * void Spiff::freemSlot()
+ * {
+ *     try
+ *     {
+ *        // ...
+ *     }
+ *     ADDLE_SLOT_CATCH
+ * }
+ * ```
+ */
+#define ADDLE_SLOT_CATCH ADDLE_SLOT_CATCH_SEVERITY(UnhandledException::Normal)
+
+#define ADDLE_EVENT_CATCH_SEVERITY(x) \
+catch (const AddleException& ex) \
+{ \
+    try { ServiceLocator::get<IErrorService>().reportUnhandledError(ex, x); } \
+    catch(...) { _CANNOT_REPORT_ERROR_1 } \
+} \
+catch (const std::exception& ex) \
+{ \
+    try { ServiceLocator::get<IErrorService>().reportUnhandledError(ex, x); } \
+    catch(...) { _CANNOT_REPORT_ERROR_1 } \
+} \
+catch(...) \
+{ \
+    try { _LAST_DITCH_CATCH(x) } \
+    catch(...) { _CANNOT_REPORT_ERROR_2 } \
+}
+
+/**
+ * @def ADDLE_EVENT_CATCH
+ * Similar to ADDLE_SLOT_CATCH. For use in the body of methods that aren't slots 
+ * but may be invoked by the Qt event system, such as `QObject::event`,
+ * `QRunnable::run` or a `Q_INVOKABLE` method. This will never propagate
+ * exceptions to the caller.
+ */
+#define ADDLE_EVENT_CATCH ADDLE_EVENT_CATCH_SEVERITY(UnhandledException::Normal)
 
 } // namespace Addle
 

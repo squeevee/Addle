@@ -12,25 +12,28 @@ using namespace Addle;
 
 #ifdef ADDLE_DEBUG
 
-GenericLogicError::GenericLogicError(const char* message, const char* expression)
+#include <QtDebug>
+
+
+GenericLogicError::GenericLogicError(const char* expression, QString message)
     : AddleException([message, expression]() -> QString {
-        if (message && expression)
+        if (!message.isEmpty() && expression)
         {
             //% "%1\n"
             //% "Assertion failed: `%2`"
             return qtTrId("debug-messages.assert-failed-m")
-                .arg(qtTrId(message))
+                .arg(message)
                 .arg(expression);
         }
-        else if (!message && expression)
+        else if (message.isEmpty() && expression)
         {
             //% "Assertion failed: `%1`"
             return qtTrId("debug-messages.assert-failed")
                 .arg(expression);
         }
-        else if (message && !expression)
+        else if (!message.isEmpty() && !expression)
         {
-            return qtTrId(message);
+            return message;
         }
         else // !message && !expression
         {
@@ -39,6 +42,46 @@ GenericLogicError::GenericLogicError(const char* message, const char* expression
         }
     }()), _expression(expression), _message(message)
 {
+}
+
+void Addle::_cannotReportError_impl(const std::exception* primaryEx)
+{
+    //% "An error (primary) occurred. While attempting to report it, another error (secondary) occurred."
+    qWarning() << qUtf8Printable(qtTrId("debug-messages.cannot-report-error"));
+    if (primaryEx)
+    {
+        //% "  The primary error:"
+        qWarning() << qUtf8Printable(qtTrId("debug-messages.cannot-report-error.primary-error-header"));
+        qWarning() << primaryEx->what();
+    }
+    else
+    {
+        //% "The primary error was not of type std::exception"
+        qWarning() << qUtf8Printable(qtTrId("debug-messages.cannot-report-error.no-primary-error"));
+    }
+    
+    try
+    {
+        auto secondaryExPtr = std::current_exception();
+        if (secondaryExPtr)
+            std::rethrow_exception(secondaryExPtr);
+    }
+    catch(const std::exception& secondaryEx)
+    {
+        //% "  The secondary error:"
+        qWarning() << qUtf8Printable(qtTrId("debug-messages.cannot-report-error.secondary-error-header"));
+        qWarning() << secondaryEx.what();
+    }
+    catch(...)
+    {
+        //% "The secondary error was not of type std::exception"
+        qWarning() << qUtf8Printable(qtTrId("debug-messages.cannot-report-error.no-secondary-error"));
+    }
+
+    //% "This is an unrecoverable state. The application will terminate immediately."
+    qWarning() << qUtf8Printable(qtTrId("debug-messages.cannot-report-error.terminating"));
+
+    std::abort();
 }
 
 #endif // ADDLE_DEBUG

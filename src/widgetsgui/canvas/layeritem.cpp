@@ -8,7 +8,7 @@
 
 #include "layeritem.hpp"
 
-#include "utilities/qtextensions/qobject.hpp"
+#include "utilities/qobject.hpp"
 #include "utils.hpp"
 
 #include <QStyleOptionGraphicsItem>

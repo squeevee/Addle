@@ -11,11 +11,13 @@
 
 #include <QObject>
 #include <QString>
+#include <QMetaEnum>
+
+#include "compat.hpp"
 
 #include "interfaces/models/ibrush.hpp"
 
-#include "compat.hpp"
-#include "utilities/qtextensions/qmeta.hpp"
+#include "utilities/errors.hpp"
 
 #define RASTER_PARAM_MODE "mode"
 #define RASTER_PARAM_HARDNESS "hardness"
@@ -46,13 +48,17 @@ public:
     {
         QString modeKey = _model.customEngineParameters()[QStringLiteral(RASTER_PARAM_MODE)].toString();
 
-        // assert valid?
-        return enumValueFromKey<Mode>(modeKey.toLatin1());
+        bool ok;
+        Mode result = static_cast<Mode>(QMetaEnum::fromType<Mode>().keyToValue(qPrintable(modeKey), &ok));
+
+        ADDLE_ASSERT(ok);
+
+        return result;
     }
 
     inline double hardness() const
     {
-        // assert mode == Gradient
+        ADDLE_ASSERT(mode() == Gradient);
         return _model.customEngineParameters()[QStringLiteral(RASTER_PARAM_HARDNESS)].toDouble();
     }
 

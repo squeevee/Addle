@@ -21,7 +21,7 @@
 #include <QResizeEvent>
 
 #include "servicelocator.hpp"
-#include "utilities/qtextensions/qobject.hpp"
+#include "utilities/qobject.hpp"
 #include "utils.hpp"
 
 #include "interfaces/presenters/imaineditorpresenter.hpp"

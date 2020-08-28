@@ -20,7 +20,7 @@ void Palette::initialize(const PaletteBuilder& builder)
 
 void Palette::setColors(QMultiArray<ColorInfo, 2> colors)
 {
-    _initHelper.check();
+    ASSERT_INIT;
     
     _colors = colors;
     buildIndex();

@@ -19,6 +19,7 @@ set (
     main/colorselector.cpp
     main/favoriteassetspicker.cpp
     main/maineditorview.cpp
+    main/applicationerrorview.cpp
     main/layers/layersmanager.cpp
     main/paletteview.cpp
     main/sizeselector.cpp

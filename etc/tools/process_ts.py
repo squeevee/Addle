@@ -22,6 +22,7 @@ filename = os.path.join(thisdir, '../l10n/en_US.ts')
 subprocess.run(['lupdate', '../../src',
     '-source-language', 'en_US',
     '-target-language', 'en_US',
+    '-no-obsolete',
     '-ts', filename], cwd=thisdir, check=True )
 
 tree = xml.etree.ElementTree.parse(filename)

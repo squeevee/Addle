@@ -12,7 +12,7 @@
 #include "addleid.hpp"
 namespace Addle {
 
-class ADDLE_COMMON_EXPORT BrushEngineId : public AddleId
+class ADDLE_COMMON_EXPORT BrushEngineId final : public AddleId
 {
     ID_TYPE_BOILERPLATE(BrushEngineId)
 };

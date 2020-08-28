@@ -14,7 +14,7 @@
 #include <QToolBar>
 #include "interfaces/presenters/tools/itoolpresenter.hpp"
 
-#include "utilities/qtextensions/qobject.hpp"
+#include "utilities/qobject.hpp"
 
 namespace Addle {
 

@@ -15,7 +15,7 @@
 namespace Addle {
 
 template<class ModelType_>
-class ADDLE_COMMON_EXPORT FormatId final : public AddleId
+class FormatId final : public AddleId
 {
     ID_TYPE_BOILERPLATE(FormatId)
 public:

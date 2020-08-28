@@ -11,7 +11,7 @@
 #include "favoriteassetspicker.hpp"
 #include "interfaces/presenters/tools/iassetselectionpresenter.hpp"
 
-#include "utilities/qtextensions/qobject.hpp"
+#include "utilities/qobject.hpp"
 
 using namespace Addle;
 

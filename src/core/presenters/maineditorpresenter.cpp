@@ -26,9 +26,11 @@
 #include "interfaces/presenters/idocumentpresenter.hpp"
 
 #include "interfaces/models/idocument.hpp"
-#include "utilities/qtextensions/qobject.hpp"
+#include "utilities/qobject.hpp"
 
 #include "exceptions/fileexceptions.hpp"
+
+#include "interfaces/services/iapplicationsservice.hpp"
 
 #include "interfaces/presenters/iviewportpresenter.hpp"
 #include "interfaces/presenters/icanvaspresenter.hpp"
@@ -47,19 +49,24 @@
 #include "interfaces/models/ipalette.hpp"
 #include "globals.hpp"
 
+#include "utilities/presenter/genericerrorpresenter.hpp"
+#include "exceptions/formatexceptions.hpp"
+
 using namespace Addle;
 
 void MainEditorPresenter::initialize(Mode mode)
 {
     const Initializer init(_initHelper);
     
+    ServiceLocator::get<IApplicationService>().registerMainEditorPresenter(this);
+
     _mode = mode;
 
     _viewPortPresenter = ServiceLocator::makeUnique<IViewPortPresenter>(this);
-    _initHelper.setCheckpoint(Check_ViewPortPresenter);
+    _initHelper.setCheckpoint(InitCheck_ViewPortPresenter);
 
     _canvasPresenter = ServiceLocator::makeUnique<ICanvasPresenter>(std::ref(*this));
-    _initHelper.setCheckpoint(Check_CanvasPresenter);
+    _initHelper.setCheckpoint(InitCheck_CanvasPresenter);
     
     _palettes = { 
         ServiceLocator::makeShared<IPalettePresenter>(CorePalettes::BasicPalette)
@@ -67,7 +74,7 @@ void MainEditorPresenter::initialize(Mode mode)
 
     _colorSelection = ServiceLocator::makeUnique<IColorSelectionPresenter>(_palettes);
     _colorSelection->setPalette(_palettes.first());
-    _initHelper.setCheckpoint(Check_ColorSelection);
+    _initHelper.setCheckpoint(InitCheck_ColorSelection);
 
     _brushTool = ServiceLocator::makeShared<IBrushToolPresenter>(
         this,
@@ -98,16 +105,17 @@ void MainEditorPresenter::initialize(Mode mode)
         }
     }};
 
-    _view = ServiceLocator::makeUnique<IMainEditorView>(this);
-    _initHelper.setCheckpoint(Check_View);
+    _view = ServiceLocator::makeUnique<IMainEditorView>(std::ref(*this));
+    _initHelper.setCheckpoint(InitCheck_View);
 
     _loadDocumentTask = new LoadDocumentTask(this);
     connect(_loadDocumentTask, &AsyncTask::completed, this, &MainEditorPresenter::onLoadDocumentCompleted);
+    connect(_loadDocumentTask, &AsyncTask::failed, this, &MainEditorPresenter::onLoadDocumentFailed);
 }
 
 void MainEditorPresenter::setDocumentPresenter(QSharedPointer<IDocumentPresenter> documentPresenter)
 {
-    _initHelper.check(); 
+    ASSERT_INIT;
 
     auto oldTopSelectedLayer = topSelectedLayer();
 
@@ -134,7 +142,7 @@ void MainEditorPresenter::setDocumentPresenter(QSharedPointer<IDocumentPresenter
 
 QSharedPointer<ILayerPresenter> MainEditorPresenter::topSelectedLayer() const
 {
-    _initHelper.check();
+    ASSERT_INIT;
     if (_documentPresenter)
         return _documentPresenter->topSelectedLayer();
     else
@@ -143,7 +151,7 @@ QSharedPointer<ILayerPresenter> MainEditorPresenter::topSelectedLayer() const
 
 void MainEditorPresenter::setMode(Mode mode)
 {
-    _initHelper.check(); 
+    ASSERT_INIT; 
     _mode = mode;
     //emit
 }
@@ -152,12 +160,12 @@ void MainEditorPresenter::newDocument()
 {
     try
     {
-        _initHelper.check(); 
+        ASSERT_INIT; 
         if (_mode == Editor && !isEmpty())
         {
             IMainEditorPresenter* newPresenter = ServiceLocator::make<IMainEditorPresenter>(_mode);
             newPresenter->newDocument();
-            newPresenter->view().start();
+            newPresenter->view().show();
         }
         else
         {
@@ -174,12 +182,11 @@ void MainEditorPresenter::loadDocument(QUrl url)
 {
     try
     {
-        _initHelper.check(); 
+        ASSERT_INIT; 
         if (_mode == Editor && !isEmpty())
         {
             IMainEditorPresenter* newPresenter = ServiceLocator::make<IMainEditorPresenter>(_mode);
             newPresenter->loadDocument(url);
-            newPresenter->view().start();
         }
         else
         {            
@@ -197,24 +204,67 @@ void MainEditorPresenter::onLoadDocumentCompleted()
 {
     try
     {
-        _initHelper.check(); 
+        ASSERT_INIT; 
         setDocumentPresenter(_loadDocumentTask->documentPresenter());
+        view().show();
+    }
+    ADDLE_SLOT_CATCH
+}
+
+void MainEditorPresenter::onLoadDocumentFailed()
+{
+    try
+    {
+        ASSERT_INIT;
+
+        {
+            const auto& mainEditorPresenters = ServiceLocator::get<IApplicationService>().mainEditorPresenters();
+
+            ADDLE_ASSERT(mainEditorPresenters.contains(this));
+
+            if (isEmpty() && mainEditorPresenters.size() > 1)
+                deleteLater();
+        }
+
+        if (typeid(*_loadDocumentTask->error()) == typeid(FormatException))
+        {
+            auto ex = static_cast<FormatException&>(*_loadDocumentTask->error());
+            
+            GenericErrorPresenter* errorPresenter = new GenericErrorPresenter();
+            errorPresenter->setException(_loadDocumentTask->error());
+
+            QString filename = QFileInfo(_loadDocumentTask->url().toLocalFile()).fileName();
+
+            switch(ex.why())
+            {
+            case FormatException::FormatNotRecognized:
+            case FormatException::WrongModelType:
+                errorPresenter->setMessage(
+                    //: %1 = the name of the file
+                    qtTrId("ui.open-document.invalid-format")
+                        .arg(filename)
+                );
+                break;
+            }
+
+            emit error(QSharedPointer<IErrorPresenter>(errorPresenter));
+        }
+        else
+        {
+            ADDLE_THROW(*_loadDocumentTask->error());
+        }
     }
     ADDLE_SLOT_CATCH
 }
 
 void MainEditorPresenter::setCurrentTool(ToolId tool)
 {
-    _initHelper.check(); 
+    ASSERT_INIT; 
     if (tool == _currentTool)
         return;
 
     const auto& toolPresenters = _tools.value(_mode);
-    ADDLE_ASSERT_M(
-        !tool || toolPresenters.contains(tool), 
-        //% "MainEditorPresenter does not contain the given tool"
-        QT_TRID_NOOP("debug-messages.main-editor-presenter.tool-not-found")
-    );
+    ADDLE_ASSERT(!tool || toolPresenters.contains(tool));
 
     _currentTool = tool;
     auto previousTool = _currentToolPresenter;

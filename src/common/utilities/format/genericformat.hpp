@@ -1,3 +1,11 @@
+/**
+ * Addle source code
+ * @file
+ * @copyright Copyright 2020 Eleanor Hawk
+ * @copyright Modification and distribution permitted under the terms of the
+ * MIT License. See "LICENSE" for full details.
+ */
+
 #ifndef GENERICFORMAT_HPP
 #define GENERICFORMAT_HPP
 
@@ -9,14 +17,14 @@
 
 namespace Addle {
 
-class Alternate; // placeholder
+class PlaceholderModel; // temporary
 
 class ADDLE_COMMON_EXPORT GenericFormatId
 {
 public:
     typedef boost::variant<
         DocumentFormatId,
-        FormatId<Alternate>
+        FormatId<PlaceholderModel>
     > variant_t;
 
     GenericFormatId() = default;
@@ -100,12 +108,12 @@ private:
     }
 };
 
-class GenericImportExportInfo
+class ADDLE_COMMON_EXPORT GenericImportExportInfo
 {
 public:
     typedef boost::variant<
         DocumentImportExportInfo,
-        ImportExportInfo<Alternate>
+        ImportExportInfo<PlaceholderModel>
     > variant_t;
 
     inline GenericImportExportInfo() = default;
@@ -172,12 +180,12 @@ private:
     const std::type_info* _modelTypeInfo = nullptr;
 };
 
-class GenericFormatModel
+class ADDLE_COMMON_EXPORT GenericFormatModel
 {
 public:
     typedef boost::variant<
         IDocument*,
-        Alternate*
+        PlaceholderModel*
     > variant_t;
 
     GenericFormatModel() = default;
@@ -199,12 +207,12 @@ private:
 template<class ModelType>
 class IFormatDriver;
 
-class GenericFormatDriver
+class ADDLE_COMMON_EXPORT GenericFormatDriver
 {
 public:
     typedef boost::variant<
         IFormatDriver<IDocument>*,
-        IFormatDriver<Alternate>*
+        IFormatDriver<PlaceholderModel>*
     > variant_t;
 
     GenericFormatDriver() = default;

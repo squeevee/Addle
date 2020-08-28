@@ -13,7 +13,7 @@
 #include <QObject>
 #include <functional>
 
-#include "utilities/qtextensions/qobject.hpp"
+#include "utilities/qobject.hpp"
 #include "propertyobserver.hpp"
 namespace Addle {
 
@@ -58,6 +58,7 @@ private:
  * @class PropertyBinding
  * @brief Binds the value of one QObject property to another
  */
+// TODO: error/warning on invalid property names
 class ADDLE_COMMON_EXPORT PropertyBinding : public QObject
 {
     Q_OBJECT
@@ -71,7 +72,7 @@ public:
         ReadWrite
     };
 
-    const char* const BINDINGS_PROPERTY_NAME = "_bindings";
+    static constexpr const char* BINDINGS_PROPERTY_NAME = "_bindings";
 
     PropertyBinding(
         QObject* local,

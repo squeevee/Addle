@@ -12,7 +12,6 @@
 #include "servicelocator.hpp"
 #include "globals.hpp"
 
-#include "interfaces/editing/rasterengineparams.hpp"
 
 #include "idtypes/addleid.hpp"
 #include "idtypes/brushengineid.hpp"
@@ -41,10 +40,12 @@
 #include "exceptions/initializeexceptions.hpp"
 #include "exceptions/servicelocatorexceptions.hpp"
 
+#include "utilities/editing/rasterengineparams.hpp"
 #include "utilities/configuration/serviceconfigurationbase.hpp"
 #include "utilities/model/documentbuilder.hpp"
 #include "utilities/format/importexportinfo.hpp"
 #include "utilities/model/layerbuilder.hpp"
+#include "utilities/presenter/genericerrorpresenter.hpp"
 
 namespace Addle {
 
@@ -212,5 +213,6 @@ const QSet<QByteArray> _DYNAMIC_TRIDS_REGISTRY = {
 } // namespace Addle
 
 #include "moc_globals.cpp"
-#include "interfaces/editing/moc_rasterengineparams.cpp"
+#include "exceptions/moc_formatexceptions.cpp"
+#include "utilities/editing/moc_rasterengineparams.cpp"
 #include "interfaces/presenters/tools/moc_inavigatetoolpresenteraux.cpp"

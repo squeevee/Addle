@@ -20,7 +20,7 @@ void ColorSelectionPresenter::setPalettes(QList<QSharedPointer<IPalettePresenter
 {
     try 
     {
-        _initHelper.check();
+        ASSERT_INIT;
 
         _palettes = palettes;
         emit palettesChanged(_palettes);
@@ -32,7 +32,7 @@ void ColorSelectionPresenter::setPalette(QSharedPointer<IPalettePresenter> palet
 {
     try 
     {
-        _initHelper.check();
+        ASSERT_INIT;
         
         if (palette != _palette)
         {
@@ -79,7 +79,7 @@ void ColorSelectionPresenter::setColor1(ColorInfo color)
 {
     try 
     {
-        _initHelper.check();
+        ASSERT_INIT;
 
         _color1 = color;
         emit colorChanged(1, _color1);
@@ -92,7 +92,7 @@ void ColorSelectionPresenter::setColor2(ColorInfo color)
 {
     try 
     {
-        _initHelper.check();
+        ASSERT_INIT;
 
         _color2 = color;
         emit colorChanged(2, _color2);

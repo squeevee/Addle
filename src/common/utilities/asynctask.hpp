@@ -87,13 +87,13 @@ public:
      * The most recent run of the task completed successfully (and stopped). If
      * the task has output data, it should be available now.
      */
-    bool isCompleted() const { const QMutexLocker lock(&_stateMutex); return _isCompleted; }
+    bool hasCompleted() const { const QMutexLocker lock(&_stateMutex); return _hasCompleted; }
 
     /**
      * The most recent run of the task stopped because the underlying operation
      * produced an error.
      */
-    bool isError() const { const QMutexLocker lock(&_stateMutex); return _isError; }
+    bool hasFailed() const { const QMutexLocker lock(&_stateMutex); return _hasFailed; }
 
     /** 
      * If the most recent run of the task was stopped because of an error, this
@@ -120,7 +120,7 @@ signals:
     void completed();
 
     // The task has stopped because of an error.
-    void error(QSharedPointer<AddleException>);
+    void failed(QSharedPointer<AddleException>);
 
     // todo: Rate-limit these signals like QFuture does
     void maxProgressChanged(double maxProgress);
@@ -145,8 +145,8 @@ protected:
 
 private:
     bool _isRunning = false;
-    bool _isCompleted = false;
-    bool _isError = false;
+    bool _hasCompleted = false;
+    bool _hasFailed = false;
 
     QSharedPointer<AddleException> _error;
 

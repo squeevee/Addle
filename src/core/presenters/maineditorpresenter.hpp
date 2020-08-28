@@ -65,17 +65,16 @@ class ADDLE_CORE_EXPORT MainEditorPresenter : public QObject, public virtual IMa
     )
     Q_INTERFACES(
         Addle::IHaveUndoStackPresenter 
-        Addle::IRaiseErrorPresenter 
         Addle::IMainEditorPresenter
     )
     IAMQOBJECT_IMPL
     
     enum InitCheckpoints
     {
-        Check_CanvasPresenter,
-        Check_ViewPortPresenter,
-        Check_ColorSelection,
-        Check_View
+        InitCheck_CanvasPresenter,
+        InitCheck_ViewPortPresenter,
+        InitCheck_ColorSelection,
+        InitCheck_View
     };
 
 public:
@@ -90,19 +89,19 @@ public:
 
     void initialize(Mode mode);
 
-    IMainEditorView& view() const { _initHelper.check(Check_View); return *_view; }
+    IMainEditorView& view() const { ASSERT_INIT_CHECKPOINT(InitCheck_View); return *_view; }
 
-    ICanvasPresenter& canvasPresenter() const { _initHelper.check(Check_CanvasPresenter); return *_canvasPresenter; }
-    IViewPortPresenter& viewPortPresenter() const { _initHelper.check(Check_ViewPortPresenter); return *_viewPortPresenter; }
-    IColorSelectionPresenter& colorSelection() const { _initHelper.check(Check_ColorSelection); return *_colorSelection; }
+    ICanvasPresenter& canvasPresenter() const { ASSERT_INIT_CHECKPOINT(InitCheck_CanvasPresenter); return *_canvasPresenter; }
+    IViewPortPresenter& viewPortPresenter() const { ASSERT_INIT_CHECKPOINT(InitCheck_ViewPortPresenter); return *_viewPortPresenter; }
+    IColorSelectionPresenter& colorSelection() const { ASSERT_INIT_CHECKPOINT(InitCheck_ColorSelection); return *_colorSelection; }
 
     void setMode(Mode mode);
     Mode mode() const { return _mode; }
 
     // # IHaveDocumentPresenter
 
-    QSharedPointer<IDocumentPresenter> documentPresenter() const { _initHelper.check(); return _documentPresenter; }
-    bool isEmpty() const { _initHelper.check(); return _isEmptyCache.value(); }
+    QSharedPointer<IDocumentPresenter> documentPresenter() const { ASSERT_INIT; return _documentPresenter; }
+    bool isEmpty() const { ASSERT_INIT; return _isEmptyCache.value(); }
 
     QSharedPointer<ILayerPresenter> topSelectedLayer() const;
 
@@ -116,33 +115,34 @@ public slots:
     void loadDocument(QUrl url);
 
 public:
-    ToolId currentTool() const { _initHelper.check(); return _currentTool; }
+    ToolId currentTool() const { ASSERT_INIT; return _currentTool; }
     void setCurrentTool(ToolId tool);
-    QHash<ToolId, QSharedPointer<IToolPresenter>> tools() const { _initHelper.check(); return _tools.value(_mode); }
+    QHash<ToolId, QSharedPointer<IToolPresenter>> tools() const { ASSERT_INIT; return _tools.value(_mode); }
 
-    QSharedPointer<IToolPresenter> currentToolPresenter() const { _initHelper.check(); return _currentToolPresenter; }
+    QSharedPointer<IToolPresenter> currentToolPresenter() const { ASSERT_INIT; return _currentToolPresenter; }
 
 signals:
     void currentToolChanged(ToolId tool);
 
 public:
-    bool canUndo() const { _initHelper.check(); return _undoStackHelper.canUndo(); }
-    bool canRedo() const { _initHelper.check(); return _undoStackHelper.canRedo(); }
+    bool canUndo() const { ASSERT_INIT; return _undoStackHelper.canUndo(); }
+    bool canRedo() const { ASSERT_INIT; return _undoStackHelper.canRedo(); }
 
     void push(QSharedPointer<IUndoOperationPresenter> undoable) { _undoStackHelper.push(undoable); }
 
 public slots: 
-    void undo() { try { _initHelper.check(); _undoStackHelper.undo(); } ADDLE_SLOT_CATCH }
-    void redo() { try { _initHelper.check(); _undoStackHelper.redo(); } ADDLE_SLOT_CATCH }
+    void undo() { try { ASSERT_INIT; _undoStackHelper.undo(); } ADDLE_SLOT_CATCH }
+    void redo() { try { ASSERT_INIT; _undoStackHelper.redo(); } ADDLE_SLOT_CATCH }
 
 signals: 
     void undoStateChanged();
 
 signals:
-    void raiseError(QSharedPointer<IErrorPresenter> error);
+    void error(QSharedPointer<IErrorPresenter> error);
 
 private slots:
     void onLoadDocumentCompleted();
+    void onLoadDocumentFailed();
 
 private:
     void setDocumentPresenter(QSharedPointer<IDocumentPresenter> document);

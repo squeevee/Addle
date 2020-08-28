@@ -123,5 +123,22 @@ private:
     InitializeHelper& _helper;
 };
 
+#ifdef ADDLE_DEBUG
+#define _ASSERT_INIT(x) \
+try { x.check(); } catch(InitializeException& ex) { ADDLE_THROW(ex); }
+
+#define _ASSERT_INIT_CHECKPOINT(x, y) \
+try { x.check(y); } catch(InitializeException& ex) { ADDLE_THROW(ex); }
+
+#else
+
+#define _ASSERT_INIT(x) x.check();
+#define _ASSERT_INIT_CHECKPOINT(x, y) x.check(y);
+
+#endif //ADDLE_DEBUG
+
+#define ASSERT_INIT _ASSERT_INIT(_initHelper)
+#define ASSERT_INIT_CHECKPOINT(checkpoint) _ASSERT_INIT_CHECKPOINT(_initHelper, checkpoint)
+
 } // namespace Addle
 #endif // INITIALIZEHELPER_HPP

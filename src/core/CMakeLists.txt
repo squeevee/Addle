@@ -23,15 +23,15 @@ set (
     models/palette.cpp
     presenters/canvaspresenter.cpp
     presenters/documentpresenter.cpp
-    presenters/errorpresenter.cpp
     presenters/layerpresenter.cpp
     presenters/maineditorpresenter.cpp
     presenters/viewportpresenter.cpp
     presenters/assets/brushpresenter.cpp
     presenters/colorselectionpresenter.cpp
     presenters/palettepresenter.cpp
-    presenters/operations/brushoperationpresenter.cpp
+    presenters/errors/applicationerrorpresenter.cpp
     presenters/helpers/brushiconhelper.cpp
+    presenters/operations/brushoperationpresenter.cpp
     presenters/tools/assetselectionpresenter.cpp
     presenters/tools/navigatetoolpresenter.cpp
     presenters/tools/sizeselectionpresenter.cpp
@@ -39,6 +39,7 @@ set (
     rendering/renderstack.cpp
     services/appearanceservice.cpp
     services/applicationservice.cpp
+    services/errorservice.cpp
     services/formatservice.cpp
     format/qtimageformatdriver.cpp
 )

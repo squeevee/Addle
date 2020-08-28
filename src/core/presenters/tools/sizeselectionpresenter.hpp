@@ -39,8 +39,8 @@ public:
 
     int selectedPreset() const;
 
-    QIcon icon() const { _initHelper.check(); return _icon; }
-    QList<QIcon> presetIcons() const { _initHelper.check(); return _presetIcons; }
+    QIcon icon() const { ASSERT_INIT; return _icon; }
+    QList<QIcon> presetIcons() const { ASSERT_INIT; return _presetIcons; }
 
     double min() const { return _min; }
     double max() const { return _max; }

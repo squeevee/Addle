@@ -18,8 +18,7 @@
 #include "interfaces/presenters/icanvaspresenter.hpp"
 #include "interfaces/presenters/iviewportpresenter.hpp"
 
-#include "utilities/unhandledexceptionrouter.hpp"
-#include "utilities/qtextensions/qobject.hpp"
+#include "utilities/qobject.hpp"
 #include "utils.hpp"
 
 #include "brushtoolpresenter.hpp"
@@ -104,7 +103,7 @@ void BrushToolPresenter::initialize(IMainEditorPresenter* owner, Mode mode)
 
 ToolId BrushToolPresenter::id()
 {
-    _initHelper.check();
+    ASSERT_INIT;
     switch(_mode)
     {
     case Mode::Brush:
@@ -120,7 +119,7 @@ void BrushToolPresenter::onSelectedChanged(bool selected)
 {
     try
     {
-        _initHelper.check();
+        ASSERT_INIT;
         _hoverPreview->isVisible_cache.recalculate();
     } 
     ADDLE_SLOT_CATCH
@@ -351,7 +350,7 @@ BrushToolPresenter::HoverPreview::HoverPreview(BrushToolPresenter& owner)
 
 void BrushToolPresenter::HoverPreview::update()
 {
-    _owner._initHelper.check();
+    _ASSERT_INIT(_owner._initHelper);
 
     BrushId id = _owner.selectedBrush();
     if (!id) return;
@@ -404,7 +403,7 @@ void BrushToolPresenter::HoverPreview::update()
 
 void BrushToolPresenter::HoverPreview::setPosition(QPointF position)
 {
-    _owner._initHelper.check();
+    _ASSERT_INIT(_owner._initHelper);
 
     _position = position;
     paint();
@@ -433,7 +432,7 @@ bool BrushToolPresenter::HoverPreview::calc_visible()
 
 void BrushToolPresenter::HoverPreview::paint()
 {
-    _owner._initHelper.check();
+    _ASSERT_INIT(_owner._initHelper);
 
     if (!isVisible_cache.value()) return;
     

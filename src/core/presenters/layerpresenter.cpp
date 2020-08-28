@@ -11,7 +11,7 @@
 #include "interfaces/editing/irastersurface.hpp"
 #include "interfaces/rendering/irenderstack.hpp"
 
-#include "utilities/qtextensions/qobject.hpp"
+#include "utilities/qobject.hpp"
 using namespace Addle;
 
 void LayerPresenterRenderStep::onPush(RenderData& data)
@@ -51,8 +51,7 @@ void LayerPresenter::initialize(IDocumentPresenter* documentPresenter, QSharedPo
 
 IRenderStack& LayerPresenter::renderStack()
 {
-    _initHelper.check();
-
+    ASSERT_INIT
 
     if (!_renderStack)
     {

@@ -47,12 +47,6 @@ enum ErrorCodes {
     UNKNOWN_ERROR_CODE = -1
 };
 
-#ifdef ADDLE_DEBUG
-const char* const DEBUG_BEHAVIOR_ENV_VARIABLE_NAME = "ADDLE_DEBUG_BEHAVIOR";
-
-const char* const DEBUG__NONE_TYPE_NAME = "<No type given>";
-#endif
-
 extern ADDLE_COMMON_EXPORT const QColor DefaultBackgroundColor;
 
 #define START_CORE_BRUSH_ENGINE_IDS 0x100

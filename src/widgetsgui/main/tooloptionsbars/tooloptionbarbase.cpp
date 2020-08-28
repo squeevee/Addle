@@ -6,7 +6,7 @@
  * MIT License. See "LICENSE" for full details.
  */
 
-#include "utilities/qtextensions/qobject.hpp"
+#include "utilities/qobject.hpp"
 
 #include "tooloptionbarbase.hpp"
 

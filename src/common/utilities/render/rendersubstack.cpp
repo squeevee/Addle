@@ -8,7 +8,7 @@
 
 #include "rendersubstack.hpp"
 
-#include "utilities/qtextensions/qobject.hpp"
+#include "utilities/qobject.hpp"
 
 using namespace Addle;
 
