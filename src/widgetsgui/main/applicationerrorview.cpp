@@ -44,7 +44,11 @@ ModalErrorDialog::ModalErrorDialog(IErrorPresenter& presenter, QWidget* parent)
     if (presenter.exception() && presenter.exception()->isLogicError())
     {
         // thanks https://stackoverflow.com/a/38371503/2808947
-        setStyleSheet("QTextEdit { font-family: monospace; }");
+        setStyleSheet(
+        "QTextEdit {"
+            "font-family: monospace;"
+            "min-width: 720px;"
+        "}");
 
         if (typeid(*presenter.exception()) == typeid(UnhandledException))
         {

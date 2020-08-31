@@ -35,8 +35,8 @@
 #include "interfaces/presenters/imaineditorpresenter.hpp"
 #include "interfaces/presenters/tools/ibrushtoolpresenter.hpp"
 #include "exceptions/commandlineexceptions.hpp"
-#include "exceptions/fileexceptions.hpp"
-#include "exceptions/formatexceptions.hpp"
+#include "exceptions/fileexception.hpp"
+#include "exceptions/formatexception.hpp"
 #include "exceptions/initializeexceptions.hpp"
 #include "exceptions/servicelocatorexceptions.hpp"
 
@@ -51,14 +51,14 @@ namespace Addle {
 
 ServiceLocator* ServiceLocator::_instance = nullptr;
 
-#define DEFINE_STATIC_METADATA_CUSTOM(x, DataType, ...) \
+#define DEFINE_STATIC_ID_METADATA_CUSTOM(x, DataType, ...) \
 const QSharedPointer<const AddleId::BaseMetaData> GET_STATIC_ID_METADATA(x)::_metaData \
     = QSharedPointer<const AddleId::BaseMetaData>(new DataType( \
     GET_STATIC_ID_METADATA(x)::key, \
     ::qMetaTypeId<std::remove_const<decltype(x)>::type>(), \
     __VA_ARGS__ \
 ));
-#define DEFINE_STATIC_METADATA(x) \
+#define DEFINE_STATIC_ID_METADATA(x) \
 const QSharedPointer<const AddleId::BaseMetaData> GET_STATIC_ID_METADATA(x)::_metaData \
     = QSharedPointer<const AddleId::BaseMetaData>(new AddleId::BaseMetaData( \
     GET_STATIC_ID_METADATA(x)::key, \
@@ -69,21 +69,21 @@ const QSharedPointer<const AddleId::BaseMetaData> GET_STATIC_ID_METADATA(x)::_me
 
 // Static ID metadata definitions
 
-DEFINE_STATIC_METADATA(CoreBrushEngines::PathEngine);
-DEFINE_STATIC_METADATA(CoreBrushEngines::RasterEngine);
+DEFINE_STATIC_ID_METADATA(CoreBrushEngines::PathEngine);
+DEFINE_STATIC_ID_METADATA(CoreBrushEngines::RasterEngine);
 
-DEFINE_STATIC_METADATA(CoreBrushes::BasicBrush);
-DEFINE_STATIC_METADATA(CoreBrushes::SoftBrush);
-DEFINE_STATIC_METADATA(CoreBrushes::BasicEraser);
+DEFINE_STATIC_ID_METADATA(CoreBrushes::BasicBrush);
+DEFINE_STATIC_ID_METADATA(CoreBrushes::SoftBrush);
+DEFINE_STATIC_ID_METADATA(CoreBrushes::BasicEraser);
 
-DEFINE_STATIC_METADATA_CUSTOM(CoreFormats::PNG, DocumentFormatId::MetaData,
+DEFINE_STATIC_ID_METADATA_CUSTOM(CoreFormats::PNG, DocumentFormatId::MetaData,
                     QUuid(),
     /*mime type:*/  QStringLiteral("image/png"),
     /*file ext:*/   QStringLiteral("png"),          
     /*file sig:*/   QByteArrayLiteral("\x89\x50\x4E\x47\x0D\x0A\x1A\x0A")
 );
 
-DEFINE_STATIC_METADATA_CUSTOM(CoreFormats::JPEG, DocumentFormatId::MetaData,
+DEFINE_STATIC_ID_METADATA_CUSTOM(CoreFormats::JPEG, DocumentFormatId::MetaData,
                     QUuid(),
     /*mime type:*/  QStringLiteral("image/jpeg"),
     /*file exts:*/  {
@@ -96,18 +96,18 @@ DEFINE_STATIC_METADATA_CUSTOM(CoreFormats::JPEG, DocumentFormatId::MetaData,
     /*file sig:*/   QByteArrayLiteral("\xFF\xD8\xFF")
 );
 
-DEFINE_STATIC_METADATA(CorePalettes::BasicPalette);
+DEFINE_STATIC_ID_METADATA(CorePalettes::BasicPalette);
 
-DEFINE_STATIC_METADATA(CoreTools::Select);
-DEFINE_STATIC_METADATA(CoreTools::Brush);
-DEFINE_STATIC_METADATA(CoreTools::Eraser);
-DEFINE_STATIC_METADATA(CoreTools::Fill);
-DEFINE_STATIC_METADATA(CoreTools::Text);
-DEFINE_STATIC_METADATA(CoreTools::Shapes);
-DEFINE_STATIC_METADATA(CoreTools::Stickers);
-DEFINE_STATIC_METADATA(CoreTools::Eyedrop);
-DEFINE_STATIC_METADATA(CoreTools::Navigate);
-DEFINE_STATIC_METADATA(CoreTools::Measure);
+DEFINE_STATIC_ID_METADATA(CoreTools::Select);
+DEFINE_STATIC_ID_METADATA(CoreTools::Brush);
+DEFINE_STATIC_ID_METADATA(CoreTools::Eraser);
+DEFINE_STATIC_ID_METADATA(CoreTools::Fill);
+DEFINE_STATIC_ID_METADATA(CoreTools::Text);
+DEFINE_STATIC_ID_METADATA(CoreTools::Shapes);
+DEFINE_STATIC_ID_METADATA(CoreTools::Stickers);
+DEFINE_STATIC_ID_METADATA(CoreTools::Eyedrop);
+DEFINE_STATIC_ID_METADATA(CoreTools::Navigate);
+DEFINE_STATIC_ID_METADATA(CoreTools::Measure);
 
 // Dynamic ID metadata definition
 
@@ -213,6 +213,7 @@ const QSet<QByteArray> _DYNAMIC_TRIDS_REGISTRY = {
 } // namespace Addle
 
 #include "moc_globals.cpp"
-#include "exceptions/moc_formatexceptions.cpp"
+#include "exceptions/moc_formatexception.cpp"
+#include "exceptions/moc_fileexception.cpp"
 #include "utilities/editing/moc_rasterengineparams.cpp"
 #include "interfaces/presenters/tools/moc_inavigatetoolpresenteraux.cpp"

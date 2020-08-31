@@ -30,9 +30,16 @@ QString ApplicationErrorPresenter::message() const
 #ifdef ADDLE_DEBUG
     return _error->what();
 #else 
-    //  Should perhaps be out of source?
-    //% "A logic error occurred. (Debug information is not available.)"
-    return qtTrId("error-messages.logic-error-release");
+    //: Displayed in "release" builds of Addle if an error occurs in some part
+    //: of the application and was not handled there. If this message is
+    //: displayed, it indicates a potentially serious bug of unknown nature.
+    //
+    //: As Addle's error handling matures, this message will likely require
+    //: retooling.
+    //
+    //% "An unknown error occurred within Addle. The application may be in an"
+    //% "unstable state. Proceed with caution."
+    return qtTrId("ui.release-unhandled-error");
 #endif // ADDLE_DEBUG
 }
 

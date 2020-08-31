@@ -18,7 +18,6 @@
 #include <typeindex>
 #include <type_traits>
 
-#include "typeinforef.hpp"
 namespace Addle {
 
 /**
@@ -90,7 +89,7 @@ private:
     template<typename T>
     static uint hasher(QVariant var, uint seed)
     {
-        return QT_PREPEND_NAMESPACE(qHash(var.value<T>(), seed));
+        return ::qHash(var.value<T>(), seed);
     }
 
     static QHash<int, uint(*)(QVariant, uint)> _hashers;

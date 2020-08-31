@@ -287,33 +287,47 @@
         <source>Starting Addle. This is a debug build.</source>
         <translation>Starting Addle. This is a debug build.</translation>
     </message>
+    <message id="debug-messages.exception-already-has-backtrace">
+        <location filename="../../src/common/exceptions/addleexception.cpp" line="75" />
+        <source>The exception unexpectedly already had a backtrace.</source>
+        <translation>The exception unexpectedly already had a backtrace.</translation>
+    </message>
     <message id="debug-messages.logic-error-occurred">
-        <location filename="../../src/common/exceptions/addleexception.cpp" line="43" />
+        <location filename="../../src/common/exceptions/addleexception.cpp" line="127" />
         <source>A logic error occurred:
 %1</source>
         <translation>A logic error occurred:
 %1</translation>
     </message>
-    <message id="debug-messages.exception-location-formatter">
-        <location filename="../../src/common/exceptions/addleexception.cpp" line="69" />
-        <source> %1: %2 (%3:%4)
-</source>
-        <oldsource>%1: %2 (%3:%4)
+    <message id="debug-messages.exception-throw-header">
+        <location filename="../../src/common/exceptions/addleexception.cpp" line="149" />
+        <source>  thrown from:</source>
+        <oldsource>  thrown from:
 </oldsource>
-        <translation> %1: %2 (%3:%4)
-</translation>
+        <translation>  thrown from:</translation>
     </message>
-    <message id="debug-messages.exception-location-list-formatter">
-        <location filename="../../src/common/exceptions/addleexception.cpp" line="80" />
-        <source>%1
-  thrown from:
-%2</source>
-        <oldsource>%1
-  locations thrown:
-%2</oldsource>
-        <translation>%1
-  thrown from:
-%2</translation>
+    <message id="debug-messages.exception-location-formatter">
+        <location filename="../../src/common/exceptions/addleexception.cpp" line="152" />
+        <location filename="../../src/common/exceptions/addleexception.cpp" line="180" />
+        <source> %1: %2 (%3:%4)</source>
+        <oldsource> %1: %2 (%3:%4)
+</oldsource>
+        <translation> %1: %2 (%3:%4)</translation>
+    </message>
+    <message id="debug-messages.exception-backtrace-header">
+        <location filename="../../src/common/exceptions/addleexception.cpp" line="162" />
+        <source>  backtrace:</source>
+        <oldsource>
+  backtrace:
+</oldsource>
+        <translation>  backtrace:</translation>
+    </message>
+    <message id="debug-messages.exception-rethrow-header">
+        <location filename="../../src/common/exceptions/addleexception.cpp" line="173" />
+        <source>  rethrown from:</source>
+        <oldsource>  rethrown from:
+</oldsource>
+        <translation>  rethrown from:</translation>
     </message>
     <message id="cli-messages.parser-error">
         <location filename="../../src/common/exceptions/commandlineexceptions.hpp" line="53" />
@@ -394,14 +408,38 @@ Why code:    %2</translation>
         <source>Layer Group %1</source>
         <translation>Layer Group %1</translation>
     </message>
-    <message id="ui.open-document.invalid-format">
-        <location filename="../../src/core/presenters/maineditorpresenter.cpp" line="244" />
+    <message id="ui.open-document.invalid-format-error">
+        <location filename="../../src/core/presenters/maineditorpresenter.cpp" line="251" />
         <source />
-        <extracomment>%1 = the name of the file</extracomment>
-        <translation type="unfinished">The file "%1" was an urecognized or invalid format.</translation>
+        <extracomment>Displayed after attempting to open a file whose format is not supported, not recognized, damaged, or otherwise incorrect. %1 = the name of the file</extracomment>
+        <translation>The file "%1" was an urecognized or invalid format.</translation>
+    </message>
+    <message id="ui.open-document.file-in-use-error">
+        <location filename="../../src/core/presenters/maineditorpresenter.cpp" line="270" />
+        <source />
+        <extracomment>Displayed after attempting to open a file that is in use by another process/application %1 = the name of the file</extracomment>
+        <translation>The file "%1" is being used by another process.</translation>
+    </message>
+    <message id="ui.open-document.permission-denied-error">
+        <location filename="../../src/core/presenters/maineditorpresenter.cpp" line="277" />
+        <source />
+        <extracomment>Displayed after attempting to open a file that the user's account does not have permission to access, or is otherwise restricted. %1 = the name of the file</extracomment>
+        <translation>Permission was denied opening the file "%1"</translation>
+    </message>
+    <message id="ui.open-document.file-not-found-error">
+        <location filename="../../src/core/presenters/maineditorpresenter.cpp" line="285" />
+        <source />
+        <extracomment>Displayed after attempting to open a file path that did not lead to a file. %1 = the file path</extracomment>
+        <translation type="unfinished">No file could be found found at "%1".</translation>
+    </message>
+    <message id="ui.open-document.unknown-error">
+        <location filename="../../src/core/presenters/maineditorpresenter.cpp" line="303" />
+        <source />
+        <extracomment>Displayed when the document failed to open, but the reason why could not be determined.</extracomment>
+        <translation>An unknown error occurred attempting to open the document.</translation>
     </message>
     <message id="debug-messages.remote-url-not-supported">
-        <location filename="../../src/core/presenters/maineditorpresenter.cpp" line="295" />
+        <location filename="../../src/core/presenters/maineditorpresenter.cpp" line="347" />
         <source>Loading a document from a remote URL is not yet supported.</source>
         <translation>Loading a document from a remote URL is not yet supported.</translation>
     </message>
@@ -539,11 +577,6 @@ Assertion failed: `%2`</translation>
         <source>This is an unrecoverable state. The application will terminate immediately.</source>
         <translation>This is an unrecoverable state. The application will terminate immediately.</translation>
     </message>
-    <message id="error-messages.file-error.does-not-exist">
-        <location filename="../../src/common/exceptions/fileexceptions.hpp" line="57" />
-        <source>The requested file at "%1" does not exist.</source>
-        <translation>The requested file at "%1" does not exist.</translation>
-    </message>
     <message id="debug-messages.service-locator.not-initialized-error">
         <location filename="../../src/common/exceptions/servicelocatorexceptions.hpp" line="49" />
         <source>The service locator is not initialized.</source>
@@ -582,36 +615,56 @@ requestedInterfaceName: "%1"
 %2</translation>
     </message>
     <message id="debug-messages.last-ditch-catch">
-        <location filename="../../src/common/utilities/errors.hpp" line="70" />
+        <location filename="../../src/common/utilities/errors.hpp" line="72" />
         <source>An exception of an unknown type was caught.</source>
         <translation>An exception of an unknown type was caught.</translation>
     </message>
-    <message id="debug-messages.format-error.2-arg">
-        <location filename="../../src/common/exceptions/formatexceptions.hpp" line="39" />
-        <source>A format error occurred:
-   why: %1
-format: %2</source>
-        <oldsource>A format error occurred:   why: %1format: %2</oldsource>
-        <translation>A format error occurred:
-   why: %1
-format: %2</translation>
+    <message id="debug-messages.file-exception">
+        <location filename="../../src/common/exceptions/fileexception.hpp" line="105" />
+        <source>A file exception occurred
+ operation: %1
+       why: %2
+ file path: %3</source>
+        <oldsource>A file exception occurred
+    action: %1
+       why: %2
+ file path: %3</oldsource>
+        <translation>A file exception occurred
+ operation: %1
+       why: %2
+ file path: %3</translation>
     </message>
-    <message id="debug-messages.format-error.3-arg">
-        <location filename="../../src/common/exceptions/formatexceptions.hpp" line="53" />
-        <source>A format error occurred:
-     why: %1
-  format: %2
-filename: %3</source>
-        <oldsource>A format error occurred:     why: %1  format: %2filename: %3</oldsource>
-        <translation>A format error occurred:
-     why: %1
-  format: %2
-filename: %3</translation>
+    <message id="debug-messages.format-exception">
+        <location filename="../../src/common/exceptions/formatexception.hpp" line="42" />
+        <source>A format exception occurred:
+       why: %1
+    format: %2
+ file path: %3</source>
+        <translation>A format exception occurred:
+       why: %1
+    format: %2
+ file path: %3</translation>
     </message>
-    <message id="error-messages.logic-error-release">
-        <location filename="../../src/core/presenters/errors/applicationerrorpresenter.cpp" line="35" />
-        <source>A logic error occurred. (Debug information is not available.)</source>
-        <translation>A logic error occurred. (Debug information is not available.)</translation>
+    <message id="debug-messages.io-check.unknown-device-error">
+        <location filename="../../src/common/utilities/iocheck.cpp" line="72" />
+        <source>An error occurred but the device type is unknown / unsupported so it could not be diagnosed.</source>
+        <translation>An error occurred but the device type is unknown / unsupported so it could not be diagnosed.</translation>
+    </message>
+    <message id="debug-messages.io-check.invalid-file-mode">
+        <location filename="../../src/common/utilities/iocheck.cpp" line="106" />
+        <source>The file mode was not understood.</source>
+        <translation>The file mode was not understood.</translation>
+    </message>
+    <message id="debug-messages.io-check.incomaptible-file-mode">
+        <location filename="../../src/common/utilities/iocheck.cpp" line="27" />
+        <source>The file was already open in an incompatible file mode.</source>
+        <translation>The file was already open in an incompatible file mode.</translation>
+    </message>
+    <message id="ui.release-unhandled-error">
+        <location filename="../../src/core/presenters/errors/applicationerrorpresenter.cpp" line="42" />
+        <source>An unknown error occurred within Addle. The application may be in anunstable state. Proceed with caution.</source>
+        <extracomment>Displayed in "release" builds of Addle if an error occurs in some part of the application and was not handled there. If this message is displayed, it indicates a potentially serious bug of unknown nature. As Addle's error handling matures, this message will likely require retooling.</extracomment>
+        <translation>An unknown error occurred within Addle. The application may be in anunstable state. Proceed with caution.</translation>
     </message>
 </context>
 </TS>

@@ -68,9 +68,7 @@ public:
     static Interface& get()
     {
         if (!_instance)
-        {
             ADDLE_THROW(ServiceLocatorNotInitializedException());
-        }
 
         return *_instance->get_p<Interface>();
     }
@@ -97,9 +95,7 @@ public:
     static Interface& get(TypeId id)
     {
         if (!_instance)
-        {
             ADDLE_THROW(ServiceLocatorNotInitializedException());
-        }
 
         return *_instance->get_p<Interface>(id);
     }
@@ -118,9 +114,7 @@ public:
         );
 
         if (!_instance)
-        {
             ADDLE_THROW(ServiceLocatorNotInitializedException());
-        }
 
         auto index = qMakePair(id, std::type_index(typeid(Interface)));
 
@@ -156,9 +150,7 @@ public:
             "Interface must be publicly makeable."
         );
         if (!_instance)
-        {
             ADDLE_THROW(ServiceLocatorNotInitializedException());
-        }
 
         Interface* result = _instance->make_p<Interface>();
 
@@ -221,9 +213,7 @@ public:
         );
 
         if (!_instance)
-        {
             ADDLE_THROW(ServiceLocatorNotInitializedException());
-        }
 
         Interface* result = _instance->make_p<Interface>();
 
@@ -278,9 +268,7 @@ public:
         );
 
         if (!_instance)
-        {
             ADDLE_THROW(ServiceLocatorNotInitializedException());
-        }
 
         Interface* result = _instance->make_p<Interface>(id);
 
@@ -335,9 +323,7 @@ public:
         );
 
         if (!_instance)
-        {
             ADDLE_THROW(ServiceLocatorNotInitializedException());
-        }
 
         Interface* result = _instance->make_p<Interface>(id);
 

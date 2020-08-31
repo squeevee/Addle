@@ -324,8 +324,8 @@ public:
             friend uint qHash(const Removed& x, uint seed = 0) 
             { 
                 return x._data ?
-                    QT_PREPEND_NAMESPACE(qHash(x._data->node, seed)) : 
-                    QT_PREPEND_NAMESPACE(qHash(nullptr, seed));
+                    ::qHash(x._data->node, seed) : 
+                    ::qHash(nullptr, seed);
             }
         };
 

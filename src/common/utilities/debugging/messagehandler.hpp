@@ -32,7 +32,8 @@ namespace Addle {
 
 // Warning messages are not all equally problematic, but also do not contain any
 // identifiable metadata (at least not in release builds of Qt). However, their
-// text is not internationalized, so we can filter by English strings.
+// text does consistently mention the class and function that failed, so we can
+// filter by that.
 
 // This should only be used by `main()`
 
@@ -68,26 +69,20 @@ static void addleMessageHandler(QtMsgType type,
         static DebugBehavior::DebugBehaviorFlags behavior = DebugBehavior::get();
         static IErrorService& errorService = ServiceLocator::get<IErrorService>();
 
-        if (behavior.testFlag(DebugBehavior::FilterQObjectConnectFailure))
+        if (behavior.testFlag(DebugBehavior::InterceptQObjectConnectFailure))
         {
-            static const QRegularExpression matchQObjectConnectFailure
-                = QRegularExpression(QStringLiteral("QObject::connect"));
-            
-            if (matchQObjectConnectFailure.match(message).hasMatch())
+            if (message.contains(QStringLiteral("QObject::connect")))
             {
-                errorService.reportUnhandledError(QtWarningAsException(message, DebugBehavior::FilterQObjectConnectFailure));
+                errorService.reportUnhandledError(QtWarningAsException(message, DebugBehavior::InterceptQObjectConnectFailure));
                 return;
             }
         }
 
-        if (behavior.testFlag(DebugBehavior::FilterQStringArgFailure))
+        if (behavior.testFlag(DebugBehavior::InterceptQStringArgFailure))
         {
-            static const QRegularExpression matchQStringArgFailure
-                = QRegularExpression(QStringLiteral("QString::arg"));
-
-            if (matchQStringArgFailure.match(message).hasMatch())
+            if (message.contains(QStringLiteral("QString::arg")))
             {
-                errorService.reportUnhandledError(QtWarningAsException(message, DebugBehavior::FilterQStringArgFailure));
+                errorService.reportUnhandledError(QtWarningAsException(message, DebugBehavior::InterceptQStringArgFailure));
                 return;
             }
         }

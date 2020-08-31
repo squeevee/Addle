@@ -11,9 +11,9 @@ set (common_sources
     exceptions/addleexception.cpp
     utilities/asynctask.cpp
     utilities/errors.cpp
+    utilities/iocheck.cpp
     utilities/indexvariant.cpp
     utilities/translatedstring.cpp
-    utilities/typeinforef.cpp
     utilities/editing/brushstroke.cpp
     utilities/format/genericformat.cpp
     utilities/image/rasterbithandles.cpp

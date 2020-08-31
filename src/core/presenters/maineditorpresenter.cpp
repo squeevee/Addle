@@ -28,7 +28,7 @@
 #include "interfaces/models/idocument.hpp"
 #include "utilities/qobject.hpp"
 
-#include "exceptions/fileexceptions.hpp"
+#include "exceptions/fileexception.hpp"
 
 #include "interfaces/services/iapplicationsservice.hpp"
 
@@ -50,7 +50,9 @@
 #include "globals.hpp"
 
 #include "utilities/presenter/genericerrorpresenter.hpp"
-#include "exceptions/formatexceptions.hpp"
+#include "exceptions/formatexception.hpp"
+
+#include "utilities/iocheck.hpp"
 
 using namespace Addle;
 
@@ -217,42 +219,87 @@ void MainEditorPresenter::onLoadDocumentFailed()
     {
         ASSERT_INIT;
 
-        {
-            const auto& mainEditorPresenters = ServiceLocator::get<IApplicationService>().mainEditorPresenters();
+        const auto& mainEditorPresenters = ServiceLocator::get<IApplicationService>().mainEditorPresenters();
+        ADDLE_ASSERT(mainEditorPresenters.contains(this));
 
-            ADDLE_ASSERT(mainEditorPresenters.contains(this));
+        if (isEmpty() && mainEditorPresenters.size() > 1)
+            deleteLater();
 
-            if (isEmpty() && mainEditorPresenters.size() > 1)
-                deleteLater();
-        }
+        QString filename = QFileInfo(_loadDocumentTask->url().toLocalFile()).fileName();
+
+        QSharedPointer<GenericErrorPresenter> errorPresenter = 
+            QSharedPointer<GenericErrorPresenter>(new GenericErrorPresenter());
+        errorPresenter->setException(_loadDocumentTask->error());
 
         if (typeid(*_loadDocumentTask->error()) == typeid(FormatException))
         {
             auto ex = static_cast<FormatException&>(*_loadDocumentTask->error());
-            
-            GenericErrorPresenter* errorPresenter = new GenericErrorPresenter();
-            errorPresenter->setException(_loadDocumentTask->error());
-
-            QString filename = QFileInfo(_loadDocumentTask->url().toLocalFile()).fileName();
 
             switch(ex.why())
             {
             case FormatException::FormatNotRecognized:
+            case FormatException::EmptyResource:
             case FormatException::WrongModelType:
                 errorPresenter->setMessage(
+                    //: Displayed after attempting to open a file whose format
+                    //: is not supported, not recognized, damaged, or otherwise
+                    //: incorrect.
                     //: %1 = the name of the file
-                    qtTrId("ui.open-document.invalid-format")
+                    qtTrId("ui.open-document.invalid-format-error")
                         .arg(filename)
                 );
                 break;
             }
+        }
+        else if (typeid(*_loadDocumentTask->error()) == typeid(FileException))
+        {
+            // TODO: extend GenericErrorPresenter to accept multiple messages
+            // and combine them into list in a way that looks nice
 
-            emit error(QSharedPointer<IErrorPresenter>(errorPresenter));
+            auto ex = static_cast<FileException&>(*_loadDocumentTask->error());
+
+            QStringList messages;
+
+            if (ex.why() & FileException::InUse)
+                //: Displayed after attempting to open a file that is in use by 
+                //: another process/application
+                //: %1 = the name of the file
+                messages.append(qtTrId("ui.open-document.file-in-use-error")
+                    .arg(filename));
+            if (ex.why() & FileException::NoReadPermission)
+                //: Displayed after attempting to open a file that the user's
+                //: account does not have permission to access, or is otherwise
+                //: restricted.
+                //: %1 = the name of the file
+                messages.append(qtTrId("ui.open-document.permission-denied-error")
+                    .arg(filename));
+            if (ex.why() & FileException::DoesNotExist
+                || ex.why() & FileException::IncompleteDirPath
+                || ex.why() & FileException::NotAFile)
+                //: Displayed after attempting to open a file path that did not
+                //: lead to a file.
+                //: %1 = the file path
+                messages.append(qtTrId("ui.open-document.file-not-found-error")
+                    .arg(_loadDocumentTask->url().toLocalFile()));
+            if (ex.why() & FileException::UnknownProblem || messages.isEmpty())
+                goto unknownError;
+            
+            errorPresenter->setMessage(messages.join('\n'));
         }
         else
         {
             ADDLE_THROW(*_loadDocumentTask->error());
         }
+
+        emit error(errorPresenter);
+        return;
+
+    unknownError:
+        //: Displayed when the document failed to open, but the reason why could
+        //: not be determined.
+        errorPresenter->setMessage(qtTrId("ui.open-document.unknown-error"));
+        emit error(errorPresenter);
+        return;
     }
     ADDLE_SLOT_CATCH
 }
@@ -283,6 +330,8 @@ void LoadDocumentTask::doTask()
     {
         QFile file(loadedUrl.toLocalFile());
 
+        IOCheck().openFile(file, QIODevice::ReadWrite | QIODevice::ExistingOnly);
+
         DocumentImportExportInfo info;
         info.setFilename(loadedUrl.toLocalFile());
 
@@ -292,6 +341,6 @@ void LoadDocumentTask::doTask()
     else
     {
         //% "Loading a document from a remote URL is not yet supported."
-        qWarning() << qUtf8Printable(qtTrId("debug-messages.remote-url-not-supported"));
+        ADDLE_LOGIC_ERROR_M(qtTrId("debug-messages.remote-url-not-supported"));
     }
 }

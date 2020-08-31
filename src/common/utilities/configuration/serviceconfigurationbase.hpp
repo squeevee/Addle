@@ -55,7 +55,7 @@ public:
             !ServiceLocator::_instance,
             //% "Service Locator has already been initialized"
             qtTrId("debug-messages.service-locator.already-initialized-error")
-        )
+        );
 
         ServiceLocator::_instance = new ServiceLocator();
         configure();

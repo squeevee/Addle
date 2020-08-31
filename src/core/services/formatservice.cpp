@@ -18,11 +18,9 @@
 #include "globals.hpp"
 
 #include "servicelocator.hpp"
-#include "exceptions/formatexceptions.hpp"
+#include "exceptions/formatexception.hpp"
+#include "utilities/iocheck.hpp"
 #include "utilities/errors.hpp"
-
-#include "utilities/fileassertions.hpp"
-//#include "utilities/taskmessages/formatmismatchmessage.hpp"
 
 using namespace Addle;
 FormatService::FormatService()
@@ -36,10 +34,25 @@ GenericFormatModel FormatService::importModel_p(QIODevice& device, const Generic
 
     ADDLE_ASSERT(_formats_byModelType.contains(modelTypeIndex));
 
-    if (!info.filename().isEmpty())
-        assertCanReadFile(info.fileInfo());
+    QFile* file = qobject_cast<QFile*>(&device);
+    if (file)
+    {
+        ADDLE_ASSERT(info.fileInfo() != QFileInfo());
+        IOCheck().openFile(*file, QIODevice::ReadOnly);
+        if (file->size() == 0)
+            ADDLE_THROW(
+                FormatException(FormatException::EmptyResource,
+                GenericFormatId(),
+                info)
+            );
+    }
+    else
+    {
+        //TODO
+        ADDLE_LOGIC_ERROR_M("Only file devices are currently supported by FormatService.");
+    }
 
-    GenericFormatId impliedBySuffix = _formats_byExtension.value(info.fileInfo().completeSuffix());
+    GenericFormatId impliedBySuffix = _formats_bySuffix.value(info.fileInfo().completeSuffix());
 
     GenericFormatId format;
     if (
@@ -49,24 +62,13 @@ GenericFormatModel FormatService::importModel_p(QIODevice& device, const Generic
     )
     {
         if(!_drivers_byFormat.contains(format))
-        {
             ADDLE_THROW(FormatException(FormatException::WrongModelType, format, info));
-        }
 
         GenericFormatDriver driver = _drivers_byFormat.value(format);
 
         ADDLE_ASSERT(driver.supportsImport());
 
         GenericFormatModel result = driver.importModel(device, info);
-
-        // if (status && format != impliedBySuffix)
-        // {
-        //     QSharedPointer<ITaskMessage> mismatch(new FormatMismatchMessage(
-        //         impliedBySuffix,
-        //         format
-        //     ));
-        //     status->postMessage(mismatch);
-        // }
 
         return result;
     }
@@ -79,15 +81,11 @@ GenericFormatModel FormatService::importModel_p(QIODevice& device, const Generic
 GenericFormatId FormatService::inferFormatFromSignature(QIODevice& device)
 {
     if (device.isSequential())
-        return GenericFormatId(); //Inferrence by signature not supported for sequential devices.
+        return GenericFormatId();
 
-    if (!device.isOpen())
-        device.open(QIODevice::ReadOnly);
-
-    qint64 peeksize = std::min((qint64)_maxSignatureLength, device.size());
-    const QByteArray peek = device.peek(peeksize);
+    const QByteArray peek = IOCheck().peek(device, _maxSignatureLength);
     QByteArray sniff;
-    sniff.reserve(peeksize);
+    sniff.reserve(peek.size());
     for (char c : peek)
     {
         sniff.append(c);
@@ -103,14 +101,7 @@ GenericFormatId FormatService::inferFormatFromSignature(QIODevice& device)
 template<class ModelType>
 void FormatService::setupFormat()
 {
-    QSet<FormatId<ModelType>> formats;
-    for (AddleId id : noDetach(ServiceLocator::getIds<IFormatDriver<ModelType>>()))
-    {
-        // gotta get linq or something
-        formats.insert(static_cast<FormatId<ModelType>>(id));
-    }
-
-    for (FormatId<ModelType> format : formats)
+    for (FormatId<ModelType> format : noDetach(ServiceLocator::getIds<IFormatDriver<ModelType>>()))
     {
         auto& driver = ServiceLocator::get<IFormatDriver<ModelType>>(format);
         _drivers_byFormat.insert(format, GenericFormatDriver(driver));
@@ -126,9 +117,9 @@ void FormatService::setupFormat()
         
         _formats_byModelType[std::type_index(typeid(ModelType))].insert(format);
 
-        for (QString& extension : format.fileExtensions())
+        for (QString& suffix : format.fileExtensions())
         {
-            _formats_byExtension.insert(extension, format);
+            _formats_bySuffix.insert(suffix, format);
         }
     }
 }

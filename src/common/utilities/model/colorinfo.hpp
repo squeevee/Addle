@@ -71,13 +71,12 @@ private:
 
 inline uint qHash(ColorInfo info, uint seed)
 { 
-    return QT_PREPEND_NAMESPACE(qHash(((quint32)info.color().rgb(), seed))); // TODO fix this
-    // woof
-    //uint x = QT_PREPEND_NAMESPACE(qHash(info.color().rgb(),seed)) ^ QT_PREPEND_NAMESPACE(qHash(info.name(), seed));
-    //if (info.pos())
-        //return QT_PREPEND_NAMESPACE(qHash(info.pos()->x()) ^ QT_PREPEND_NAMESPACE(qHash(info.pos()->y(), seed)), seed) ^ x;
-    //else
-        //return x;
+    uint hash = ::qHash(info.color().rgb(), seed);
+    if (!info.name().isEmpty())
+        hash ^= ::qHash(info.name(), seed);
+    if (info.pos())
+        hash ^= ::qHash(qMakePair(info.pos()->x(), info.pos()->y()), seed);
+    return hash;
 }
 
 } // namespace Addle

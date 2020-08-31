@@ -51,7 +51,7 @@ private:
  * is thrown.
  */
 #define ADDLE_ASSERT_M(expression, message) \
-if (!static_cast<bool>(expression)) { ADDLE_THROW(GenericLogicError(#expression, message)); }
+if ( Q_UNLIKELY( !static_cast<bool>(expression) ) ) { ADDLE_THROW( GenericLogicError(#expression, message) ); }
 
 /**
  * @def ADDLE_ASSERT(expression)
@@ -66,15 +66,58 @@ ADDLE_ASSERT_M(expression, QString())
  * Indiscriminately throws a logic error AddleException with the given message.
  */
 #define ADDLE_LOGIC_ERROR_M(message) \
-ADDLE_THROW(GenericLogicError(nullptr, message));
+ADDLE_THROW(GenericLogicError(nullptr, message))
 
 //% "An exception of an unknown type was caught."
-#define _LAST_DITCH_CATCH(x) ServiceLocator::get<IErrorService>().reportUnhandledError(GenericLogicError(nullptr, qtTrId("debug-messages.last-ditch-catch")));
+#define _LAST_DITCH_CATCH(x) ServiceLocator::get<IErrorService>().reportUnhandledError(GenericLogicError(nullptr, qtTrId("debug-messages.last-ditch-catch")), x);
 
 [[noreturn]] void ADDLE_COMMON_EXPORT _cannotReportError_impl(const std::exception* primaryEx);
 
-#define _CANNOT_REPORT_ERROR_1 _cannotReportError_impl(&ex);
-#define _CANNOT_REPORT_ERROR_2 _cannotReportError_impl(nullptr);
+#define ADDLE_SLOT_CATCH_SEVERITY(x) \
+catch (const AddleException& ex) \
+{ \
+    if (static_cast<bool>(sender())) \
+    { \
+        try { ServiceLocator::get<IErrorService>().reportUnhandledError(ex, x); } \
+        catch(...) { _cannotReportError_impl(&ex); } \
+    } \
+    else throw; \
+} \
+catch (const std::exception& ex) \
+{ \
+    if (static_cast<bool>(sender())) \
+    { \
+        try { ServiceLocator::get<IErrorService>().reportUnhandledError(ex, x); } \
+        catch(...) { _cannotReportError_impl(&ex); } \
+    } \
+    else throw; \
+} \
+catch(...) \
+{ \
+    if (static_cast<bool>(sender())) \
+    { \
+        try { _LAST_DITCH_CATCH(x) } \
+        catch(...) { _cannotReportError_impl(nullptr); } \
+    } \
+    else throw; \
+}
+
+#define ADDLE_EVENT_CATCH_SEVERITY(x) \
+catch (const AddleException& ex) \
+{ \
+    try { ServiceLocator::get<IErrorService>().reportUnhandledError(ex, x); } \
+    catch(...) { _cannotReportError_impl(&ex); } \
+} \
+catch (const std::exception& ex) \
+{ \
+    try { ServiceLocator::get<IErrorService>().reportUnhandledError(ex, x); } \
+    catch(...) { _cannotReportError_impl(&ex); } \
+} \
+catch(...) \
+{ \
+    try { _LAST_DITCH_CATCH(x) } \
+    catch(...) { _cannotReportError_impl(nullptr); } \
+}
 
 #else // ADDLE_DEBUG
 
@@ -85,47 +128,39 @@ public:
     virtual ~GenericLogicError() = default;
 };
 
-#define ADDLE_ASSERT_M(expression, message) if (!static_cast<bool>(expression)) { ADDLE_THROW(GenericLogicError()); }
+#define ADDLE_ASSERT_M(expression, message) if ( Q_UNLIKELY( !static_cast<bool>(expression) ) ) { ADDLE_THROW( GenericLogicError() ); }
 #define ADDLE_ASSERT(expression) ADDLE_ASSERT_M(expression, NULL)
 
-#define ADDLE_LOGIC_ERROR_M(message) ADDLE_THROW(GenericLogicError());
-
-#define _LAST_DITCH_CATCH(x) ServiceLocator::get<IErrorService>().reportUnhandledError(GenericLogicError());
-
-#define _CANNOT_REPORT_ERROR_1 std::abort();
-#define _CANNOT_REPORT_ERROR_2 std::abort();
-
-#endif //ADDLE_DEBUG
-
+#define ADDLE_LOGIC_ERROR_M(message) ADDLE_THROW(GenericLogicError())
 
 #define ADDLE_SLOT_CATCH_SEVERITY(x) \
-catch (const AddleException& ex) \
-{ \
-    if (static_cast<bool>(sender())) \
-    { \
-        try { ServiceLocator::get<IErrorService>().reportUnhandledError(ex, x); } \
-        catch(...) { _CANNOT_REPORT_ERROR_1 } \
-    } \
-    else throw; \
-} \
-catch (const std::exception& ex) \
-{ \
-    if (static_cast<bool>(sender())) \
-    { \
-        try { ServiceLocator::get<IErrorService>().reportUnhandledError(ex, x); } \
-        catch(...) { _CANNOT_REPORT_ERROR_1 } \
-    } \
-    else throw; \
-} \
 catch(...) \
 { \
     if (static_cast<bool>(sender())) \
     { \
-        try { _LAST_DITCH_CATCH(x) } \
-        catch(...) { _CANNOT_REPORT_ERROR_2 } \
+        try { ServiceLocator::get<IErrorService>().reportUnhandledError(GenericLogicError(), x) } \
+        catch(...) { std::abort(); } \
     } \
     else throw; \
 }
+
+#define ADDLE_EVENT_CATCH_SEVERITY(x) \
+catch(...) \
+{ \
+    try { ServiceLocator::get<IErrorService>().reportUnhandledError(GenericLogicError(), x) } \
+    catch(...) { std::abort(); } \
+}
+
+/**
+ * @def ADDLE_EVENT_CATCH
+ * Similar to ADDLE_SLOT_CATCH. For use in the body of methods that aren't slots 
+ * but may be invoked by the Qt event system, such as `QObject::event`,
+ * `QRunnable::run` or a `Q_INVOKABLE` method. This will never propagate
+ * exceptions to the caller.
+ */
+#define ADDLE_EVENT_CATCH ADDLE_EVENT_CATCH_SEVERITY(UnhandledException::Normal)
+
+#endif //ADDLE_DEBUG
 
 /**
  * @def ADDLE_SLOT_CATCH
@@ -147,23 +182,6 @@ catch(...) \
  * ```
  */
 #define ADDLE_SLOT_CATCH ADDLE_SLOT_CATCH_SEVERITY(UnhandledException::Normal)
-
-#define ADDLE_EVENT_CATCH_SEVERITY(x) \
-catch (const AddleException& ex) \
-{ \
-    try { ServiceLocator::get<IErrorService>().reportUnhandledError(ex, x); } \
-    catch(...) { _CANNOT_REPORT_ERROR_1 } \
-} \
-catch (const std::exception& ex) \
-{ \
-    try { ServiceLocator::get<IErrorService>().reportUnhandledError(ex, x); } \
-    catch(...) { _CANNOT_REPORT_ERROR_1 } \
-} \
-catch(...) \
-{ \
-    try { _LAST_DITCH_CATCH(x) } \
-    catch(...) { _CANNOT_REPORT_ERROR_2 } \
-}
 
 /**
  * @def ADDLE_EVENT_CATCH

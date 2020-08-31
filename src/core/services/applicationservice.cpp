@@ -157,12 +157,8 @@ void ApplicationService::parseCommandLine()
         qtTrId("cli-messages.options.open.description")
     );
 
-    bool success = parser.parse(args);
-
-    if (!success)
-    {
+    if (!parser.parse(args))
         ADDLE_THROW(CommandLineParserException(parser.errorText()));
-    }
 
     if (parser.isSet(helpOption))
     {

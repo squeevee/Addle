@@ -40,8 +40,8 @@ public:
         AbortOnUnhandledLogicError = 0x4,
 
 
-        FilterQObjectConnectFailure = 0x100,
-        FilterQStringArgFailure = 0x200
+        InterceptQObjectConnectFailure = 0x100,
+        InterceptQStringArgFailure = 0x200
     };
     Q_DECLARE_FLAGS(DebugBehaviorFlags, DebugBehaviorOption)
     Q_FLAG(DebugBehaviorOption)

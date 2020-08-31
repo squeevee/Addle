@@ -53,6 +53,7 @@ private:
     QStack<Location> _locations;
     const QString _what;
     QByteArray _whatBytes;
+    QStringList _firstRaiseBacktrace;
 
     void updateWhat();
 #endif
@@ -62,41 +63,30 @@ private:
 public: \
     [[noreturn]] void raise() const { throw *this; } \
     AddleException* clone() const { return new T(*this); } \
-    bool isLogicError() const { return is_logic_error<T>::value; } \
-    bool isRuntimeError() const { return is_runtime_error<T>::value; }
+    bool isLogicError() const { return Traits::is_logic_error<T>::value; } \
+    bool isRuntimeError() const { return Traits::is_runtime_error<T>::value; }
+
+namespace Traits {
 
 template<class T>
 struct is_logic_error : std::false_type {};
-#define DECL_LOGIC_ERROR(T) class T; template<> struct is_logic_error<T> : std::true_type {}; 
 
 template<class T>
 struct is_runtime_error : std::false_type {};
-#define DECL_RUNTIME_ERROR(T) class T; template<> struct is_runtime_error<T> : std::true_type {}; 
+
+} // namespace Traits
+
+#define DECL_LOGIC_ERROR(T) class T; namespace Traits { template<> struct is_logic_error<T> : std::true_type {}; }
+#define DECL_RUNTIME_ERROR(T) class T; namespace Traits { template<> struct is_runtime_error<T> : std::true_type {}; }
 
 #ifdef ADDLE_DEBUG
 #define ADDLE_THROW(ex) \
-{ \
-    static_assert( \
-        std::is_base_of< \
-            AddleException, \
-            std::remove_reference<decltype(ex)>::type \
-        >::value, \
-        "ADDLE_THROW may only be used for AddleException" \
-    ); \
-    (ex).debugRaise( Q_FUNC_INFO, __FILE__, __LINE__ ); \
-}
+static_cast<AddleException&&>(ex).debugRaise( Q_FUNC_INFO, __FILE__, __LINE__ )
 #else
 #define ADDLE_THROW(ex) \
-{ \
-    static_assert( \
-        std::is_base_of< \
-            AddleException, \
-            std::remove_reference<decltype(ex)>::type \
-        >::value, \
-        "ADDLE_THROW may only be used for AddleException" \
-    ); \
-    (ex).raise(); \
-}
+{ { static_cast<AddleException&&>(ex).raise(); } Q_UNREACHABLE(); }
+// Q_UNREACHABLE() ought to be implied by raise() being [[noreturn]] but GCC in
+// particular has a hard time with that since raise is virtual.
 #endif
 
 } // namespace Addle
@@ -104,4 +94,3 @@ struct is_runtime_error : std::false_type {};
 Q_DECLARE_METATYPE(QSharedPointer<Addle::AddleException>);
 
 #endif // ADDLEEXCEPTION_HPP
-

@@ -206,7 +206,6 @@ void MainEditorWindow::onPresenterError(QSharedPointer<IErrorPresenter> error)
 
     message->setWindowModality(Qt::WindowModal);
     message->setAttribute(Qt::WA_DeleteOnClose);
-    
 
     message->setText(error->message());
     if (error->severity() == IErrorPresenter::Warning)
@@ -218,7 +217,11 @@ void MainEditorWindow::onPresenterError(QSharedPointer<IErrorPresenter> error)
     if (error->exception())
     {
         // thanks https://stackoverflow.com/a/38371503/2808947
-        message->setStyleSheet("QTextEdit { font-family: monospace; }");
+        message->setStyleSheet(
+        "QTextEdit {"
+            "font-family: monospace;"
+            "min-width: 720px;"
+        "}");
         message->setDetailedText(error->exception()->what());
     }
 #endif

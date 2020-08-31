@@ -27,34 +27,19 @@ public:
     enum Why
     {
         FormatNotRecognized,
+        EmptyResource,
         WrongModelType
     };
     Q_ENUM(Why)
 
-    FormatException(Why why, GenericFormatId format)
+    FormatException(Why why, GenericFormatId format, const GenericImportExportInfo& importExportInfo = GenericImportExportInfo())
         : AddleException(
 #ifdef ADDLE_DEBUG
-        //% "A format error occurred:\n"
-        //% "    why: %1\n"
-        //% " format: %2"
-        qtTrId("debug-messages.format-error.2-arg")
-            .arg(QMetaEnum::fromType<Why>().valueToKey(why))
-            .arg(format.key())
-#endif
-        ),
-        _why(why),
-        _format(format)
-    {
-    }
-
-    FormatException(Why why, GenericFormatId format, const GenericImportExportInfo& importExportInfo)
-        : AddleException(
-#ifdef ADDLE_DEBUG
-        //% "A format error occurred:\n"
-        //% "      why: %1\n"
-        //% "   format: %2\n"
-        //% " filename: %3"
-        qtTrId("debug-messages.format-error.3-arg")
+        //% "A format exception occurred:\n"
+        //% "       why: %1\n"
+        //% "    format: %2\n"
+        //% " file path: %3"
+        qtTrId("debug-messages.format-exception")
             .arg(QMetaEnum::fromType<Why>().valueToKey(why))
             .arg(format.key())
             .arg(importExportInfo.filename())
@@ -75,7 +60,7 @@ public:
 private:
     const GenericImportExportInfo _importExportInfo;
     const GenericFormatId _format;
-    Why _why;
+    const Why _why;
 };
 
 

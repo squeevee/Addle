@@ -35,7 +35,7 @@ private:
     template <class ModelType>
     void setupFormat();
 
-    QHash<QString, GenericFormatId> _formats_byExtension;
+    QHash<QString, GenericFormatId> _formats_bySuffix;
     QHash<QString, GenericFormatId> _formats_byMimeType;
     QHash<QByteArray, GenericFormatId> _formats_bySignature;
     QHash<std::type_index, QSet<GenericFormatId>> _formats_byModelType;
