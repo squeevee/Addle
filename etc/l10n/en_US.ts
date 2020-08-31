@@ -288,34 +288,34 @@
         <translation>Starting Addle. This is a debug build.</translation>
     </message>
     <message id="debug-messages.exception-already-has-backtrace">
-        <location filename="../../src/common/exceptions/addleexception.cpp" line="75" />
+        <location filename="../../src/common/exceptions/addleexception.cpp" line="73" />
         <source>The exception unexpectedly already had a backtrace.</source>
         <translation>The exception unexpectedly already had a backtrace.</translation>
     </message>
     <message id="debug-messages.logic-error-occurred">
-        <location filename="../../src/common/exceptions/addleexception.cpp" line="127" />
+        <location filename="../../src/common/exceptions/addleexception.cpp" line="125" />
         <source>A logic error occurred:
 %1</source>
         <translation>A logic error occurred:
 %1</translation>
     </message>
     <message id="debug-messages.exception-throw-header">
-        <location filename="../../src/common/exceptions/addleexception.cpp" line="149" />
+        <location filename="../../src/common/exceptions/addleexception.cpp" line="147" />
         <source>  thrown from:</source>
         <oldsource>  thrown from:
 </oldsource>
         <translation>  thrown from:</translation>
     </message>
     <message id="debug-messages.exception-location-formatter">
-        <location filename="../../src/common/exceptions/addleexception.cpp" line="152" />
-        <location filename="../../src/common/exceptions/addleexception.cpp" line="180" />
+        <location filename="../../src/common/exceptions/addleexception.cpp" line="150" />
+        <location filename="../../src/common/exceptions/addleexception.cpp" line="178" />
         <source> %1: %2 (%3:%4)</source>
         <oldsource> %1: %2 (%3:%4)
 </oldsource>
         <translation> %1: %2 (%3:%4)</translation>
     </message>
     <message id="debug-messages.exception-backtrace-header">
-        <location filename="../../src/common/exceptions/addleexception.cpp" line="162" />
+        <location filename="../../src/common/exceptions/addleexception.cpp" line="160" />
         <source>  backtrace:</source>
         <oldsource>
   backtrace:
@@ -323,7 +323,7 @@
         <translation>  backtrace:</translation>
     </message>
     <message id="debug-messages.exception-rethrow-header">
-        <location filename="../../src/common/exceptions/addleexception.cpp" line="173" />
+        <location filename="../../src/common/exceptions/addleexception.cpp" line="171" />
         <source>  rethrown from:</source>
         <oldsource>  rethrown from:
 </oldsource>
@@ -409,37 +409,37 @@ Why code:    %2</translation>
         <translation>Layer Group %1</translation>
     </message>
     <message id="ui.open-document.invalid-format-error">
-        <location filename="../../src/core/presenters/maineditorpresenter.cpp" line="251" />
+        <location filename="../../src/core/presenters/maineditorpresenter.cpp" line="248" />
         <source />
         <extracomment>Displayed after attempting to open a file whose format is not supported, not recognized, damaged, or otherwise incorrect. %1 = the name of the file</extracomment>
         <translation>The file "%1" was an urecognized or invalid format.</translation>
     </message>
     <message id="ui.open-document.file-in-use-error">
-        <location filename="../../src/core/presenters/maineditorpresenter.cpp" line="270" />
+        <location filename="../../src/core/presenters/maineditorpresenter.cpp" line="267" />
         <source />
         <extracomment>Displayed after attempting to open a file that is in use by another process/application %1 = the name of the file</extracomment>
         <translation>The file "%1" is being used by another process.</translation>
     </message>
     <message id="ui.open-document.permission-denied-error">
-        <location filename="../../src/core/presenters/maineditorpresenter.cpp" line="277" />
+        <location filename="../../src/core/presenters/maineditorpresenter.cpp" line="274" />
         <source />
         <extracomment>Displayed after attempting to open a file that the user's account does not have permission to access, or is otherwise restricted. %1 = the name of the file</extracomment>
         <translation>Permission was denied opening the file "%1"</translation>
     </message>
     <message id="ui.open-document.file-not-found-error">
-        <location filename="../../src/core/presenters/maineditorpresenter.cpp" line="285" />
+        <location filename="../../src/core/presenters/maineditorpresenter.cpp" line="282" />
         <source />
         <extracomment>Displayed after attempting to open a file path that did not lead to a file. %1 = the file path</extracomment>
         <translation type="unfinished">No file could be found found at "%1".</translation>
     </message>
     <message id="ui.open-document.unknown-error">
-        <location filename="../../src/core/presenters/maineditorpresenter.cpp" line="303" />
+        <location filename="../../src/core/presenters/maineditorpresenter.cpp" line="300" />
         <source />
         <extracomment>Displayed when the document failed to open, but the reason why could not be determined.</extracomment>
         <translation>An unknown error occurred attempting to open the document.</translation>
     </message>
     <message id="debug-messages.remote-url-not-supported">
-        <location filename="../../src/core/presenters/maineditorpresenter.cpp" line="347" />
+        <location filename="../../src/core/presenters/maineditorpresenter.cpp" line="344" />
         <source>Loading a document from a remote URL is not yet supported.</source>
         <translation>Loading a document from a remote URL is not yet supported.</translation>
     </message>
@@ -490,42 +490,42 @@ Why code:    %2</translation>
         <translation>The file or url to open.</translation>
     </message>
     <message id="debug-messages.application-service.cli-open-url">
-        <location filename="../../src/core/services/applicationservice.cpp" line="196" />
+        <location filename="../../src/core/services/applicationservice.cpp" line="192" />
         <source>Command line arguments specified to open url "%1"</source>
         <translation>Command line arguments specified to open url "%1"</translation>
     </message>
     <message id="debug-messages.application-service.cli-open-file">
-        <location filename="../../src/core/services/applicationservice.cpp" line="207" />
+        <location filename="../../src/core/services/applicationservice.cpp" line="203" />
         <source>Command line arguments specified to open file "%1"</source>
         <translation>Command line arguments specified to open file "%1"</translation>
     </message>
     <message id="cli-messages.multiple-positional-arguments-warning">
-        <location filename="../../src/core/services/applicationservice.cpp" line="217" />
+        <location filename="../../src/core/services/applicationservice.cpp" line="213" />
         <source>Multiple positional arguments were given, but only the first will be used.</source>
         <translation>Multiple positional arguments were given, but only the first will be used.</translation>
     </message>
     <message id="debug-messages.application-service.starting-editor-explicit">
-        <location filename="../../src/core/services/applicationservice.cpp" line="233" />
+        <location filename="../../src/core/services/applicationservice.cpp" line="229" />
         <source>Explicitly starting in editor mode.</source>
         <translation>Explicitly starting in editor mode.</translation>
     </message>
     <message id="debug-messages.application-service.starting-browser-explicit">
-        <location filename="../../src/core/services/applicationservice.cpp" line="244" />
+        <location filename="../../src/core/services/applicationservice.cpp" line="240" />
         <source>Explicitly starting in browser mode.</source>
         <translation>Explicitly starting in browser mode.</translation>
     </message>
     <message id="debug-messages.application-service.starting-editor-implicit">
-        <location filename="../../src/core/services/applicationservice.cpp" line="256" />
+        <location filename="../../src/core/services/applicationservice.cpp" line="252" />
         <source>Implicitly starting in editor mode.</source>
         <translation>Implicitly starting in editor mode.</translation>
     </message>
     <message id="debug-messages.application-service.starting-browser-implicit">
-        <location filename="../../src/core/services/applicationservice.cpp" line="266" />
+        <location filename="../../src/core/services/applicationservice.cpp" line="262" />
         <source>Implicitly starting in browser mode.</source>
         <translation>Implicitly starting in browser mode.</translation>
     </message>
     <message id="debug-messages.application-service.quitting">
-        <location filename="../../src/core/services/applicationservice.cpp" line="299" />
+        <location filename="../../src/core/services/applicationservice.cpp" line="295" />
         <source>Quitting application service</source>
         <translation>Quitting application service</translation>
     </message>
@@ -608,7 +608,7 @@ requestedInterfaceName: "%1"
         <translation>DebugBehavior initialized with these flags set:</translation>
     </message>
     <message id="debug-messages.qt-warning-as-exception">
-        <location filename="../../src/common/utilities/debugging/messagehandler.hpp" line="47" />
+        <location filename="../../src/common/utilities/debugging/messagehandler.hpp" line="48" />
         <source>A Qt warning was intercepted (%1):
 %2</source>
         <translation>A Qt warning was intercepted (%1):
@@ -651,7 +651,7 @@ requestedInterfaceName: "%1"
         <translation>An error occurred but the device type is unknown / unsupported so it could not be diagnosed.</translation>
     </message>
     <message id="debug-messages.io-check.invalid-file-mode">
-        <location filename="../../src/common/utilities/iocheck.cpp" line="106" />
+        <location filename="../../src/common/utilities/iocheck.cpp" line="105" />
         <source>The file mode was not understood.</source>
         <translation>The file mode was not understood.</translation>
     </message>

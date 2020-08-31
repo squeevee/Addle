@@ -24,29 +24,4 @@ namespace std
 	}
 }
 
-// namespace boost //needed?
-// {
-//     class QHashVisitor
-//     {
-//     public:
-//         QHashVisitor(uint seed = 0)
-//             : _seed(seed)
-//         {
-//         }
-
-//         template<typename T>
-//         inline uint operator()(const T& x) { return qHash(x, _seed); }
-//     private:
-//         uint _seed;
-//     };
-
-//     template<typename T1, typename T2>
-//     inline uint qHash(const variant<T1, T2>& v, uint seed = 0) { return apply_visitor(QHashVisitor(seed), v); }
-
-//     // Could be extended for more parameters
-
-//     template<typename T>
-//     inline uint qHash(const recursive_wrapper<T>& w, uint seed = 0) { return qHash(w.get(), seed); }
-// }
-
 #endif // HASHFUNCTIONS_HPP

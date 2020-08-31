@@ -23,6 +23,9 @@
 
 namespace Addle {
 
+/**
+ * @brief Base class for exceptions in Addle.
+ */
 class ADDLE_COMMON_EXPORT AddleException : public std::exception
 {
 #ifdef ADDLE_DEBUG
@@ -43,7 +46,11 @@ public:
 
     virtual bool isLogicError() const = 0;
     virtual bool isRuntimeError() const = 0;
+
+    // Throws this exception as its most derived polymorphic type.
     [[noreturn]] virtual void raise() const = 0;
+
+    // Makes a copy of this exception as its most derived polymorphic type.
     virtual AddleException* clone() const = 0;
 
 #ifdef ADDLE_DEBUG
@@ -80,6 +87,11 @@ struct is_runtime_error : std::false_type {};
 #define DECL_RUNTIME_ERROR(T) class T; namespace Traits { template<> struct is_runtime_error<T> : std::true_type {}; }
 
 #ifdef ADDLE_DEBUG
+/**
+ * @def
+ * @def Throws the AddleException ex as its most derived polymorphic type.
+ * (Attaches debug information in debug builds.)
+ */
 #define ADDLE_THROW(ex) \
 static_cast<AddleException&&>(ex).debugRaise( Q_FUNC_INFO, __FILE__, __LINE__ )
 #else

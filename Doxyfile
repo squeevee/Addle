@@ -791,6 +791,9 @@ WARN_LOGFILE           =
 # Note: If this tag is empty the current directory is searched.
 
 INPUT                  = \
+    Readme.md \
+    demo.png \
+    docs \
     src \
     tests \
     tools
@@ -839,7 +842,8 @@ RECURSIVE              = YES
 # run.
 
 EXCLUDE                = \
-    tests/utilities/generated_headers
+    tests/utilities/generated_headers \
+    docs/html
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded
@@ -893,7 +897,8 @@ EXAMPLE_RECURSIVE      = NO
 # that contain images that are to be included in the documentation (see the
 # \image command).
 
-IMAGE_PATH             =
+IMAGE_PATH             =\
+    .
 
 # The INPUT_FILTER tag can be used to specify a program that doxygen should
 # invoke to filter for each input file. Doxygen will invoke the filter program

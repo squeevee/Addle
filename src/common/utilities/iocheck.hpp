@@ -20,8 +20,9 @@ namespace Addle {
 
 /**
  * @class IOCheck
- * High-level error checking for IO device and file system access. If an error
- * occurs, a detailed FileException (or logic error) is thrown.
+ * @brief High-level error checking for IO device and file system access.
+ * 
+ * If an error occurs, a detailed FileException (or logic error) is thrown.
  */
 class ADDLE_COMMON_EXPORT IOCheck
 {

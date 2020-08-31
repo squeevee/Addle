@@ -26,6 +26,11 @@ typename std::enable_if<
     const QObject*
 >::type qobject_interface_cast(const Interface* object);
 
+/**
+ * @brief Special interface that provides access to an underlying QObject
+ * 
+ * Use wtih qobject_interface_cast and connect_interface
+ */
 class IAmQObject
 {
 protected:
@@ -46,6 +51,10 @@ protected:
 
 };
 
+/**
+ * @def 
+ * @brief Place this macro in the implementation of an IAmQbject interface.
+ */
 #define IAMQOBJECT_IMPL \
 protected: \
     QObject* asQObject_p() override { return this; } \

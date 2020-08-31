@@ -68,6 +68,7 @@ const QSharedPointer<const AddleId::BaseMetaData> GET_STATIC_ID_METADATA(x)::_me
 #define STATIC_ID_METADATA_ENTRY(x) { x, GET_STATIC_ID_METADATA(x)::_metaData }
 
 // Static ID metadata definitions
+///@cond FALSE
 
 DEFINE_STATIC_ID_METADATA(CoreBrushEngines::PathEngine);
 DEFINE_STATIC_ID_METADATA(CoreBrushEngines::RasterEngine);
@@ -108,6 +109,8 @@ DEFINE_STATIC_ID_METADATA(CoreTools::Stickers);
 DEFINE_STATIC_ID_METADATA(CoreTools::Eyedrop);
 DEFINE_STATIC_ID_METADATA(CoreTools::Navigate);
 DEFINE_STATIC_ID_METADATA(CoreTools::Measure);
+
+///@endcond
 
 // Dynamic ID metadata definition
 

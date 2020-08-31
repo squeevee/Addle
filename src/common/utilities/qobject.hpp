@@ -15,6 +15,9 @@
 #include "interfaces/iamqobject.hpp"
 namespace Addle {
 
+/**
+ * @brief Acquire QObject from Interface
+ */
 template<class Interface>
 typename std::enable_if<
     !std::is_const<Interface>::value,
@@ -24,6 +27,9 @@ typename std::enable_if<
     return static_cast<IAmQObject*>(object)->asQObject_p();
 }
 
+/**
+ * @brief Acquire QObject from Interface
+ */
 template<class Interface>
 typename std::enable_if<
     !std::is_const<Interface>::value,
@@ -46,8 +52,7 @@ const QObject* qobject_interface_cast(QSharedPointer<const Interface> object)
 }
 
 /**
- * @brief Wrapper for QObject::connect that automatically converts from
- * interface types as necessary.
+ * @brief Connect a QObject to a signal on an interface.
  */
 template<class Interface>
 inline QMetaObject::Connection connect_interface(
@@ -62,6 +67,9 @@ inline QMetaObject::Connection connect_interface(
     return QObject::connect(qsender, signal, receiver, slot, type);
 }
 
+/**
+ * @brief Connect a QObject to a slot on an interface.
+ */
 template<class Interface>
 inline QMetaObject::Connection connect_interface(
         const QObject* sender,
@@ -75,6 +83,9 @@ inline QMetaObject::Connection connect_interface(
     return QObject::connect(sender, signal, qreceiver, slot, type);
 }
 
+/**
+ * @brief Connect a QObject to a signal on an interface.
+ */
 template<class Interface>
 inline QMetaObject::Connection connect_interface(
         QSharedPointer<const Interface> sender,
@@ -87,6 +98,9 @@ inline QMetaObject::Connection connect_interface(
     return connect_interface(sender.data(), signal, receiver, slot, type);
 }
 
+/**
+ * @brief Connect a QObject to a signal on an interface.
+ */
 template<class Interface>
 inline QMetaObject::Connection connect_interface(
         QSharedPointer<Interface> sender,
@@ -99,6 +113,9 @@ inline QMetaObject::Connection connect_interface(
     return connect_interface(sender.data(), signal, receiver, slot, type);
 }
 
+/**
+ * @brief Connect a QObject to a slot on an interface.
+ */
 template<class Interface>
 inline QMetaObject::Connection connect_interface(
         const QObject* sender,
@@ -111,6 +128,9 @@ inline QMetaObject::Connection connect_interface(
     return connect_interface(sender, signal, receiver.data(), slot, type);
 }
 
+/**
+ * @brief Connect a QObject to a slot on an interface.
+ */
 template<class Interface>
 inline QMetaObject::Connection connect_interface(
         const QObject* sender,

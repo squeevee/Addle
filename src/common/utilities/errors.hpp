@@ -30,7 +30,7 @@ DECL_LOGIC_ERROR(GenericLogicError);
 #ifdef ADDLE_DEBUG
 
 /**
- * A general-purpose AddleException for logic errors.
+ * @brief A general-purpose AddleException for logic errors.
  */
 class ADDLE_COMMON_EXPORT GenericLogicError : public AddleException
 {
@@ -138,7 +138,7 @@ catch(...) \
 { \
     if (static_cast<bool>(sender())) \
     { \
-        try { ServiceLocator::get<IErrorService>().reportUnhandledError(GenericLogicError(), x) } \
+        try { ServiceLocator::get<IErrorService>().reportUnhandledError(GenericLogicError(), x); } \
         catch(...) { std::abort(); } \
     } \
     else throw; \
@@ -147,7 +147,7 @@ catch(...) \
 #define ADDLE_EVENT_CATCH_SEVERITY(x) \
 catch(...) \
 { \
-    try { ServiceLocator::get<IErrorService>().reportUnhandledError(GenericLogicError(), x) } \
+    try { ServiceLocator::get<IErrorService>().reportUnhandledError(GenericLogicError(), x); } \
     catch(...) { std::abort(); } \
 }
 

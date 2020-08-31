@@ -39,12 +39,18 @@
 #include "hashfunctions.hpp"
 namespace Addle {
 
+/**
+ * Prevent implicitly shared data type container from detaching.
+ */
 template<typename T>
 inline const T& noDetach(T& container)
 {
     return qAsConst(container);
 }
 
+/**
+ * Prevent implicitly shared data type container from detaching.
+ */
 template<typename T>
 inline const T noDetach(T&& container)
 {
