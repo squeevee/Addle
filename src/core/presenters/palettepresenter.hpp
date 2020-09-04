@@ -29,9 +29,9 @@ public:
     void initialize(IPalette& model);
     void initialize(PaletteId id);
 
-    IPalette& model() const { ASSERT_INIT; return *_model; }
+    IPalette& model() const { ASSERT_INIT(); return *_model; }
 
-    QMultiArray<ColorInfo, 2> colors() const { ASSERT_INIT; return _model->colors(); }
+    MultiArray<ColorInfo, 2> colors() const { ASSERT_INIT(); return _model->colors(); }
 
 private:
     IPalette* _model;

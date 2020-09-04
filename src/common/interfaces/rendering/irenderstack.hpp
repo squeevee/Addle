@@ -40,7 +40,7 @@ signals:
 };
 
 DECL_MAKEABLE(IRenderStack);
-DECL_EXPECTS_INITIALIZE(IRenderStack);
+;
 
 } // namespace Addle
 

@@ -47,7 +47,7 @@ public:
 };
 
 DECL_MAKEABLE(IRasterDiff)
-DECL_EXPECTS_INITIALIZE(IRasterDiff)
+
 
 } // namespace Addle
 #endif // IRASTERDIFF_HPP

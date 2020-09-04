@@ -32,19 +32,19 @@ public:
 
     AddleId selectedId()
     {
-        ASSERT_INIT; 
+        ASSERT_INIT(); 
         return _selectedIds.isEmpty() ? AddleId() : _selectedIds.first();
     }
-    QList<AddleId> selectedIds() { ASSERT_INIT; return _selectedIds; }
+    QList<AddleId> selectedIds() { ASSERT_INIT(); return _selectedIds; }
 
     QSharedPointer<IAssetPresenter> selectedPresenter()
     {
-        ASSERT_INIT;
+        ASSERT_INIT();
         return _selection.isEmpty() ? nullptr : _selection.first();
     }
-    QList<QSharedPointer<IAssetPresenter>> selectedPresenters() { ASSERT_INIT; return _selection; }
+    QList<QSharedPointer<IAssetPresenter>> selectedPresenters() { ASSERT_INIT(); return _selection; }
 
-    bool canMultiSelect() { ASSERT_INIT; return _canMultiSelect; }
+    bool canMultiSelect() { ASSERT_INIT(); return _canMultiSelect; }
 
     void select(AddleId assetId);
     void select(QList<AddleId> assetIds);
@@ -52,14 +52,14 @@ public:
     void select(QSharedPointer<IAssetPresenter> asset);
     void select(QList<QSharedPointer<IAssetPresenter>> assets);
 
-    QList<AddleId> ids() { ASSERT_INIT; return _ids; }
+    QList<AddleId> ids() { ASSERT_INIT(); return _ids; }
 
-    QList<QSharedPointer<IAssetPresenter>> assets() { ASSERT_INIT; return _assets; }
+    QList<QSharedPointer<IAssetPresenter>> assets() { ASSERT_INIT(); return _assets; }
     void setAssets(QList<QSharedPointer<IAssetPresenter>> assets);
 
-    QSharedPointer<IAssetPresenter> assetById(AddleId id) { ASSERT_INIT; return _assets_ById.value(id); }
+    QSharedPointer<IAssetPresenter> assetById(AddleId id) { ASSERT_INIT(); return _assets_ById.value(id); }
     
-    QList<AddleId> favorites() { ASSERT_INIT; return _favorites;}
+    QList<AddleId> favorites() { ASSERT_INIT(); return _favorites;}
     void setFavorites(QList<AddleId> favorites);
 
     void addFavorite(AddleId id);

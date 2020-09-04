@@ -33,7 +33,7 @@ public:
     virtual ~IDocument() {}
 
     virtual void initialize() = 0;
-    virtual void initialize(DocumentBuilder& builder) = 0;
+    virtual void initialize(const DocumentBuilder& builder) = 0;
 
     virtual void render(QRect area, QPaintDevice* device) const = 0;
 
@@ -54,7 +54,7 @@ signals:
 };
 
 DECL_MAKEABLE(IDocument)
-DECL_EXPECTS_INITIALIZE(IDocument)
+
 
 } // namespace Addle
 

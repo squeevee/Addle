@@ -64,7 +64,7 @@ signals:
 
 DECL_MAKEABLE(IColorSelectionPresenter);
 
-DECL_EXPECTS_INITIALIZE(IColorSelectionPresenter);
+;
 
 DECL_INTERFACE_META_PROPERTIES(IColorSelectionPresenter,
     DECL_INTERFACE_PROPERTY(color1)

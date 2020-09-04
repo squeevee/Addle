@@ -28,10 +28,10 @@ public:
     LayerBuilder(const LayerBuilder& other) : _data(other._data) {}
     
     void setBoundary(QRect boundary) { _data->boundary = boundary; }
-    QRect boundary() { return _data->boundary; }
+    QRect boundary() const { return _data->boundary; }
 
     void setImage(QImage image) { _data->image = image; }
-    QImage image() { return _data->image; }
+    QImage image() const { return _data->image; }
 
 private:
     QSharedDataPointer<LayerBuilderData> _data;

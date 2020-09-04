@@ -139,7 +139,7 @@ public:
     virtual ~MainEditorView() = default;
 
     void initialize(IMainEditorPresenter& presenter);
-    IMainEditorPresenter& presenter() const { ASSERT_INIT; return *_presenter; }
+    IMainEditorPresenter& presenter() const { ASSERT_INIT(); return *_presenter; }
 
 public slots:
     void show();

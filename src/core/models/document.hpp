@@ -29,19 +29,19 @@ public:
     virtual ~Document() = default;
 
     void initialize();
-    void initialize(DocumentBuilder& builder);
+    void initialize(const DocumentBuilder& builder);
 
     void render(QRect area, QPaintDevice* device) const;
 
-    bool isEmpty() const { ASSERT_INIT; return _empty; }
+    bool isEmpty() const { ASSERT_INIT(); return _empty; }
 
-    QSize size() const { ASSERT_INIT; return _size; }
+    QSize size() const { ASSERT_INIT(); return _size; }
 
-    QColor backgroundColor() const { ASSERT_INIT; return _backgroundColor; }
+    QColor backgroundColor() const { ASSERT_INIT(); return _backgroundColor; }
 
-    QString filename() const { ASSERT_INIT; return _filename; }
+    QString filename() const { ASSERT_INIT(); return _filename; }
 
-    QList<QSharedPointer<ILayer>> layers() const { ASSERT_INIT; return _layers; }
+    QList<QSharedPointer<ILayer>> layers() const { ASSERT_INIT(); return _layers; }
 
     QImage exportImage();
 

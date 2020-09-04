@@ -137,7 +137,7 @@ try { x.check(y); } catch(InitializeException& ex) { ADDLE_THROW(ex); }
 
 #endif //ADDLE_DEBUG
 
-#define ASSERT_INIT _ASSERT_INIT(_initHelper)
+#define ASSERT_INIT() _ASSERT_INIT(_initHelper)
 #define ASSERT_INIT_CHECKPOINT(checkpoint) _ASSERT_INIT_CHECKPOINT(_initHelper, checkpoint)
 
 } // namespace Addle

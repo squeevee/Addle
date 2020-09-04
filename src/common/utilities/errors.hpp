@@ -45,8 +45,9 @@ private:
 };
 
 /**
- * @def ADDLE_ASSERT_M(expression, message)
- * Asserts that the given expression resolves to true.
+ * @def
+ * @brief Asserts that the given expression resolves to true.
+ * 
  * If the assertion fails, a logic error AddleException with the given message
  * is thrown.
  */
@@ -54,19 +55,30 @@ private:
 if ( Q_UNLIKELY( !static_cast<bool>(expression) ) ) { ADDLE_THROW( GenericLogicError(#expression, message) ); }
 
 /**
- * @def ADDLE_ASSERT(expression)
- * Asserts that the given expression resolves to true.
+ * @def
+ * @brief Asserts that the given expression resolves to true.
+ * 
  * If the assertion fails, a logic error AddleException is thrown.
  */
 #define ADDLE_ASSERT(expression) \
 ADDLE_ASSERT_M(expression, QString())
 
 /**
- * @def ADDLE_LOGIC_ERROR_M(message)
+ * @def
  * Indiscriminately throws a logic error AddleException with the given message.
  */
 #define ADDLE_LOGIC_ERROR_M(message) \
 ADDLE_THROW(GenericLogicError(nullptr, message))
+
+/**
+ * @def
+ * @brief Denotes a code path that is logically unreachable.
+ * 
+ * In debug builds this throws a logic error. In release builds, this is
+ * equivalent to Q_UNREACHABLE().
+ */
+//% "A code path that was designated logically unreachable was reached."
+#define ADDLE_LOGICALLY_UNREACHABLE() ADDLE_THROW(GenericLogicError(nullptr, qtTrId("debug-messages.bad-logically-unreachable")))
 
 //% "An exception of an unknown type was caught."
 #define _LAST_DITCH_CATCH(x) ServiceLocator::get<IErrorService>().reportUnhandledError(GenericLogicError(nullptr, qtTrId("debug-messages.last-ditch-catch")), x);
@@ -133,6 +145,8 @@ public:
 
 #define ADDLE_LOGIC_ERROR_M(message) ADDLE_THROW(GenericLogicError())
 
+#define ADDLE_LOGICALLY_UNREACHABLE() Q_UNREACHABLE
+
 #define ADDLE_SLOT_CATCH_SEVERITY(x) \
 catch(...) \
 { \
@@ -151,23 +165,15 @@ catch(...) \
     catch(...) { std::abort(); } \
 }
 
-/**
- * @def ADDLE_EVENT_CATCH
- * Similar to ADDLE_SLOT_CATCH. For use in the body of methods that aren't slots 
- * but may be invoked by the Qt event system, such as `QObject::event`,
- * `QRunnable::run` or a `Q_INVOKABLE` method. This will never propagate
- * exceptions to the caller.
- */
-#define ADDLE_EVENT_CATCH ADDLE_EVENT_CATCH_SEVERITY(UnhandledException::Normal)
-
 #endif //ADDLE_DEBUG
 
 /**
- * @def ADDLE_SLOT_CATCH
- * A catch umbrella for use in the body of a Qt slot. If the slot is invoked by
- * the Qt event system, this will quietly report exceptions to IErrorService. If
- * the slot was called directly, the exceptions will be propagated to the 
- * caller.
+ * @def
+ * @brief A catch umbrella for use in the body of a Qt slot.
+ * 
+ * If the slot is invoked by the Qt event system, this will quietly report
+ * exceptions to IErrorService. If the slot was called directly, the exceptions
+ * will be propagated to the caller.
  * 
  * Example:
  * ```c++
@@ -184,7 +190,7 @@ catch(...) \
 #define ADDLE_SLOT_CATCH ADDLE_SLOT_CATCH_SEVERITY(UnhandledException::Normal)
 
 /**
- * @def ADDLE_EVENT_CATCH
+ * @def
  * Similar to ADDLE_SLOT_CATCH. For use in the body of methods that aren't slots 
  * but may be invoked by the Qt event system, such as `QObject::event`,
  * `QRunnable::run` or a `Q_INVOKABLE` method. This will never propagate

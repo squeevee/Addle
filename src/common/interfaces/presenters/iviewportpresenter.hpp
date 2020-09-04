@@ -200,11 +200,11 @@ DECL_INTERFACE_META_PROPERTIES(
 );
 
 DECL_MAKEABLE(IViewPortPresenter)
-DECL_EXPECTS_INITIALIZE(IViewPortPresenter)
+
 
 
 } // namespace Addle
 
-Q_DECLARE_INTERFACE(Addle::IViewPortPresenter, "org.Addle.IViewportPresenter");
+Q_DECLARE_INTERFACE(Addle::IViewPortPresenter, "org.addle.IViewportPresenter");
 
 #endif // IVIEWPORTPRESENTER_HPP

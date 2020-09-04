@@ -67,10 +67,10 @@ QIcon BrushIconHelper::varyBrush(BrushId brush) const
     return QIcon(new BrushIconEngine(QPointer<const BrushIconHelper>(this), brush));
 }
 
-QSharedPointer<ISizeSelectionPresenter::IconProvider> BrushIconHelper::sizeIconProvider()
+QSharedPointer<ISizeSelectionPresenter::ISizeIconProvider> BrushIconHelper::sizeIconProvider()
 {
     if (!_sizeIconProvider)
-        _sizeIconProvider = QSharedPointer<ISizeSelectionPresenter::IconProvider>(
+        _sizeIconProvider = QSharedPointer<ISizeSelectionPresenter::ISizeIconProvider>(
             new SizeIconProvider(this)
         );
 

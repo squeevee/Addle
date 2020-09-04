@@ -39,20 +39,20 @@ public:
 
     virtual void setCompositionMode(QPainter::CompositionMode mode) override
     {
-        ASSERT_INIT;
+        ASSERT_INIT();
         const QWriteLocker lock(&_lock);
         _compositionMode = mode;
     }
 
     virtual QPainter::CompositionMode compositionMode() const override
     {
-        ASSERT_INIT;
+        ASSERT_INIT();
         const QReadLocker lock(&_lock);
         return _compositionMode;
     }
 
-    bool replaceMode() const { ASSERT_INIT; return _replaceMode; }
-    void setReplaceMode(bool replace) { ASSERT_INIT; _replaceMode = replace; }
+    bool replaceMode() const { ASSERT_INIT(); return _replaceMode; }
+    void setReplaceMode(bool replace) { ASSERT_INIT(); _replaceMode = replace; }
     
     void link(QSharedPointer<IRasterSurface> other) override
     { 
@@ -67,15 +67,15 @@ public:
 
     QRect area() const override
     { 
-        ASSERT_INIT;
+        ASSERT_INIT();
         const QReadLocker lock(&_lock);
         return _area;
     }
 
     void clear() override;
 
-    int alpha() const { ASSERT_INIT; return _alpha; }
-    void setAlpha(int alpha) { ASSERT_INIT; _alpha = alpha; emit changed(_area); }
+    int alpha() const { ASSERT_INIT(); return _alpha; }
+    void setAlpha(int alpha) { ASSERT_INIT(); _alpha = alpha; emit changed(_area); }
 
     QSharedPointer<IRenderStep> renderStep() override;
 

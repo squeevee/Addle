@@ -14,7 +14,6 @@ using namespace Addle;
 
 #include <QtDebug>
 
-
 GenericLogicError::GenericLogicError(const char* expression, QString message)
     : AddleException([message, expression]() -> QString {
         if (!message.isEmpty() && expression)
@@ -81,7 +80,7 @@ void Addle::_cannotReportError_impl(const std::exception* primaryEx)
     //% "This is an unrecoverable state. The application will terminate immediately."
     qWarning() << qUtf8Printable(qtTrId("debug-messages.cannot-report-error.terminating"));
 
-    std::abort();
+    std::terminate();
 }
 
 #endif // ADDLE_DEBUG

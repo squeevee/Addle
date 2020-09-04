@@ -10,17 +10,17 @@
 #include <QtDebug>
 #include <QObject>
 
-#include "utilities/presethelper.hpp"
+#include "utilities/presetmap.hpp"
 
 using namespace Addle;
 
-class PresetHelper_UTest : public QObject
+class PresetMap_UTest : public QObject
 {
     Q_OBJECT
 private slots:
     void nearest1()
     {
-        PresetHelper<> presets({
+        BasicPresetMap presets({
             { 0, 0.0 },
             { 1, 15.0 },
             { 2, 30.0 },
@@ -32,7 +32,7 @@ private slots:
 
     void nearest2()
     {
-        PresetHelper<> presets({
+        BasicPresetMap presets({
             { 0, 0.0 },
             { 1, 15.0 },
             { 2, 30.0 },
@@ -44,7 +44,7 @@ private slots:
 
     void nearest3()
     {
-        PresetHelper<> presets({
+        BasicPresetMap presets({
             { 0, 0.0 },
             { 1, 15.0 },
             { 2, 30.0 },
@@ -56,7 +56,7 @@ private slots:
 
     void nearest4()
     {
-        PresetHelper<> presets({
+        BasicPresetMap presets({
             { 0, 0.0 },
             { 1, 15.0 },
             { 2, 30.0 },
@@ -68,7 +68,7 @@ private slots:
 
     void nearest5()
     {
-        PresetHelper<> presets({
+        BasicPresetMap presets({
             { 0, 0.0 },
             { 1, 15.0 },
             { 2, 30.0 },
@@ -80,7 +80,7 @@ private slots:
 
     void nearest6()
     {
-        PresetHelper<> presets({
+        BasicPresetMap presets({
             { 0, 0.0 },
             { 1, 15.0 },
             { 2, 30.0 },
@@ -92,7 +92,7 @@ private slots:
 
     void nearest7()
     {
-        PresetHelper<> presets({
+        BasicPresetMap presets({
             { 0, 0.0 },
             { 1, 15.0 },
             { 2, 30.0 },
@@ -104,7 +104,7 @@ private slots:
 
     void nearest8()
     {
-        PresetHelper<> presets({
+        BasicPresetMap presets({
             { 0, 0.0 },
             { 1, 15.0 },
             { 2, 30.0 },
@@ -116,7 +116,7 @@ private slots:
 
     void nearest9()
     {
-        PresetHelper<> presets({
+        BasicPresetMap presets({
             { 0, 0.0 },
             { 1, 15.0 },
             { 2, 30.0 },
@@ -128,7 +128,7 @@ private slots:
 
     void nextUp1()
     {
-        PresetHelper<> presets({
+        BasicPresetMap presets({
             { 0, 0.0 },
             { 1, 15.0 },
             { 2, 30.0 },
@@ -140,7 +140,7 @@ private slots:
 
     void nextUp2()
     {
-        PresetHelper<> presets({
+        BasicPresetMap presets({
             { 0, 0.0 },
             { 1, 15.0 },
             { 2, 30.0 },
@@ -152,7 +152,7 @@ private slots:
 
     void nextUp3()
     {
-        PresetHelper<> presets({
+        BasicPresetMap presets({
             { 0, 0.0 },
             { 1, 15.0 },
             { 2, 30.0 },
@@ -164,7 +164,7 @@ private slots:
 
     void nextUp4()
     {
-        PresetHelper<> presets({
+        BasicPresetMap presets({
             { 0, 0.0 },
             { 1, 15.0 },
             { 2, 30.0 },
@@ -176,7 +176,7 @@ private slots:
 
     void nextUp5()
     {
-        PresetHelper<> presets({
+        BasicPresetMap presets({
             { 0, 0.0 },
             { 1, 15.0 },
             { 2, 30.0 },
@@ -188,7 +188,7 @@ private slots:
 
     void nextUp6()
     {
-        PresetHelper<> presets({
+        BasicPresetMap presets({
             { 0, 0.0 },
             { 1, 15.0 },
             { 2, 30.0 },
@@ -200,7 +200,7 @@ private slots:
 
     void nextUp7()
     {
-        PresetHelper<> presets({
+        BasicPresetMap presets({
             { 0, 0.0 },
             { 1, 15.0 },
             { 2, 30.0 },
@@ -212,7 +212,7 @@ private slots:
     
     void nextUp8()
     {
-        PresetHelper<> presets({
+        BasicPresetMap presets({
             { 0, 0.0 },
             { 1, 15.0 },
             { 2, 30.0 },
@@ -224,7 +224,7 @@ private slots:
 
     void nextUp9()
     {
-        PresetHelper<> presets({
+        BasicPresetMap presets({
             { 0, 0.0 },
             { 1, 15.0 },
             { 2, 30.0 },
@@ -236,7 +236,7 @@ private slots:
     
     void nextUp10()
     {
-        PresetHelper<> presets({
+        BasicPresetMap presets({
             { 0, 0.0 },
             { 1, 15.0 },
             { 2, 30.0 },
@@ -248,7 +248,7 @@ private slots:
 
     void nextDown1()
     {
-        PresetHelper<> presets({
+        BasicPresetMap presets({
             { 0, 0.0 },
             { 1, 15.0 },
             { 2, 30.0 },
@@ -260,7 +260,7 @@ private slots:
 
     void nextDown2()
     {
-        PresetHelper<> presets({
+        BasicPresetMap presets({
             { 0, 0.0 },
             { 1, 15.0 },
             { 2, 30.0 },
@@ -272,7 +272,7 @@ private slots:
 
     void nextDown3()
     {
-        PresetHelper<> presets({
+        BasicPresetMap presets({
             { 0, 0.0 },
             { 1, 15.0 },
             { 2, 30.0 },
@@ -284,7 +284,7 @@ private slots:
 
     void nextDown4()
     {
-        PresetHelper<> presets({
+        BasicPresetMap presets({
             { 0, 0.0 },
             { 1, 15.0 },
             { 2, 30.0 },
@@ -296,7 +296,7 @@ private slots:
 
     void nextDown5()
     {
-        PresetHelper<> presets({
+        BasicPresetMap presets({
             { 0, 0.0 },
             { 1, 15.0 },
             { 2, 30.0 },
@@ -308,7 +308,7 @@ private slots:
 
     void nextDown6()
     {
-        PresetHelper<> presets({
+        BasicPresetMap presets({
             { 0, 0.0 },
             { 1, 15.0 },
             { 2, 30.0 },
@@ -320,7 +320,7 @@ private slots:
 
     void nextDown7()
     {
-        PresetHelper<> presets({
+        BasicPresetMap presets({
             { 0, 0.0 },
             { 1, 15.0 },
             { 2, 30.0 },
@@ -332,7 +332,7 @@ private slots:
     
     void nextDown8()
     {
-        PresetHelper<> presets({
+        BasicPresetMap presets({
             { 0, 0.0 },
             { 1, 15.0 },
             { 2, 30.0 },
@@ -344,7 +344,7 @@ private slots:
 
     void nextDown9()
     {
-        PresetHelper<> presets({
+        BasicPresetMap presets({
             { 0, 0.0 },
             { 1, 15.0 },
             { 2, 30.0 },
@@ -356,7 +356,7 @@ private slots:
     
     void nextDown10()
     {
-        PresetHelper<> presets({
+        BasicPresetMap presets({
             { 0, 0.0 },
             { 1, 15.0 },
             { 2, 30.0 },
@@ -367,6 +367,6 @@ private slots:
     }
 };
 
-QTEST_MAIN(PresetHelper_UTest)
+QTEST_MAIN(PresetMap_UTest)
 
-#include "presethelper_utest.moc"
+#include "presetmap_utest.moc"

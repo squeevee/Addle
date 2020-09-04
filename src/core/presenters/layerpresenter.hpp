@@ -26,11 +26,11 @@ public:
     virtual ~LayerPresenter();
 
     void initialize(IDocumentPresenter* documentPresenter, QSharedPointer<ILayer> model);
-    IDocumentPresenter* documentPresenter() { ASSERT_INIT; return _documentPresenter; }
+    IDocumentPresenter* documentPresenter() { ASSERT_INIT(); return _documentPresenter; }
 
-    QSharedPointer<ILayer> model() { ASSERT_INIT; return _model; }
+    QSharedPointer<ILayer> model() { ASSERT_INIT(); return _model; }
 
-    QString name() const { ASSERT_INIT; return _name; }
+    QString name() const { ASSERT_INIT(); return _name; }
     void setName(QString name);
 
     IRenderStack& renderStack();

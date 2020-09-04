@@ -45,7 +45,7 @@ public:
     void setBrush(BrushId brush) { _brush = brush;}
     void setInfoProvider(QSharedPointer<const IBrushPresenter::PreviewInfoProvider> info) { _info = info; }
 
-    QSharedPointer<ISizeSelectionPresenter::IconProvider> sizeIconProvider();
+    QSharedPointer<ISizeSelectionPresenter::ISizeIconProvider> sizeIconProvider();
 
 private:
     class BrushIconEngine : public QIconEngine
@@ -79,7 +79,7 @@ private:
 
     };
 
-    class SizeIconProvider : public ISizeSelectionPresenter::IconProvider
+    class SizeIconProvider : public ISizeSelectionPresenter::ISizeIconProvider
     {
     public:
         SizeIconProvider(QPointer<const BrushIconHelper> helper)
@@ -111,7 +111,7 @@ private:
     inline QColor background() const { return Qt::white; }
 
     QSharedPointer<const IBrushPresenter::PreviewInfoProvider> _info;
-    QSharedPointer<ISizeSelectionPresenter::IconProvider> _sizeIconProvider;
+    QSharedPointer<ISizeSelectionPresenter::ISizeIconProvider> _sizeIconProvider;
 
     // concurrency could ostensibly be a problem in this class, but I'm inclined
     // to think none of these functions would naturally be invoked outside the

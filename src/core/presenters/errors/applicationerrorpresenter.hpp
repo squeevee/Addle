@@ -34,7 +34,7 @@ public:
     Severity severity() const { ASSERT_INIT_CHECKPOINT(InitCheck_ErrorSet); return Severity::Critical; }
     QString message() const;
 
-    virtual IApplicationErrorView& view() const { ASSERT_INIT; return *_view; }
+    virtual IApplicationErrorView& view() const { ASSERT_INIT(); return *_view; }
 
     QSharedPointer<AddleException> exception() const { ASSERT_INIT_CHECKPOINT(InitCheck_ErrorSet); return _error; }
 

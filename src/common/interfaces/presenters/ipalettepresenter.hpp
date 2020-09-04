@@ -15,7 +15,7 @@
 #include "idtypes/paletteid.hpp"
 
 #include "utilities/model/colorinfo.hpp"
-#include "utilities/qmultiarray.hpp"
+#include "utilities/multiarray.hpp"
 
 #include <QMetaType>
 
@@ -31,11 +31,11 @@ public:
     virtual void initialize(PaletteId id) = 0;
 
     virtual IPalette& model() const = 0;
-    virtual QMultiArray<ColorInfo, 2> colors() const = 0;
+    virtual MultiArray<ColorInfo, 2> colors() const = 0;
 };
 
 DECL_MAKEABLE(IPalettePresenter);
-DECL_EXPECTS_INITIALIZE(IPalettePresenter);
+;
 
 } // namespace Addle
 

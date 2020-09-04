@@ -17,7 +17,7 @@
 
 #include "utils.hpp"
 #include "utilities/initializehelper.hpp"
-#include "utilities/presethelper.hpp"
+#include "utilities/presetmap.hpp"
 #include "utilities/presenter/propertycache.hpp"
 
 namespace Addle {
@@ -139,11 +139,11 @@ public:
 
     void initialize(IMainEditorPresenter* mainEditorPresenter);
 
-    IMainEditorPresenter* mainEditorPresenter() { ASSERT_INIT; return _mainEditorPresenter; }
+    IMainEditorPresenter* mainEditorPresenter() { ASSERT_INIT(); return _mainEditorPresenter; }
 
-    bool canNavigate() const { ASSERT_INIT; return _canNavigateCache.value(); }
+    bool canNavigate() const { ASSERT_INIT(); return _canNavigateCache.value(); }
 
-    bool hasFocus() const { ASSERT_INIT; return _hasFocus; }
+    bool hasFocus() const { ASSERT_INIT(); return _hasFocus; }
     void setHasFocus(bool value);
 
 signals:
@@ -155,8 +155,8 @@ private:
 
     // # Scrolling / positioning
 public:
-    QPointF position() const { ASSERT_INIT; return _position; }
-    const IScrollState& scrollState() const { ASSERT_INIT; return _scrollStateCache.value(); }
+    QPointF position() const { ASSERT_INIT(); return _position; }
+    const IScrollState& scrollState() const { ASSERT_INIT(); return _scrollStateCache.value(); }
 
 public slots:
     void setPosition(QPointF center);
@@ -173,17 +173,17 @@ private:
     ScrollState scrollState_p();
 
 public:
-    bool canZoomIn() const { ASSERT_INIT; return _canZoomInCache.value(); }
-    bool canZoomOut() const { ASSERT_INIT; return _canZoomOutCache.value(); }
+    bool canZoomIn() const { ASSERT_INIT(); return _canZoomInCache.value(); }
+    bool canZoomOut() const { ASSERT_INIT(); return _canZoomOutCache.value(); }
 
-    double zoom() const { ASSERT_INIT; return _zoom; }
+    double zoom() const { ASSERT_INIT(); return _zoom; }
     void setZoom(double zoom);
     //void gripZoom(QPoint gripStart, QPoint gripEnd);
     
-    ZoomPreset zoomPreset() const { ASSERT_INIT; return _zoomPreset; }
+    ZoomPreset zoomPreset() const { ASSERT_INIT(); return _zoomPreset; }
     void setZoomPreset(ZoomPreset preset);
-    double maxZoomPresetValue() const { ASSERT_INIT; return _zoomPresetHelper.valueOf(MAX_ZOOM_PRESET); }
-    double minZoomPresetValue() const { ASSERT_INIT; return _zoomPresetHelper.valueOf(MIN_ZOOM_PRESET); }
+    double maxZoomPresetValue() const { ASSERT_INIT(); return _zoomPresetMap.valueOf(MAX_ZOOM_PRESET); }
+    double minZoomPresetValue() const { ASSERT_INIT(); return _zoomPresetMap.valueOf(MIN_ZOOM_PRESET); }
 
     ZoomPreset zoomTo(double zoom, bool snapToPreset = true);
 
@@ -206,9 +206,9 @@ private:
     void propagateCanNavigate();
 
 public:
-    double rotation() const { ASSERT_INIT; return _rotation; }
+    double rotation() const { ASSERT_INIT(); return _rotation; }
     void setRotation(double rotation);
-    RotatePreset rotatePreset() const { ASSERT_INIT; return _rotatePreset; }
+    RotatePreset rotatePreset() const { ASSERT_INIT(); return _rotatePreset; }
     void setRotatePreset(RotatePreset preset);
 
 public slots:
@@ -220,15 +220,15 @@ signals:
 
 public:
 
-    QSize size() const { ASSERT_INIT; return _size; }
+    QSize size() const { ASSERT_INIT(); return _size; }
 
     void gripPivot(QPointF gripStart, QPointF gripEnd);
 
-    QTransform ontoCanvasTransform() const { ASSERT_INIT; return _transformCache.value().ontoCanvas; }
-    QTransform fromCanvasTransform() const { ASSERT_INIT; return _transformCache.value().fromCanvas; }
+    QTransform ontoCanvasTransform() const { ASSERT_INIT(); return _transformCache.value().ontoCanvas; }
+    QTransform fromCanvasTransform() const { ASSERT_INIT(); return _transformCache.value().fromCanvas; }
 
-    QPoint globalOffset() const { ASSERT_INIT; return _globalOffset; }
-    virtual QPointF center() const { ASSERT_INIT; return _center; }
+    QPoint globalOffset() const { ASSERT_INIT(); return _globalOffset; }
+    virtual QPointF center() const { ASSERT_INIT(); return _center; }
 
 public slots:
     void resetTransforms();
@@ -237,7 +237,7 @@ public slots:
 
     void setSize(QSize size);
 
-    void setGlobalOffset(QPoint offset) { try { ASSERT_INIT; _globalOffset = offset; } ADDLE_SLOT_CATCH }
+    void setGlobalOffset(QPoint offset) { try { ASSERT_INIT(); _globalOffset = offset; } ADDLE_SLOT_CATCH }
 
 signals:
     void transformsChanged();
@@ -289,8 +289,8 @@ private:
 
     InitializeHelper _initHelper;
     
-    static const PresetHelper<RotatePreset, double> _rotatePresetHelper;
-    static const PresetHelper<ZoomPreset, double> _zoomPresetHelper;
+    static const PresetMap<RotatePreset, double> _rotatePresetMap;
+    static const PresetMap<ZoomPreset, double> _zoomPresetMap;
 };
 
 } // namespace Addle

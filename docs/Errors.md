@@ -29,7 +29,7 @@ needing to create bespoke exception classes. These should be favored over other
 asserts, particularly ones that `abort()` on failure so Addle can handle errors
 more gracefully.
 
-`ASSERT_INIT` is another convenience macro that specifically runs
+`ASSERT_INIT()` is another convenience macro that specifically runs
 `_initHelper.check()`, (but with more debug info than would be available by the
 plain call).
 
@@ -49,7 +49,7 @@ void Spiff::freemSlot()
 {
     try
     {
-        ASSERT_INIT;
+        ASSERT_INIT();
 
         // ...
     }
@@ -58,7 +58,7 @@ void Spiff::freemSlot()
 ```
 
 If while `freemSlot()` is handling a signal, an exception occurs -- for example 
-`ASSERT_INIT` fails -- then that exception is reported to `IErrorService` which
+`ASSERT_INIT()` fails -- then that exception is reported to `IErrorService` which
 notifies the user of an unexpected error. (In the future, it should also take 
 precautionary or even corrective action if possible.) 
 

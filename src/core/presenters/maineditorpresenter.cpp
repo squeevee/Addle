@@ -117,7 +117,7 @@ void MainEditorPresenter::initialize(Mode mode)
 
 void MainEditorPresenter::setDocumentPresenter(QSharedPointer<IDocumentPresenter> documentPresenter)
 {
-    ASSERT_INIT;
+    ASSERT_INIT();
 
     auto oldTopSelectedLayer = topSelectedLayer();
 
@@ -144,7 +144,7 @@ void MainEditorPresenter::setDocumentPresenter(QSharedPointer<IDocumentPresenter
 
 QSharedPointer<ILayerPresenter> MainEditorPresenter::topSelectedLayer() const
 {
-    ASSERT_INIT;
+    ASSERT_INIT();
     if (_documentPresenter)
         return _documentPresenter->topSelectedLayer();
     else
@@ -153,7 +153,7 @@ QSharedPointer<ILayerPresenter> MainEditorPresenter::topSelectedLayer() const
 
 void MainEditorPresenter::setMode(Mode mode)
 {
-    ASSERT_INIT; 
+    ASSERT_INIT(); 
     _mode = mode;
     //emit
 }
@@ -162,7 +162,7 @@ void MainEditorPresenter::newDocument()
 {
     try
     {
-        ASSERT_INIT; 
+        ASSERT_INIT(); 
         if (_mode == Editor && !isEmpty())
         {
             IMainEditorPresenter* newPresenter = ServiceLocator::make<IMainEditorPresenter>(_mode);
@@ -184,7 +184,7 @@ void MainEditorPresenter::loadDocument(QUrl url)
 {
     try
     {
-        ASSERT_INIT; 
+        ASSERT_INIT(); 
         if (_mode == Editor && !isEmpty())
         {
             IMainEditorPresenter* newPresenter = ServiceLocator::make<IMainEditorPresenter>(_mode);
@@ -206,7 +206,7 @@ void MainEditorPresenter::onLoadDocumentCompleted()
 {
     try
     {
-        ASSERT_INIT; 
+        ASSERT_INIT(); 
         setDocumentPresenter(_loadDocumentTask->documentPresenter());
         view().show();
     }
@@ -217,7 +217,7 @@ void MainEditorPresenter::onLoadDocumentFailed()
 {
     try
     {
-        ASSERT_INIT;
+        ASSERT_INIT();
 
         const auto& mainEditorPresenters = ServiceLocator::get<IApplicationService>().mainEditorPresenters();
         ADDLE_ASSERT(mainEditorPresenters.contains(this));
@@ -306,7 +306,7 @@ void MainEditorPresenter::onLoadDocumentFailed()
 
 void MainEditorPresenter::setCurrentTool(ToolId tool)
 {
-    ASSERT_INIT; 
+    ASSERT_INIT(); 
     if (tool == _currentTool)
         return;
 

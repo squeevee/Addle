@@ -18,9 +18,9 @@ void Palette::initialize(const PaletteBuilder& builder)
     buildIndex();
 }
 
-void Palette::setColors(QMultiArray<ColorInfo, 2> colors)
+void Palette::setColors(MultiArray<ColorInfo, 2> colors)
 {
-    ASSERT_INIT;
+    ASSERT_INIT();
     
     _colors = colors;
     buildIndex();

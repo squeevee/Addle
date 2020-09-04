@@ -117,7 +117,7 @@ protected:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(IRasterSurface::InitFlags)
 
-DECL_EXPECTS_INITIALIZE(IRasterSurface);
+;
 DECL_MAKEABLE(IRasterSurface);
 
 } // namespace Addle

@@ -103,7 +103,7 @@ void BrushToolPresenter::initialize(IMainEditorPresenter* owner, Mode mode)
 
 ToolId BrushToolPresenter::id()
 {
-    ASSERT_INIT;
+    ASSERT_INIT();
     switch(_mode)
     {
     case Mode::Brush:
@@ -119,7 +119,7 @@ void BrushToolPresenter::onSelectedChanged(bool selected)
 {
     try
     {
-        ASSERT_INIT;
+        ASSERT_INIT();
         _hoverPreview->isVisible_cache.recalculate();
     } 
     ADDLE_SLOT_CATCH

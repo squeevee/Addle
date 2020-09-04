@@ -80,7 +80,7 @@ signals:
 };
 
 DECL_MAKEABLE(IDocumentPresenter);
-DECL_EXPECTS_INITIALIZE(IDocumentPresenter);
+;
 
 } // namespace Addle
 

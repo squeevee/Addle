@@ -5,6 +5,8 @@
 #include <set>
 #include <QList>
 
+#include "utilities/errors.hpp"
+
 #include "utilities/heirarchylist.hpp"
 #include <boost/variant.hpp>
 
@@ -178,13 +180,9 @@ int NodeModelHelper<Node>::indexOf(const Node* node) const
             else
             {
                 auto& peers = _inserts_byParent.at(node->parent());
-                if (peers.find(node) != peers.end())
-                {
-                    // The node was inserted (and is ignored because of nostalgia),
-                    // therefore this is an error case.
-                    // TODO: throw        
-                    return -1;
-                }
+
+                ADDLE_ASSERT(peers.find(node) == peers.end());
+                // The node was inserted (and is ignored because of nostalgia).
 
                 int offset = 0;
 
@@ -268,8 +266,7 @@ const Node* NodeModelHelper<Node>::nodeAt(const Node* parent, int row) const
     if (!isNostalgic())
         return &parent->at(row);
 
-    if (row < 0 || row > sizeOf(parent))
-        return nullptr; // TODO throw
+    ADDLE_ASSERT(row >= 0 && row < sizeOf(parent));
     
     // TODO amortize
 

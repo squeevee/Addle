@@ -28,14 +28,14 @@ public:
     DocumentBuilder() { _data = new DocumentBuilderData; }
     DocumentBuilder(const DocumentBuilder& other) : _data(other._data) {}
 
-    QString filename() { return _data->filename; }
+    QString filename() const { return _data->filename; }
     void setFilename(QString filename) { _data->filename = filename; }
 
-    QColor backgroundColor() { return _data->backgroundColor; }
+    QColor backgroundColor() const { return _data->backgroundColor; }
     void setBackgroundColor(QColor backgroundColor) { _data->backgroundColor = backgroundColor; }
 
+    QList<LayerBuilder> layers() const { return _data->layers; }
     void addLayer(LayerBuilder& layer) { _data->layers.append(layer); }
-    QList<LayerBuilder> layers() { return _data->layers; }
 
 private:
     QSharedDataPointer<DocumentBuilderData> _data;

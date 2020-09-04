@@ -21,16 +21,16 @@ namespace Addle {
 class ISizeSelectionPresenter : public virtual IAmQObject
 {
 public:
-    class IconProvider
+    class ISizeIconProvider
     {
     public:
-        virtual ~IconProvider() = default;
+        virtual ~ISizeIconProvider() = default;
         virtual QIcon icon(double size) const = 0;
     };
 
     virtual ~ISizeSelectionPresenter() = default;
 
-    virtual void initialize(QSharedPointer<IconProvider> iconProvider = nullptr) = 0;
+    virtual void initialize(QSharedPointer<ISizeIconProvider> ISizeIconProvider = nullptr) = 0;
     virtual QList<double> presets() const = 0;
 
     virtual double get() const = 0;
@@ -63,11 +63,11 @@ signals:
     virtual void refreshPreviews() = 0;
 };
 
-DECL_EXPECTS_INITIALIZE(ISizeSelectionPresenter);
+;
 DECL_MAKEABLE(ISizeSelectionPresenter);
 
 } // namespace Addle
 
-Q_DECLARE_INTERFACE(Addle::ISizeSelectionPresenter, "org.Addle.ISizeSelectionPresenter")
+Q_DECLARE_INTERFACE(Addle::ISizeSelectionPresenter, "org.addle.ISizeSelectionPresenter")
 
 #endif // ISIZESELECTIONPRESENTER_HPP

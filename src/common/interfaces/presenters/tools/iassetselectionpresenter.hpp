@@ -61,10 +61,10 @@ signals:
 };
 
 DECL_MAKEABLE(IAssetSelectionPresenter);
-DECL_EXPECTS_INITIALIZE(IAssetSelectionPresenter);
+;
 
 } // namespace Addle
 
-Q_DECLARE_INTERFACE(Addle::IAssetSelectionPresenter, "org.Addle.IAssetSelectionPresenter")
+Q_DECLARE_INTERFACE(Addle::IAssetSelectionPresenter, "org.addle.IAssetSelectionPresenter")
 
 #endif // IASSETSELECTIONPRESENTER_HPP

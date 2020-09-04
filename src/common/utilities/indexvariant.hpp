@@ -37,30 +37,12 @@ public:
 
     uint hash(uint seed = 0) const;
 
-    inline bool operator==(const IndexVariant& rhs) const
-    {
-        return _var == rhs._var;
-    }
+    inline bool operator==(const IndexVariant& rhs) const { return _var == rhs._var; }
+    inline bool operator==(const QVariant& rhs) const { return _var == rhs; }
+    inline bool operator!=(const IndexVariant& rhs) const { return !(*this == rhs); }
+    inline bool operator!=(const QVariant& rhs) const { return !(*this == rhs); }
 
-    inline bool operator==(const QVariant& rhs) const
-    {
-        return _var == rhs;
-    }
-
-    inline bool operator!=(const IndexVariant& rhs) const
-    {
-        return !(*this == rhs);
-    }
-
-    inline bool operator!=(const QVariant& rhs) const
-    {
-        return !(*this == rhs);
-    }
-
-    inline operator QVariant() const
-    {
-        return _var;
-    }
+    inline operator QVariant() const { return _var; }
 
     static bool variantCanHash(const QVariant& var);
 

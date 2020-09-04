@@ -51,7 +51,7 @@ void LayerPresenter::initialize(IDocumentPresenter* documentPresenter, QSharedPo
 
 IRenderStack& LayerPresenter::renderStack()
 {
-    ASSERT_INIT
+    ASSERT_INIT()
 
     if (!_renderStack)
     {

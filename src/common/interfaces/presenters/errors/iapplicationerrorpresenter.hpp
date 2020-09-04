@@ -22,7 +22,7 @@ public:
 };
 
 DECL_MAKEABLE(IApplicationErrorPresenter)
-DECL_EXPECTS_INITIALIZE(IApplicationErrorPresenter)
+
 
 } // namespace Addle
 

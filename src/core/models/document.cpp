@@ -13,7 +13,7 @@
 #include <QPainter>
 using namespace Addle;
 
-void Document::initialize(DocumentBuilder& builder)
+void Document::initialize(const DocumentBuilder& builder)
 {
     const Initializer init(_initHelper);
 
@@ -37,7 +37,7 @@ void Document::initialize()
 
 void Document::render(QRect area, QPaintDevice* device) const
 {
-    ASSERT_INIT;
+    ASSERT_INIT();
 
 }
 
@@ -75,7 +75,7 @@ QRect Document::unitedBoundary()
 
 QImage Document::exportImage()
 {
-    ASSERT_INIT;
+    ASSERT_INIT();
     QImage result(size(), QImage::Format::Format_ARGB32);
     
     render(QRect(QPoint(), size()), &result);

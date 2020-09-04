@@ -30,7 +30,7 @@ public:
     virtual ~ILayer() {}
 
     virtual void initialize() = 0;
-    virtual void initialize(LayerBuilder& builder) = 0;
+    virtual void initialize(const LayerBuilder& builder) = 0;
 
     virtual bool isEmpty() const = 0;
     
@@ -45,7 +45,7 @@ public slots:
 };
 
 DECL_MAKEABLE(ILayer)
-DECL_EXPECTS_INITIALIZE(ILayer)
+
 
 } // namespace Addle
 

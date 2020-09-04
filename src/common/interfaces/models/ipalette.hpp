@@ -9,7 +9,7 @@
 #ifndef ICOLORPALETTE_HPP
 #define ICOLORPALETTE_HPP
 
-#include "utilities/qmultiarray.hpp"
+#include "utilities/multiarray.hpp"
 #include <QColor>
 
 #include "interfaces/traits.hpp"
@@ -24,7 +24,7 @@ namespace Addle {
 class IPalette : public virtual IAmQObject
 {
 public:
-    typedef QMultiArray<ColorInfo, 2> ColorArray;
+    typedef MultiArray<ColorInfo, 2> ColorArray;
 
     virtual ~IPalette() = default;
 
@@ -45,7 +45,7 @@ signals:
 };
 
 DECL_MAKEABLE(IPalette)
-DECL_EXPECTS_INITIALIZE(IPalette);
+;
 DECL_PERSISTENT_OBJECT_TYPE(IPalette, PaletteId);
 
 } // namespace Addle

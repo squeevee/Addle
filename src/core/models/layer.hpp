@@ -33,14 +33,14 @@ public:
     virtual ~Layer() = default;
     
     void initialize();
-    void initialize(LayerBuilder& builder);
+    void initialize(const LayerBuilder& builder);
 
-    bool isEmpty() const { ASSERT_INIT; return _empty; }
+    bool isEmpty() const { ASSERT_INIT(); return _empty; }
 
-    QRect boundary() const { ASSERT_INIT; return _boundary; }
-    QPoint topLeft() const { ASSERT_INIT; return _boundary.topLeft(); }
+    QRect boundary() const { ASSERT_INIT(); return _boundary; }
+    QPoint topLeft() const { ASSERT_INIT(); return _boundary.topLeft(); }
 
-    QColor skirtColor() { ASSERT_INIT; return Qt::GlobalColor::transparent; }
+    QColor skirtColor() { ASSERT_INIT(); return Qt::GlobalColor::transparent; }
 
     QSharedPointer<IRasterSurface> rasterSurface() { return _rasterSurface; }
 

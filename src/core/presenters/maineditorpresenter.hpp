@@ -100,8 +100,8 @@ public:
 
     // # IHaveDocumentPresenter
 
-    QSharedPointer<IDocumentPresenter> documentPresenter() const { ASSERT_INIT; return _documentPresenter; }
-    bool isEmpty() const { ASSERT_INIT; return _isEmptyCache.value(); }
+    QSharedPointer<IDocumentPresenter> documentPresenter() const { ASSERT_INIT(); return _documentPresenter; }
+    bool isEmpty() const { ASSERT_INIT(); return _isEmptyCache.value(); }
 
     QSharedPointer<ILayerPresenter> topSelectedLayer() const;
 
@@ -115,24 +115,24 @@ public slots:
     void loadDocument(QUrl url);
 
 public:
-    ToolId currentTool() const { ASSERT_INIT; return _currentTool; }
+    ToolId currentTool() const { ASSERT_INIT(); return _currentTool; }
     void setCurrentTool(ToolId tool);
-    QHash<ToolId, QSharedPointer<IToolPresenter>> tools() const { ASSERT_INIT; return _tools.value(_mode); }
+    QHash<ToolId, QSharedPointer<IToolPresenter>> tools() const { ASSERT_INIT(); return _tools.value(_mode); }
 
-    QSharedPointer<IToolPresenter> currentToolPresenter() const { ASSERT_INIT; return _currentToolPresenter; }
+    QSharedPointer<IToolPresenter> currentToolPresenter() const { ASSERT_INIT(); return _currentToolPresenter; }
 
 signals:
     void currentToolChanged(ToolId tool);
 
 public:
-    bool canUndo() const { ASSERT_INIT; return _undoStackHelper.canUndo(); }
-    bool canRedo() const { ASSERT_INIT; return _undoStackHelper.canRedo(); }
+    bool canUndo() const { ASSERT_INIT(); return _undoStackHelper.canUndo(); }
+    bool canRedo() const { ASSERT_INIT(); return _undoStackHelper.canRedo(); }
 
     void push(QSharedPointer<IUndoOperationPresenter> undoable) { _undoStackHelper.push(undoable); }
 
 public slots: 
-    void undo() { try { ASSERT_INIT; _undoStackHelper.undo(); } ADDLE_SLOT_CATCH }
-    void redo() { try { ASSERT_INIT; _undoStackHelper.redo(); } ADDLE_SLOT_CATCH }
+    void undo() { try { ASSERT_INIT(); _undoStackHelper.undo(); } ADDLE_SLOT_CATCH }
+    void redo() { try { ASSERT_INIT(); _undoStackHelper.redo(); } ADDLE_SLOT_CATCH }
 
 signals: 
     void undoStateChanged();

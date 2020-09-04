@@ -34,7 +34,7 @@ void CanvasPresenter::initialize(IMainEditorPresenter& mainEditorPresenter)
 
 QCursor CanvasPresenter::cursor() const
 {
-    ASSERT_INIT;
+    ASSERT_INIT();
 
     if (_mainEditorPresenter->currentToolPresenter())
         return _mainEditorPresenter->currentToolPresenter()->cursor();
@@ -46,7 +46,7 @@ bool CanvasPresenter::event(QEvent* e)
 {
     try 
     {
-        ASSERT_INIT;
+        ASSERT_INIT();
         
         if (e->type() == CanvasMouseEvent::type())
         {
@@ -64,7 +64,7 @@ bool CanvasPresenter::event(QEvent* e)
 
 void CanvasPresenter::setHasMouse(bool value)
 {
-    ASSERT_INIT;
+    ASSERT_INIT();
 
     if (_hasMouse != value)
     {
@@ -77,7 +77,7 @@ void CanvasPresenter::onEditorToolChanged()
 {
     try
     {
-        ASSERT_INIT;
+        ASSERT_INIT();
 
         if (_connection_toolCursor)
             disconnect(_connection_toolCursor);
@@ -102,7 +102,7 @@ void CanvasPresenter::onToolCursorChanged()
 {
     try
     {
-        ASSERT_INIT;
+        ASSERT_INIT();
         emit cursorChanged(cursor());
     }
     ADDLE_SLOT_CATCH

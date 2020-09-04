@@ -14,7 +14,7 @@
 #include "interfaces/presenters/tools/isizeselectionpresenter.hpp"
 
 #include "utilities/initializehelper.hpp"
-#include "utilities/presethelper.hpp"
+#include "utilities/presetmap.hpp"
 
 namespace Addle {
 
@@ -32,15 +32,15 @@ class ADDLE_CORE_EXPORT SizeSelectionPresenter : public QObject, public ISizeSel
 public:
     virtual ~SizeSelectionPresenter() = default;
 
-    void initialize(QSharedPointer<IconProvider> iconProvider = nullptr);
+    void initialize(QSharedPointer<ISizeIconProvider> ISizeIconProvider = nullptr);
     QList<double> presets() const;
 
     double get() const;
 
     int selectedPreset() const;
 
-    QIcon icon() const { ASSERT_INIT; return _icon; }
-    QList<QIcon> presetIcons() const { ASSERT_INIT; return _presetIcons; }
+    QIcon icon() const { ASSERT_INIT(); return _icon; }
+    QList<QIcon> presetIcons() const { ASSERT_INIT(); return _presetIcons; }
 
     double min() const { return _min; }
     double max() const { return _max; }
@@ -78,12 +78,12 @@ private:
     double _max = Q_INFINITY;
     bool _strictSizing = false;
 
-    QSharedPointer<IconProvider> _iconProvider;
+    QSharedPointer<ISizeIconProvider> _iconProvider;
     QIcon _icon;
     QList<QIcon> _presetIcons;
 
     InitializeHelper _initHelper;
-    PresetHelper<> _presetHelper;
+    PresetMap<> _PresetMap;
 };
 
 } // namespace Addle

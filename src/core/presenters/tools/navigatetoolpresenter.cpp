@@ -40,7 +40,7 @@ void NavigateToolPresenter::setNavigateOperation(NavigateToolPresenter::Navigate
 {
     try
     {
-        ASSERT_INIT;
+        ASSERT_INIT();
         _operation = operation;
         _cache_cursor.recalculate();
         emit navigateOperationChanged(_operation);

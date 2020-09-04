@@ -6,8 +6,8 @@
  * MIT License. See "LICENSE" for full details.
  */
 
-#ifndef QMULTIARRAY_HPP
-#define QMULTIARRAY_HPP
+#ifndef MULTIARRAY_HPP
+#define MULTIARRAY_HPP
 
 #include <type_traits>
 #include <boost/multi_array.hpp>
@@ -21,38 +21,38 @@
 namespace Addle {
 
 /**
- * @class QMultiArray
+ * @class MultiArray
  * @brief Implicitly shared wrapper for Boost.MultiArray
  * 
  * Some extra sugar is given for 2D arrays.
  */
 template<typename T, std::size_t N, typename Allocator = std::allocator<T>>
-class QMultiArray
+class MultiArray
 {
-    struct QMultiArrayData : QSharedData
+    struct MultiArrayData : QSharedData
     {
-        QMultiArrayData() = default;
+        MultiArrayData() = default;
 
-        explicit QMultiArrayData(const QList<typename boost::multi_array<T, N, Allocator>::size_type>& sizes,
+        explicit MultiArrayData(const QList<typename boost::multi_array<T, N, Allocator>::size_type>& sizes,
             const typename boost::multi_array<T, N, Allocator>::storage_order_type& store,
             const Allocator& alloc)
             : arr(sizes, store, alloc)
         {
         }
 
-        explicit QMultiArrayData(const boost::detail::multi_array::extent_gen<N>& ranges,
+        explicit MultiArrayData(const boost::detail::multi_array::extent_gen<N>& ranges,
             const typename boost::multi_array<T, N, Allocator>::storage_order_type& store,
             const Allocator& alloc)
             : arr(ranges, store, alloc)
         {
         }
 
-        QMultiArrayData(const boost::multi_array<T,N>& x)
+        MultiArrayData(const boost::multi_array<T,N>& x)
             : arr(x)
         {
         }
 
-        QMultiArrayData(const QMultiArrayData&) = default;
+        MultiArrayData(const MultiArrayData&) = default;
 
         boost::multi_array<T, N, Allocator> arr;
     };
@@ -76,34 +76,34 @@ public:
 
     static const std::size_t dimensionality = N;
 
-    QMultiArray() : _data(new QMultiArrayData) {}
-    QMultiArray(const QMultiArray&) = default;
-    QMultiArray(QMultiArray&& other)
+    MultiArray() : _data(new MultiArrayData) {}
+    MultiArray(const MultiArray&) = default;
+    MultiArray(MultiArray&& other)
         : _data(other._data)
     {
         other._data = nullptr;
     }
 
-    explicit QMultiArray(const QList<size_type>& sizes,
+    explicit MultiArray(const QList<size_type>& sizes,
         const storage_order_type& store = boost::c_storage_order(),
         const Allocator& alloc = Allocator())
-        : _data(new QMultiArrayData(sizes, store, alloc))
+        : _data(new MultiArrayData(sizes, store, alloc))
     {
     }
 
     template<typename = typename std::enable_if<N == 2>::type>
-    explicit QMultiArray(QSize size,
+    explicit MultiArray(QSize size,
         const storage_order_type& store = boost::c_storage_order(),
         const Allocator& alloc = Allocator())
-        : _data(new QMultiArrayData(boost::extents[size.width()][size.height()], store, alloc))
+        : _data(new MultiArrayData(boost::extents[size.width()][size.height()], store, alloc))
     {
     }
 
-    QMultiArray(const boost::multi_array<T, N, Allocator>& x)
+    MultiArray(const boost::multi_array<T, N, Allocator>& x)
     {
     }
 
-    QMultiArray& operator=(const QMultiArray&) = default;
+    MultiArray& operator=(const MultiArray&) = default;
 
     inline const boost::multi_array<T, N, Allocator>& constArray() const { return _data->arr; }
     inline const boost::multi_array<T, N, Allocator>& array() const { return _data->arr; }
@@ -228,7 +228,7 @@ public:
     }
 
 private:
-    QSharedDataPointer<QMultiArrayData> _data;
+    QSharedDataPointer<MultiArrayData> _data;
 };
 
 template<typename T, class Allocator = std::allocator<T>>
@@ -264,7 +264,7 @@ public:
         friend class ConstRowViewer;
     };
 
-    ConstRowViewer(const QMultiArray<T, 2, Allocator>& arr)
+    ConstRowViewer(const MultiArray<T, 2, Allocator>& arr)
         : _arr(arr)
     {
     }
@@ -280,7 +280,7 @@ public:
     }
 
 private:
-    const QMultiArray<T, 2, Allocator> _arr;
+    const MultiArray<T, 2, Allocator> _arr;
 };
 
 template<typename T, class Allocator = std::allocator<T>>
@@ -316,7 +316,7 @@ public:
         friend class MutableRowViewer;
     };
 
-    MutableRowViewer(QMultiArray<T, 2, Allocator>& arr)
+    MutableRowViewer(MultiArray<T, 2, Allocator>& arr)
         : _arr(arr)
     {
     }
@@ -332,8 +332,8 @@ public:
     }
 
 private:
-    QMultiArray<T, 2, Allocator>& _arr;
+    MultiArray<T, 2, Allocator>& _arr;
 };
 
 } // namespace Addle
-#endif // QMULTIARRAY_HPP
+#endif // MULTIARRAY_HPP

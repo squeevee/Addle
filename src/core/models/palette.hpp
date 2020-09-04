@@ -24,11 +24,11 @@ class ADDLE_CORE_EXPORT Palette : public QObject, public IPalette
 public:
     virtual ~Palette() = default;
 
-    PaletteId id() const { ASSERT_INIT; return _id; }
+    PaletteId id() const { ASSERT_INIT(); return _id; }
 
     void initialize(const PaletteBuilder& builder);
 
-    ColorArray colors() const { ASSERT_INIT; return _colors; }
+    ColorArray colors() const { ASSERT_INIT(); return _colors; }
 
     bool contains(QColor color) const { return _index.contains(color.rgb()); }
     ColorInfo infoFor(QColor color) const { return _index[color.rgb()]; }

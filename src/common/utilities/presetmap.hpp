@@ -6,8 +6,8 @@
  * MIT License. See "LICENSE" for full details.
  */
 
-#ifndef PRESETHELPER_HPP
-#define PRESETHELPER_HPP
+#ifndef PRESETMAP_HPP
+#define PRESETMAP_HPP
 
 #include <initializer_list>
 #include <type_traits>
@@ -19,7 +19,7 @@
 namespace Addle {
 
 template<typename IdType = int, typename ValueType = double>
-class PresetHelper
+class PresetMap
 {
     static_assert(
         std::is_integral<IdType>::value ||
@@ -36,21 +36,21 @@ class PresetHelper
     }
 
 public:
-    static constexpr IdType INVALID_ID = (IdType)(-1);
+    static constexpr IdType INVALID_ID = static_cast<IdType>(-1);
 
-    PresetHelper() = default;
+    PresetMap() = default;
 
-    PresetHelper(QHash<IdType, ValueType> presets, bool cyclic = false, ValueType gap = valueCap())
+    PresetMap(QHash<IdType, ValueType> presets, bool cyclic = false, ValueType gap = valueCap())
         : _values(presets), _cyclic(cyclic), _gap(gap), _stale(true)
     {
     }
 
-    PresetHelper(std::initializer_list<std::pair<IdType, ValueType>> presets, bool cyclic = false, ValueType gap = valueCap())
+    PresetMap(std::initializer_list<std::pair<IdType, ValueType>> presets, bool cyclic = false, ValueType gap = valueCap())
         : _values(presets), _cyclic(cyclic), _gap(gap), _stale(true)
     {
     }
 
-    PresetHelper(std::initializer_list<ValueType> values, bool cyclic = false, ValueType gap = valueCap())
+    PresetMap(std::initializer_list<ValueType> values, bool cyclic = false, ValueType gap = valueCap())
         : _cyclic(cyclic), _gap(gap), _stale(true)
     {
         IdType index = 0;
@@ -281,6 +281,8 @@ private:
     mutable bool _stale = false;
 };
 
+typedef PresetMap<> BasicPresetMap;
+
 } // namspace Addle
 
-#endif // PRESETHELPER_HPP
+#endif // PRESETMAP_HPP

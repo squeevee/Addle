@@ -12,22 +12,22 @@
 
 using namespace Addle;
 
-void SizeSelectionPresenter::initialize(QSharedPointer<IconProvider> iconProvider)
+void SizeSelectionPresenter::initialize(QSharedPointer<ISizeIconProvider> ISizeIconProvider)
 {
     const Initializer init(_initHelper);
 
-    _iconProvider = iconProvider;
+    _iconProvider = ISizeIconProvider;
 }
 
-QList<double> SizeSelectionPresenter::presets() const { ASSERT_INIT; return _presets; }
-double SizeSelectionPresenter::get() const { ASSERT_INIT; return _size; }
-int SizeSelectionPresenter::selectedPreset() const { ASSERT_INIT; return _selectedPreset; }
+QList<double> SizeSelectionPresenter::presets() const { ASSERT_INIT(); return _presets; }
+double SizeSelectionPresenter::get() const { ASSERT_INIT(); return _size; }
+int SizeSelectionPresenter::selectedPreset() const { ASSERT_INIT(); return _selectedPreset; }
 
 void SizeSelectionPresenter::setPresets(QList<double> presets)
 {
     try 
     {
-        ASSERT_INIT;
+        ASSERT_INIT();
         _presets = presets;
 
         int index = 0;
@@ -42,7 +42,7 @@ void SizeSelectionPresenter::setPresets(QList<double> presets)
 
         emit presetsChanged(_presets);
 
-        _presetHelper.setPresets(_presets);
+        _PresetMap.setPresets(_presets);
 
         selectPreset(-1);
     }
@@ -56,7 +56,7 @@ void SizeSelectionPresenter::set(double size)
         _initHelper.isInitialized();
 
         size = qBound(_min, size, _max);
-        _selectedPreset = _presetHelper.nearest(size, 0.01);
+        _selectedPreset = _PresetMap.nearest(size, 0.01);
         _size = size;
 
         updateIcon();
@@ -71,7 +71,7 @@ void SizeSelectionPresenter::selectPreset(int index)
 {
     try 
     {
-        ASSERT_INIT;
+        ASSERT_INIT();
         _selectedPreset = index;
         if (index == -1)
             _size = qQNaN();

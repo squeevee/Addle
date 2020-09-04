@@ -9,18 +9,17 @@ This document outlines some of the basic and general need-to-know. It is meant
 to be sparse enough not to require much maintenance but still useful for any
 newcomers to the project.
 
-For building instructions see [Building.md](./Building.md)
+For building instructions see [Building](./Building.md)
 
 ## Layout of this project
 
-Addle's runtime code is comprised of (August 2020) four binaries: three shared
+Addle's runtime code is comprised of (September 2020) four binaries: three shared
 libraries and an executable. The subdirectories of "src" correspond to these
 binaries and provide the source code for them.
 
 - "addle" - the executable containing `main()`.
 - "common" - the library containing interfaces, utilities, global constants,
-configuration tools, QRC resources, and other things needed by all other
-libraries.
+configuration tools, resources, and other things needed by all Addle code.
 - "core" - the library containing the core functionality of Addle including the
 basic Presenters, tools, Services, and formats.
 - "widgetsgui" - the library implementing the GUI (Views) using Qt Widgets.
@@ -39,7 +38,7 @@ platforms, compilers, and library versions.
 - `#include "globals.hpp"` - Global static constants, const expressions, and 
 enumerations. Similar constants relevant to particular contexts are also defined
 in interface headers.
-- `#include "servicelocator.hpp"`  - see [Interfaces.md](./Interfaces.md) for
+- `#include "servicelocator.hpp"`  - see [Interfaces](./Interfaces.md) for
 more info about the ServiceLocator. Only include this in source files and not 
 headers.
 - `#include "utils.hpp"` - a convenience header that includes a variety of
@@ -48,7 +47,8 @@ commonly used utilities. Only include this in source files and not headers.
 various global runtime errors. See also "utilities/errors.hpp".
 - `#include "idtypes/*"` - Identifier object types, usable with ServiceLocator.
 Global static instances can be found in "globals.hpp".
-- `#include "interfaces/*"` - Interfaces for domain classes.
+- `#include "interfaces/*"` - see [Interfaces](./Interfaces.md) for more info
+about interfaces in Addle.
 - `#include "utilities/*"` - Utility functions and classes. Note that the source 
 directory for each binary can have a "utilities" directory containing utilities 
 specific to its context, which (within that binary's code) is also included as 
@@ -57,16 +57,17 @@ avoid conflicts.
 
 Other directories of note include:
 - "build" - not present in the repo, but this is the directory you're expected
-to create to build into. It's useful to name this directory "build" because it
-will be ignored by git.
-- "docs" - contains these top-level guides and the output of Doxygen
+to create to build into. It's useful to name this directory "build" because then
+it will be ignored by Git.
+- "docs" - these top-level guides and the output of Doxygen
 - "etc" - various files relevant to but not directly used by the project
     - "installer" - files for generating a Windows installer for Addle
     - "l10n" - Qt Linguist .ts files containing text localizations.
     - "tools" - scripts that perform automated tasks on code. These may be
-    helpful during development but are not required for building Addle.
-- "resources" - contains QRC resources (accessible through the Qt resource
-system in any code linked to common)
+    helpful during development but are not required for building Addle. They are
+    typically implemented in Python and may have their own dependencies.
+- "resources" - resources to be embedded into Addle's binaries
+(accessible through the Qt resource system in any code linked to common)
 - "tests" - automated unit and integration tests.
 
 ## Qt, in brief
@@ -85,14 +86,21 @@ abstractly access and set properties, invoke methods, and even construct
 objects.
 
 Qt also provides a variety of libraries for implementing graphical user
-interfaces on supported platforms. Of these, Addle currently (August 2020) uses 
+interfaces on supported platforms. Of these, Addle currently (September 2020) uses 
 Widgets and the Graphics Framework.
+
+Qt also provides a platform independent system for embedding resource files into
+the application. Addle uses this system to embed icons and text localizations.
+These file are accessible from within Addle code as file paths beginning with
+":" or URLs beginning with "qrc:/". Addle documentation sometimes calls this
+system "QRC" as shorthand.
 
 Further reading:
 - https://doc.qt.io/qt-5/topics-core.html
 - https://doc.qt.io/qt-5/signalsandslots.html
 - https://doc.qt.io/qt-5/qtwidgets-index.html
 - https://doc.qt.io/qt-5/graphicsview.html
+- https://doc.qt.io/qt-5/resources.html
 
 ## Dependency inversion
 
@@ -112,16 +120,15 @@ implementations are concrete classes that derive from the interfaces and
 override their virtual methods.
 
 Interfaces are defined in headers located in "src/common/interfaces". There is 
-often a one-to-one or many-to-one correspondence of interfaces to
-implementations (e.g., `ISpiff` to `Spiff`; or `IHaveFreem` and `ICanZort` to 
-`MainZortingFreemPresenter`), which can be helpful to know when debugging or 
-getting a feel for what different interfaces do and how they are expected to 
-work.
+often a one-to-one correspondence of interfaces to implementations (e.g.,
+`ISpiff` to `Spiff`), which can be helpful to know when debugging or getting a
+feel for what different interfaces do and how they are expected to work. This is
+however not a guaranteed relationship.
 
 Addle has a special class `ServiceLocator` that is used to acquire objects
 of desired interface types without needing access to their implementations. For 
-more detailed information about interfaces are used in Addle, see
-[Interfaces.md](./Interfaces.md).
+more detailed information about how interfaces are used in Addle, see
+[Interfaces](./Interfaces.md).
 
 Further reading:
 - https://en.wikipedia.org/wiki/SOLID
@@ -153,7 +160,7 @@ Presenters are responsible for creating their associated View (see e.g.
 **Views** essentially comprise the user interface, and are responsible for 
 conveying the application state to the user and accepting user input. A View is 
 associated to a Presenter, and is responsible for conforming itself to the state 
-of the Presenter. In Addle, (Aug 2020) Views are primarily implemented using
+of the Presenter. In Addle, (September 2020) Views are primarily implemented using
 QWidget or QGraphicsItem.
 
 Models, Presenters, and Views may freely own or communicate with other objects
@@ -166,3 +173,9 @@ can communicate via signals and slots.
 
 - [Internationalization and localization](./I18n.md)
 - [Error handling](./Errors.md)
+
+Some of Addle's code is annotated with Doxygen commands, and a Doxyfile is
+provided. These may be used if desired to generate developer documentation of
+the code.
+
+For more information see https://www.doxygen.nl/index.html

@@ -43,7 +43,7 @@ bool ApplicationService::start()
     qDebug() << qUtf8Printable(qtTrId("debug-messages.application-service.starting"));
 #endif
 
-    ServiceLocator::get<IErrorService>();
+    ServiceLocator::get<const IErrorService>();
 
     try
     {

@@ -97,7 +97,7 @@ void AssetSelectionPresenter::select(QList<QSharedPointer<IAssetPresenter>> asse
 
 void AssetSelectionPresenter::setAssets(QList<QSharedPointer<IAssetPresenter>> assets)
 {
-    ASSERT_INIT;
+    ASSERT_INIT();
 
     if (assets != _assets)
     {
@@ -118,7 +118,7 @@ void AssetSelectionPresenter::setAssets(QList<QSharedPointer<IAssetPresenter>> a
 
 void AssetSelectionPresenter::setFavorites(QList<AddleId> favorites)
 {
-    ASSERT_INIT;
+    ASSERT_INIT();
     if (favorites != _favorites)
     {
         _favorites = favorites;
@@ -128,7 +128,7 @@ void AssetSelectionPresenter::setFavorites(QList<AddleId> favorites)
 
 void AssetSelectionPresenter::addFavorite(AddleId id)
 {
-    ASSERT_INIT;
+    ASSERT_INIT();
     if (!_favorites.contains(id)) 
     {
         _favorites.append(id);
@@ -138,7 +138,7 @@ void AssetSelectionPresenter::addFavorite(AddleId id)
 
 void AssetSelectionPresenter::removeFavorite(AddleId id)
 {
-    ASSERT_INIT;
+    ASSERT_INIT();
     if (_favorites.contains(id)) 
     {
         _favorites.removeAll(id);

@@ -20,13 +20,13 @@ public:
 
     void initialize(const BrushBuilder& builder);
 
-    BrushId id() const { ASSERT_INIT; return _id; }
-    BrushEngineId engineId() const { ASSERT_INIT; return _engineId; }
-    QVariantHash customEngineParameters() const { ASSERT_INIT; return _customEngineParameters; }
+    BrushId id() const { ASSERT_INIT(); return _id; }
+    BrushEngineId engineId() const { ASSERT_INIT(); return _engineId; }
+    QVariantHash customEngineParameters() const { ASSERT_INIT(); return _customEngineParameters; }
 
-    QIcon icon() const { ASSERT_INIT; return _icon; }
+    QIcon icon() const { ASSERT_INIT(); return _icon; }
 
-    //BrushInfo info() const { ASSERT_INIT; return _info; }
+    //BrushInfo info() const { ASSERT_INIT(); return _info; }
 
     bool isSizeInvariant() const { return _isSizeInvariant; }
     bool isPixelAliased() const { return _isPixelAliased; }

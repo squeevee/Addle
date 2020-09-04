@@ -60,7 +60,7 @@ DECL_INTERFACE_META_PROPERTIES(IBrushToolPresenter,
     DECL_INTERFACE_PROPERTY(selectedBrush)
 )
 DECL_MAKEABLE(IBrushToolPresenter)
-DECL_EXPECTS_INITIALIZE(IBrushToolPresenter)
+
 
 } // namespace Addle
 

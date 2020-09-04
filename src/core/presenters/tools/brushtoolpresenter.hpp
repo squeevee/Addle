@@ -60,10 +60,10 @@ public:
 
     void initialize(IMainEditorPresenter* owner, Mode mode);
 
-    IMainEditorPresenter* owner() { ASSERT_INIT; return _mainEditor; }
+    IMainEditorPresenter* owner() { ASSERT_INIT(); return _mainEditor; }
     ToolId id();
 
-    IAssetSelectionPresenter& brushSelection() { ASSERT_INIT; return *_brushSelection; }
+    IAssetSelectionPresenter& brushSelection() { ASSERT_INIT(); return *_brushSelection; }
     void selectBrush(BrushId id) { brushSelection().select(id); }
     BrushId selectedBrush()
     {

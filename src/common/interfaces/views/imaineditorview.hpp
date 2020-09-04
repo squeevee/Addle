@@ -27,7 +27,7 @@ public:
 };
 
 DECL_MAKEABLE(IMainEditorView)
-DECL_EXPECTS_INITIALIZE(IMainEditorView)
+
 
 } // namespace Addle
 

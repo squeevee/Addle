@@ -32,8 +32,8 @@ public:
     void initialize(BrushId id, QSharedPointer<const PreviewInfoProvider> info = nullptr);
 
     AddleId id() { return brushId(); }
-    BrushId brushId() { ASSERT_INIT; return _id; }
-    virtual IBrush& model() const { ASSERT_INIT; return *_model; }
+    BrushId brushId() { ASSERT_INIT(); return _id; }
+    virtual IBrush& model() const { ASSERT_INIT(); return *_model; }
 
     QString name();
     QIcon icon();
@@ -47,7 +47,7 @@ public:
 
     void selectInTool() { }
 
-    ISizeSelectionPresenter& sizeSelection() { ASSERT_INIT; return *_sizeSelection; }
+    ISizeSelectionPresenter& sizeSelection() { ASSERT_INIT(); return *_sizeSelection; }
 
     double size() { return _sizeSelection->get(); }
     void setSize(double size) { _sizeSelection->set(size); }

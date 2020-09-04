@@ -23,7 +23,7 @@ void Layer::initialize()
     initialize(builder);
 }
 
-void Layer::initialize(LayerBuilder& builder)
+void Layer::initialize(const LayerBuilder& builder)
 {
     const Initializer init(_initHelper);
 

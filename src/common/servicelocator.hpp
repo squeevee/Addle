@@ -70,7 +70,9 @@ public:
         if (!_instance)
             ADDLE_THROW(ServiceLocatorNotInitializedException());
 
-        return *_instance->get_p<Interface>();
+        return *_instance->get_p<
+            typename std::remove_const<Interface>::type
+        >();
     }
 
     /**
@@ -91,80 +93,47 @@ public:
      * Interface must specify it is gettable by ID (e.g. with the
      * `DECL_PERSISTENT_OBJECT_TYPE` macro)
      */
-    template<class Interface, class TypeId>
-    static Interface& get(TypeId id)
+    template<class Interface, class IdType>
+    static Interface& get(IdType id)
     {
         if (!_instance)
             ADDLE_THROW(ServiceLocatorNotInitializedException());
 
-        return *_instance->get_p<Interface>(id);
+        return *_instance->get_p<
+            typename std::remove_const<Interface>::type
+        >(id);
     }
 
-    template<class Interface, class TypeId>
-    static bool has(TypeId id)
+    template<class Interface, class IdType>
+    static bool has(IdType id)
     {
         static_assert(
-            Traits::is_gettable_by_id<Interface>::value,
+            Traits::is_gettable_by_id<
+                typename std::remove_const<Interface>::type
+            >::value,
             "Interface is not gettable by Id"
         );
         static_assert(
-            std::is_same<TypeId, typename Traits::id_type<Interface>::type>::value ||
-            std::is_same<TypeId, AddleId>::value,
+            std::is_convertible<IdType,
+                typename Traits::id_type<
+                    typename std::remove_const<Interface>::type
+                >::type
+            >::value,
             "Interface is not gettable by IdType"
         );
 
         if (!_instance)
             ADDLE_THROW(ServiceLocatorNotInitializedException());
 
-        auto index = qMakePair(id, std::type_index(typeid(Interface)));
+        auto index = qMakePair(
+            id,
+            std::type_index(
+                typeid(typename std::remove_const<Interface>::type)
+            )
+        );
 
         return _instance->_factoriesById.contains(index) ||
             _instance->_persistentObjectsById.contains(index);
-    }
-
-    /**
-     * @brief Make an object.
-     * 
-     * Creates a new object that implements the interface specified by
-     * Interface, and returns a pointer to this new object. If Interface
-     * expects to be initialized, and it exposes an `initialize()` method
-     * with no required parameters, it will be automatically initialized.
-     * 
-     * @tparam Interface
-     * The interface of the desired object
-     * 
-     * @note
-     * Interface must be make-able, i.e., must have trait is_makeable
-     * 
-     * @note
-     * The caller is responsible to delete this object.
-     * 
-     * @sa
-     * expects_initialize, is_makeable
-     */
-    template<class Interface>
-    static Interface* make()
-    {
-        static_assert(
-            Traits::is_public_makeable_by_type<Interface>::value,
-            "Interface must be publicly makeable."
-        );
-        if (!_instance)
-            ADDLE_THROW(ServiceLocatorNotInitializedException());
-
-        Interface* result = _instance->make_p<Interface>();
-
-        try
-        {
-            noParameterInitializeHelper(result);
-        }
-        catch(...)
-        {
-            delete result;
-            throw;
-        }
-
-        return result;
     }
 
     /**
@@ -192,89 +161,31 @@ public:
      * The caller is responsible to delete this object.
      * 
      * @sa
-     * expects_initialize, is_makeable
+     * is_makeable_by_id
      */
-    template<class Interface, typename... ArgTypes,
-        typename = typename std::enable_if<
-            !Traits::is_makeable_by_id<Interface>::value
-        >::type
-    >
-    static Interface* make(ArgTypes... args)
+    template<class Interface, typename... ArgTypes>
+    static typename std::enable_if<
+        !Traits::is_public_makeable_by_id<
+            typename std::remove_const<Interface>::type
+        >::value,
+        Interface*
+    >::type make(ArgTypes... args)
     {
         static_assert(
             Traits::is_public_makeable_by_type<Interface>::value,
             "Interface must be publicly makeable."
         );
-        static_assert(
-            Traits::expects_initialize<Interface>::value,
-            "Interface did not expect initialization and is not makeable by ID. "
-            "at least one of these must be true to use `ServiceLocator::make(...)` "
-            "with arguments."
-        );
 
         if (!_instance)
             ADDLE_THROW(ServiceLocatorNotInitializedException());
 
-        Interface* result = _instance->make_p<Interface>();
-
-        static_assert(
-            std::is_same<void, decltype(result->initialize(args...))>::value,
-            "Interface::initialize(...) must be return type void"
-        );
+        auto result = _instance->make_p<
+            typename std::remove_const<Interface>::type
+        >();
         
         try
         {
-            result->initialize(args...);
-        }
-        catch(...)
-        {
-            delete result;
-            throw;
-        }
-
-        return result;
-    }
-
-    /**
-     * @brief Make an object.
-     * 
-     * Creates a new object that implements the interface specified by
-     * Interface, then calls the initialize function on that object with the
-     * arguments given.
-     * 
-     * @tparam Interface
-     * The interface of the desired object
-     * 
-     * @param id
-     * The persistent ID characterizing the desired object. This may be used by
-     * ServiceLocator to select an implementation.
-     * 
-     * @note
-     * Interface must be makeable by ID
-     * 
-     * @sa
-     * is_makeable_by_id
-     */
-    template<class Interface, class TypeId,
-        typename = typename std::enable_if<
-            Traits::is_makeable_by_id<Interface>::value
-        >::type
-    >
-    static Interface* make(TypeId id)
-    {
-        static_assert(
-            Traits::is_public_makeable_by_id<Interface>::value,
-            "Interface must be publicly makeable."
-        );
-
-        if (!_instance)
-            ADDLE_THROW(ServiceLocatorNotInitializedException());
-
-        Interface* result = _instance->make_p<Interface>(id);
-
-        try
-        {
-            noParameterInitializeHelper(result);
+            initialize_if_needed(*result, args...);
         }
         catch(...)
         {
@@ -309,32 +220,30 @@ public:
      * @sa
      * is_makeable_by_id
      */
-    template<class Interface, class TypeId, typename... ArgTypes,
-        typename = typename std::enable_if<
-            Traits::is_public_makeable_by_id<Interface>::value
-        >::type
-    >
-    static Interface* make(TypeId id, ArgTypes... args)
+    template<class Interface, class IdType, typename... ArgTypes>
+    static typename std::enable_if<
+        Traits::is_public_makeable_by_id<
+            typename std::remove_const<Interface>::type
+        >::value
+        && std::is_convertible<
+            IdType,
+            typename Traits::id_type<
+                typename std::remove_const<Interface>::type
+            >::type
+        >::value,
+        Interface*
+    >::type make(IdType id, ArgTypes... args)
     {
-        static_assert(
-            Traits::expects_initialize<Interface>::value,
-            "Interface must expect initialization to use "
-            "`ServiceLocator::make(...)` with arguments after the id."
-        );
-
         if (!_instance)
             ADDLE_THROW(ServiceLocatorNotInitializedException());
 
-        Interface* result = _instance->make_p<Interface>(id);
-
-        static_assert(
-            std::is_same<void, decltype(result->initialize(args...))>::value,
-            "Interface::initialize(...) must be return type void"
-        );
-
+        auto result = _instance->make_p<
+            typename std::remove_const<Interface>::type
+        >(id);
+        
         try
         {
-            result->initialize(args...);
+            initialize_if_needed(*result, args...);
         }
         catch(...)
         {
@@ -371,13 +280,21 @@ public:
     static QSet<typename Traits::id_type<Interface>::type> getIds()
     {
         static_assert(
-            Traits::is_gettable_by_id<Interface>::value,
+            Traits::is_gettable_by_id<
+                typename std::remove_const<Interface>::type
+            >::value,
             "Interface must be gettable by Id"
         );
 
-        QSet<typename Traits::id_type<Interface>::type> result;
+        QSet<
+            typename Traits::id_type<
+                typename std::remove_const<Interface>::type
+            >::type
+        > result;
 
-        std::type_index interfaceIndex(typeid(Interface));
+        std::type_index interfaceIndex(
+            typeid(typename std::remove_const<Interface>::type)
+        );
 
         {
             auto&& begin = noDetach(_instance->_factoriesById).keyBegin();
@@ -415,6 +332,59 @@ public:
     }
 
 private:
+    // Trait-like helper functions that determine whether the given type has an
+    // initialize function.
+    //
+    // (The `int`/`long` dummy arguments are a SFINAE trick. Calling this
+    // function with 0 as the argument will favor the `int` overload if it
+    // exists, i.e., there is an initialize function. But if there is no
+    // initialize function only the `long` specialization exists.)
+
+    template<typename T, typename... ArgTypes>
+    static constexpr decltype(
+        // Note: If a call is made to ServiceLocator::make() with an invalid
+        // set of arguments then it should produce an error here.
+        std::declval<T&>().initialize(std::declval<ArgTypes>()...), 
+    bool()) needs_init(int) { return true; }
+
+    // Note: this specialization accepting only one template parameter will
+    // cause the build to fail if arguments are passed into make() for an
+    // interface that doesn't have an initialize funciton. This is desired
+    // behavior but may be unclear from error messages if it happens.
+    template<typename T>
+    static constexpr bool needs_init(long) { return false; }
+
+    template<typename T>
+    static constexpr decltype(
+        std::declval<T>().initialize(), 
+    bool()) needs_no_param_init(int) { return true; }
+
+    template<typename T>
+    constexpr bool needs_no_param_init(long) { return false; }
+
+    // For interfaces that provide an initialize function, this will call it
+    // with 0 or more given arguments.
+    template<typename T, typename... ArgTypes>
+    static inline typename std::enable_if<
+        needs_init<T, ArgTypes...>(0)
+    >::type initialize_if_needed(T& obj, ArgTypes... args)
+    {
+        static_assert(
+            std::is_void<decltype(obj.initialize(args...))>::value,
+            "initialize function should have return type void"
+        );
+        obj.initialize(args...);
+    }
+
+    // For interfaces that do not provide an initialize function, this will do
+    // nothing.
+    template<typename T>
+    static inline typename std::enable_if<
+        !needs_init<T>(0) && !needs_no_param_init<T>(0)
+    >::type initialize_if_needed(T& obj)
+    {
+        Q_UNUSED(obj);
+    }
 
     ServiceLocator() = default;
     virtual ~ServiceLocator()
@@ -480,6 +450,11 @@ private:
                 ADDLE_THROW(ex);
             }
 
+            static_assert(
+                !needs_init<Interface>(0),
+                "Service types must not expect initialization"
+            );
+
             Interface* service = make_p<Interface>();
             //service->setServiceLocator(this);
             _services[interfaceIndex] = reinterpret_cast<void*>(service);
@@ -523,6 +498,11 @@ private:
 #endif 
                 ADDLE_THROW(ex);
             }
+
+            static_assert(
+                !needs_init<Interface>(0),
+                "Persistent object types must not expect initialization"
+            );
 
             Interface* object = make_p<Interface>(id);
             _persistentObjectsById[index] = object;
@@ -592,30 +572,6 @@ private:
         Interface* product = reinterpret_cast<Interface*>(factory->make());
 
         return product;
-    }
-
-    // Helper functions to call no-parameter initialize() only on interfaces
-    // that expect it
-
-    template<class Interface>
-    static inline typename std::enable_if<
-       Traits:: expects_initialize<Interface>::value
-    >::type noParameterInitializeHelper(Interface* object)
-    {
-        static_assert(
-            std::is_same<void, decltype(object->initialize())>::value,
-            "Interface::initialize() must be return type void"
-        );
-
-        object->initialize();
-    }
-    
-    template<class Interface>
-    static inline typename std::enable_if<
-        !Traits::expects_initialize<Interface>::value
-    >::type noParameterInitializeHelper(Interface* object) noexcept
-    {
-        Q_UNUSED(object)
     }
 
     friend class ServiceConfigurationBase;

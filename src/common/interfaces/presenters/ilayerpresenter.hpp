@@ -45,7 +45,7 @@ signals:
 };
 
 DECL_MAKEABLE(ILayerPresenter)
-DECL_EXPECTS_INITIALIZE(ILayerPresenter)
+
 
 } // namespace Addle
 

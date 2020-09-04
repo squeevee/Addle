@@ -49,7 +49,7 @@ public:
     virtual ~ApplicationErrorView() = default;
 
     void initialize(IErrorPresenter& presenter);
-    IErrorPresenter& presenter() const { ASSERT_INIT; return *_presenter; }
+    IErrorPresenter& presenter() const { ASSERT_INIT(); return *_presenter; }
 
 public slots:
     void show();

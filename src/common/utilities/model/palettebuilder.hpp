@@ -12,7 +12,7 @@
 #include <QSharedData>
 
 #include "colorinfo.hpp"
-#include "utilities/qmultiarray.hpp"
+#include "utilities/multiarray.hpp"
 
 namespace Addle {
 
@@ -21,7 +21,7 @@ class PaletteBuilder
     struct PaletteBuilderData : QSharedData
     {
         PaletteId id;
-        QMultiArray<ColorInfo, 2> colors;
+        MultiArray<ColorInfo, 2> colors;
     };
 
 public:
@@ -53,7 +53,7 @@ public:
         return *this;
     }
 
-    inline QMultiArray<ColorInfo, 2> colors() const { return _data->colors; }
+    inline MultiArray<ColorInfo, 2> colors() const { return _data->colors; }
 
 private:
     QSharedDataPointer<PaletteBuilderData> _data;

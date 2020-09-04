@@ -85,12 +85,12 @@ void ApplicationErrorView::initialize(IErrorPresenter& presenter)
 
 void ApplicationErrorView::show()
 {
-    ASSERT_INIT;
+    ASSERT_INIT();
     _dialog->show();
 }
 
 void ApplicationErrorView::close()
 {
-    ASSERT_INIT;
+    ASSERT_INIT();
     _dialog->close();
 }

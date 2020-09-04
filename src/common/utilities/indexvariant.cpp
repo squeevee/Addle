@@ -7,6 +7,7 @@
  */
 
 #include "indexvariant.hpp"
+#include "errors.hpp"
 
 using namespace Addle;
 
@@ -21,7 +22,7 @@ QHash<int, uint(*)(QVariant, uint)> IndexVariant::_hashers = {
 IndexVariant::IndexVariant(const QVariant& var)
     : _var(var)
 {
-    //TODO: Assert var is hashable
+    ADDLE_ASSERT(variantCanHash(var));
 }
 
 uint IndexVariant::hash(uint seed) const
@@ -44,8 +45,8 @@ uint IndexVariant::hash(uint seed) const
 
     if (_var.canConvert<double>()) return hasher<double>(_var, seed);
     if (_var.canConvert<QString>()) return hasher<QString>(_var, seed);
-    
-    return 0; //throw?
+
+    ADDLE_LOGICALLY_UNREACHABLE();
 }
 
 bool IndexVariant::variantCanHash(const QVariant& var)

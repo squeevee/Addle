@@ -38,7 +38,7 @@ signals:
 };
 
 DECL_MAKEABLE(ICanvasPresenter);
-DECL_EXPECTS_INITIALIZE(ICanvasPresenter);
+;
 
 } // namespace Addle
 
