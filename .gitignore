@@ -2,3 +2,5 @@
 /docs/html
 
 /etc/installer/Output
+
+CMakeLists.txt.user
