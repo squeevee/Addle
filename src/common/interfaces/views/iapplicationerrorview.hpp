@@ -24,7 +24,6 @@ public:
 };
 
 DECL_MAKEABLE(IApplicationErrorView);
-;
 
 } // namespace Addle
 

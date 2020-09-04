@@ -93,8 +93,7 @@ DECL_INTERFACE_META_PROPERTIES(
     DECL_INTERFACE_PROPERTY(empty)
 )
 
-DECL_MAKEABLE(IMainEditorPresenter)
-;
+DECL_MAKEABLE(IMainEditorPresenter);
 
 } // namespace Addle
 

@@ -80,8 +80,6 @@ signals:
 };
 
 DECL_MAKEABLE(IDocumentPresenter);
-;
-
 } // namespace Addle
 
 Q_DECLARE_INTERFACE(Addle::IDocumentPresenter, "org.addle.IDocumentPresenter")

@@ -52,7 +52,7 @@ private:
  * is thrown.
  */
 #define ADDLE_ASSERT_M(expression, message) \
-if ( Q_UNLIKELY( !static_cast<bool>(expression) ) ) { ADDLE_THROW( GenericLogicError(#expression, message) ); }
+if (Q_UNLIKELY(!static_cast<bool>(expression))) { ADDLE_THROW(GenericLogicError(#expression, message)); }
 
 /**
  * @def
@@ -140,12 +140,12 @@ public:
     virtual ~GenericLogicError() = default;
 };
 
-#define ADDLE_ASSERT_M(expression, message) if ( Q_UNLIKELY( !static_cast<bool>(expression) ) ) { ADDLE_THROW( GenericLogicError() ); }
+#define ADDLE_ASSERT_M(expression, message) if (Q_UNLIKELY(!static_cast<bool>(expression))) { ADDLE_THROW(GenericLogicError()); }
 #define ADDLE_ASSERT(expression) ADDLE_ASSERT_M(expression, NULL)
 
 #define ADDLE_LOGIC_ERROR_M(message) ADDLE_THROW(GenericLogicError())
 
-#define ADDLE_LOGICALLY_UNREACHABLE() Q_UNREACHABLE
+#define ADDLE_LOGICALLY_UNREACHABLE() Q_UNREACHABLE()
 
 #define ADDLE_SLOT_CATCH_SEVERITY(x) \
 catch(...) \
@@ -153,7 +153,7 @@ catch(...) \
     if (static_cast<bool>(sender())) \
     { \
         try { ServiceLocator::get<IErrorService>().reportUnhandledError(GenericLogicError(), x); } \
-        catch(...) { std::abort(); } \
+        catch(...) { std::terminate(); } \
     } \
     else throw; \
 }
@@ -162,7 +162,7 @@ catch(...) \
 catch(...) \
 { \
     try { ServiceLocator::get<IErrorService>().reportUnhandledError(GenericLogicError(), x); } \
-    catch(...) { std::abort(); } \
+    catch(...) { std::terminate(); } \
 }
 
 #endif //ADDLE_DEBUG

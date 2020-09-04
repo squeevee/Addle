@@ -35,7 +35,6 @@ public:
 };
 
 DECL_MAKEABLE(IPalettePresenter);
-;
 
 } // namespace Addle
 

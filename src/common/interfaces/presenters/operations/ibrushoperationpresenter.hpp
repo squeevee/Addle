@@ -30,7 +30,6 @@ public:
     //
 };
 
-;
 DECL_MAKEABLE(IBrushOperationPresenter);
 
 } // namespace Addle

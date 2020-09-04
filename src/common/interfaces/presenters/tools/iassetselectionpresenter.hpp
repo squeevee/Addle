@@ -61,7 +61,6 @@ signals:
 };
 
 DECL_MAKEABLE(IAssetSelectionPresenter);
-;
 
 } // namespace Addle
 

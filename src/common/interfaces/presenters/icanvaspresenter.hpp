@@ -38,7 +38,6 @@ signals:
 };
 
 DECL_MAKEABLE(ICanvasPresenter);
-;
 
 } // namespace Addle
 

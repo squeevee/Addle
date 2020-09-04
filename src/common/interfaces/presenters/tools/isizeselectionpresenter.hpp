@@ -63,7 +63,6 @@ signals:
     virtual void refreshPreviews() = 0;
 };
 
-;
 DECL_MAKEABLE(ISizeSelectionPresenter);
 
 } // namespace Addle

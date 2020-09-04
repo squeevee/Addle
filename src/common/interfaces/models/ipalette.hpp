@@ -45,7 +45,6 @@ signals:
 };
 
 DECL_MAKEABLE(IPalette)
-;
 DECL_PERSISTENT_OBJECT_TYPE(IPalette, PaletteId);
 
 } // namespace Addle
