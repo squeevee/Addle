@@ -20,43 +20,37 @@ class PaletteBuilder
 {
     struct PaletteBuilderData : QSharedData
     {
-        PaletteId id;
-        MultiArray<ColorInfo, 2> colors;
     };
 
 public:
-    PaletteBuilder()
-        : _data(new PaletteBuilderData)
-    {
-    }
-
     inline PaletteBuilder& setId(PaletteId id)
     {
-        _data->id = id;
+        _id = id;
         return *this;
     }
 
-    inline PaletteId id() const { return _data->id; }
+    inline PaletteId id() const { return _id; }
 
     inline PaletteBuilder& setSize(QSize size)
     {
-        _data->colors.resize(size);
+        _colors.resize(size);
         return *this;
     }
 
     inline PaletteBuilder& setColor(int x, int y, QColor color, TranslatedString name = TranslatedString())
     {
-        if (x >= _data->colors.width() || y >= _data->colors.height())
-            _data->colors.resize(QSize(x - 1, y - 1));
+        if (x >= _colors.width() || y >= _colors.height())
+            _colors.resize(QSize(x - 1, y - 1));
         
-        _data->colors.insert(QPoint(x, y), ColorInfo(color, name));
+        _colors.insert(QPoint(x, y), ColorInfo(color, name));
         return *this;
     }
 
-    inline MultiArray<ColorInfo, 2> colors() const { return _data->colors; }
+    inline MultiArray<ColorInfo, 2> colors() const { return _colors; }
 
 private:
-    QSharedDataPointer<PaletteBuilderData> _data;
+    PaletteId _id;
+    MultiArray<ColorInfo, 2> _colors;
 };
 
 } // namespace Addle

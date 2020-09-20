@@ -1,11 +1,8 @@
 find_package(Qt5 REQUIRED COMPONENTS Core)
 
-include_directories(../core ../widgetsgui)
-
 set (
     SOURCES
     addle.cpp
-    serviceconfiguration.cpp
 )
 
 add_executable(addle ${SOURCES})

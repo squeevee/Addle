@@ -14,8 +14,10 @@
 #include "servicelocator.hpp"
 
 #include "interfaces/traits.hpp"
+#include "utilities/errors.hpp"
 
-#include "interfaces/ifactory.hpp"
+#include "interfaces/config/ifactory.hpp"
+
 namespace Addle {
 
 /**
@@ -30,11 +32,11 @@ class AutoFactory : public IFactory
     );
 
 public:
-
     virtual ~AutoFactory() = default;
 
-    virtual void* make() const
-    { 
+    virtual void* make(AddleId id = AddleId()) const 
+    {
+        //ADDLE_ASSERT(!id);
         return reinterpret_cast<void*>(
             static_cast<Interface*>(new Impl)
         );
@@ -46,15 +48,30 @@ public:
     }
 };
 
-// Interfaces implemented as QObject may desire some QObject-aware logic in
-// their AutoFactory, for example with regard to thread affinity. Keep this in
-// mind for the future.
+template<class Interface, class Impl>
+class AutoFactoryById : public IFactory
+{
+    static_assert(
+        Traits::is_makeable<Interface>::value,
+        "Interface must be makeable"
+    );
+    
+public:
+    virtual ~AutoFactoryById() = default;
 
-#define CONFIG_AUTOFACTORY_BY_TYPE(Interface, Impl) \
-ServiceConfigurationBase::registerFactoryByType<Interface>(new AutoFactory<Interface, Impl>());
+    virtual void* make(AddleId id = AddleId()) const 
+    {
+        return reinterpret_cast<void*>(
+            static_cast<Interface*>(new Impl(id))
+        );
+    }
 
-#define CONFIG_AUTOFACTORY_BY_ID(Interface, id, Impl) \
-ServiceConfigurationBase::registerFactoryById<Interface>(new AutoFactory<Interface, Impl>(), id);
+    void delete_(void* obj) const 
+    {
+        delete reinterpret_cast<Interface*>(obj);
+    }
+};
 
 } // namespace Addle
+
 #endif // AUTOFACTORY_HPP

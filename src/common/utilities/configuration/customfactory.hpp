@@ -12,7 +12,7 @@
 #include <functional>
 #include <memory>
 
-#include "interfaces/ifactory.hpp"
+#include "interfaces/config/ifactory.hpp"
 namespace Addle {
 
 template<class Interface>

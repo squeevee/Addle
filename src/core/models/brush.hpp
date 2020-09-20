@@ -17,7 +17,12 @@ namespace Addle {
 class ADDLE_CORE_EXPORT Brush : public IBrush
 {
 public:
-
+    Brush(BrushId id)
+        : _id(id)
+    {
+    }
+    virtual ~Brush() = default;
+    
     void initialize(const BrushBuilder& builder);
 
     BrushId id() const { ASSERT_INIT(); return _id; }
@@ -42,7 +47,7 @@ public:
     PreviewHints previewHints() const { return _previewHints; }
 
 private:
-    BrushId _id;
+    const BrushId _id;
     BrushEngineId _engineId;
     //BrushInfo _info;
     QVariantHash _customEngineParameters;

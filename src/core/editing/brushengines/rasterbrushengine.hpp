@@ -11,6 +11,9 @@
 
 #include "interfaces/editing/ibrushengine.hpp"
 #include "compat.hpp"
+#include "globals.hpp"
+#include "utils.hpp"
+
 namespace Addle {
 
 class RasterEngineParams;
@@ -18,11 +21,9 @@ class RasterEngineParams;
 class ADDLE_CORE_EXPORT RasterBrushEngine : public IBrushEngine
 {
 public:
-    static const BrushEngineId ID;
-
     virtual ~RasterBrushEngine() = default;
 
-    BrushEngineId id() const { return ID; }
+    BrushEngineId id() const { return CoreBrushEngines::RasterEngine; }
 
     //BrushInfo info(const IBrush& model) const { return BrushInfo(); }
 

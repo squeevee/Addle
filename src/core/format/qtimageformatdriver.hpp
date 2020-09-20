@@ -11,6 +11,8 @@
 
 #include "compat.hpp"
 
+#include <QByteArray>
+
 #include "interfaces/models/idocument.hpp"
 #include "interfaces/format/iformatdriver.hpp"
 namespace Addle {
@@ -20,14 +22,11 @@ namespace Addle {
 class ADDLE_CORE_EXPORT QtImageFormatDriver : public IFormatDriver<IDocument>
 {
 public:
-    QtImageFormatDriver(DocumentFormatId id, const char* name)
-        : _id(id), _name(name)
-    {
-    }
+    QtImageFormatDriver(DocumentFormatId id);
     virtual ~QtImageFormatDriver() = default;
 
-    bool supportsImport() const { return true; }
-    bool supportsExport() const { return false; }
+    bool supportsImport() const { return _supportsImport; }
+    bool supportsExport() const { return _supportsExport; }
 
     DocumentFormatId id() const { return _id; }
 
@@ -36,7 +35,10 @@ public:
 
 private:
     const DocumentFormatId _id;
-    const char* _name;
+    
+    QByteArray _name;
+    bool _supportsImport;
+    bool _supportsExport;
 };
 
 } // namespace Addle

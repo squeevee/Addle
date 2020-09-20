@@ -6,6 +6,7 @@
  * MIT License. See "LICENSE" for full details.
  */
 
+#include "utils.hpp"
 #include "palette.hpp"
 using namespace Addle;
 
@@ -13,7 +14,7 @@ void Palette::initialize(const PaletteBuilder& builder)
 {
     const Initializer init(_initHelper);
 
-    _id = builder.id();
+    ADDLE_ASSERT(!builder.id() || _id == builder.id());
     _colors = builder.colors();
     buildIndex();
 }

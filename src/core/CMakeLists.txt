@@ -13,6 +13,7 @@ set ( CMAKE_AUTOMOC ON)
 set (
     SOURCES
     core.cpp
+    core_config.cpp
     editing/brushengines/pathbrushengine.cpp
     editing/brushengines/rasterbrushengine.cpp
     editing/rasterdiff.cpp

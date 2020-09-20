@@ -13,6 +13,7 @@
 #include "idtypes/brushengineid.hpp"
 #include "idtypes/brushid.hpp"
 #include "idtypes/formatid.hpp"
+#include "idtypes/moduleid.hpp"
 #include "idtypes/paletteid.hpp"
 #include "idtypes/toolid.hpp"
 
@@ -48,6 +49,17 @@ enum ErrorCodes {
 };
 
 extern ADDLE_COMMON_EXPORT const QColor DefaultBackgroundColor;
+
+#define START_MODULE_IDS 0x01
+namespace Modules
+{
+    constexpr ModuleId Core         = START_MODULE_IDS + 0x00;
+    constexpr ModuleId WidgetsGui   = START_MODULE_IDS + 0x01;
+}
+DECLARE_STATIC_ID_METADATA(Modules::Core,       "org.addle.core");
+DECLARE_STATIC_ID_METADATA(Modules::WidgetsGui, "org.addle.widgetsGui");
+
+#undef START_MODULE_IDS
 
 #define START_CORE_BRUSH_ENGINE_IDS 0x100
 namespace CoreBrushEngines

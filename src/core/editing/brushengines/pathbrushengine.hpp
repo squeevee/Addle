@@ -10,6 +10,7 @@
 #define PATHENGINE_HPP
 
 #include "compat.hpp"
+#include "globals.hpp"
 #include <QObject>
 
 #include "interfaces/editing/ibrushengine.hpp"
@@ -19,11 +20,9 @@ namespace Addle {
 class ADDLE_CORE_EXPORT PathBrushEngine : public IBrushEngine
 {
 public:
-    static const BrushEngineId ID;
-
     virtual ~PathBrushEngine() = default;
 
-    BrushEngineId id() const { return ID; }
+    BrushEngineId id() const { return CoreBrushEngines::PathEngine; }
 
     //BrushInfo info(const IBrush& model) const { return BrushInfo::fromDefaults(); }
 

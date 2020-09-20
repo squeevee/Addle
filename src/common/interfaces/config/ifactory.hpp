@@ -10,6 +10,7 @@
 #define IFACTORY_HPP
  
 #include <typeinfo>
+#include "idtypes/addleid.hpp"
 
 namespace Addle {
 
@@ -17,7 +18,7 @@ class IFactory
 {
 public:
     virtual ~IFactory() = default;
-    virtual void* make() const = 0;
+    virtual void* make(AddleId id = AddleId()) const = 0;
     virtual void delete_(void* obj) const = 0;
 };
 } // namespace Addle

@@ -11,10 +11,23 @@
 #include "interfaces/models/idocument.hpp"
 #include "servicelocator.hpp"
 
+#include <QImageReader>
+#include <QImageWriter>
 #include <QImage>
 #include <QString>
 
 using namespace Addle;
+
+QtImageFormatDriver::QtImageFormatDriver(DocumentFormatId id)
+    : _id(id)
+{
+    auto mimeType = _id.mimeType().toUtf8();
+    _name = QImageReader::imageFormatsForMimeType(mimeType).constFirst();
+    _supportsImport = QImageReader::supportedMimeTypes().contains(mimeType);
+    _supportsExport = QImageWriter::supportedMimeTypes().contains(mimeType);
+    
+    ADDLE_ASSERT(_supportsExport);
+}
 
 IDocument* QtImageFormatDriver::importModel(QIODevice& device, DocumentImportExportInfo info)
 {

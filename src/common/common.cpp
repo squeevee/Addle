@@ -16,6 +16,7 @@
 #include "idtypes/addleid.hpp"
 #include "idtypes/brushengineid.hpp"
 #include "idtypes/brushid.hpp"
+#include "idtypes/moduleid.hpp"
 #include "idtypes/paletteid.hpp"
 #include "idtypes/formatid.hpp"
 #include "idtypes/toolid.hpp"
@@ -41,15 +42,12 @@
 #include "exceptions/servicelocatorexceptions.hpp"
 
 #include "utilities/editing/rasterengineparams.hpp"
-#include "utilities/configuration/serviceconfigurationbase.hpp"
 #include "utilities/model/documentbuilder.hpp"
 #include "utilities/format/importexportinfo.hpp"
 #include "utilities/model/layerbuilder.hpp"
 #include "utilities/presenter/genericerrorpresenter.hpp"
 
 namespace Addle {
-
-ServiceLocator* ServiceLocator::_instance = nullptr;
 
 #define DEFINE_STATIC_ID_METADATA_CUSTOM(x, DataType, ...) \
 const QSharedPointer<const AddleId::BaseMetaData> GET_STATIC_ID_METADATA(x)::_metaData \
@@ -70,19 +68,22 @@ const QSharedPointer<const AddleId::BaseMetaData> GET_STATIC_ID_METADATA(x)::_me
 // Static ID metadata definitions
 ///@cond FALSE
 
-DEFINE_STATIC_ID_METADATA(CoreBrushEngines::PathEngine);
-DEFINE_STATIC_ID_METADATA(CoreBrushEngines::RasterEngine);
+DEFINE_STATIC_ID_METADATA(Modules::Core)
+DEFINE_STATIC_ID_METADATA(Modules::WidgetsGui)
 
-DEFINE_STATIC_ID_METADATA(CoreBrushes::BasicBrush);
-DEFINE_STATIC_ID_METADATA(CoreBrushes::SoftBrush);
-DEFINE_STATIC_ID_METADATA(CoreBrushes::BasicEraser);
+DEFINE_STATIC_ID_METADATA(CoreBrushEngines::PathEngine)
+DEFINE_STATIC_ID_METADATA(CoreBrushEngines::RasterEngine)
+
+DEFINE_STATIC_ID_METADATA(CoreBrushes::BasicBrush)
+DEFINE_STATIC_ID_METADATA(CoreBrushes::SoftBrush)
+DEFINE_STATIC_ID_METADATA(CoreBrushes::BasicEraser)
 
 DEFINE_STATIC_ID_METADATA_CUSTOM(CoreFormats::PNG, DocumentFormatId::MetaData,
                     QUuid(),
     /*mime type:*/  QStringLiteral("image/png"),
     /*file ext:*/   QStringLiteral("png"),          
     /*file sig:*/   QByteArrayLiteral("\x89\x50\x4E\x47\x0D\x0A\x1A\x0A")
-);
+)
 
 DEFINE_STATIC_ID_METADATA_CUSTOM(CoreFormats::JPEG, DocumentFormatId::MetaData,
                     QUuid(),
@@ -95,26 +96,29 @@ DEFINE_STATIC_ID_METADATA_CUSTOM(CoreFormats::JPEG, DocumentFormatId::MetaData,
                         QStringLiteral("jif")
                     },          
     /*file sig:*/   QByteArrayLiteral("\xFF\xD8\xFF")
-);
+)
 
-DEFINE_STATIC_ID_METADATA(CorePalettes::BasicPalette);
+DEFINE_STATIC_ID_METADATA(CorePalettes::BasicPalette)
 
-DEFINE_STATIC_ID_METADATA(CoreTools::Select);
-DEFINE_STATIC_ID_METADATA(CoreTools::Brush);
-DEFINE_STATIC_ID_METADATA(CoreTools::Eraser);
-DEFINE_STATIC_ID_METADATA(CoreTools::Fill);
-DEFINE_STATIC_ID_METADATA(CoreTools::Text);
-DEFINE_STATIC_ID_METADATA(CoreTools::Shapes);
-DEFINE_STATIC_ID_METADATA(CoreTools::Stickers);
-DEFINE_STATIC_ID_METADATA(CoreTools::Eyedrop);
-DEFINE_STATIC_ID_METADATA(CoreTools::Navigate);
-DEFINE_STATIC_ID_METADATA(CoreTools::Measure);
+DEFINE_STATIC_ID_METADATA(CoreTools::Select)
+DEFINE_STATIC_ID_METADATA(CoreTools::Brush)
+DEFINE_STATIC_ID_METADATA(CoreTools::Eraser)
+DEFINE_STATIC_ID_METADATA(CoreTools::Fill)
+DEFINE_STATIC_ID_METADATA(CoreTools::Text)
+DEFINE_STATIC_ID_METADATA(CoreTools::Shapes)
+DEFINE_STATIC_ID_METADATA(CoreTools::Stickers)
+DEFINE_STATIC_ID_METADATA(CoreTools::Eyedrop)
+DEFINE_STATIC_ID_METADATA(CoreTools::Navigate)
+DEFINE_STATIC_ID_METADATA(CoreTools::Measure)
 
 ///@endcond
 
 // Dynamic ID metadata definition
 
 QHash<AddleId, QSharedPointer<const AddleId::BaseMetaData>> AddleId::_dynamicMetaData = {
+    STATIC_ID_METADATA_ENTRY(Modules::Core),
+    STATIC_ID_METADATA_ENTRY(Modules::WidgetsGui),
+    
     STATIC_ID_METADATA_ENTRY(CoreBrushEngines::PathEngine),
     STATIC_ID_METADATA_ENTRY(CoreBrushEngines::RasterEngine),
 

@@ -7,7 +7,7 @@
  */
 
 #include "brush.hpp"
-#include <QtDebug>
+#include "utils.hpp"
 
 #include "utilities/model/brushbuilder.hpp"
 using namespace Addle;
@@ -16,7 +16,7 @@ void Brush::initialize(const BrushBuilder& builder)
 {
     const Initializer init(_initHelper);
 
-    _id = builder.id();
+    ADDLE_ASSERT(!builder.id() || _id == builder.id());
     _engineId = builder.engine();
     _customEngineParameters = builder.customEngineParameters();
 

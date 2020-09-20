@@ -23,8 +23,6 @@
 #include <QRadialGradient>
 using namespace Addle;
 
-const BrushEngineId RasterBrushEngine::ID = CoreBrushEngines::RasterEngine;
-
 static double gradientTaper(double t, double hardness)
 {
     return t < 0.5 ?

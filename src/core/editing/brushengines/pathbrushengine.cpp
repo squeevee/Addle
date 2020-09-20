@@ -18,8 +18,6 @@
 #include <QColor>
 using namespace Addle;
 
-const BrushEngineId PathBrushEngine::ID = CoreBrushEngines::PathEngine;
-
 QPainterPath PathBrushEngine::indicatorShape(const BrushStroke& painter) const
 {
     return QPainterPath();

@@ -12,6 +12,7 @@ set ( CMAKE_AUTOMOC ON )
 
 set (
     SOURCES
+    widgetsgui_config.cpp
     canvas/docbackgrounditem.cpp
     canvas/canvasscene.cpp
     canvas/layeritem.cpp

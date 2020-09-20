@@ -17,22 +17,27 @@
 #include <memory>
 #include <functional>
 
+#include <QtDebug>
 #include <QSet>
 #include <QHash>
 #include <QMultiHash>
 #include <QMutex>
 #include <QSharedPointer>
 
-#include "interfaces/ifactory.hpp"
-
 #include "exceptions/servicelocatorexceptions.hpp"
+
+#include "interfaces/config/ifactory.hpp"
+#include "interfaces/config/iserviceconfig.hpp"
 
 #include "interfaces/traits.hpp"
 
+#include "utilities/configuration/factoryselector.hpp"
 #include "utilities/collections.hpp"
 #include "utilities/hashfunctions.hpp"
-namespace Addle {
+#include "utilities/errors.hpp"
 
+namespace Addle {
+    
 /**
  * @class ServiceLocator
  * @brief Use the public static members of this class to access services and to
@@ -67,12 +72,17 @@ public:
     template<class Interface>
     static Interface& get()
     {
+        static_assert(
+            Traits::is_gettable_by_type<
+                typename std::remove_const<Interface>::type
+            >::value,
+            "Interface is not gettable by type"
+        );
+        
         if (!_instance)
             ADDLE_THROW(ServiceLocatorNotInitializedException());
 
-        return *_instance->get_p<
-            typename std::remove_const<Interface>::type
-        >();
+        return _instance->get_p<typename std::remove_const<Interface>::type>();
     }
 
     /**
@@ -96,12 +106,27 @@ public:
     template<class Interface, class IdType>
     static Interface& get(IdType id)
     {
+        static_assert(
+            Traits::is_gettable_by_id<
+                typename std::remove_const<Interface>::type
+            >::value,
+            "Interface is not gettable by id"
+        );
+        static_assert(
+            std::is_convertible<IdType,
+                typename Traits::id_type<
+                    typename std::remove_const<Interface>::type
+                >::type
+            >::value,
+            "Interface is not gettable by IdType"
+        );
+        
         if (!_instance)
             ADDLE_THROW(ServiceLocatorNotInitializedException());
 
-        return *_instance->get_p<
-            typename std::remove_const<Interface>::type
-        >(id);
+        //ADDLE_ASSERT(id);
+        
+        return _instance->get_p<typename std::remove_const<Interface>::type>(id);
     }
 
     template<class Interface, class IdType>
@@ -124,16 +149,12 @@ public:
 
         if (!_instance)
             ADDLE_THROW(ServiceLocatorNotInitializedException());
+        
+        //ADDLE_ASSERT(id);
 
-        auto index = qMakePair(
-            id,
-            std::type_index(
-                typeid(typename std::remove_const<Interface>::type)
-            )
+        return _instance->_objects.contains(
+            qMakePair(std::type_index(typeid(Interface)), id)
         );
-
-        return _instance->_factoriesById.contains(index) ||
-            _instance->_persistentObjectsById.contains(index);
     }
 
     /**
@@ -151,95 +172,43 @@ public:
      * `Interface::initialize()`
      * 
      * @note
-     * Interface must be make-able, i.e., must have trait is_makeable
-     * 
-     * @note
-     * `Interface` must expect initialization. To make interfaces that don't
-     * expect initialization, use make() instead.
-     * 
-     * @note
      * The caller is responsible to delete this object.
-     * 
-     * @sa
-     * is_makeable_by_id
      */
     template<class Interface, typename... ArgTypes>
-    static typename std::enable_if<
-        !Traits::is_public_makeable_by_id<
-            typename std::remove_const<Interface>::type
-        >::value,
-        Interface*
-    >::type make(ArgTypes... args)
+    static Interface* make(ArgTypes... args)
     {
         static_assert(
-            Traits::is_public_makeable_by_type<Interface>::value,
+            Traits::is_public_makeable<Interface>::value,
             "Interface must be publicly makeable."
         );
 
         if (!_instance)
             ADDLE_THROW(ServiceLocatorNotInitializedException());
 
-        auto result = _instance->make_p<
-            typename std::remove_const<Interface>::type
-        >();
+        IFactory* factory = nullptr;
+        auto simpleIndex = qMakePair(std::type_index(typeid(Interface)), AddleId());
         
-        try
+        if (_instance->_indiscriminateFactories.contains(simpleIndex))
         {
-            initialize_if_needed(*result, args...);
+            factory = _instance->_indiscriminateFactories.value(simpleIndex);
         }
-        catch(...)
+        else
         {
-            delete result;
-            throw;
+            factory = _instance->getFactory(FactorySelector(std::type_index(typeid(Interface)), AddleId()));
+            //FactorySelector::get<Interface>(args...));
         }
-
-        return result;
-    }
-
-    /**
-     * @brief Make an object.
-     * 
-     * Creates a new object that implements the interface specified by
-     * Interface, then calls the initialize function on that object with the
-     * arguments given.
-     * 
-     * @tparam Interface
-     * The interface of the desired object
-     * 
-     * @param id
-     * The persistent ID characterizing the desired object. This may be used by
-     * ServiceLocator to select an implementation.
-     * 
-     * @param args
-     * The arguments of this function must be the same as if calling
-     * `Interface::initialize()`
-     * 
-     * @note
-     * Interface must be makeable by ID
-     * 
-     * @sa
-     * is_makeable_by_id
-     */
-    template<class Interface, class IdType, typename... ArgTypes>
-    static typename std::enable_if<
-        Traits::is_public_makeable_by_id<
-            typename std::remove_const<Interface>::type
-        >::value
-        && std::is_convertible<
-            IdType,
-            typename Traits::id_type<
-                typename std::remove_const<Interface>::type
-            >::type
-        >::value,
-        Interface*
-    >::type make(IdType id, ArgTypes... args)
-    {
-        if (!_instance)
-            ADDLE_THROW(ServiceLocatorNotInitializedException());
-
-        auto result = _instance->make_p<
-            typename std::remove_const<Interface>::type
-        >(id);
+        
+        if (!factory)
+        {
+#ifdef ADDLE_DEBUG
+            FactoryNotFoundException ex(typeid(Interface).name());
+#else
+            FactoryNotFoundException ex;
+#endif
+            ADDLE_THROW(ex);
+        }
+        
+        auto result = reinterpret_cast<Interface*>(factory->make());
         
         try
         {
@@ -286,59 +255,25 @@ public:
             "Interface must be gettable by Id"
         );
 
-        QSet<
-            typename Traits::id_type<
-                typename std::remove_const<Interface>::type
-            >::type
-        > result;
-
-        std::type_index interfaceIndex(
-            typeid(typename std::remove_const<Interface>::type)
-        );
-
+        QSet<typename Traits::id_type<Interface>::type> result;
+        
+        for (auto id : noDetach(_instance->_knownIds.value(std::type_index(typeid(Interface)))))
         {
-            auto&& begin = noDetach(_instance->_factoriesById).keyBegin();
-            auto&& end = noDetach(_instance->_factoriesById).keyEnd();
-            for(auto i = begin; i != end; ++i)
-            {
-                auto id = (*i).first;
-                auto entryInterfaceIndex = (*i).second;
-
-                if (entryInterfaceIndex == interfaceIndex
-                    && !result.contains(id) )
-                {
-                    result.insert(id);
-                }
-            }
+            // gotta get linq
+            result.insert(id);
         }
-
-        {
-            auto&& begin = noDetach(_instance->_persistentObjectsById).keyBegin();
-            auto&& end = noDetach(_instance->_persistentObjectsById).keyEnd();
-            for(auto i = begin; i != end; ++i)
-            {
-                auto id = (*i).first;
-                auto entryInterfaceIndex = (*i).second;
-
-                if (entryInterfaceIndex == interfaceIndex
-                    && !result.contains(id) )
-                {
-                    result.insert(id);
-                }
-            }
-        }
-
+        
         return result;
     }
 
 private:
-    // Trait-like helper functions that determine whether the given type has an
+        // Trait-like helper functions that determine whether the given type has an
     // initialize function.
     //
     // (The `int`/`long` dummy arguments are a SFINAE trick. Calling this
     // function with 0 as the argument will favor the `int` overload if it
     // exists, i.e., there is an initialize function. But if there is no
-    // initialize function only the `long` specialization exists.)
+    // initialize function the `long` specialization will be used.)
 
     template<typename T, typename... ArgTypes>
     static constexpr decltype(
@@ -349,7 +284,7 @@ private:
 
     // Note: this specialization accepting only one template parameter will
     // cause the build to fail if arguments are passed into make() for an
-    // interface that doesn't have an initialize funciton. This is desired
+    // interface that doesn't have an initialize function. This is desired
     // behavior but may be unclear from error messages if it happens.
     template<typename T>
     static constexpr bool needs_init(long) { return false; }
@@ -385,197 +320,66 @@ private:
     {
         Q_UNUSED(obj);
     }
-
+    
     ServiceLocator() = default;
-    virtual ~ServiceLocator()
-    {
-        for (auto i = _services.keyValueBegin(); i != _services.keyValueEnd(); ++i)
-        {
-            std::type_index type = (*i).first;
-            void* service = (*i).second;
-            
-            _factoriesByType[type]->delete_(service);
-        }
-        for (const IFactory* factory : _factoriesByType) delete factory;
-    }
+    virtual ~ServiceLocator();
 
     static ServiceLocator* _instance;
     
-    QHash<std::type_index, void*> _services;
-    QHash<std::type_index, QSharedPointer<QMutex>> _serviceInitMutexes;
-    QHash<std::type_index, const IFactory*> _factoriesByType;
-
-    QHash<QPair<AddleId, std::type_index>, const IFactory*> _factoriesById;
-    QHash<QPair<AddleId, std::type_index>, void*> _persistentObjectsById;
+    // TODO: caching
+    // TODO: async safety
     
-    // internal get by interface
-    template<class Interface>
-    Interface* get_p()
+    QHash<QPair<std::type_index, AddleId>, void*> _objects;
+    QList<IServiceConfig*> _configs;
+    
+    QHash<QPair<std::type_index, AddleId>, IFactory*> _indiscriminateFactories;
+    QHash<std::type_index, QSet<AddleId>> _knownIds;
+    
+    QHash<AddleId, IServiceConfig*> _pendingPersistentObjects;
+    
+    template<typename Interface>
+    inline Interface& get_p(AddleId id = AddleId())
     {
-        //todo: thread safety
+        auto index = qMakePair(std::type_index(typeid(Interface)), id);
         
-        std::type_index interfaceIndex(typeid(Interface));
-        
-        if (_serviceInitMutexes.contains(interfaceIndex))
+        if (_objects.contains(index))
         {
-            // An initialization mutex exists for this service, i.e., it is
-            // currently being constructed in another thread. We will wait
-            // until it is finished.
-
-            auto mutex = _serviceInitMutexes.value(interfaceIndex);
-            mutex->lock();
-            mutex->unlock();
-        }
-
-        if (_services.contains(interfaceIndex))
-        {   
-            // This service has already been made. Return the locator's instance.
-
-            void* service = _services[interfaceIndex];
-            return reinterpret_cast<Interface*>(service);
+            return *reinterpret_cast<Interface*>(_objects.value(index));
         }
         else
         {
-            auto mutex = QSharedPointer<QMutex>(new QMutex);
-            _serviceInitMutexes.insert(interfaceIndex, mutex);
-            mutex->lock();
-
-            if (!_factoriesByType.contains(interfaceIndex))
-            {         
-#ifdef ADDLE_DEBUG
-                ServiceNotFoundException ex(typeid(Interface).name());
-#else
-                ServiceNotFoundException ex;
-#endif 
-                ADDLE_THROW(ex);
-            }
-
-            static_assert(
-                !needs_init<Interface>(0),
-                "Service types must not expect initialization"
-            );
-
-            Interface* service = make_p<Interface>();
-            //service->setServiceLocator(this);
-            _services[interfaceIndex] = reinterpret_cast<void*>(service);
-
-            _serviceInitMutexes.remove(interfaceIndex);
-            mutex->unlock();
-
-            return service;
-        }
-    }
-
-    // internal get by interface and id
-    template<class Interface, class IdType>
-    Interface* get_p(IdType id)
-    {
-        static_assert(
-            Traits::is_gettable_by_id<Interface>::value,
-            "Interface must be gettable by id."
-        );
-        static_assert(
-            std::is_base_of<AddleId, IdType>::value,
-            "IdType must be AddleId"
-        );
-
-        //mutex
-    
-        auto index = qMakePair(id, std::type_index(typeid(Interface)));
-
-        if (_persistentObjectsById.contains(index))
-        {
-            return reinterpret_cast<Interface*>(_persistentObjectsById[index]);
-        }
-        else 
-        {
-            if (!_factoriesById.contains(index))
+            auto factory = getFactory(FactorySelector(index.first, index.second));
+            
+            if (!factory)
             {
 #ifdef ADDLE_DEBUG
-                PersistentObjectNotFoundException ex(typeid(Interface).name(), id);
+                FactoryNotFoundException ex(typeid(Interface).name());
 #else
-                PersistentObjectNotFoundException ex;
-#endif 
+                FactoryNotFoundException ex;
+#endif
                 ADDLE_THROW(ex);
             }
-
-            static_assert(
-                !needs_init<Interface>(0),
-                "Persistent object types must not expect initialization"
-            );
-
-            Interface* object = make_p<Interface>(id);
-            _persistentObjectsById[index] = object;
-
-            return object;
+            
+            auto result = factory->make(id);
+            _objects[index] = result;
+            
+            if (id && _pendingPersistentObjects.contains(id))
+            {
+                _pendingPersistentObjects.value(id)->initializeObject(id, result);
+                _pendingPersistentObjects.remove(id);
+            }
+            
+            return *reinterpret_cast<Interface*>(result);
         }
     }
+        
+    IFactory* getFactory(const FactorySelector& selector);
+    
+    void addConfig(IServiceConfig* config);
 
-    // internal make object by interface (using static factory)
-    template<class Interface>
-    Interface* make_p()
-    {
-        static_assert(
-            Traits::is_makeable<Interface>::value,
-            "Interface must be makeable"
-        );
-
-
-        auto index = std::type_index(typeid(Interface));
-
-        if (!_factoriesByType.contains(index))
-        {
-#ifdef ADDLE_DEBUG
-            FactoryNotFoundException ex(typeid(Interface).name());
-#else
-            FactoryNotFoundException ex;
-#endif
-            ADDLE_THROW(ex);
-        }
-
-        const IFactory* factory = _factoriesByType[index];
-        Interface* product = reinterpret_cast<Interface*>(factory->make());
-
-        return product;
-    }
-
-    // internal make object by interface and id
-    template<class Interface, class IdType>
-    Interface* make_p(IdType id)
-    {
-        static_assert(
-            Traits::is_makeable_by_id<Interface>::value,
-            "Interface must be makeable by id"
-        );
-        static_assert(
-            std::is_same<typename Traits::id_type<Interface>::type, IdType>::value,
-            "Interface must be makeable by id of type IdType"
-        );
-        static_assert(
-            std::is_base_of<AddleId, IdType>::value,
-            "IdType must be AddleId"
-        );
-
-        auto index = qMakePair(id, std::type_index(typeid(Interface)));
-
-        if (!_factoriesById.contains(index))
-        {
-#ifdef ADDLE_DEBUG
-            FactoryNotFoundException ex(typeid(Interface).name(), id);
-#else
-            FactoryNotFoundException ex;
-#endif
-            ADDLE_THROW(ex);
-        }
-
-        const IFactory* factory = _factoriesById[index];
-        Interface* product = reinterpret_cast<Interface*>(factory->make());
-
-        return product;
-    }
-
-    friend class ServiceConfigurationBase;
+    friend class ServiceLocatorControl;
 };
 
 } // namespace Addle
+
 #endif // SERVICELOCATOR_HPP

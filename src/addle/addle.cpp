@@ -11,8 +11,8 @@
 #include <vector>
 #include <memory>
 
-#include "serviceconfiguration.hpp"
 #include "utilities/configuration/registerqmetatypes.hpp"
+#include "utilities/configuration/servicelocatorcontrol.hpp"
 #include "utilities/qobject.hpp"
 
 #include "interfaces/services/iapplicationsservice.hpp"
@@ -25,6 +25,9 @@
 #ifdef ADDLE_DEBUG
 #include "utilities/debugging/messagehandler.hpp"
 #endif
+
+extern "C" void addle_core_config();
+extern "C" void addle_widgetsgui_config();
 
 using namespace Addle;
 
@@ -57,8 +60,8 @@ int main(int argc, char *argv[])
     qDebug() << qUtf8Printable(qtTrId("debug-messages.starting-addle"));
 #endif
 
-    ServiceConfiguration serviceConfiguration;
-    serviceConfiguration.initialize();
+    addle_core_config();
+    addle_widgetsgui_config();
 
 #ifdef ADDLE_DEBUG
     DebugBehavior::get(); // initialize flags before installing message handler
@@ -70,15 +73,13 @@ int main(int argc, char *argv[])
     if (appService.start())
     {
         connect_interface(&a, SIGNAL(aboutToQuit()), &appService, SLOT(quitting()), Qt::ConnectionType::DirectConnection);
-        QObject::connect(&a, &QCoreApplication::aboutToQuit, [&] () {
-            serviceConfiguration.destroy();
-        });
+        QObject::connect(&a, &QCoreApplication::aboutToQuit, &ServiceLocatorControl::destroy);
         return a.exec();
     }
     else
     {
         int exitCode = appService.exitCode();
-        serviceConfiguration.destroy();
+        ServiceLocatorControl::destroy();
         return exitCode;
     }
 }
