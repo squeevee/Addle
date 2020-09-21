@@ -22,6 +22,7 @@
 #include "idtypes/toolid.hpp"
 #include "utilities/strings.hpp"
 #include "utilities/canvas/canvasmouseevent.hpp"
+#include "utilities/idinfo.hpp"
 #include "interfaces/models/idocument.hpp"
 
 #include "interfaces/presenters/tools/iselecttoolpresenter.hpp"
@@ -146,6 +147,8 @@ QHash<AddleId, QSharedPointer<const AddleId::BaseMetaData>> AddleId::_dynamicMet
 #undef DEFINE_STATIC_METADATA_CUSTOM
 #undef DEFINE_STATIC_METADATA
 #undef STATIC_ID_METADATA_ENTRY
+
+QHash<int, QSet<AddleId>> IdInfo::_idsByType = QHash<int, QSet<AddleId>>();
 
 int CanvasMouseEvent::_type = QEvent::User;
 

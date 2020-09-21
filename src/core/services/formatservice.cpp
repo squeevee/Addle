@@ -21,6 +21,7 @@
 #include "exceptions/formatexception.hpp"
 #include "utilities/iocheck.hpp"
 #include "utilities/errors.hpp"
+#include "utilities/idinfo.hpp"
 
 using namespace Addle;
 FormatService::FormatService()
@@ -101,7 +102,7 @@ GenericFormatId FormatService::inferFormatFromSignature(QIODevice& device)
 template<class ModelType>
 void FormatService::setupFormat()
 {
-    for (FormatId<ModelType> format : noDetach(ServiceLocator::getIds<IFormatDriver<ModelType>>()))
+    for (FormatId<ModelType> format : noDetach(IdInfo::getIds<FormatId<ModelType>>()))
     {
         auto& driver = ServiceLocator::get<IFormatDriver<ModelType>>(format);
         _drivers_byFormat.insert(format, GenericFormatDriver(driver));

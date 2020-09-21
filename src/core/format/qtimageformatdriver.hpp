@@ -15,6 +15,8 @@
 
 #include "interfaces/models/idocument.hpp"
 #include "interfaces/format/iformatdriver.hpp"
+#include "globals.hpp"
+
 namespace Addle {
 
 // An image format driver that uses Qt's image processing functionality as its
@@ -33,12 +35,20 @@ public:
     IDocument* importModel(QIODevice& device, DocumentImportExportInfo info);
     void exportModel(IDocument* model, QIODevice& device, DocumentImportExportInfo info);
 
-private:
+    static bool idIsSupported(DocumentFormatId id)
+    { 
+        return supportsImport_p(id) || supportsExport_p(id);
+    }
+    
+private:    
     const DocumentFormatId _id;
     
     QByteArray _name;
     bool _supportsImport;
     bool _supportsExport;
+    
+    static bool supportsImport_p(DocumentFormatId id);
+    static bool supportsExport_p(DocumentFormatId id);
 };
 
 } // namespace Addle

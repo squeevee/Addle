@@ -22,11 +22,12 @@ QtImageFormatDriver::QtImageFormatDriver(DocumentFormatId id)
     : _id(id)
 {
     auto mimeType = _id.mimeType().toUtf8();
-    _name = QImageReader::imageFormatsForMimeType(mimeType).constFirst();
-    _supportsImport = QImageReader::supportedMimeTypes().contains(mimeType);
-    _supportsExport = QImageWriter::supportedMimeTypes().contains(mimeType);
+    _supportsImport = supportsImport_p(_id);
+    _supportsExport = supportsExport_p(_id);
     
-    ADDLE_ASSERT(_supportsExport);
+    ADDLE_ASSERT(_supportsImport);
+    
+    _name = QImageReader::imageFormatsForMimeType(mimeType).constFirst();
 }
 
 IDocument* QtImageFormatDriver::importModel(QIODevice& device, DocumentImportExportInfo info)
@@ -52,4 +53,16 @@ IDocument* QtImageFormatDriver::importModel(QIODevice& device, DocumentImportExp
 void QtImageFormatDriver::exportModel(IDocument* model, QIODevice& device, DocumentImportExportInfo info)
 {
 
+}
+
+bool QtImageFormatDriver::supportsImport_p(DocumentFormatId id)
+{
+    auto mimeType = id.mimeType().toUtf8();
+    return QImageReader::supportedMimeTypes().contains(mimeType);
+}
+
+bool QtImageFormatDriver::supportsExport_p(DocumentFormatId id)
+{
+    auto mimeType = id.mimeType().toUtf8();
+    return QImageWriter::supportedMimeTypes().contains(mimeType);
 }

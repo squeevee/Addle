@@ -188,16 +188,7 @@ public:
         IFactory* factory = nullptr;
         auto simpleIndex = qMakePair(std::type_index(typeid(Interface)), AddleId());
         
-        if (_instance->_indiscriminateFactories.contains(simpleIndex))
-        {
-            factory = _instance->_indiscriminateFactories.value(simpleIndex);
-        }
-        else
-        {
-            factory = _instance->getFactory(FactorySelector(std::type_index(typeid(Interface)), AddleId()));
-            //FactorySelector::get<Interface>(args...));
-        }
-        
+        factory = _instance->getFactory(FactorySelector::fromArgs<Interface>(args...));
         if (!factory)
         {
 #ifdef ADDLE_DEBUG
@@ -243,27 +234,6 @@ public:
     static std::unique_ptr<Interface> makeUnique(ArgTypes... args)
     {
         return std::unique_ptr<Interface>(make<Interface>(args...));
-    }
-
-    template<class Interface>
-    static QSet<typename Traits::id_type<Interface>::type> getIds()
-    {
-        static_assert(
-            Traits::is_gettable_by_id<
-                typename std::remove_const<Interface>::type
-            >::value,
-            "Interface must be gettable by Id"
-        );
-
-        QSet<typename Traits::id_type<Interface>::type> result;
-        
-        for (auto id : noDetach(_instance->_knownIds.value(std::type_index(typeid(Interface)))))
-        {
-            // gotta get linq
-            result.insert(id);
-        }
-        
-        return result;
     }
 
 private:
@@ -332,6 +302,8 @@ private:
     QHash<QPair<std::type_index, AddleId>, void*> _objects;
     QList<IServiceConfig*> _configs;
     
+    // Factories known to be correct for the given combination of interface type 
+    // and (optionally) ID regardless of other arguments.
     QHash<QPair<std::type_index, AddleId>, IFactory*> _indiscriminateFactories;
     QHash<std::type_index, QSet<AddleId>> _knownIds;
     

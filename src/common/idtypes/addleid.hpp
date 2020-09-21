@@ -121,6 +121,7 @@ private:
     {
         return ::qHash(id._value, seed);
     }
+    friend class IdInfo;
 };
 
 #define ID_TYPE_BOILERPLATE(T) \
