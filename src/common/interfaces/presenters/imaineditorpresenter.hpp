@@ -11,6 +11,7 @@
 
 #include <QObject>
 #include <QHash>
+#include <QUrl>
 
 #include "compat.hpp"
 
@@ -21,6 +22,7 @@
 #include "idtypes/toolid.hpp"
 
 #include "ihaveundostackpresenter.hpp"
+#include "imessagecontext.hpp"
 
 namespace Addle {
 
@@ -33,9 +35,13 @@ class IViewPortPresenter;
 class IColorSelectionPresenter;
 class IToolPresenter;
 class IDocumentPresenter;
+class ILoadPresenter;
+
+class FileRequest;
 
 class IMainEditorPresenter 
     : public IHaveUndoStackPresenter,
+    public IMessageContext,
     public virtual IAmQObject
 {
 public:
@@ -56,7 +62,7 @@ public:
     virtual ICanvasPresenter& canvasPresenter() const = 0;
     virtual IViewPortPresenter& viewPortPresenter() const = 0;
     virtual IColorSelectionPresenter& colorSelection() const = 0;
-
+    
     virtual void setMode(Mode mode) = 0;
     virtual Mode mode() const = 0;
 
@@ -73,18 +79,18 @@ public:
 
     virtual QSharedPointer<IToolPresenter> currentToolPresenter() const = 0;
 
+    virtual QSharedPointer<FileRequest> pendingDocumentFileRequest() const = 0;
+
+public slots:
     virtual void newDocument() = 0;
-    virtual void loadDocument(QUrl url) = 0;
+    virtual void loadDocument(QSharedPointer<FileRequest> request) = 0;
 
 signals:
-
     virtual void currentToolChanged(ToolId tool) = 0;
 
     virtual void topSelectedLayerChanged(QSharedPointer<ILayerPresenter>) = 0;
     virtual void documentPresenterChanged(QSharedPointer<IDocumentPresenter> documentPresenter) = 0;
     virtual void isEmptyChanged(bool) = 0;
-
-    virtual void error(QSharedPointer<IErrorPresenter> error) = 0;
 };
 
 DECL_INTERFACE_META_PROPERTIES(

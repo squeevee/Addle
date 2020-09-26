@@ -9,14 +9,12 @@
 #ifndef IDOCUMENT_HPP
 #define IDOCUMENT_HPP
 
-#include <QObject>
-#include <QImage>
+#include <QSize>
 #include <QColor>
 #include <QString>
-#include <QPaintDevice>
 #include <QSharedPointer>
+#include <QUrl>
 
-#include "ilayer.hpp"
 #include "interfaces/traits.hpp"
 #include "interfaces/iamqobject.hpp"
 
@@ -24,7 +22,7 @@
 
 namespace Addle {
 
-
+class ILayer;
 class IDocument : public virtual IAmQObject
 {
 public:
@@ -41,12 +39,10 @@ public:
     virtual QSize size() const = 0;
     virtual QColor backgroundColor() const = 0;
 
-    virtual QString filename() const = 0;
+    virtual QUrl url() const = 0;
+    virtual void setUrl(QUrl url) = 0;
     
     virtual QList<QSharedPointer<ILayer>> layers() const = 0;
-
-public slots:
-    virtual void setFilename(QString filename) = 0;
 
 signals:
     void boundaryChanged(QRect newBoundary);

@@ -67,8 +67,8 @@ exception will propagate to the caller, where it could potentially be caught
 and handled synchronously (which would always be preferable to asynchronously
 reporting it out of context).
 
-The macro `ADDLE_EVENT_CATCH` provides similar functionality but will never 
-propagate the error to the caller.
+The macro `ADDLE_EVENT_CATCH` provides similar functionality but sets the event
+given event as ignored and will never propagate the error to the caller.
 
 ## Debugging features (debug builds only)
 

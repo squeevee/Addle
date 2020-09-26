@@ -9,15 +9,13 @@
 #ifndef KEYVALUELIST_HPP
 #define KEYVALUELIST_HPP
 
-// Note: this is not actually used anywhere.
-
 #include <QList>
 #include <QPair>
 #include <QHash>
 namespace Addle {
 
 template<typename KeyType, typename ValueType>
-class QKeyValueList : public QList<QPair<KeyType, ValueType>>
+class KeyValueList : public QList<QPair<KeyType, ValueType>>
 {
 public:
     

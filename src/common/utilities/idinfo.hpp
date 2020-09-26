@@ -7,7 +7,9 @@
 #include <QSet>
 
 #include "interfaces/traits.hpp"
-#include "utilities/collections.hpp"
+
+#include "utils.hpp"
+#include "utilities/format/genericformat.hpp"
 
 namespace Addle {
 

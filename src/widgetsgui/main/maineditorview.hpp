@@ -25,7 +25,6 @@
 
 #include "interfaces/views/imaineditorview.hpp"
 #include "interfaces/presenters/imaineditorpresenter.hpp"
-#include "interfaces/presenters/errors/ierrorpresenter.hpp"
 
 #include "utilities/initializehelper.hpp"
 #include "utilities/qobject.hpp"
@@ -40,17 +39,33 @@ class ViewPortScrollWidget;
 class ZoomRotateWidget;
 class ColorSelector;
 class LayersManager;
-class ADDLE_WIDGETSGUI_EXPORT MainEditorWindow : public QMainWindow
+
+class FileDialogHelper;
+
+class ADDLE_WIDGETSGUI_EXPORT MainEditorView : public QMainWindow, public IMainEditorView
 {
     Q_OBJECT
+    Q_INTERFACES(Addle::IMainEditorView Addle::ITopLevelView)
+    IAMQOBJECT_IMPL    
 public:
-    MainEditorWindow(IMainEditorPresenter& presenter);
-    virtual ~MainEditorWindow() = default;
+    virtual ~MainEditorView() = default;
 
+    void initialize(IMainEditorPresenter& presenter);
+    IMainEditorPresenter& presenter() const { ASSERT_INIT(); return *_presenter; }
+    
+public slots:
+    void tlv_show();
+    void tlv_close();
+
+signals:
+    void tlv_shown();
+    void tlv_closed();
+    
 private slots:
     void onAction_open();
+    void onAction_save();
 
-    void onPresenterError(QSharedPointer<IErrorPresenter> error);
+    void onMessagePosted(QSharedPointer<IMessagePresenter> message);
 
     void onUndoStateChanged();
 
@@ -66,10 +81,9 @@ protected:
 
 private:
     void setupUi();
-    Q_SIGNAL void closeEventAccepted();
-
-    IMainEditorPresenter& _presenter;
-
+    
+    IMainEditorPresenter* _presenter = nullptr;
+    
     QMenuBar* _menuBar;
     QToolBar* _toolBar_documentActions;
     QToolBar* _toolBar_editorToolSelection;
@@ -82,6 +96,7 @@ private:
 
     QAction* _action_new;
     QAction* _action_open;
+    QAction* _action_save;
     QAction* _action_undo;
     QAction* _action_redo;
     
@@ -124,36 +139,13 @@ private:
     LayersManager* _layersManager;
     ColorSelector* _colorSelector;
 
-    friend class MainEditorView;
-    friend class ToolSetupHelper;
-};
+    FileDialogHelper* _fileDialogHelper;
 
-// Adapter/wrapper that implements the IMainEditorView interface on behalf of
-// MainEditorWindow
-class ADDLE_WIDGETSGUI_EXPORT MainEditorView : public QObject, public IMainEditorView
-{
-    Q_OBJECT
-    Q_INTERFACES(Addle::IMainEditorView Addle::ITopLevelView)
-    IAMQOBJECT_IMPL    
-public:
-    virtual ~MainEditorView() = default;
-
-    void initialize(IMainEditorPresenter& presenter);
-    IMainEditorPresenter& presenter() const { ASSERT_INIT(); return *_presenter; }
-
-public slots:
-    void show();
-    void close();
-
-signals:
-    void closed();
-
-private:
-    IMainEditorPresenter* _presenter = nullptr;
-    std::unique_ptr<MainEditorWindow> _window;
     bool _uiIsSetup = false;
 
     InitializeHelper _initHelper;
+    
+    friend class ToolSetupHelper;
 };
 
 } // namespace Addle

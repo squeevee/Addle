@@ -19,6 +19,37 @@
 #include "interfaces/config/ifactory.hpp"
 
 namespace Addle {
+    
+template<class Impl_>
+static inline typename std::enable_if<
+    std::is_base_of<QObject, typename std::remove_cv<Impl_>::type>::value,
+    QByteArray
+>::type _implNameHelper()
+{
+    return QByteArray(Impl_::staticMetaObject.className());
+}
+
+template<class Impl_>
+static inline typename std::enable_if<
+    !std::is_base_of<QObject, typename std::remove_cv<Impl_>::type>::value,
+    QByteArray
+>::type _implNameHelper()
+{
+    return QStringLiteral("`%1`")
+        .arg(typeid(Impl_).name())
+        .toUtf8();
+}
+
+template<class Interface_, class Impl_>
+static inline QByteArray _factoryNameHelper(const QString& baseName)
+{
+    return QStringLiteral("Addle::%1<`%2`, %3>")
+        .arg(baseName)
+        .arg(typeid(Interface_).name())
+        .arg(_implNameHelper<Impl_>().constData())
+        .toUtf8();
+}
+
 
 /**
  * A generic template-based object factory.
@@ -46,6 +77,21 @@ public:
     {
         delete reinterpret_cast<Interface*>(obj);
     }
+    
+#ifdef ADDLE_DEBUG
+    const char* factoryName() const override
+    {
+        static QByteArray name = _factoryNameHelper<Interface, Impl>(
+            QStringLiteral("AutoFactory")
+        );
+        return name.constData();
+    }
+    const char* implementationName() const override
+    {
+        static QByteArray name = _implNameHelper<Impl>();
+        return name.constData();
+    }
+#endif
 };
 
 template<class Interface, class Impl>
@@ -70,6 +116,21 @@ public:
     {
         delete reinterpret_cast<Interface*>(obj);
     }
+    
+#ifdef ADDLE_DEBUG
+    const char* factoryName() const override
+    {
+        static QByteArray name = _factoryNameHelper<Interface, Impl>(
+            QStringLiteral("AutoFactoryById")
+        );
+        return name.constData();
+    }
+    const char* implementationName() const override
+    {
+        static QByteArray name = _implNameHelper<Impl>();
+        return name.constData();
+    }
+#endif
 };
 
 } // namespace Addle

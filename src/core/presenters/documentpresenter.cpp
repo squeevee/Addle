@@ -38,14 +38,14 @@ void DocumentPresenter::initialize(QSize size, QColor backgroundColor)
 {
     const Initializer init(_initHelper);
 
-    LayerBuilder layer;
-    layer.setBoundary(QRect(QPoint(), size));
-    
-    DocumentBuilder doc;
-    doc.addLayer(layer);
-    doc.setBackgroundColor(backgroundColor);
-
-    initialize(ServiceLocator::makeShared<IDocument>(doc));
+    initialize(ServiceLocator::makeShared<IDocument>(
+        DocumentBuilder()
+            .setBackgroundColor(backgroundColor)
+            .addLayer(
+                LayerBuilder()
+                    .setBoundary(QRect(QPoint(), size))
+            )
+    ));
 }
 
 void DocumentPresenter::initialize(QSharedPointer<IDocument> model)
@@ -59,32 +59,7 @@ void DocumentPresenter::initialize(QSharedPointer<IDocument> model)
     _initHelper.setCheckpoint(InitCheckpoints::Layers);
 }
 
-// void DocumentPresenter::addLayer(int index)
-// {
 
-// }
-
-// void DocumentPresenter::removeLayer(int index, int count)
-// {
-
-// }
-
-// void DocumentPresenter::removeLayer(QSharedPointer<ILayerPresenter> layer)
-// {
-
-// }
-
-// void DocumentPresenter::removeLayers(QList<QSharedPointer<ILayerPresenter>> layers)
-// {
-
-// }
-
-// void DocumentPresenter::moveLayer(QSharedPointer<ILayerPresenter> layer, int destination)
-// {
-
-// }
-
-// void DocumentPresenter::moveLayers(QList<QSharedPointer<ILayerPresenter>> layers, int destination)
-// {
-
-// }
+void DocumentPresenter::save(QSharedPointer<FileRequest> request)
+{
+}

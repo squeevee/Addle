@@ -52,7 +52,6 @@ public:
     void initialize(QSharedPointer<IDocument> model);
 
     QSharedPointer<IDocument> model() { ASSERT_INIT(); return _model; }
-    bool isEmpty() { ASSERT_INIT(); return !_model; }
 
     QSize size() { ASSERT_INIT(); return _model ? _model->size() : QSize(); }
     QRect rect() { return QRect(QPoint(), size()); }
@@ -67,12 +66,16 @@ public:
 
     QSharedPointer<ILayerPresenter> topSelectedLayer() const { ASSERT_INIT(); return _layersHelper.topSelectedLayer(); }
 
+    bool isLocalFile() const { ASSERT_INIT(); return _model && _model->url().isLocalFile(); }
+
 public slots:
     void addLayer() { try { ASSERT_INIT(); _layersHelper.addLayer(); } ADDLE_SLOT_CATCH }
     void addLayerGroup() { try { ASSERT_INIT(); _layersHelper.addLayerGroup(); } ADDLE_SLOT_CATCH }
     void removeSelectedLayers() { try { ASSERT_INIT(); _layersHelper.removeSelectedLayers(); } ADDLE_SLOT_CATCH }
     void moveSelectedLayers(int destination) { }
     void mergeSelectedLayers() { }
+    
+    void save(QSharedPointer<FileRequest> request);
 
 signals:
     void layersAdded(QList<IDocumentPresenter::LayerNode*> added);

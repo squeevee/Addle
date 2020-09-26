@@ -12,8 +12,8 @@
 
 #include "servicelocator.hpp"
 
-#include "interfaces/presenters/errors/iapplicationerrorpresenter.hpp"
-#include "interfaces/views/iapplicationerrorview.hpp"
+#include "interfaces/presenters/messages/inotificationpresenter.hpp"
+#include "interfaces/views/imessageview.hpp"
 
 #include "utilities/debugging/debugbehavior.hpp"
 
@@ -56,5 +56,34 @@ void ErrorService::reportUnhandledError(const std::exception& ex, Severity sever
 
 void ErrorService::displayError(QSharedPointer<UnhandledException> ex)
 {
-    ServiceLocator::make<IApplicationErrorPresenter>(ex)->view().show();
+#ifdef ADDLE_DEBUG
+    qWarning() << qUtf8Printable(ex->what());
+    if (ex->addleException())
+        qWarning() << qUtf8Printable(ex->addleException()->what());
+    if (ex->stdException())
+        qWarning() << qUtf8Printable(ex->stdException()->what());
+#endif
+
+    auto message = ServiceLocator::makeShared<INotificationPresenter>(
+#ifdef ADDLE_DEBUG
+        QString(ex->what()), 
+#else 
+        //: Displayed in "release" builds of Addle if an error occurs in some part
+        //: of the application and was not handled there. If this message is
+        //: displayed, it indicates a potentially serious bug of unknown nature.
+        //
+        //: As Addle's error handling matures, this message will likely require
+        //: retooling.
+        //
+        //% "An unknown error occurred within Addle. The application may be in an"
+        //% "unstable state. Proceed with caution."
+        qtTrId("ui.release-unhandled-error"),
+#endif // ADDLE_DEBUG
+        IMessagePresenter::Problem,
+        true,    //isUrgent
+        nullptr, //context
+        ex       //exception
+    );
+    
+    ServiceLocator::make<IMessageView>(message)->show();
 }

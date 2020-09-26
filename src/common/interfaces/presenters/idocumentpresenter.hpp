@@ -16,6 +16,8 @@
 #include "interfaces/iamqobject.hpp"
 #include "interfaces/metaobjectinfo.hpp"
 
+#include "icansavepresenter.hpp"
+
 #include "utilities/heirarchylist.hpp"
 
 namespace Addle {
@@ -23,8 +25,7 @@ namespace Addle {
 class IDocument;
 class ICanvasPresenter;
 class ILayerPresenter;
-
-class IDocumentPresenter : public virtual IAmQObject
+class IDocumentPresenter : public ICanSavePresenter, public virtual IAmQObject
 {
 public:
     typedef HeirarchyList<QSharedPointer<ILayerPresenter>> LayerList;
@@ -44,8 +45,6 @@ public:
     virtual void initialize(QSharedPointer<IDocument> model) = 0;
 
     virtual QSharedPointer<IDocument> model() = 0;
-
-    virtual bool isEmpty() = 0;
     
     virtual QSize size() = 0;
     virtual QRect rect() = 0;
@@ -59,6 +58,8 @@ public:
     virtual void removeLayerSelection(QSet<LayerNode*> layer) = 0;
 
     virtual QSharedPointer<ILayerPresenter> topSelectedLayer() const = 0;
+
+    virtual bool isLocalFile() const = 0;
 
 public slots:
     virtual void addLayer() = 0;

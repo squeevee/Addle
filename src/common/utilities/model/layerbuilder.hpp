@@ -18,23 +18,16 @@ namespace Addle {
 
 class LayerBuilder
 {
-    struct LayerBuilderData : QSharedData
-    {
-        QRect boundary;
-        QImage image;
-    };
 public:
-    LayerBuilder() { _data = new LayerBuilderData; }
-    LayerBuilder(const LayerBuilder& other) : _data(other._data) {}
-    
-    void setBoundary(QRect boundary) { _data->boundary = boundary; }
-    QRect boundary() const { return _data->boundary; }
+    QRect boundary() const { return _boundary; }
+    LayerBuilder& setBoundary(QRect boundary) { _boundary = boundary; return *this; }
 
-    void setImage(QImage image) { _data->image = image; }
-    QImage image() const { return _data->image; }
+    QImage image() const { return _image; }
+    LayerBuilder& setImage(QImage image) { _image = image; return *this; }
 
 private:
-    QSharedDataPointer<LayerBuilderData> _data;
+    QRect _boundary;
+    QImage _image;
 };
 
 } // namespace Addle

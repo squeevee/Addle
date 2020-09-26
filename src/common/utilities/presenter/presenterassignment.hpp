@@ -109,7 +109,7 @@ public:
     {
         disconnect();
 
-        _presenter = pointer.data();
+        _presenter = pointer.toStrongRef().data();
         _safe = [=]() -> bool { return !pointer.isNull(); };
 
         return *this;

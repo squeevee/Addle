@@ -277,11 +277,11 @@ void ApplicationService::startGraphicalApplication()
 
     if (!_startingFilename.isNull())
     {
-        presenter->loadDocument(QUrl::fromLocalFile(_startingFilename));
+        //presenter->loadDocument(QUrl::fromLocalFile(_startingFilename));
     }
     else if (!_startingUrl.isEmpty())
     {
-        presenter->loadDocument(_startingUrl);
+        //presenter->loadDocument(_startingUrl);
     }
 
     presenter->view().show();

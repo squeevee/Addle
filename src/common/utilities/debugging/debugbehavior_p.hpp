@@ -35,13 +35,20 @@ public:
     {
         Normal = 0x0,
 
+        // Abort immediately (i.e., so backtrace and state are preserved in the
+        // debugger) when certain conditions are detected.
         AbortOnStartupError = 0x1,
         AbortOnLogicErrorThrown = 0x2,
         AbortOnUnhandledLogicError = 0x4,
 
-
+        // Intercept warnings from Qt about error-like events and raise
+        // corresponding exceptions
         InterceptQObjectConnectFailure = 0x100,
-        InterceptQStringArgFailure = 0x200
+        InterceptQStringArgFailure = 0x200,
+        
+        // Print details when factories are being chosen in ServiceConfig (i.e.,
+        // by ServiceLocator). Mainly for debugging FactoryNotFoundException
+        PrintFactorySelectionInfo = 0x10000
     };
     Q_DECLARE_FLAGS(DebugBehaviorFlags, DebugBehaviorOption)
     Q_FLAG(DebugBehaviorOption)

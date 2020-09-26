@@ -10,14 +10,39 @@
 #include "utilities/errors.hpp"
 
 #include "interfaces/models/idocument.hpp"
+#include "interfaces/models/ibrush.hpp"
+#include "interfaces/models/ipalette.hpp"
 #include "interfaces/format/iformatdriver.hpp"
 
-class Alternate
-{
+using namespace Addle;
 
+const mpl_runtime_array<
+    const std::type_info*,
+    GenericFormatModelInfo::types,
+    GenericFormatModelInfo::_typeInfoInitializer
+> GenericFormatModelInfo::typeInfo;
+
+struct _initializeGenericImportExportMakers
+{
+    template<typename T>
+    static std::function<GenericImportExportInfo()> make()
+    {
+        return [] () -> GenericImportExportInfo {
+            return GenericImportExportInfo(T());
+        };
+    }
 };
 
-using namespace Addle;
+const mpl_runtime_array<
+    std::function<GenericImportExportInfo()>,
+    GenericImportExportInfo::variant_t::types,
+    _initializeGenericImportExportMakers
+> _genericImportExportInfoMakers;
+
+GenericImportExportInfo GenericImportExportInfo::make(int index)
+{
+    return _genericImportExportInfoMakers[index]();
+}
 
 struct visitor_importModel
 {
@@ -29,10 +54,9 @@ struct visitor_importModel
     }
 
     template<typename ModelType>
-    GenericFormatModel operator()(IFormatDriver<ModelType>* driver)
+    GenericFormatModel operator()(IFormatDriver<ModelType>* driver) const
     {
-        auto info = genericInfo.get<ModelType>();
-        return driver->importModel(device, info);
+        return driver->importModel(device, genericInfo.get<ModelType>());
     }
 
     QIODevice& device;
@@ -41,8 +65,7 @@ struct visitor_importModel
 
 GenericFormatModel GenericFormatDriver::importModel(QIODevice& device, GenericImportExportInfo info)
 {
-    visitor_importModel visitor(device, info);
-    return boost::apply_visitor(visitor, _value);
+    return boost::apply_visitor(visitor_importModel(device, info), _value);
 }
 
 struct visitor_supportsImport
@@ -59,4 +82,21 @@ struct visitor_supportsImport
 bool GenericFormatDriver::supportsImport() const
 {
     return boost::apply_visitor(visitor_supportsImport(), _value);
+}
+
+struct visitor_destroy
+{
+    typedef void result_type;
+    
+    template<typename ModelType>
+    void operator()(ModelType*& model) const
+    {
+        delete model; // in cpp so we're not deleting an incomplete type
+        model = nullptr;
+    }
+};
+
+void GenericFormatModel::destroy()
+{
+    boost::apply_visitor(visitor_destroy(), _value);
 }

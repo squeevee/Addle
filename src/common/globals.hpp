@@ -88,18 +88,28 @@ DECLARE_STATIC_ID_METADATA(CoreBrushes::BasicEraser,    "basic-eraser");
 #undef START_CORE_BRUSH_IDS
 #undef START_CORE_ERASER_IDS
 
-#define START_CORE_FORMAT_IDS 0x500
+#define START_CORE_DOCUMENT_FORMAT_IDS 0x500
+#define START_CORE_BRUSH_FORMAT_IDS 0x600
+#define START_CORE_PALETTE_FORMAT_IDS 0x610
 namespace CoreFormats
 {
-    constexpr DocumentFormatId PNG  = START_CORE_FORMAT_IDS + 0x00;
-    constexpr DocumentFormatId JPEG = START_CORE_FORMAT_IDS + 0x01;
+    constexpr DocumentFormatId PNG  = START_CORE_DOCUMENT_FORMAT_IDS + 0x00;
+    constexpr DocumentFormatId JPEG = START_CORE_DOCUMENT_FORMAT_IDS + 0x01;
+//     constexpr DocumentFormatId GIF  = START_CORE_DOCUMENT_FORMAT_IDS + 0x02;
+//     constexpr DocumentFormatId WebP = START_CORE_DOCUMENT_FORMAT_IDS + 0x03;
+//     constexpr DocumentFormatId ORA  = START_CORE_DOCUMENT_FORMAT_IDS + 0x04;
 }
-DECLARE_STATIC_FORMAT_ID_METADATA(CoreFormats::PNG,    "format-png");
-DECLARE_STATIC_FORMAT_ID_METADATA(CoreFormats::JPEG,   "format-jpeg");
+DECLARE_STATIC_FORMAT_ID_METADATA(CoreFormats::PNG,     "format-png");
+DECLARE_STATIC_FORMAT_ID_METADATA(CoreFormats::JPEG,    "format-jpeg");
+// DECLARE_STATIC_FORMAT_ID_METADATA(CoreFormats::GIF,     "format-gif");
+// DECLARE_STATIC_FORMAT_ID_METADATA(CoreFormats::WebP,    "format-webp");
+// DECLARE_STATIC_FORMAT_ID_METADATA(CoreFormats::ORA,     "format-ora");
 
-#undef START_CORE_FORMAT
+#undef START_CORE_DOCUMENT_FORMAT_IDS
+#undef START_CORE_BRUSH_FORMAT_IDS
+#undef START_CORE_PALETTE_FORMAT_IDS
 
-#define START_CORE_PALETTE_IDS 0x600
+#define START_CORE_PALETTE_IDS 0x700
 namespace CorePalettes
 {
     constexpr PaletteId BasicPalette    = START_CORE_PALETTE_IDS + 0x00;

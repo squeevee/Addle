@@ -46,7 +46,9 @@
 #include "utilities/model/documentbuilder.hpp"
 #include "utilities/format/importexportinfo.hpp"
 #include "utilities/model/layerbuilder.hpp"
-#include "utilities/presenter/genericerrorpresenter.hpp"
+#include "utilities/genericeventfilter.hpp"
+
+#include "utilities/presenter/filerequest.hpp"
 
 namespace Addle {
 
@@ -99,6 +101,30 @@ DEFINE_STATIC_ID_METADATA_CUSTOM(CoreFormats::JPEG, DocumentFormatId::MetaData,
     /*file sig:*/   QByteArrayLiteral("\xFF\xD8\xFF")
 )
 
+// DEFINE_STATIC_ID_METADATA_CUSTOM(CoreFormats::GIF, DocumentFormatId::MetaData,
+//                     QUuid(),
+//     /*mime type:*/  QStringLiteral("image/gif"),
+//     /*file ext:*/   QStringLiteral("gif"),
+//     /*file sig:*/   QByteArrayLiteral("GIF8")
+//                         technically it's GIF87a or GIF89a
+//                         TODO: support multiple signatures per format ?
+// )
+// 
+// DEFINE_STATIC_ID_METADATA_CUSTOM(CoreFormats::WebP, DocumentFormatId::MetaData,
+//                     QUuid(),
+//     /*mime type:*/  QStringLiteral("image/webp"),
+//     /*file ext:*/   QStringLiteral("webp"),
+//     /*file sig:*/   QByteArrayLiteral("WEBP")
+// )
+// 
+// DEFINE_STATIC_ID_METADATA_CUSTOM(CoreFormats::ORA, DocumentFormatId::MetaData,
+//                     QUuid(),
+//     /*mime type:*/  QStringLiteral("image/openraster"),
+//     /*file ext:*/   QStringLiteral("ora"),
+//     /*file sig:*/   QByteArray()
+//                         TODO: file signatures are optional
+// )
+
 DEFINE_STATIC_ID_METADATA(CorePalettes::BasicPalette)
 
 DEFINE_STATIC_ID_METADATA(CoreTools::Select)
@@ -129,6 +155,9 @@ QHash<AddleId, QSharedPointer<const AddleId::BaseMetaData>> AddleId::_dynamicMet
 
     STATIC_ID_METADATA_ENTRY(CoreFormats::PNG),
     STATIC_ID_METADATA_ENTRY(CoreFormats::JPEG),
+//     STATIC_ID_METADATA_ENTRY(CoreFormats::GIF),
+//     STATIC_ID_METADATA_ENTRY(CoreFormats::WebP),
+//     STATIC_ID_METADATA_ENTRY(CoreFormats::ORA),
 
     STATIC_ID_METADATA_ENTRY(CorePalettes::BasicPalette),
 
@@ -215,7 +244,18 @@ const QSet<QByteArray> _DYNAMIC_TRIDS_REGISTRY = {
     QT_TRID_NOOP("brushes.basic-brush.name"),
     QT_TRID_NOOP("brushes.soft-brush.name"),
     
-    QT_TRID_NOOP("brushes.basic-eraser.name")
+    QT_TRID_NOOP("brushes.basic-eraser.name"),
+
+    //% "PNG images"
+    QT_TRID_NOOP("formats.format-png.name"),
+    //% "JPEG images"
+    QT_TRID_NOOP("formats.format-jpeg.name"),
+    //% "GIF images and animations"
+    QT_TRID_NOOP("formats.format-gif.name"),
+    //% "WebP images"
+    QT_TRID_NOOP("formats.format-webp.name"),
+    //% "OpenRaster images"
+    QT_TRID_NOOP("formats.format-ora.name")
 };
 
 #endif // ADDLE_DEBUG
@@ -225,5 +265,7 @@ const QSet<QByteArray> _DYNAMIC_TRIDS_REGISTRY = {
 #include "moc_globals.cpp"
 #include "exceptions/moc_formatexception.cpp"
 #include "exceptions/moc_fileexception.cpp"
+#include "utilities/moc_genericeventfilter.cpp"
+#include "utilities/presenter/moc_filerequest.cpp"
 #include "utilities/editing/moc_rasterengineparams.cpp"
 #include "interfaces/presenters/tools/moc_inavigatetoolpresenteraux.cpp"

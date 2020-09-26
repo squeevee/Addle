@@ -30,8 +30,10 @@ set (
     presenters/assets/brushpresenter.cpp
     presenters/colorselectionpresenter.cpp
     presenters/palettepresenter.cpp
-    presenters/errors/applicationerrorpresenter.cpp
+    presenters/messages/notificationpresenter.cpp
     presenters/helpers/brushiconhelper.cpp
+    presenters/helpers/loadhelper.cpp
+    presenters/helpers/savetask.cpp
     presenters/operations/brushoperationpresenter.cpp
     presenters/tools/assetselectionpresenter.cpp
     presenters/tools/navigatetoolpresenter.cpp

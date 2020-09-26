@@ -26,7 +26,7 @@
 using namespace Addle;
 FormatService::FormatService()
 {
-    setupFormat<IDocument>();
+    setupFormat<IDocument>(); // TODO use MPL to automatically populate all model types
 }
 
 GenericFormatModel FormatService::importModel_p(QIODevice& device, const GenericImportExportInfo& info)
@@ -62,12 +62,20 @@ GenericFormatModel FormatService::importModel_p(QIODevice& device, const Generic
         (format = impliedBySuffix)
     )
     {
-        if(!_drivers_byFormat.contains(format))
-            ADDLE_THROW(FormatException(FormatException::WrongModelType, format, info));
-
-        GenericFormatDriver driver = _drivers_byFormat.value(format);
-
+        GenericFormatDriver driver;
+        
+        if(_drivers_byFormat.contains(format))
+        {
+            driver = _drivers_byFormat.value(format);
+        }
+        else
+        {
+            
+        }
+        
         ADDLE_ASSERT(driver.supportsImport());
+
+        info.notifyAccepted();
 
         GenericFormatModel result = driver.importModel(device, info);
 
@@ -104,6 +112,8 @@ void FormatService::setupFormat()
 {
     for (FormatId<ModelType> format : noDetach(IdInfo::getIds<FormatId<ModelType>>()))
     {
+        // TODO use lambdas to defer the actual get until the particular format
+        // is requested.
         auto& driver = ServiceLocator::get<IFormatDriver<ModelType>>(format);
         _drivers_byFormat.insert(format, GenericFormatDriver(driver));
         _formats_byMimeType.insert(format.mimeType(), GenericFormatId(format));

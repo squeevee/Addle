@@ -6,6 +6,9 @@
  * MIT License. See "LICENSE" for full details.
  */
 
+#include <cstring> // for strcmp
+#include <QMetaObject>
+
 #include <QThreadPool>
 
 #include "asynctask.hpp"
@@ -34,10 +37,12 @@ void AsyncTask::Worker::orphan()
 
 void AsyncTask::Worker::run()
 {
+    if (!_owner) return;
+    _owner->_isRunningMutex.lock();
+    
     try
     {
         {
-            if (!_owner) return;
             const QMutexLocker lock(&_owner->_stateMutex);
             _owner->_isRunning = true;
             _owner->_hasCompleted = false;
@@ -46,9 +51,8 @@ void AsyncTask::Worker::run()
         }
 
         _owner->doTask();
-
+        
         {
-            if (!_owner) return;
             const QMutexLocker lock(&_owner->_stateMutex);
             _owner->_isRunning = false;
             _owner->_hasCompleted = true;
@@ -57,20 +61,58 @@ void AsyncTask::Worker::run()
             emit _owner->completed();
         }
     }
+    catch (AsyncInterruption& ex)
+    {
+        const QMutexLocker lock(&_owner->_stateMutex);
+        _owner->_isRunning = false;
+        
+        _owner->_isInterrupted = true;
+        _owner->_interruption = QSharedPointer<AsyncInterruption>(
+            static_cast<AsyncInterruption*>(ex.clone())
+        );
+        emit _owner->stopped();
+        emit _owner->interrupted(ex.code());
+    }
     catch (AddleException& ex)
     {
-        {
-            if (!_owner) return;
-            const QMutexLocker lock(&_owner->_stateMutex);
-            _owner->_isRunning = false;
-            _owner->_hasFailed = true;
-            _owner->_error = QSharedPointer<AddleException>(ex.clone());
-
-            emit _owner->stopped();
-            emit _owner->failed(_owner->_error);
-        }
+        const QMutexLocker lock(&_owner->_stateMutex);
+        _owner->_isRunning = false;
+        
+        _owner->_hasFailed = true;
+        _owner->_error = QSharedPointer<AddleException>(ex.clone());
+        emit _owner->stopped();
+        emit _owner->failed(_owner->_error);
     }
-    // catch(...) ?
+    catch(std::exception& ex)
+    {
+        const QMutexLocker lock(&_owner->_stateMutex);
+        _owner->_isRunning = false;
+        
+        _owner->_hasFailed = true;
+        _owner->_error = QSharedPointer<AddleException>(new UnhandledException(ex));
+        
+        emit _owner->stopped();
+        emit _owner->failed(_owner->_error);
+    }
+#ifdef ADDLE_DEBUG
+    catch(...)
+    {
+        const QMutexLocker lock(&_owner->_stateMutex);
+        _owner->_isRunning = false;
+        
+        _owner->_hasFailed = true;
+        _owner->_error = QSharedPointer<AddleException>(new UnhandledException());
+        emit _owner->stopped();
+        emit _owner->failed(_owner->_error);
+    }
+#else
+    catch(...)
+    {
+        std::terminate();
+    }
+#endif
+
+    _owner->_isRunningMutex.unlock();
 }
 
 AsyncTask::AsyncTask(QObject* parent)
@@ -80,6 +122,7 @@ AsyncTask::AsyncTask(QObject* parent)
 
 AsyncTask::~AsyncTask()
 {
+    const QMutexLocker lock(&_isRunningMutex);
     if (_worker) _worker->orphan();
 }
 

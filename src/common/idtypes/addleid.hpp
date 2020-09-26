@@ -17,6 +17,8 @@
 #include <QVariant>
 
 #include "utilities/indexvariant.hpp"
+#include "utilities/dynamic_qttrid.hpp"
+
 namespace Addle {
 
 constexpr QUuid ADDLE_NAMESPACE_UUID

@@ -7,5 +7,8 @@
  */
 
 #include "models/brush.hpp"
+#include "presenters/helpers/messagecontexthelper.hpp"
+
+#include "presenters/helpers/moc_messagecontexthelper.cpp"
 
 using namespace Addle;

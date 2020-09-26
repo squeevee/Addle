@@ -46,7 +46,7 @@ void SizeSelectionPresenter::setPresets(QList<double> presets)
 
         selectPreset(-1);
     }
-    ADDLE_EVENT_CATCH
+    ADDLE_SLOT_CATCH
 }
 
 void SizeSelectionPresenter::set(double size)

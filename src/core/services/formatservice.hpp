@@ -19,8 +19,8 @@
 #include "interfaces/services/iformatservice.hpp"
 
 #include "idtypes/formatid.hpp"
-namespace Addle {
 
+namespace Addle {
 
 class ADDLE_CORE_EXPORT FormatService : public virtual IFormatService
 {
@@ -39,6 +39,8 @@ private:
     QHash<QString, GenericFormatId> _formats_byMimeType;
     QHash<QByteArray, GenericFormatId> _formats_bySignature;
     QHash<std::type_index, QSet<GenericFormatId>> _formats_byModelType;
+        // TODO: use a fixed-size array indexed by generic model type index
+        // instead of using std::type_index
     QHash<GenericFormatId, GenericFormatDriver> _drivers_byFormat;
 
     GenericFormatId inferFormatFromSignature(QIODevice& device);

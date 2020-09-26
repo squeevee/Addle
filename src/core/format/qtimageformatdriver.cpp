@@ -32,21 +32,21 @@ QtImageFormatDriver::QtImageFormatDriver(DocumentFormatId id)
 
 IDocument* QtImageFormatDriver::importModel(QIODevice& device, DocumentImportExportInfo info)
 {
-    DocumentBuilder documentBuilder;
-    documentBuilder.setFilename(info.filename());
-
     QImage image;
     image.load(&device, _name);
-
-    LayerBuilder layerBuilder;
-    layerBuilder.setImage(image);
-    layerBuilder.setBoundary(image.rect());
-    documentBuilder.addLayer(layerBuilder);
 
     // if (status)
     //     status->setProgress(1.00);
 
-    return ServiceLocator::make<IDocument>(documentBuilder);
+    return ServiceLocator::make<IDocument>(
+        DocumentBuilder()
+            .setUrl(QUrl::fromLocalFile(info.filename()))
+            .addLayer(
+                LayerBuilder()
+                    .setImage(image)
+                    .setBoundary(image.rect())
+            )
+    );
 }
 
 

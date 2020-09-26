@@ -33,9 +33,20 @@ public:
     //virtual IDocument* loadFile(QString filename) = 0;
 
     template<class FormatModel>
-    QSharedPointer<FormatModel> importModel(QIODevice& device, const ImportExportInfo<FormatModel>& info)
+    inline QSharedPointer<FormatModel> importModel(QIODevice& device, const ImportExportInfo<FormatModel>& info)
     {
         return QSharedPointer<FormatModel>(boost::get<FormatModel*>(importModel_p(device, info).variant()));
+    }
+    
+    inline GenericSharedFormatModel importModel(QIODevice& device, const GenericImportExportInfo& info)
+    {
+        return GenericSharedFormatModel(importModel_p(device, info));
+    }
+
+    template<class FormatModel>
+    inline void exportModel(QIODevice& device, const FormatModel&, const ImportExportInfo<FormatModel>& info)
+    {
+        //return QSharedPointer<FormatModel>(boost::get<FormatModel*>(importModel_p(device, info).variant()));
     }
 
 protected:

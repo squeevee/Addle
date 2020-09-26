@@ -17,7 +17,7 @@ void Document::initialize(const DocumentBuilder& builder)
 {
     const Initializer init(_initHelper);
 
-    _filename = builder.filename();
+    _url = builder.url();
     _backgroundColor = builder.backgroundColor();
 
     for (LayerBuilder& layerBuilder : builder.layers())

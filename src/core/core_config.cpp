@@ -22,12 +22,13 @@
 #include "presenters/colorselectionpresenter.hpp"
 #include "presenters/palettepresenter.hpp"
 #include "presenters/assets/brushpresenter.hpp"
-#include "presenters/errors/applicationerrorpresenter.hpp"
 #include "presenters/tools/assetselectionpresenter.hpp"
 #include "presenters/tools/navigatetoolpresenter.hpp"
 #include "presenters/tools/brushtoolpresenter.hpp"
 #include "presenters/tools/sizeselectionpresenter.hpp"
 #include "presenters/operations/brushoperationpresenter.hpp"
+
+#include "presenters/messages/notificationpresenter.hpp"
 
 #include "rendering/renderstack.hpp"
 
@@ -146,7 +147,7 @@ extern "C" void addle_core_config()
     config->addAutoFactory<ICanvasPresenter, CanvasPresenter>();
     config->addAutoFactory<IColorSelectionPresenter, ColorSelectionPresenter>();
     config->addAutoFactory<IViewPortPresenter, ViewPortPresenter>();
-    config->addAutoFactory<IApplicationErrorPresenter, ApplicationErrorPresenter>();
+    //config->addAutoFactory<IApplicationErrorPresenter, ApplicationErrorPresenter>();
     config->addAutoFactory<ILayerPresenter, LayerPresenter>();
     config->addAutoFactory<IDocumentPresenter, DocumentPresenter>();
     config->addAutoFactory<IBrushOperationPresenter, BrushOperationPresenter>();
@@ -154,6 +155,9 @@ extern "C" void addle_core_config()
 
     // ## Asset presenters
     config->addAutoFactory<IBrushPresenter, BrushPresenter>();
+    
+    // ## Message presenters
+    config->addAutoFactory<INotificationPresenter, NotificationPresenter>();
 
     // ## Tool presenters
     config->addAutoFactory<IAssetSelectionPresenter, AssetSelectionPresenter>();

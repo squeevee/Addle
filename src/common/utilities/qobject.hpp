@@ -9,12 +9,18 @@
 #ifndef QOBJECT_HPP
 #define QOBJECT_HPP
 
+#include <QCoreApplication>
 #include <QObject>
 #include <QPointer>
 
 #include "interfaces/iamqobject.hpp"
 namespace Addle {
 
+// TODO probably just replace these with overloads of qobject_cast. The usage
+// becomes less weird if a destination type is just a required template
+// parameter, and if PropertyBinding is extended to accept IAmQObject that 
+// eliminates almost all direct usage of this function anyway.
+    
 /**
  * @brief Acquire QObject from Interface
  */
@@ -173,6 +179,19 @@ inline QMetaObject::Connection connect_interface2(
 
     return QObject::connect(qsender, signal, qreceiver, slot);
 }
+
+template<class Interface>
+inline bool sendInterfaceEvent(Interface* receiver, QEvent* event)
+{
+    return QCoreApplication::sendEvent(qobject_interface_cast(receiver), event);
+}
+
+template<class Interface>
+inline void postInterfaceEvent(Interface* receiver, QEvent* event, int priority = Qt::NormalEventPriority)
+{
+    QCoreApplication::postEvent(qobject_interface_cast(receiver), event, priority);
+}
+
 } // namespace Addle
 
 #endif // QOBJECT_HPP

@@ -26,7 +26,7 @@ class ToolSetupHelper
 {
 public: 
     ToolSetupHelper(
-            MainEditorWindow* owner,
+            MainEditorView* owner,
             IMainEditorPresenter& mainEditorPresenter,
             OptionGroup* selectGroup
         )
@@ -61,18 +61,18 @@ public:
             optionsToolBar, 
             &ToolBarType::needsShown,
             _owner, 
-            &MainEditorWindow::onToolBarNeedsShown
+            &MainEditorView::onToolBarNeedsShown
         );
         QObject::connect(
             optionsToolBar, 
             &ToolBarType::needsHidden,
             _owner, 
-            &MainEditorWindow::onToolBarNeedsHidden
+            &MainEditorView::onToolBarNeedsHidden
         );
     }
 
 private:
-    MainEditorWindow* _owner;
+    MainEditorView* _owner;
     QToolBar* _selectToolBar;
     OptionGroup* _selectGroup;
 

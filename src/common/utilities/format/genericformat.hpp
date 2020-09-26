@@ -9,24 +9,67 @@
 #ifndef GENERICFORMAT_HPP
 #define GENERICFORMAT_HPP
 
-#include <boost/variant.hpp>
 #include <typeinfo>
+
+#include <boost/variant.hpp>
+#include <boost/mpl/vector.hpp>
+#include <boost/mpl/at.hpp>
+#include <boost/mpl/size.hpp>
+#include <boost/mpl/transform.hpp>
+#include <boost/type_traits/add_pointer.hpp>
+#include <boost/type_traits/type_identity.hpp>
+
+#include <QSharedPointer>
+#include <QMetaType>
+
+#include "utilities/mplruntime.hpp"
 
 #include "idtypes/formatid.hpp"
 #include "importexportinfo.hpp"
 
 namespace Addle {
 
-class PlaceholderModel; // temporary
+/**
+ * Boost.MPL sequence of format model types supported by the generic format classes.
+ */
+
+class GenericFormatModelInfo
+{
+    struct _typeInfoInitializer
+    {
+        template<typename T>
+        static inline const std::type_info* make() { return &typeid(T); }
+    };
+public:
+    typedef boost::mpl::vector<
+        IDocument,
+        IBrush,
+        IPalette
+    >::type types;
+
+    static const mpl_runtime_array<const std::type_info*, types, _typeInfoInitializer> typeInfo;
+
+    template<typename T>
+    static constexpr int indexOf()
+    {
+        static_assert(
+            boost::mpl::contains<types, T>::type::value,
+            "The given type is not a supported generic format model."
+        );
+        return boost::mpl::find<types, T>::type::pos::value;
+    }
+};
 
 class ADDLE_COMMON_EXPORT GenericFormatId
 {
 public:
-    typedef boost::variant<
-        DocumentFormatId,
-        FormatId<PlaceholderModel>
-    > variant_t;
-
+    typedef boost::make_variant_over<
+        boost::mpl::transform<
+            GenericFormatModelInfo::types,
+            FormatId<boost::mpl::placeholders::_1>
+        >::type
+    >::type variant_t;
+    
     GenericFormatId() = default;
 
     template<class ModelType>
@@ -67,38 +110,52 @@ public:
 
     inline operator AddleId() const { return id_p(); }
 
-    QString mimeType() const { return boost::apply_visitor(visitor_getMimeType(), _value); }
-    QString fileExtension() const;
-    QStringList fileExtensions() const;
-    QByteArray fileSignature() const;
+    inline QString mimeType() const { return boost::apply_visitor(visitor_getMimeType(), _value); }
+    inline QString fileExtension() const { return boost::apply_visitor(visitor_getFileExtensions(), _value).constFirst(); }
+    inline QStringList fileExtensions() const { return boost::apply_visitor(visitor_getFileExtensions(), _value); }
+    inline QByteArray fileSignature() const;
 
+    inline QString name() const { return boost::apply_visitor(visitor_getName(), _value); }
+    
     template<class ModelType>
     inline FormatId<ModelType> get() const
     {   
         boost::get<FormatId<ModelType>>(_value);
     }
-
-    inline const variant_t variant() const { return _value; }
-
-    const std::type_info& modelType() const { return *_modelTypeInfo; }
-
+    inline const variant_t& variant() const { return _value; }
+    inline int which() const { return _value.which(); }
+    inline const std::type_info& modelType() const { return *GenericFormatModelInfo::typeInfo[_value.which()]; }
+    
 private:
     struct visitor_getId
     {
         typedef AddleId result_type;
         template<typename ModelType>
-        inline AddleId operator()(const FormatId<ModelType>& id) const { return static_cast<AddleId>(id); }
+        inline AddleId operator()(FormatId<ModelType> id) const { return static_cast<AddleId>(id); }
     };
 
     struct visitor_getMimeType
     {
         typedef QString result_type;
         template<typename ModelType>
-        inline QString operator()(const FormatId<ModelType>& id) const { return id.mimeType(); }
+        inline QString operator()(FormatId<ModelType> id) const { return id.mimeType(); }
+    };
+
+    struct visitor_getFileExtensions
+    {
+        typedef QStringList result_type;
+        template <typename ModelType>
+        inline QStringList operator()(FormatId<ModelType> id) const { return id.fileExtensions(); }
+    };
+    
+    struct visitor_getName
+    {
+        typedef QString result_type;
+        template<typename ModelType>
+        inline QString operator()(FormatId<ModelType> id) const { return id.name(); }
     };
 
     variant_t _value;
-    const std::type_info* _modelTypeInfo = nullptr;
 
     inline AddleId id_p() const { return boost::apply_visitor(visitor_getId(), _value); }
 
@@ -111,16 +168,18 @@ private:
 class ADDLE_COMMON_EXPORT GenericImportExportInfo
 {
 public:
-    typedef boost::variant<
-        DocumentImportExportInfo,
-        ImportExportInfo<PlaceholderModel>
-    > variant_t;
+    typedef boost::make_variant_over<
+        boost::mpl::transform<
+            GenericFormatModelInfo::types,
+            ImportExportInfo<boost::mpl::placeholders::_1>
+        >::type
+    >::type variant_t;
 
     inline GenericImportExportInfo() = default;
 
     template<class ModelType>
     inline GenericImportExportInfo(const ImportExportInfo<ModelType>& info)
-        : _value(info), _modelTypeInfo(&typeid(ModelType))
+        : _value(info)
     {
     }
     
@@ -138,13 +197,16 @@ public:
     void setFormat(GenericFormatId format);
 
     QFileInfo fileInfo() const { return boost::apply_visitor(visitor_getFileInfo(), _value); }
-    void setFileInfo(QFileInfo fileInfo);
+    void setFileInfo(QFileInfo fileInfo) { boost::apply_visitor(visitor_setFileInfo(fileInfo), _value); }
 
     QString filename() const { return boost::apply_visitor(visitor_getFilename(), _value); }
     void setFilename(const QString& filename);
 
     QUrl url() const;
-    void setUrl(const QUrl& url);
+    void setUrl(const QUrl& url) { boost::apply_visitor(visitor_setUrl(url), _value); }
+
+    void notifyAccepted() const { boost::apply_visitor(visitor_notifyAccepted(), _value); }
+    void setCallbackAccepted(std::function<void()> callback);
 
     template<class ModelType>
     inline const ImportExportInfo<ModelType>& get() const
@@ -152,8 +214,10 @@ public:
         return boost::get<const ImportExportInfo<ModelType>&>(_value);
     }
     inline const variant_t& variant() { return _value; }
-    const std::type_info& modelType() const { return *_modelTypeInfo; }
+    inline int which() const { return _value.which(); }
+    inline const std::type_info& modelType() const { return *GenericFormatModelInfo::typeInfo[_value.which()]; }
 
+    static GenericImportExportInfo make(int modelType);
 private:
     struct visitor_getFormat
     {
@@ -175,45 +239,150 @@ private:
         template<class ModelType>
         inline QFileInfo operator()(const ImportExportInfo<ModelType>& info) const { return info.fileInfo(); }
     };
+    
+    
+    struct visitor_setFileInfo
+    {
+        typedef void result_type;
+        visitor_setFileInfo(QFileInfo fileInfo_)
+            : fileInfo(fileInfo_)
+        {
+        }
+        template<class ModelType>
+        inline void operator()(ImportExportInfo<ModelType>& info) const { info.setFileInfo(fileInfo); }
+        QFileInfo fileInfo;
+    };
+    
+    struct visitor_setUrl
+    {
+        typedef void result_type;
+        visitor_setUrl(QUrl url_)
+            : url(url_)
+        {
+        }
+        template<class ModelType>
+        inline void operator()(ImportExportInfo<ModelType>& info) const { info.setUrl(url); }
+        QUrl url;
+    };
+
+    struct visitor_notifyAccepted
+    {
+        typedef void result_type;
+        template<class ModelType>
+        inline void operator()(const ImportExportInfo<ModelType>& info) const { info.notifyAccepted(); }
+    };
 
     variant_t _value;
-    const std::type_info* _modelTypeInfo = nullptr;
 };
 
 class ADDLE_COMMON_EXPORT GenericFormatModel
 {
 public:
-    typedef boost::variant<
-        IDocument*,
-        PlaceholderModel*
-    > variant_t;
+    typedef boost::make_variant_over<
+        boost::mpl::transform<
+            GenericFormatModelInfo::types,
+            boost::add_pointer<boost::mpl::placeholders::_1>
+        >::type
+    >::type variant_t;
 
     GenericFormatModel() = default;
-
     GenericFormatModel(const GenericFormatModel&) = default;
-
+    
     template<class ModelType>
     GenericFormatModel(ModelType* model)
         : _value(model)
     {
     }
+    
+    void destroy();
 
-    const variant_t& variant() const { return _value; }
+    template<class ModelType>
+    inline const ImportExportInfo<ModelType>& get() const
+    {
+        return boost::get<const ImportExportInfo<ModelType>&>(_value);
+    }
+    
+    inline const variant_t& variant() const { return _value; }
+    inline int which() const { return _value.which(); }
+    inline const std::type_info& modelType() const { return *GenericFormatModelInfo::typeInfo[_value.which()]; }
 
-private:
+private:    
     variant_t _value;
 };
 
-template<class ModelType>
-class IFormatDriver;
+class ADDLE_COMMON_EXPORT GenericSharedFormatModel
+{
+public:
+    typedef boost::make_variant_over<
+        boost::mpl::transform<
+            GenericFormatModelInfo::types,
+            QSharedPointer<boost::mpl::placeholders::_1>
+        >::type
+    >::type variant_t;
+    
+    GenericSharedFormatModel() = default;
+    GenericSharedFormatModel(const GenericSharedFormatModel&) = default;
+    
+    explicit GenericSharedFormatModel(const GenericFormatModel& model)
+        : _value(boost::apply_visitor(visitor_wrapSharedModel(), model.variant()))
+    {
+    }
+    
+    template<class ModelType>
+    GenericSharedFormatModel(QSharedPointer<ModelType> model)
+        : _value(model)
+    {
+    }
+    
+    template<class ModelType>
+    inline QSharedPointer<ModelType> get() const
+    {
+        return boost::get<QSharedPointer<ModelType>>(_value);
+    }
+    
+    inline void clear() { boost::apply_visitor(visitor_clear(), _value); }
+    
+    inline const variant_t& variant() const { return _value; }
+    inline int which() const { return _value.which(); }
+    inline const std::type_info& modelType() const { return *GenericFormatModelInfo::typeInfo[_value.which()]; }
+    
+private:
+    struct visitor_wrapSharedModel
+    {
+        typedef variant_t result_type;
+        
+        template<typename ModelType>
+        variant_t operator()(ModelType* model) const
+        {
+            return QSharedPointer<ModelType>(model);
+        }
+    };
+    
+    struct visitor_clear
+    {
+        typedef void result_type;
+        
+        template<typename ModelType>
+        void operator()(QSharedPointer<ModelType>& model) const
+        {
+            model.clear();
+        }
+    };
+    
+    variant_t _value;
+};
+
+template<class ModelType> class IFormatDriver;
 
 class ADDLE_COMMON_EXPORT GenericFormatDriver
 {
 public:
-    typedef boost::variant<
-        IFormatDriver<IDocument>*,
-        IFormatDriver<PlaceholderModel>*
-    > variant_t;
+    typedef boost::make_variant_over<
+        boost::mpl::transform<
+            GenericFormatModelInfo::types,
+            boost::add_pointer<IFormatDriver<boost::mpl::placeholders::_1>>
+        >::type
+    >::type variant_t;
 
     GenericFormatDriver() = default;
 
@@ -240,10 +409,18 @@ public:
     GenericFormatModel importModel(QIODevice& device, GenericImportExportInfo info);
     void exportModel(GenericFormatModel model, QIODevice& device, GenericImportExportInfo info);
     
+    template<class ModelType>
+    inline IFormatDriver<ModelType>* get() const
+    {
+        return boost::get<IFormatDriver<ModelType>*>(_value);
+    }
+    
     inline const variant_t& variant() const { return _value; }
-    const std::type_info& modelType() const { return *_modelTypeInfo; }
+    inline int which() const { return _value.which(); }
+    inline const std::type_info& modelType() const { return *GenericFormatModelInfo::typeInfo[_value.which()]; }
 
 private:
+    
     struct visitor_isNull
     {
         typedef bool result_type;
@@ -251,9 +428,14 @@ private:
     };
 
     variant_t _value;
-    const std::type_info* _modelTypeInfo = nullptr;
 };
 
 }
+
+Q_DECLARE_METATYPE(Addle::GenericFormatId);
+Q_DECLARE_METATYPE(Addle::GenericImportExportInfo);
+Q_DECLARE_METATYPE(Addle::GenericFormatModel);
+Q_DECLARE_METATYPE(Addle::GenericSharedFormatModel);
+Q_DECLARE_METATYPE(Addle::GenericFormatDriver);
 
 #endif // GENERICFORMAT_HPP

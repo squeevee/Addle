@@ -3,39 +3,39 @@
 <context>
     <name />
     <message id="ui.document-actions.title">
-        <location filename="../../src/widgetsgui/main/maineditorview.cpp" line="59" />
+        <location filename="../../src/widgetsgui/main/maineditorview.cpp" line="66" />
         <source />
         <translation>Document Actions</translation>
     </message>
     <message id="ui.tool-selection.title">
-        <location filename="../../src/widgetsgui/main/maineditorview.cpp" line="63" />
+        <location filename="../../src/widgetsgui/main/maineditorview.cpp" line="70" />
         <source />
         <translation>Tool Selection</translation>
     </message>
     <message id="ui.open.description">
-        <location filename="../../src/widgetsgui/main/maineditorview.cpp" line="92" />
+        <location filename="../../src/widgetsgui/main/maineditorview.cpp" line="99" />
         <source />
         <translation>Open an image</translation>
     </message>
+    <message id="ui.save.description">
+        <location filename="../../src/widgetsgui/main/maineditorview.cpp" line="104" />
+        <source />
+        <translation type="unfinished" />
+    </message>
     <message id="ui.new.description">
-        <location filename="../../src/widgetsgui/main/maineditorview.cpp" line="105" />
+        <location filename="../../src/widgetsgui/main/maineditorview.cpp" line="118" />
         <source />
         <translation>New image</translation>
     </message>
     <message id="ui.undo.description">
-        <location filename="../../src/widgetsgui/main/maineditorview.cpp" line="110" />
+        <location filename="../../src/widgetsgui/main/maineditorview.cpp" line="123" />
         <source />
         <translation>Undo</translation>
     </message>
     <message id="ui.redo.description">
-        <location filename="../../src/widgetsgui/main/maineditorview.cpp" line="116" />
+        <location filename="../../src/widgetsgui/main/maineditorview.cpp" line="129" />
         <source />
         <translation>Redo</translation>
-    </message>
-    <message id="ui.open-document.title">
-        <location filename="../../src/widgetsgui/main/maineditorview.cpp" line="195" />
-        <source />
-        <translation>Open a file</translation>
     </message>
     <message id="brush-tool.brush-selection.name">
         <location filename="../../src/widgetsgui/main/tooloptionsbars/brushtooloptionsbar.cpp" line="42" />
@@ -73,143 +73,170 @@
         <translation>Pivot (zoom and rotate) the canvas around a fixed point by gripping the canvas.</translation>
     </message>
     <message id="global-color-names.black">
-        <location filename="../../src/common/common.cpp" line="149" />
+        <location filename="../../src/common/common.cpp" line="187" />
         <source />
         <extracomment>Name of the color black (#000000)</extracomment>
         <translation>Black</translation>
     </message>
     <message id="global-color-names.white">
-        <location filename="../../src/common/common.cpp" line="154" />
+        <location filename="../../src/common/common.cpp" line="192" />
         <source />
         <extracomment>Name of the color white (#FFFFFF)</extracomment>
         <translation>White</translation>
     </message>
     <message id="global-color-names.transparent">
-        <location filename="../../src/common/common.cpp" line="159" />
+        <location filename="../../src/common/common.cpp" line="197" />
         <source />
         <extracomment>Name for a fully transparent color value</extracomment>
         <translation>Transparent</translation>
     </message>
     <message id="units.pixels">
-        <location filename="../../src/common/common.cpp" line="182" />
+        <location filename="../../src/common/common.cpp" line="220" />
         <location filename="../../src/widgetsgui/main/sizeselector.cpp" line="49" />
         <source>px</source>
         <translation>px</translation>
     </message>
     <message id="tools.select-tool.name">
-        <location filename="../../src/common/common.cpp" line="184" />
+        <location filename="../../src/common/common.cpp" line="222" />
         <source />
         <translation type="unfinished" />
     </message>
     <message id="tools.select-tool.description">
-        <location filename="../../src/common/common.cpp" line="185" />
+        <location filename="../../src/common/common.cpp" line="223" />
         <source />
         <translation />
     </message>
     <message id="tools.brush-tool.name">
-        <location filename="../../src/common/common.cpp" line="186" />
+        <location filename="../../src/common/common.cpp" line="224" />
         <source />
         <translation>Paintbrush</translation>
     </message>
     <message id="tools.brush-tool.description">
-        <location filename="../../src/common/common.cpp" line="187" />
+        <location filename="../../src/common/common.cpp" line="225" />
         <source />
         <translation>Paint on the canvas.</translation>
     </message>
     <message id="tools.eraser-tool.name">
-        <location filename="../../src/common/common.cpp" line="188" />
+        <location filename="../../src/common/common.cpp" line="226" />
         <source />
         <translation>Eraser</translation>
     </message>
     <message id="tools.eraser-tool.description">
-        <location filename="../../src/common/common.cpp" line="189" />
+        <location filename="../../src/common/common.cpp" line="227" />
         <source />
         <translation>Erase image contents from the canvas.</translation>
     </message>
     <message id="tools.fill-tool.name">
-        <location filename="../../src/common/common.cpp" line="190" />
+        <location filename="../../src/common/common.cpp" line="228" />
         <source />
         <translation type="unfinished" />
     </message>
     <message id="tools.fill-tool.description">
-        <location filename="../../src/common/common.cpp" line="191" />
+        <location filename="../../src/common/common.cpp" line="229" />
         <source />
         <translation type="unfinished" />
     </message>
     <message id="tools.text-tool.name">
-        <location filename="../../src/common/common.cpp" line="192" />
+        <location filename="../../src/common/common.cpp" line="230" />
         <source />
         <translation type="unfinished" />
     </message>
     <message id="tools.text-tool.description">
-        <location filename="../../src/common/common.cpp" line="193" />
+        <location filename="../../src/common/common.cpp" line="231" />
         <source />
         <translation type="unfinished" />
     </message>
     <message id="tools.shapes-tool.name">
-        <location filename="../../src/common/common.cpp" line="194" />
+        <location filename="../../src/common/common.cpp" line="232" />
         <source />
         <translation type="unfinished" />
     </message>
     <message id="tools.shapes-tool.description">
-        <location filename="../../src/common/common.cpp" line="195" />
+        <location filename="../../src/common/common.cpp" line="233" />
         <source />
         <translation type="unfinished" />
     </message>
     <message id="tools.stickers-tool.name">
-        <location filename="../../src/common/common.cpp" line="196" />
+        <location filename="../../src/common/common.cpp" line="234" />
         <source />
         <translation type="unfinished" />
     </message>
     <message id="tools.stickers-tool.description">
-        <location filename="../../src/common/common.cpp" line="197" />
+        <location filename="../../src/common/common.cpp" line="235" />
         <source />
         <translation type="unfinished" />
     </message>
     <message id="tools.navigate-tool.name">
-        <location filename="../../src/common/common.cpp" line="198" />
+        <location filename="../../src/common/common.cpp" line="236" />
         <source />
         <translation>Navigate tool</translation>
     </message>
     <message id="tools.navigate-tool.description">
-        <location filename="../../src/common/common.cpp" line="199" />
+        <location filename="../../src/common/common.cpp" line="237" />
         <source />
         <translation>Move, zoom, and rotate the viewport.</translation>
     </message>
     <message id="tools.eyedrop-tool.name">
-        <location filename="../../src/common/common.cpp" line="200" />
+        <location filename="../../src/common/common.cpp" line="238" />
         <source />
         <translation type="unfinished" />
     </message>
     <message id="tools.eyedrop-tool.description">
-        <location filename="../../src/common/common.cpp" line="201" />
+        <location filename="../../src/common/common.cpp" line="239" />
         <source />
         <translation type="unfinished" />
     </message>
     <message id="tools.measure-tool.name">
-        <location filename="../../src/common/common.cpp" line="202" />
+        <location filename="../../src/common/common.cpp" line="240" />
         <source />
         <translation type="unfinished" />
     </message>
     <message id="tools.measure-tool.description">
-        <location filename="../../src/common/common.cpp" line="203" />
+        <location filename="../../src/common/common.cpp" line="241" />
         <source />
         <translation type="unfinished" />
     </message>
     <message id="brushes.basic-brush.name">
-        <location filename="../../src/common/common.cpp" line="205" />
+        <location filename="../../src/common/common.cpp" line="243" />
         <source />
         <translation>Basic Brush</translation>
     </message>
     <message id="brushes.soft-brush.name">
-        <location filename="../../src/common/common.cpp" line="206" />
+        <location filename="../../src/common/common.cpp" line="244" />
         <source />
         <translation>Soft Brush</translation>
     </message>
     <message id="brushes.basic-eraser.name">
-        <location filename="../../src/common/common.cpp" line="208" />
+        <location filename="../../src/common/common.cpp" line="246" />
         <source />
         <translation>Basic Eraser</translation>
+    </message>
+    <message id="formats.format-png.name">
+        <location filename="../../src/common/common.cpp" line="249" />
+        <source>PNG images</source>
+        <oldsource>JPEG images</oldsource>
+        <translation>PNG images</translation>
+    </message>
+    <message id="formats.format-jpeg.name">
+        <location filename="../../src/common/common.cpp" line="251" />
+        <source>JPEG images</source>
+        <oldsource>PNG images</oldsource>
+        <translation>JPEG images</translation>
+    </message>
+    <message id="formats.format-gif.name">
+        <location filename="../../src/common/common.cpp" line="253" />
+        <source>GIF images and animations</source>
+        <translation>GIF images and animations</translation>
+    </message>
+    <message id="formats.format-webp.name">
+        <location filename="../../src/common/common.cpp" line="255" />
+        <source>WebP images</source>
+        <translation>WebP images</translation>
+    </message>
+    <message id="formats.format-ora.name">
+        <location filename="../../src/common/common.cpp" line="257" />
+        <source>OpenRaster images</source>
+        <translation>OpenRaster images</translation>
     </message>
     <message id="ui.zoom_in.description">
         <location filename="../../src/widgetsgui/main/zoomrotatewidget.cpp" line="37" />
@@ -283,7 +310,7 @@
         <translation>Custom</translation>
     </message>
     <message id="debug-messages.starting-addle">
-        <location filename="../../src/addle/addle.cpp" line="57" />
+        <location filename="../../src/addle/addle.cpp" line="60" />
         <source>Starting Addle. This is a debug build.</source>
         <translation>Starting Addle. This is a debug build.</translation>
     </message>
@@ -357,38 +384,23 @@ Why code:    %2</source>
 Why code:    %2</translation>
     </message>
     <message id="global.addle-name">
-        <location filename="../../src/common/globals.hpp" line="32" />
+        <location filename="../../src/common/globals.hpp" line="33" />
         <source>Addle</source>
         <translation>Addle</translation>
     </message>
     <message id="global.addle-tagline">
-        <location filename="../../src/common/globals.hpp" line="35" />
+        <location filename="../../src/common/globals.hpp" line="36" />
         <source>Pretty little drawing program and image utility</source>
         <translation>Pretty little drawing program and image utility</translation>
     </message>
-    <message id="debug-messages.service-locator.initializing">
-        <location filename="../../src/common/utilities/configuration/serviceconfigurationbase.hpp" line="52" />
-        <source>Initializing service locator.</source>
-        <translation>Initializing service locator.</translation>
-    </message>
-    <message id="debug-messages.service-locator.already-initialized-error">
-        <location filename="../../src/common/utilities/configuration/serviceconfigurationbase.hpp" line="57" />
-        <source>Service Locator has already been initialized</source>
-        <translation>Service Locator has already been initialized</translation>
-    </message>
-    <message id="debug-messages.service-locator.destroying">
-        <location filename="../../src/common/utilities/configuration/serviceconfigurationbase.hpp" line="71" />
-        <source>Destroying service locator.</source>
-        <translation>Destroying service locator.</translation>
-    </message>
     <message id="debug-messages.unknown-dynamic-trid">
-        <location filename="../../src/common/utilities/strings.hpp" line="58" />
+        <location filename="../../src/common/utilities/dynamic_qttrid.hpp" line="41" />
         <source>Unknown dynamic TrId requested: "%1"</source>
         <translation>Unknown dynamic TrId requested: "%1"</translation>
     </message>
     <message id="templates.affix-units">
-        <location filename="../../src/common/utilities/strings.hpp" line="72" />
-        <location filename="../../src/common/utilities/strings.hpp" line="80" />
+        <location filename="../../src/common/utilities/strings.hpp" line="31" />
+        <location filename="../../src/common/utilities/strings.hpp" line="39" />
         <source>%L1 %2</source>
         <translation>%L1 %2</translation>
     </message>
@@ -407,41 +419,6 @@ Why code:    %2</translation>
         <location filename="../../src/core/presenters/helpers/documentlayershelper.hpp" line="145" />
         <source>Layer Group %1</source>
         <translation>Layer Group %1</translation>
-    </message>
-    <message id="ui.open-document.invalid-format-error">
-        <location filename="../../src/core/presenters/maineditorpresenter.cpp" line="248" />
-        <source />
-        <extracomment>Displayed after attempting to open a file whose format is not supported, not recognized, damaged, or otherwise incorrect. %1 = the name of the file</extracomment>
-        <translation>The file "%1" was an urecognized or invalid format.</translation>
-    </message>
-    <message id="ui.open-document.file-in-use-error">
-        <location filename="../../src/core/presenters/maineditorpresenter.cpp" line="267" />
-        <source />
-        <extracomment>Displayed after attempting to open a file that is in use by another process/application %1 = the name of the file</extracomment>
-        <translation>The file "%1" is being used by another process.</translation>
-    </message>
-    <message id="ui.open-document.permission-denied-error">
-        <location filename="../../src/core/presenters/maineditorpresenter.cpp" line="274" />
-        <source />
-        <extracomment>Displayed after attempting to open a file that the user's account does not have permission to access, or is otherwise restricted. %1 = the name of the file</extracomment>
-        <translation>Permission was denied opening the file "%1"</translation>
-    </message>
-    <message id="ui.open-document.file-not-found-error">
-        <location filename="../../src/core/presenters/maineditorpresenter.cpp" line="282" />
-        <source />
-        <extracomment>Displayed after attempting to open a file path that did not lead to a file. %1 = the file path</extracomment>
-        <translation type="unfinished">No file could be found found at "%1".</translation>
-    </message>
-    <message id="ui.open-document.unknown-error">
-        <location filename="../../src/core/presenters/maineditorpresenter.cpp" line="300" />
-        <source />
-        <extracomment>Displayed when the document failed to open, but the reason why could not be determined.</extracomment>
-        <translation>An unknown error occurred attempting to open the document.</translation>
-    </message>
-    <message id="debug-messages.remote-url-not-supported">
-        <location filename="../../src/core/presenters/maineditorpresenter.cpp" line="344" />
-        <source>Loading a document from a remote URL is not yet supported.</source>
-        <translation>Loading a document from a remote URL is not yet supported.</translation>
     </message>
     <message id="debug-messages.application-service.starting">
         <location filename="../../src/core/services/applicationservice.cpp" line="43" />
@@ -530,50 +507,50 @@ Why code:    %2</translation>
         <translation>Quitting application service</translation>
     </message>
     <message id="debug-messages.assert-failed-m">
-        <location filename="../../src/common/utilities/errors.cpp" line="24" />
+        <location filename="../../src/common/utilities/errors.cpp" line="23" />
         <source>%1
 Assertion failed: `%2`</source>
         <translation>%1
 Assertion failed: `%2`</translation>
     </message>
     <message id="debug-messages.assert-failed">
-        <location filename="../../src/common/utilities/errors.cpp" line="31" />
+        <location filename="../../src/common/utilities/errors.cpp" line="30" />
         <source>Assertion failed: `%1`</source>
         <translation>Assertion failed: `%1`</translation>
     </message>
     <message id="debug-messages.generic-logic-error">
-        <location filename="../../src/common/utilities/errors.cpp" line="41" />
+        <location filename="../../src/common/utilities/errors.cpp" line="40" />
         <source>(No message was given)</source>
         <translation>(No message was given)</translation>
     </message>
     <message id="debug-messages.cannot-report-error">
-        <location filename="../../src/common/utilities/errors.cpp" line="50" />
+        <location filename="../../src/common/utilities/errors.cpp" line="49" />
         <source>An error (primary) occurred. While attempting to report it, another error (secondary) occurred.</source>
         <oldsource>An error occurred while attempting to report a different error.</oldsource>
         <translation>An error (primary) occurred. While attempting to report it, another error (secondary) occurred.</translation>
     </message>
     <message id="debug-messages.cannot-report-error.primary-error-header">
-        <location filename="../../src/common/utilities/errors.cpp" line="54" />
+        <location filename="../../src/common/utilities/errors.cpp" line="53" />
         <source>  The primary error:</source>
         <translation>  The primary error:</translation>
     </message>
     <message id="debug-messages.cannot-report-error.no-primary-error">
-        <location filename="../../src/common/utilities/errors.cpp" line="60" />
+        <location filename="../../src/common/utilities/errors.cpp" line="59" />
         <source>The primary error was not of type std::exception</source>
         <translation>The primary error was not of type std::exception</translation>
     </message>
     <message id="debug-messages.cannot-report-error.secondary-error-header">
-        <location filename="../../src/common/utilities/errors.cpp" line="72" />
+        <location filename="../../src/common/utilities/errors.cpp" line="71" />
         <source>  The secondary error:</source>
         <translation>  The secondary error:</translation>
     </message>
     <message id="debug-messages.cannot-report-error.no-secondary-error">
-        <location filename="../../src/common/utilities/errors.cpp" line="78" />
+        <location filename="../../src/common/utilities/errors.cpp" line="77" />
         <source>The secondary error was not of type std::exception</source>
         <translation>The secondary error was not of type std::exception</translation>
     </message>
     <message id="debug-messages.cannot-report-error.terminating">
-        <location filename="../../src/common/utilities/errors.cpp" line="82" />
+        <location filename="../../src/common/utilities/errors.cpp" line="81" />
         <source>This is an unrecoverable state. The application will terminate immediately.</source>
         <translation>This is an unrecoverable state. The application will terminate immediately.</translation>
     </message>
@@ -614,8 +591,13 @@ requestedInterfaceName: "%1"
         <translation>A Qt warning was intercepted (%1):
 %2</translation>
     </message>
+    <message id="debug-messages.bad-logically-unreachable">
+        <location filename="../../src/common/utilities/errors.hpp" line="82" />
+        <source>A code path that was designated logically unreachable was reached.</source>
+        <translation>A code path that was designated logically unreachable was reached.</translation>
+    </message>
     <message id="debug-messages.last-ditch-catch">
-        <location filename="../../src/common/utilities/errors.hpp" line="72" />
+        <location filename="../../src/common/utilities/errors.hpp" line="85" />
         <source>An exception of an unknown type was caught.</source>
         <translation>An exception of an unknown type was caught.</translation>
     </message>
@@ -661,10 +643,110 @@ requestedInterfaceName: "%1"
         <translation>The file was already open in an incompatible file mode.</translation>
     </message>
     <message id="ui.release-unhandled-error">
-        <location filename="../../src/core/presenters/errors/applicationerrorpresenter.cpp" line="42" />
+        <location filename="../../src/core/services/errorservice.cpp" line="80" />
         <source>An unknown error occurred within Addle. The application may be in anunstable state. Proceed with caution.</source>
         <extracomment>Displayed in "release" builds of Addle if an error occurs in some part of the application and was not handled there. If this message is displayed, it indicates a potentially serious bug of unknown nature. As Addle's error handling matures, this message will likely require retooling.</extracomment>
         <translation>An unknown error occurred within Addle. The application may be in anunstable state. Proceed with caution.</translation>
+    </message>
+    <message id="general.templates.file-filter">
+        <location filename="../../src/widgetsgui/utilities/filedialoghelper.cpp" line="128" />
+        <source>%1 (%2)</source>
+        <translation>%1 (%2)</translation>
+    </message>
+    <message id="ui.file-dialog.generic-all-formats-filter">
+        <location filename="../../src/widgetsgui/utilities/filedialoghelper.cpp" line="170" />
+        <source>All supported formats</source>
+        <translation>All supported formats</translation>
+    </message>
+    <message id="ui.file-dialog.all-files-filter">
+        <location filename="../../src/widgetsgui/utilities/filedialoghelper.cpp" line="182" />
+        <source>All files</source>
+        <translation>All files</translation>
+    </message>
+    <message id="debug-messages.file-request.default-directory-not-found">
+        <location filename="../../src/common/utilities/presenter/filerequest.cpp" line="31" />
+        <source>A suitable default directory could not be found.</source>
+        <translation>A suitable default directory could not be found.</translation>
+    </message>
+    <message id="general.untitled-filename">
+        <location filename="../../src/common/utilities/presenter/filerequest.cpp" line="35" />
+        <source>untitled</source>
+        <translation>untitled</translation>
+    </message>
+    <message id="debug-message.not-implemented-excpetion.no-note">
+        <location filename="../../src/common/exceptions/notimplementedexception.hpp" line="18" />
+        <source>This feature is not yet implemented.</source>
+        <translation>This feature is not yet implemented.</translation>
+    </message>
+    <message id="debug-messages.not-implemented-exception.note">
+        <location filename="../../src/common/exceptions/notimplementedexception.hpp" line="20" />
+        <source />
+        <translation type="unfinished" />
+    </message>
+    <message id="debug-messages.async-task.interruption">
+        <location filename="../../src/common/utilities/asynctask.hpp" line="42" />
+        <source>An async task was interrupted with code %1</source>
+        <translation>An async task was interrupted with code %1</translation>
+    </message>
+    <message id="debug-messages.factory-select.filter-rejected-id">
+        <location filename="../../src/common/utilities/configuration/serviceconfig.cpp" line="18" />
+        <source>The filter rejected the selector's id.</source>
+        <translation>The filter rejected the selector's id.</translation>
+    </message>
+    <message id="debug-messages.factory-select.too-few-arguments">
+        <location filename="../../src/common/utilities/configuration/serviceconfig.cpp" line="33" />
+        <source>The filter expected more arguments than were provided by the selector.
+ expected: %1
+   actual: %2</source>
+        <translation>The filter expected more arguments than were provided by the selector.
+ expected: %1
+   actual: %2</translation>
+    </message>
+    <message id="debug-messages.factory-select.filter-rejected-arg">
+        <location filename="../../src/common/utilities/configuration/serviceconfig.cpp" line="68" />
+        <source>The filter rejected the selector's argument at index %1.
+  type: %2
+ value: %3</source>
+        <oldsource>The filter rejected the selector's argument at index %1. the argument: %2</oldsource>
+        <translation>The filter rejected the selector's argument at index %1.
+  type: %2
+ value: %3</translation>
+    </message>
+    <message id="debug-messsages.factory-select.begin">
+        <location filename="../../src/common/utilities/configuration/serviceconfig.cpp" line="103" />
+        <source>Beginning factory selection
+ type_index: `%1`
+         id: "%2"
+     module: "%3"</source>
+        <oldsource>Beginning factory selection
+ type_index: `%1`
+         id: "%2"     module: "%3"</oldsource>
+        <translation>Beginning factory selection
+ type_index: `%1`
+         id: "%2"
+     module: "%3"</translation>
+    </message>
+    <message id="debug-messsages.factory-select.indiscriminate-found">
+        <location filename="../../src/common/utilities/configuration/serviceconfig.cpp" line="123" />
+        <source>An indiscriminate factory was found:
+        factory: %1
+ implementation: %2</source>
+        <translation>An indiscriminate factory was found:
+        factory: %1
+ implementation: %2</translation>
+    </message>
+    <message id="debug-messsages.factory-select.no-factories">
+        <location filename="../../src/common/utilities/configuration/serviceconfig.cpp" line="141" />
+        <source>No eligible factories were found. (%1 factories available)</source>
+        <oldsource>No eligible factories were found.</oldsource>
+        <translation>No eligible factories were found. (%1 factories available)</translation>
+    </message>
+    <message id="debug-messages.factory-select.considering-factory">
+        <location filename="../../src/common/utilities/configuration/serviceconfig.cpp" line="157" />
+        <source>Considering factory %1
+ implementation: %2</source>
+        <translation>Considering factory %1
+ implementation: %2</translation>
     </message>
 </context>
 </TS>

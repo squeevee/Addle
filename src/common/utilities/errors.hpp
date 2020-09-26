@@ -13,6 +13,7 @@
 #include <iostream>
 
 #include <QtGlobal>
+#include <QEvent>
 
 #include "compat.hpp"
 
@@ -114,19 +115,22 @@ catch(...) \
     else throw; \
 }
 
-#define ADDLE_EVENT_CATCH_SEVERITY(x) \
+#define ADDLE_EVENT_CATCH_SEVERITY(x, y) \
 catch (const AddleException& ex) \
 { \
+    static_cast<QEvent*>(y)->ignore(); \
     try { ServiceLocator::get<IErrorService>().reportUnhandledError(ex, x); } \
     catch(...) { _cannotReportError_impl(&ex); } \
 } \
 catch (const std::exception& ex) \
 { \
+    static_cast<QEvent*>(y)->ignore(); \
     try { ServiceLocator::get<IErrorService>().reportUnhandledError(ex, x); } \
     catch(...) { _cannotReportError_impl(&ex); } \
 } \
 catch(...) \
 { \
+    static_cast<QEvent*>(y)->ignore(); \
     try { _LAST_DITCH_CATCH(x) } \
     catch(...) { _cannotReportError_impl(nullptr); } \
 }
@@ -158,9 +162,10 @@ catch(...) \
     else throw; \
 }
 
-#define ADDLE_EVENT_CATCH_SEVERITY(x) \
+#define ADDLE_EVENT_CATCH_SEVERITY(x, y) \
 catch(...) \
 { \
+    static_cast<QEvent*>(y)->ignore(); \
     try { ServiceLocator::get<IErrorService>().reportUnhandledError(GenericLogicError(), x); } \
     catch(...) { std::terminate(); } \
 }
@@ -191,12 +196,11 @@ catch(...) \
 
 /**
  * @def
- * Similar to ADDLE_SLOT_CATCH. For use in the body of methods that aren't slots 
- * but may be invoked by the Qt event system, such as `QObject::event`,
- * `QRunnable::run` or a `Q_INVOKABLE` method. This will never propagate
- * exceptions to the caller.
+ * Similar to ADDLE_SLOT_CATCH. For use in the body of QEvent handlers. This
+ * will mark the given event as ignored and never propagate exceptions to the
+ * caller.
  */
-#define ADDLE_EVENT_CATCH ADDLE_EVENT_CATCH_SEVERITY(UnhandledException::Normal)
+#define ADDLE_EVENT_CATCH(event) ADDLE_EVENT_CATCH_SEVERITY(UnhandledException::Normal, event)
 
 } // namespace Addle
 

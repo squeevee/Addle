@@ -57,7 +57,7 @@ bool CanvasPresenter::event(QEvent* e)
             // handle as the canvas
         }
     }
-    ADDLE_EVENT_CATCH
+    ADDLE_EVENT_CATCH(e)
 
     return QObject::event(e);
 }

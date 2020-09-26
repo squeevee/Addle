@@ -29,6 +29,7 @@ include_directories(
     .
     src
     src/common
+    thirdparty
 )
 
 find_package(Qt5Core REQUIRED)

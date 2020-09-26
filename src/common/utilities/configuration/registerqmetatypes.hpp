@@ -25,9 +25,11 @@
 #include "idtypes/toolid.hpp"
 #include "idtypes/formatid.hpp"
 #include "utilities/canvas/canvasmouseevent.hpp"
+//#include "utilities/presenter/saveevent.hpp"
 #include "utilities/model/brushbuilder.hpp"
 namespace Addle {
 
+// TODO: move this into a library constructor
 inline void registerQMetaTypes()
 {
     qRegisterMetaType<QSharedPointer<AddleException>>("QSharedPointer<AddleException>");
@@ -51,6 +53,7 @@ inline void registerQMetaTypes()
     IndexVariant::registerHasher<DocumentFormatId, AddleId>();
 
     CanvasMouseEvent::_type = QEvent::registerEventType(CanvasMouseEvent::_type);
+    //SaveEvent::_type = QEvent::registerEventType(SaveEvent::_type);
 
     qRegisterMetaType<IPalette::ColorArray>("ColorArray");
 }

@@ -23,6 +23,8 @@ public:
     inline QString fileExtension() const { return isValid() ? static_cast<const MetaData&>(baseMetaData()).fileExtension : QString(); }
     inline QStringList fileExtensions() const { return isValid() ? static_cast<const MetaData&>(baseMetaData()).fileExtensions : QStringList(); }
     inline QByteArray fileSignature() const { return isValid() ? static_cast<const MetaData&>(baseMetaData()).fileSignature : QByteArray(); }
+    
+    inline QString name() const { return isValid() ? dynamic_qtTrId({ "formats", key(), "name" }) : QString(); }
 
 private:
     struct MetaData : BaseMetaData
@@ -73,12 +75,22 @@ private: \
 };
 
 class IDocument;
+class IBrush;
+class IPalette;
 typedef FormatId<IDocument> DocumentFormatId;
+typedef FormatId<IBrush>    BrushFormatId;
+typedef FormatId<IPalette>  PaletteFormatId;
 
 } // namespace Addle
 
 Q_DECLARE_METATYPE(Addle::DocumentFormatId)
 Q_DECLARE_TYPEINFO(Addle::DocumentFormatId, Q_PRIMITIVE_TYPE);
+
+Q_DECLARE_METATYPE(Addle::BrushFormatId)
+Q_DECLARE_TYPEINFO(Addle::BrushFormatId, Q_PRIMITIVE_TYPE);
+
+Q_DECLARE_METATYPE(Addle::PaletteFormatId)
+Q_DECLARE_TYPEINFO(Addle::PaletteFormatId, Q_PRIMITIVE_TYPE);
 
 template<class ModelType> inline Addle::FormatId<ModelType>::FormatId(const AddleId& other)
     : AddleId(!other.isNull() && other.metaTypeId() == qMetaTypeId<FormatId<ModelType>>() ? (quintptr)other : 0)

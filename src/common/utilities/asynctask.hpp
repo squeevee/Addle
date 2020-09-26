@@ -11,6 +11,7 @@
 
 #include "compat.hpp"
 #include "exceptions/addleexception.hpp"
+#include "utilities/errors.hpp"
 
 #include <QSharedPointer>
 
@@ -18,7 +19,39 @@
 #include <QObject>
 #include <QRunnable>
 #include <QMutex>
+#include <QReadWriteLock>
+
 namespace Addle {
+
+/**
+ * @brief
+ * General-purpose exception indicating an interruption of an AsyncTask that is
+ * not necessarily a failure or error.
+ * 
+ * Optionally holds an int code that may be interpreted by task or its owner.
+ */
+class AsyncInterruption : public AddleException
+{
+    ADDLE_EXCEPTION_BOILERPLATE(AsyncInterruption);
+public:
+    AsyncInterruption(int code = -1)
+        : 
+#ifdef ADDLE_DEBUG
+            AddleException(
+                //% "An async task was interrupted with code %1"
+                qtTrId("debug-messages.async-task.interruption")
+                    .arg(code)
+            ),
+#endif
+            _code(code)
+    {
+    }
+    virtual ~AsyncInterruption() = default;
+    
+    int code() const { return _code; }
+private:
+    int _code;
+};
 
 /**
  * @brief
@@ -33,27 +66,8 @@ namespace Addle {
  * AsyncTask using signals and slots.
  * 
  * @todo
- * I need to read up on async programming techniques to tighten this up.
- * 
- * @todo
- * Allow tasks to report non-fatal diagnostic messages.
- * 
- * @todo
- * In the future, we may want some kind of task pool that can aggregate the
- * progress of multiple parallel tasks for the benefit of the UI.
- * 
- * @todo
- * Tools like QFuture and AsyncFuture that may be useful in the future if
- * complex async logic like daisy-chaining or parallel computation are desired. 
- * 
- * @todo
- * The user is likely to want the ability to cancel tasks if they're very long-
- * running, and/or tasks should support a timeout. This will be a challenge to
- * generalize gracefully, but conservative mutex locking and frequent checking
- * against interrupt requests, could be a start. It may be possible to design
- * some low-level operations for safe thread termination, i.e., by leaning
- * heavily on the stack and atomics, or exposing post-termination cleanup
- * functions.
+ * Honestly this class is a mess with potential race conditions. It needs some
+ * design TLC
  */
 class ADDLE_COMMON_EXPORT AsyncTask : public QObject
 {
@@ -76,9 +90,9 @@ public:
     AsyncTask(QObject* parent = nullptr);
     virtual ~AsyncTask();
 
-    double maxProgress() const { const QMutexLocker lock(&_ioMutex); return _maxProgress; }
-    double minProgress() const { const QMutexLocker lock(&_ioMutex); return _minProgress; }
-    double progress() const { const QMutexLocker lock(&_ioMutex); return _progress; }
+    double maxProgress() const { const QMutexLocker lock(&_stateMutex); return _maxProgress; }
+    double minProgress() const { const QMutexLocker lock(&_stateMutex); return _minProgress; }
+    double progress() const { const QMutexLocker lock(&_stateMutex); return _progress; }
 
     // The task has started and has not yet stopped.
     bool isRunning() const { const QMutexLocker lock(&_stateMutex); return _isRunning; }
@@ -100,6 +114,8 @@ public:
      * accesses the error.
      */
     QSharedPointer<AddleException> error() const { const QMutexLocker lock(&_stateMutex); return _error; }
+    
+    QSharedPointer<AsyncInterruption> interruption() const { const QMutexLocker lock(&_stateMutex); return _interruption; }
 
     void sync() { const QMutexLocker lock(&_stateMutex); while (_isRunning); }
 
@@ -121,6 +137,9 @@ signals:
 
     // The task has stopped because of an error.
     void failed(QSharedPointer<AddleException>);
+    
+    // The task has stopped because it was interrupted.
+    void interrupted(int code);
 
     // todo: Rate-limit these signals like QFuture does
     void maxProgressChanged(double maxProgress);
@@ -130,15 +149,26 @@ signals:
 protected:
     // Use these functions from within doTask() to control the output of the
     // task.
-    double setMaxProgress(double maxProgress);
-    double setMinProgress(double minProgress);
-    double setProgress(double progress);
-
-    inline std::unique_ptr<QMutexLocker> lockIO() const
+    void setMaxProgress(double maxProgress);
+    void setMinProgress(double minProgress);
+    void setProgress(double progress);
+    
+    [[noreturn]] void interrupt(int code = -1) { throw AsyncInterruption(code); }
+    
+    inline std::unique_ptr<QReadLocker> lockRead() const
     {
-        return std::unique_ptr<QMutexLocker>(new QMutexLocker(&_ioMutex));
+        return std::unique_ptr<QReadLocker>(new QReadLocker(&_ioLock));
     }
-
+    
+    inline std::unique_ptr<QWriteLocker> lockWrite() const
+    {
+        {
+            const QMutexLocker stateLock(&_stateMutex);
+            ADDLE_ASSERT(!_isRunning);
+        }
+        return std::unique_ptr<QWriteLocker>(new QWriteLocker(&_ioLock));
+    }
+    
     // If doTask returns without throwing an exception, it is assumed to have
     // completed successfully.
     virtual void doTask() = 0;
@@ -147,19 +177,23 @@ private:
     bool _isRunning = false;
     bool _hasCompleted = false;
     bool _hasFailed = false;
+    bool _isInterrupted = false;
 
+    QSharedPointer<AsyncInterruption> _interruption;
     QSharedPointer<AddleException> _error;
 
     double _maxProgress = 1.0;
     double _minProgress = 0.0;
     double _progress = 0.0;
 
-    mutable QMutex _ioMutex;
+    mutable QReadWriteLock _ioLock;
     mutable QMutex _stateMutex;
+    mutable QMutex _isRunningMutex;
 
     Worker* _worker = nullptr;
     friend class Worker;
 };
+
 } // namespace Addle
 
 #endif // ASYNCTASK_HPP

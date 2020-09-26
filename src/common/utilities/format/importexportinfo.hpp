@@ -11,6 +11,7 @@
 
 #include "compat.hpp"
 #include <typeinfo>
+#include <functional>
 
 #include "idtypes/formatid.hpp"
 
@@ -37,34 +38,31 @@ class ImportExportInfo
 public:
     typedef ImportExportDirection Direction;
 
-    ImportExportInfo() : _data(new Data) {}
-    ImportExportInfo(const ImportExportInfo& other) : _data(other._data) {}
+    Direction direction() const { return _direction; }
+    void setDirection(Direction direction) { _direction = direction; }
 
-    Direction direction() const { return _data->direction; }
-    void setDirection(Direction direction) { _data->direction = direction; }
+    FormatId<ModelType> format() const { return _format; }
+    void setFormat(const FormatId<ModelType>& format) { _format = format; }
 
-    FormatId<ModelType> format() const { return _data->format; }
-    void setFormat(const FormatId<ModelType>& format) { _data->format = format; }
+    QFileInfo fileInfo() const { return _fileInfo; }
+    void setFileInfo(const QFileInfo& fileInfo) { _fileInfo = fileInfo; }
 
-    QFileInfo fileInfo() const { return _data->fileInfo; }
-    void setFileInfo(const QFileInfo& fileInfo) { _data->fileInfo = fileInfo; }
+    QString filename() const { return _fileInfo.filePath(); }
+    void setFilename(const QString& filename) { _fileInfo = QFileInfo(filename); }
 
-    QString filename() const { return _data->fileInfo.filePath(); }
-    void setFilename(const QString& filename) { _data->fileInfo = QFileInfo(filename); }
+    QUrl url() const { return _url; }
+    void setUrl(const QUrl& url) { _url = url; }
 
-    QUrl url() const { return _data->url; }
-    void setUrl(const QUrl& url) { _data->url = url; }
+    void notifyAccepted() const { if (_callback_accepted) _callback_accepted(); }
+    void setCallbackAccepted(std::function<void()> callback) { _callback_accepted = callback; }
 
 private:
-    struct Data : QSharedData
-    {
-        Direction direction = Direction::unassigned;
-        FormatId<ModelType> format;
-        QUrl url;
-        QFileInfo fileInfo;
-        
-    };
-    QSharedDataPointer<Data> _data;
+    Direction _direction = Direction::unassigned;
+    FormatId<ModelType> _format;
+    QUrl _url;
+    QFileInfo _fileInfo;
+
+    std::function<void()> _callback_accepted;
 };
 
 typedef ImportExportInfo<IDocument> DocumentImportExportInfo;

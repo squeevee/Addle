@@ -31,7 +31,7 @@ bool NavigateToolPresenter::event(QEvent* e)
     {
         _mouseHelper.event(e);
     }
-    ADDLE_EVENT_CATCH
+    ADDLE_EVENT_CATCH(e)
 
     return e->isAccepted() || QObject::event(e);
 }

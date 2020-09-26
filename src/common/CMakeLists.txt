@@ -20,6 +20,7 @@ set (common_sources
     utilities/format/genericformat.cpp
     utilities/image/rasterbithandles.cpp
     utilities/image/rasterpainthandle.cpp
+    utilities/presenter/filerequest.cpp
     utilities/presenter/propertybinding.cpp
     utilities/presenter/propertyobserver.cpp
     utilities/render/rendersubstack.cpp

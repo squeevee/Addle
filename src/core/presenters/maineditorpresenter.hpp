@@ -16,9 +16,13 @@
 #include <QHash>
 #include <QUrl>
 
+#include <QWeakPointer>
+
 #include <memory>
 
 #include "helpers/undostackhelper.hpp"
+#include "helpers/messagecontexthelper.hpp"
+#include "helpers/loadhelper.hpp"
 
 #include "interfaces/presenters/imaineditorpresenter.hpp"
 
@@ -31,6 +35,8 @@
 #include "interfaces/presenters/icanvaspresenter.hpp"
 #include "interfaces/presenters/iviewportpresenter.hpp"
 #include "interfaces/presenters/icolorselectionpresenter.hpp"
+
+#include "utilities/presenter/filerequest.hpp"
 
 #include "utils.hpp"
 
@@ -46,8 +52,6 @@ class IStickersToolPresenter;
 class IEyedropToolPresenter;
 class INavigateToolPresenter;
 class IMeasureToolPresenter;
-
-class LoadDocumentTask;
 
 class ADDLE_CORE_EXPORT MainEditorPresenter : public QObject, public virtual IMainEditorPresenter
 {
@@ -79,11 +83,16 @@ class ADDLE_CORE_EXPORT MainEditorPresenter : public QObject, public virtual IMa
 
 public:
     MainEditorPresenter()
+        : _messageContextHelper(*this)
     {
         _undoStackHelper.undoStateChanged.bind(&MainEditorPresenter::undoStateChanged, this);
 
         _isEmptyCache.calculateBy(&MainEditorPresenter::isEmpty_p, this);
         _isEmptyCache.onChange.bind(&MainEditorPresenter::isEmptyChanged, this);
+        
+        _messageContextHelper.onMessagePosted.bind(&MainEditorPresenter::messagePosted, this);
+        
+        _loadDocumentHelper.onLoaded.bind(&MainEditorPresenter::onLoadDocumentCompleted, this);
     }
     virtual ~MainEditorPresenter() = default;
 
@@ -100,10 +109,16 @@ public:
 
     // # IHaveDocumentPresenter
 
-    QSharedPointer<IDocumentPresenter> documentPresenter() const { ASSERT_INIT(); return _documentPresenter; }
+    QSharedPointer<IDocumentPresenter> documentPresenter() const { ASSERT_INIT(); return _document; }
     bool isEmpty() const { ASSERT_INIT(); return _isEmptyCache.value(); }
 
     QSharedPointer<ILayerPresenter> topSelectedLayer() const;
+    
+    QSharedPointer<FileRequest> pendingDocumentFileRequest() const
+    {
+        ASSERT_INIT();
+        return _pendingDocumentFileRequest;
+    }
 
 signals:
     void topSelectedLayerChanged(QSharedPointer<ILayerPresenter>);
@@ -112,7 +127,7 @@ signals:
 
 public slots:
     void newDocument();
-    void loadDocument(QUrl url);
+    void loadDocument(QSharedPointer<FileRequest> request);
 
 public:
     ToolId currentTool() const { ASSERT_INIT(); return _currentTool; }
@@ -128,25 +143,26 @@ public:
     bool canUndo() const { ASSERT_INIT(); return _undoStackHelper.canUndo(); }
     bool canRedo() const { ASSERT_INIT(); return _undoStackHelper.canRedo(); }
 
+    //rename?
     void push(QSharedPointer<IUndoOperationPresenter> undoable) { _undoStackHelper.push(undoable); }
 
 public slots: 
     void undo() { try { ASSERT_INIT(); _undoStackHelper.undo(); } ADDLE_SLOT_CATCH }
     void redo() { try { ASSERT_INIT(); _undoStackHelper.redo(); } ADDLE_SLOT_CATCH }
 
+    void postMessage(QSharedPointer<IMessagePresenter> message) { _messageContextHelper.postMessage(message); }
 signals: 
     void undoStateChanged();
 
 signals:
-    void error(QSharedPointer<IErrorPresenter> error);
-
-private slots:
-    void onLoadDocumentCompleted();
-    void onLoadDocumentFailed();
+    void messagePosted(QSharedPointer<IMessagePresenter> message);
 
 private:
-    void setDocumentPresenter(QSharedPointer<IDocumentPresenter> document);
-    bool isEmpty_p() const { return !_documentPresenter; }
+    void onLoadDocumentCompleted();
+    void onLoadDocumentFailed();
+    
+    void setDocument(QSharedPointer<IDocumentPresenter> document);
+    bool isEmpty_p() const { return !_document; }
 
     Mode _mode = (Mode)NULL;
 
@@ -156,7 +172,7 @@ private:
 
     std::unique_ptr<IColorSelectionPresenter> _colorSelection = nullptr;
 
-    QSharedPointer<IDocumentPresenter> _documentPresenter;
+    QSharedPointer<IDocumentPresenter> _document;
     PropertyCache<bool> _isEmptyCache;
 
     QSharedPointer<ISelectToolPresenter> _selectTool;
@@ -174,49 +190,23 @@ private:
     ToolId _currentTool;
     QSharedPointer<IToolPresenter> _currentToolPresenter;
 
-    LoadDocumentTask* _loadDocumentTask;
-
     UndoStackHelper _undoStackHelper;
+    MessageContextHelper _messageContextHelper;
 
     QList<QSharedPointer<IPalettePresenter>> _palettes;
 
     QMetaObject::Connection _connection_topSelectedLayer;
 
+    QMetaObject::Connection _connection_onSaveDocumentUrlUpdated;
+    QMetaObject::Connection _connection_onSaveDocumentComplete;
+
+    QSharedPointer<FileRequest> _pendingDocumentFileRequest;
+    
+    LoadHelper<IDocument, IDocumentPresenter> _loadDocumentHelper;
+
     InitializeHelper _initHelper;
 };
 
-class LoadDocumentTask : public AsyncTask
-{
-    Q_OBJECT 
-public:
-    LoadDocumentTask(QObject* parent = nullptr)
-        : AsyncTask(parent)
-    {
-    }
-    virtual ~LoadDocumentTask() = default;
-
-    QUrl url() const { const auto lock = lockIO(); return _url; }
-    void setUrl(QUrl url) { const auto lock = lockIO(); _url = url; }
-
-    QSharedPointer<IDocumentPresenter> documentPresenter() const 
-    { 
-        const auto lock = lockIO();
-        return _documentPresenter;
-    }
-
-protected:
-    void doTask();
-
-private:
-    void setDocumentPresenter(QSharedPointer<IDocumentPresenter> documentPresenter)
-    { 
-        const auto lock = lockIO();
-        _documentPresenter = documentPresenter;
-    }
-
-    QUrl _url;
-    QSharedPointer<IDocumentPresenter> _documentPresenter;
-};
-
 } // namespace Addle
+
 #endif // MAINEDITORPRESENTER_HPP

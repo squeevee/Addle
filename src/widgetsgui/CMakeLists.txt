@@ -20,13 +20,13 @@ set (
     main/colorselector.cpp
     main/favoriteassetspicker.cpp
     main/maineditorview.cpp
-    main/applicationerrorview.cpp
     main/layers/layersmanager.cpp
     main/paletteview.cpp
     main/sizeselector.cpp
     main/viewportscrollwidget.cpp
     main/viewport.cpp
     main/zoomrotatewidget.cpp
+    main/messages/notificationdialog.cpp
     main/tooloptionsbars/brushtooloptionsbar.cpp
     main/tooloptionsbars/navigatetooloptionsbar.cpp
     main/tooloptionsbars/tooloptionbarbase.cpp
@@ -35,6 +35,7 @@ set (
     utilities/graphicsmouseeventblocker.cpp
     utilities/optiongroup.cpp
     utilities/popupbutton.cpp
+    utilities/filedialoghelper.cpp
     utilities/zoomslider.cpp
 )
 
@@ -42,6 +43,6 @@ add_definitions(-DADDLE_EXPORTING_WIDGETSGUI)
 add_library(addlewidgetsgui SHARED ${SOURCES})
 target_link_libraries(addlewidgetsgui addlecommon Qt5::Core Qt5::Widgets )
 
-if(UNIX)
+if (UNIX)
     install(TARGETS addlewidgetsgui)
 endif()

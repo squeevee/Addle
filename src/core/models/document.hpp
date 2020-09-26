@@ -39,14 +39,12 @@ public:
 
     QColor backgroundColor() const { ASSERT_INIT(); return _backgroundColor; }
 
-    QString filename() const { ASSERT_INIT(); return _filename; }
+    QUrl url() const { ASSERT_INIT(); return _url; }
+    void setUrl(QUrl url) { ASSERT_INIT(); _url = url; }
 
     QList<QSharedPointer<ILayer>> layers() const { ASSERT_INIT(); return _layers; }
 
     QImage exportImage();
-
-public slots:
-    void setFilename(QString filename) {}
 
 signals:
     void boundaryChanged(QRect change);
@@ -60,7 +58,7 @@ private:
 
     QColor _backgroundColor = Qt::GlobalColor::transparent;
 
-    QString _filename;
+    QUrl _url;
 
     void layersChanged(QList<ILayer*> layers);
 

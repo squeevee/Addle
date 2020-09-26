@@ -14,31 +14,25 @@
 #include <QSharedData>
 #include <QSharedDataPointer>
 #include "layerbuilder.hpp"
+
 namespace Addle {
 
 class DocumentBuilder
 {
-    struct DocumentBuilderData : QSharedData
-    {
-        QString filename;
-        QList<LayerBuilder> layers;
-        QColor backgroundColor = Qt::transparent;
-    };
 public:
-    DocumentBuilder() { _data = new DocumentBuilderData; }
-    DocumentBuilder(const DocumentBuilder& other) : _data(other._data) {}
+    inline QUrl url() const { return _url; }
+    inline DocumentBuilder& setUrl(QUrl url) { _url = url; return *this; }
 
-    QString filename() const { return _data->filename; }
-    void setFilename(QString filename) { _data->filename = filename; }
+    inline QColor backgroundColor() const { return _backgroundColor; }
+    inline DocumentBuilder& setBackgroundColor(QColor backgroundColor) { _backgroundColor = backgroundColor; return *this; }
 
-    QColor backgroundColor() const { return _data->backgroundColor; }
-    void setBackgroundColor(QColor backgroundColor) { _data->backgroundColor = backgroundColor; }
-
-    QList<LayerBuilder> layers() const { return _data->layers; }
-    void addLayer(LayerBuilder& layer) { _data->layers.append(layer); }
+    inline QList<LayerBuilder> layers() const { return _layers; }
+    inline DocumentBuilder& addLayer(const LayerBuilder& layer) { _layers.append(layer); return *this; }
 
 private:
-    QSharedDataPointer<DocumentBuilderData> _data;
+    QUrl _url;
+    QList<LayerBuilder> _layers;
+    QColor _backgroundColor = Qt::transparent;
 };
 } // namespace Addle
 
