@@ -13,9 +13,12 @@ set (common_sources
     utilities/asynctask.cpp
     utilities/configuration/serviceconfig.cpp
     utilities/errors.cpp
+    utilities/strings.cpp
     utilities/iocheck.cpp
     utilities/indexvariant.cpp
+    utilities/taskprogresshandle.cpp
     utilities/translatedstring.cpp
+    utilities/taskprogresshandle.hpp
     utilities/editing/brushstroke.cpp
     utilities/format/genericformat.cpp
     utilities/image/rasterbithandles.cpp

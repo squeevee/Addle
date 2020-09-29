@@ -22,7 +22,6 @@
 #include "idtypes/toolid.hpp"
 
 #include "ihaveundostackpresenter.hpp"
-#include "imessagecontext.hpp"
 
 namespace Addle {
 
@@ -35,13 +34,12 @@ class IViewPortPresenter;
 class IColorSelectionPresenter;
 class IToolPresenter;
 class IDocumentPresenter;
-class ILoadPresenter;
+class IMessageContext;
 
 class FileRequest;
 
 class IMainEditorPresenter 
     : public IHaveUndoStackPresenter,
-    public IMessageContext,
     public virtual IAmQObject
 {
 public:
@@ -62,6 +60,7 @@ public:
     virtual ICanvasPresenter& canvasPresenter() const = 0;
     virtual IViewPortPresenter& viewPortPresenter() const = 0;
     virtual IColorSelectionPresenter& colorSelection() const = 0;
+    virtual IMessageContext& messageContext() const = 0;
     
     virtual void setMode(Mode mode) = 0;
     virtual Mode mode() const = 0;

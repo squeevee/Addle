@@ -26,6 +26,7 @@ set (
     presenters/documentpresenter.cpp
     presenters/layerpresenter.cpp
     presenters/maineditorpresenter.cpp
+    presenters/messagecontext.cpp
     presenters/viewportpresenter.cpp
     presenters/assets/brushpresenter.cpp
     presenters/colorselectionpresenter.cpp

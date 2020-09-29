@@ -95,15 +95,15 @@ namespace CoreFormats
 {
     constexpr DocumentFormatId PNG  = START_CORE_DOCUMENT_FORMAT_IDS + 0x00;
     constexpr DocumentFormatId JPEG = START_CORE_DOCUMENT_FORMAT_IDS + 0x01;
-//     constexpr DocumentFormatId GIF  = START_CORE_DOCUMENT_FORMAT_IDS + 0x02;
-//     constexpr DocumentFormatId WebP = START_CORE_DOCUMENT_FORMAT_IDS + 0x03;
-//     constexpr DocumentFormatId ORA  = START_CORE_DOCUMENT_FORMAT_IDS + 0x04;
+    constexpr DocumentFormatId GIF  = START_CORE_DOCUMENT_FORMAT_IDS + 0x02;
+    constexpr DocumentFormatId WebP = START_CORE_DOCUMENT_FORMAT_IDS + 0x03;
+    constexpr DocumentFormatId ORA  = START_CORE_DOCUMENT_FORMAT_IDS + 0x04;
 }
 DECLARE_STATIC_FORMAT_ID_METADATA(CoreFormats::PNG,     "format-png");
 DECLARE_STATIC_FORMAT_ID_METADATA(CoreFormats::JPEG,    "format-jpeg");
-// DECLARE_STATIC_FORMAT_ID_METADATA(CoreFormats::GIF,     "format-gif");
-// DECLARE_STATIC_FORMAT_ID_METADATA(CoreFormats::WebP,    "format-webp");
-// DECLARE_STATIC_FORMAT_ID_METADATA(CoreFormats::ORA,     "format-ora");
+DECLARE_STATIC_FORMAT_ID_METADATA(CoreFormats::GIF,     "format-gif");
+DECLARE_STATIC_FORMAT_ID_METADATA(CoreFormats::WebP,    "format-webp");
+DECLARE_STATIC_FORMAT_ID_METADATA(CoreFormats::ORA,     "format-ora");
 
 #undef START_CORE_DOCUMENT_FORMAT_IDS
 #undef START_CORE_BRUSH_FORMAT_IDS

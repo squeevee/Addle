@@ -26,4 +26,26 @@ void NotificationPresenter::initialize(
     _isUrgent = isUrgent;
     _context = context;
     _exception = exception;
+    
+#ifdef ADDLE_DEBUG
+    if (_exception)
+    {
+        if (typeid(*_exception) == typeid(UnhandledException))
+        {
+            UnhandledException& ex = static_cast<UnhandledException&>(*_exception);
+            if (ex.addleException())
+            {
+                _debugText = ex.addleException()->what();
+            }
+            else if (ex.stdException())
+            {
+                _debugText = ex.stdException()->what();
+            }
+        }
+        else
+        {
+            _debugText = _exception->what();
+        }
+    }
+#endif
 }

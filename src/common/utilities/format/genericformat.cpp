@@ -14,34 +14,57 @@
 #include "interfaces/models/ipalette.hpp"
 #include "interfaces/format/iformatdriver.hpp"
 
+#include "servicelocator.hpp"
+#include "utilities/collections.hpp"
+#include "utilities/idinfo.hpp"
+
 using namespace Addle;
 
-const mpl_runtime_array<
-    const std::type_info*,
-    GenericFormatModelInfo::types,
-    GenericFormatModelInfo::_typeInfoInitializer
-> GenericFormatModelInfo::typeInfo;
-
-struct _initializeGenericImportExportMakers
+struct visitor_getIdsFor
 {
-    template<typename T>
-    static std::function<GenericImportExportInfo()> make()
+    typedef QSet<GenericFormatId> result_type;
+    
+    template<typename ModelType>
+    QSet<GenericFormatId> operator()(_formatModelTypeWrapper<ModelType>) const
     {
-        return [] () -> GenericImportExportInfo {
-            return GenericImportExportInfo(T());
-        };
+        return cpplinq::from(IdInfo::getIds<FormatId<ModelType>>())
+            >> cpplinq::cast<GenericFormatId>()
+            >> cpplinq::to_QSet();
+    }
+    
+    QSet<GenericFormatId> operator()(_formatModelTypeWrapper<GenericFormatModelTypeInfo::NullModelType>) const
+    {
+        Q_UNREACHABLE();
     }
 };
 
-const mpl_runtime_array<
-    std::function<GenericImportExportInfo()>,
-    GenericImportExportInfo::variant_t::types,
-    _initializeGenericImportExportMakers
-> _genericImportExportInfoMakers;
-
-GenericImportExportInfo GenericImportExportInfo::make(int index)
+struct functor_aggregateIds
 {
-    return _genericImportExportInfoMakers[index]();
+    QSet<GenericFormatId> ids;
+    
+    template<typename ModelType>
+    void operator()(_formatModelTypeWrapper<ModelType>)
+    {
+        ids |= visitor_getIdsFor().operator()<ModelType>(_formatModelTypeWrapper<ModelType>());
+    }
+};
+
+QSet<GenericFormatId> GenericFormatId::getAll()
+{
+    functor_aggregateIds f;
+    
+    boost::mpl::for_each<
+        GenericFormatModelTypeInfo::types,
+        _formatModelTypeWrapper<boost::mpl::placeholders::_1>
+    >(f);
+    
+    return f.ids;
+}
+
+QSet<GenericFormatId> GenericFormatId::getFor(GenericFormatModelTypeInfo type)
+{
+    ADDLE_ASSERT(!type.isNull());
+    return boost::apply_visitor(visitor_getIdsFor(), type._value);
 }
 
 struct visitor_importModel
@@ -99,4 +122,20 @@ struct visitor_destroy
 void GenericFormatModel::destroy()
 {
     boost::apply_visitor(visitor_destroy(), _value);
+}
+
+struct visitor_getDriver
+{
+    typedef GenericFormatDriver result_type;
+    
+    template<typename ModelType>
+    GenericFormatDriver operator()(FormatId<ModelType> id) const
+    {
+        return GenericFormatDriver(ServiceLocator::get<IFormatDriver<ModelType>>(id));
+    }
+};
+
+GenericFormatDriver GenericFormatDriver::get(GenericFormatId id)
+{
+    return boost::apply_visitor(visitor_getDriver(), id.variant());
 }

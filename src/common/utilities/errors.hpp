@@ -115,22 +115,22 @@ catch(...) \
     else throw; \
 }
 
-#define ADDLE_EVENT_CATCH_SEVERITY(x, y) \
+#define ADDLE_MISC_CATCH_SEVERITY(x, y) \
 catch (const AddleException& ex) \
 { \
-    static_cast<QEvent*>(y)->ignore(); \
+    { y } \
     try { ServiceLocator::get<IErrorService>().reportUnhandledError(ex, x); } \
     catch(...) { _cannotReportError_impl(&ex); } \
 } \
 catch (const std::exception& ex) \
 { \
-    static_cast<QEvent*>(y)->ignore(); \
+    { y } \
     try { ServiceLocator::get<IErrorService>().reportUnhandledError(ex, x); } \
     catch(...) { _cannotReportError_impl(&ex); } \
 } \
 catch(...) \
 { \
-    static_cast<QEvent*>(y)->ignore(); \
+    { y } \
     try { _LAST_DITCH_CATCH(x) } \
     catch(...) { _cannotReportError_impl(nullptr); } \
 }
@@ -162,10 +162,10 @@ catch(...) \
     else throw; \
 }
 
-#define ADDLE_EVENT_CATCH_SEVERITY(x, y) \
+#define ADDLE_MISC_CATCH_SEVERITY(x, y) \
 catch(...) \
 { \
-    static_cast<QEvent*>(y)->ignore(); \
+    { y } \
     try { ServiceLocator::get<IErrorService>().reportUnhandledError(GenericLogicError(), x); } \
     catch(...) { std::terminate(); } \
 }
@@ -191,8 +191,15 @@ catch(...) \
  *     ADDLE_SLOT_CATCH
  * }
  * ```
+ * 
+ * A corresponding ADDLE_..._CATCH_SEVERITY macro is available for this and the
+ * other similar macros, in case a different severity level besieds Normal is
+ * desired.
  */
 #define ADDLE_SLOT_CATCH ADDLE_SLOT_CATCH_SEVERITY(UnhandledException::Normal)
+
+#define ADDLE_EVENT_CATCH_SEVERITY(x, y) \
+ADDLE_MISC_CATCH_SEVERITY(x, static_cast<QEvent*>(y)->ignore();)
 
 /**
  * @def
@@ -201,6 +208,23 @@ catch(...) \
  * caller.
  */
 #define ADDLE_EVENT_CATCH(event) ADDLE_EVENT_CATCH_SEVERITY(UnhandledException::Normal, event)
+
+/**
+ * @def
+ * Similar to ADDLE_SLOT_CATCH and ADDLE_EVENT_CATCH. For use in other settings
+ * that may be called from the Qt event loop, such as Q_INVOKABLE 
+ * or QRunnable. It will never propagate exceptions to the caller.
+ * 
+ * The second parameter of ADDLE_MISC_CATCH_SEVERITY is a section of code that
+ * will be injected into the catch block before the error is reported to
+ * IErrorService.
+ *
+ * Use this with caution as 1) the local scope where this is injected  varies
+ * between exception types as well as between debug and release builds, and
+ * 2) the preprocessor can have trouble parsing statements that contain commas.
+ * The conventional "no-op" `((void)0);` may be used if no response is desired.
+ */
+#define ADDLE_MISC_CATCH ADDLE_MISC_CATCH_SEVERITY(UnhandledException::Normal, ((void)0); )
 
 } // namespace Addle
 

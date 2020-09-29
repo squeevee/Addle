@@ -265,7 +265,7 @@ private:
     bool()) needs_no_param_init(int) { return true; }
 
     template<typename T>
-    constexpr bool needs_no_param_init(long) { return false; }
+    static constexpr bool needs_no_param_init(long) { return false; }
 
     // For interfaces that provide an initialize function, this will call it
     // with 0 or more given arguments.
@@ -325,7 +325,7 @@ private:
             if (!factory)
             {
 #ifdef ADDLE_DEBUG
-                FactoryNotFoundException ex(typeid(Interface).name());
+                FactoryNotFoundException ex(typeid(Interface).name(), id);
 #else
                 FactoryNotFoundException ex;
 #endif

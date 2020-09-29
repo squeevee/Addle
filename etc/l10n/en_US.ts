@@ -73,168 +73,168 @@
         <translation>Pivot (zoom and rotate) the canvas around a fixed point by gripping the canvas.</translation>
     </message>
     <message id="global-color-names.black">
-        <location filename="../../src/common/common.cpp" line="187" />
+        <location filename="../../src/common/common.cpp" line="188" />
         <source />
         <extracomment>Name of the color black (#000000)</extracomment>
         <translation>Black</translation>
     </message>
     <message id="global-color-names.white">
-        <location filename="../../src/common/common.cpp" line="192" />
+        <location filename="../../src/common/common.cpp" line="193" />
         <source />
         <extracomment>Name of the color white (#FFFFFF)</extracomment>
         <translation>White</translation>
     </message>
     <message id="global-color-names.transparent">
-        <location filename="../../src/common/common.cpp" line="197" />
+        <location filename="../../src/common/common.cpp" line="198" />
         <source />
         <extracomment>Name for a fully transparent color value</extracomment>
         <translation>Transparent</translation>
     </message>
     <message id="units.pixels">
-        <location filename="../../src/common/common.cpp" line="220" />
+        <location filename="../../src/common/common.cpp" line="221" />
         <location filename="../../src/widgetsgui/main/sizeselector.cpp" line="49" />
         <source>px</source>
         <translation>px</translation>
     </message>
     <message id="tools.select-tool.name">
-        <location filename="../../src/common/common.cpp" line="222" />
+        <location filename="../../src/common/common.cpp" line="223" />
         <source />
         <translation type="unfinished" />
     </message>
     <message id="tools.select-tool.description">
-        <location filename="../../src/common/common.cpp" line="223" />
+        <location filename="../../src/common/common.cpp" line="224" />
         <source />
         <translation />
     </message>
     <message id="tools.brush-tool.name">
-        <location filename="../../src/common/common.cpp" line="224" />
+        <location filename="../../src/common/common.cpp" line="225" />
         <source />
         <translation>Paintbrush</translation>
     </message>
     <message id="tools.brush-tool.description">
-        <location filename="../../src/common/common.cpp" line="225" />
+        <location filename="../../src/common/common.cpp" line="226" />
         <source />
         <translation>Paint on the canvas.</translation>
     </message>
     <message id="tools.eraser-tool.name">
-        <location filename="../../src/common/common.cpp" line="226" />
+        <location filename="../../src/common/common.cpp" line="227" />
         <source />
         <translation>Eraser</translation>
     </message>
     <message id="tools.eraser-tool.description">
-        <location filename="../../src/common/common.cpp" line="227" />
+        <location filename="../../src/common/common.cpp" line="228" />
         <source />
         <translation>Erase image contents from the canvas.</translation>
     </message>
     <message id="tools.fill-tool.name">
-        <location filename="../../src/common/common.cpp" line="228" />
-        <source />
-        <translation type="unfinished" />
-    </message>
-    <message id="tools.fill-tool.description">
         <location filename="../../src/common/common.cpp" line="229" />
         <source />
         <translation type="unfinished" />
     </message>
-    <message id="tools.text-tool.name">
+    <message id="tools.fill-tool.description">
         <location filename="../../src/common/common.cpp" line="230" />
         <source />
         <translation type="unfinished" />
     </message>
-    <message id="tools.text-tool.description">
+    <message id="tools.text-tool.name">
         <location filename="../../src/common/common.cpp" line="231" />
         <source />
         <translation type="unfinished" />
     </message>
-    <message id="tools.shapes-tool.name">
+    <message id="tools.text-tool.description">
         <location filename="../../src/common/common.cpp" line="232" />
         <source />
         <translation type="unfinished" />
     </message>
-    <message id="tools.shapes-tool.description">
+    <message id="tools.shapes-tool.name">
         <location filename="../../src/common/common.cpp" line="233" />
         <source />
         <translation type="unfinished" />
     </message>
-    <message id="tools.stickers-tool.name">
+    <message id="tools.shapes-tool.description">
         <location filename="../../src/common/common.cpp" line="234" />
         <source />
         <translation type="unfinished" />
     </message>
-    <message id="tools.stickers-tool.description">
+    <message id="tools.stickers-tool.name">
         <location filename="../../src/common/common.cpp" line="235" />
         <source />
         <translation type="unfinished" />
     </message>
-    <message id="tools.navigate-tool.name">
+    <message id="tools.stickers-tool.description">
         <location filename="../../src/common/common.cpp" line="236" />
+        <source />
+        <translation type="unfinished" />
+    </message>
+    <message id="tools.navigate-tool.name">
+        <location filename="../../src/common/common.cpp" line="237" />
         <source />
         <translation>Navigate tool</translation>
     </message>
     <message id="tools.navigate-tool.description">
-        <location filename="../../src/common/common.cpp" line="237" />
+        <location filename="../../src/common/common.cpp" line="238" />
         <source />
         <translation>Move, zoom, and rotate the viewport.</translation>
     </message>
     <message id="tools.eyedrop-tool.name">
-        <location filename="../../src/common/common.cpp" line="238" />
-        <source />
-        <translation type="unfinished" />
-    </message>
-    <message id="tools.eyedrop-tool.description">
         <location filename="../../src/common/common.cpp" line="239" />
         <source />
         <translation type="unfinished" />
     </message>
-    <message id="tools.measure-tool.name">
+    <message id="tools.eyedrop-tool.description">
         <location filename="../../src/common/common.cpp" line="240" />
         <source />
         <translation type="unfinished" />
     </message>
-    <message id="tools.measure-tool.description">
+    <message id="tools.measure-tool.name">
         <location filename="../../src/common/common.cpp" line="241" />
         <source />
         <translation type="unfinished" />
     </message>
+    <message id="tools.measure-tool.description">
+        <location filename="../../src/common/common.cpp" line="242" />
+        <source />
+        <translation type="unfinished" />
+    </message>
     <message id="brushes.basic-brush.name">
-        <location filename="../../src/common/common.cpp" line="243" />
+        <location filename="../../src/common/common.cpp" line="244" />
         <source />
         <translation>Basic Brush</translation>
     </message>
     <message id="brushes.soft-brush.name">
-        <location filename="../../src/common/common.cpp" line="244" />
+        <location filename="../../src/common/common.cpp" line="245" />
         <source />
         <translation>Soft Brush</translation>
     </message>
     <message id="brushes.basic-eraser.name">
-        <location filename="../../src/common/common.cpp" line="246" />
+        <location filename="../../src/common/common.cpp" line="247" />
         <source />
         <translation>Basic Eraser</translation>
     </message>
     <message id="formats.format-png.name">
-        <location filename="../../src/common/common.cpp" line="249" />
+        <location filename="../../src/common/common.cpp" line="250" />
         <source>PNG images</source>
         <oldsource>JPEG images</oldsource>
         <translation>PNG images</translation>
     </message>
     <message id="formats.format-jpeg.name">
-        <location filename="../../src/common/common.cpp" line="251" />
+        <location filename="../../src/common/common.cpp" line="252" />
         <source>JPEG images</source>
         <oldsource>PNG images</oldsource>
         <translation>JPEG images</translation>
     </message>
     <message id="formats.format-gif.name">
-        <location filename="../../src/common/common.cpp" line="253" />
+        <location filename="../../src/common/common.cpp" line="254" />
         <source>GIF images and animations</source>
         <translation>GIF images and animations</translation>
     </message>
     <message id="formats.format-webp.name">
-        <location filename="../../src/common/common.cpp" line="255" />
+        <location filename="../../src/common/common.cpp" line="256" />
         <source>WebP images</source>
         <translation>WebP images</translation>
     </message>
     <message id="formats.format-ora.name">
-        <location filename="../../src/common/common.cpp" line="257" />
+        <location filename="../../src/common/common.cpp" line="258" />
         <source>OpenRaster images</source>
         <translation>OpenRaster images</translation>
     </message>
@@ -399,8 +399,8 @@ Why code:    %2</translation>
         <translation>Unknown dynamic TrId requested: "%1"</translation>
     </message>
     <message id="templates.affix-units">
-        <location filename="../../src/common/utilities/strings.hpp" line="31" />
-        <location filename="../../src/common/utilities/strings.hpp" line="39" />
+        <location filename="../../src/common/utilities/strings.hpp" line="32" />
+        <location filename="../../src/common/utilities/strings.hpp" line="40" />
         <source>%L1 %2</source>
         <translation>%L1 %2</translation>
     </message>
@@ -649,27 +649,27 @@ requestedInterfaceName: "%1"
         <translation>An unknown error occurred within Addle. The application may be in anunstable state. Proceed with caution.</translation>
     </message>
     <message id="general.templates.file-filter">
-        <location filename="../../src/widgetsgui/utilities/filedialoghelper.cpp" line="128" />
+        <location filename="../../src/widgetsgui/utilities/filedialoghelper.cpp" line="133" />
         <source>%1 (%2)</source>
         <translation>%1 (%2)</translation>
     </message>
     <message id="ui.file-dialog.generic-all-formats-filter">
-        <location filename="../../src/widgetsgui/utilities/filedialoghelper.cpp" line="170" />
+        <location filename="../../src/widgetsgui/utilities/filedialoghelper.cpp" line="173" />
         <source>All supported formats</source>
         <translation>All supported formats</translation>
     </message>
     <message id="ui.file-dialog.all-files-filter">
-        <location filename="../../src/widgetsgui/utilities/filedialoghelper.cpp" line="182" />
+        <location filename="../../src/widgetsgui/utilities/filedialoghelper.cpp" line="185" />
         <source>All files</source>
         <translation>All files</translation>
     </message>
     <message id="debug-messages.file-request.default-directory-not-found">
-        <location filename="../../src/common/utilities/presenter/filerequest.cpp" line="31" />
+        <location filename="../../src/common/utilities/presenter/filerequest.cpp" line="32" />
         <source>A suitable default directory could not be found.</source>
         <translation>A suitable default directory could not be found.</translation>
     </message>
     <message id="general.untitled-filename">
-        <location filename="../../src/common/utilities/presenter/filerequest.cpp" line="35" />
+        <location filename="../../src/common/utilities/presenter/filerequest.cpp" line="36" />
         <source>untitled</source>
         <translation>untitled</translation>
     </message>
@@ -684,7 +684,7 @@ requestedInterfaceName: "%1"
         <translation type="unfinished" />
     </message>
     <message id="debug-messages.async-task.interruption">
-        <location filename="../../src/common/utilities/asynctask.hpp" line="42" />
+        <location filename="../../src/common/utilities/asynctask.hpp" line="46" />
         <source>An async task was interrupted with code %1</source>
         <translation>An async task was interrupted with code %1</translation>
     </message>
@@ -747,6 +747,11 @@ requestedInterfaceName: "%1"
  implementation: %2</source>
         <translation>Considering factory %1
  implementation: %2</translation>
+    </message>
+    <message id="debug-messages.non-equivalent-collators">
+        <location filename="../../src/common/utilities/strings.cpp" line="14" />
+        <source>Comparison on non-equivalent collators is not allowed.</source>
+        <translation>Comparison on non-equivalent collators is not allowed.</translation>
     </message>
 </context>
 </TS>

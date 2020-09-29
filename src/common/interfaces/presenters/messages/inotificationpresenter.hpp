@@ -32,6 +32,9 @@ public:
         QSharedPointer<AddleException> exception = nullptr) = 0;
 
     virtual QSharedPointer<AddleException> exception() const = 0;
+#ifdef ADDLE_DEBUG
+    virtual QString debugText() const = 0;
+#endif
 };
 
 DECL_MAKEABLE(INotificationPresenter);

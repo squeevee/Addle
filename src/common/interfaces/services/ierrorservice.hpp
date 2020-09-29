@@ -2,8 +2,11 @@
  * Addle source code
  * @file
  * @copyright Copyright 2020 Eleanor Hawk
- * @copyright Modification and distribution permitted under the terms of the
- * MIT License. See "LICENSE" for full details.
+ * Modification and distribution permitted under the terms of the MIT License.
+ * See "LICENSE" for full details.
+ * 
+ * @warning This file is included by "utilities/errors.hpp" (and thus by
+ * "utils.hpp"). Any modifications here will cause large recompilations.
  */
 
 #ifndef IERRORSERVICE_HPP
@@ -19,6 +22,11 @@ namespace Addle {
 /**
  * @class IErrorService
  * Manages application-wide errors.
+ * 
+ * @todo While ADDLE_SLOT_CATCH etc. are convenient enough as answers to error 
+ * handling around the Qt event loop, they have limitations. If more complex
+ * error handling is desired, this service is likely to be the place where it
+ * will be implemented.
  */
 class IErrorService : public virtual IAmQObject
 {

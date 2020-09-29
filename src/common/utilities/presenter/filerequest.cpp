@@ -21,6 +21,7 @@ QUrl FileRequest::setUntitled(
     QString discriminator,
     QString extension)
 {
+    const QWriteLocker lock(&_lock); 
     ADDLE_ASSERT(_action == Action::Save);
             
     if (directory.isEmpty() || !QDir(directory).exists())

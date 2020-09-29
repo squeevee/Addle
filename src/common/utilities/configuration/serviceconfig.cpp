@@ -7,7 +7,19 @@ using namespace Addle;
 
 bool ServiceConfig::Filter::test(const FactorySelector& index) const
 {
-    if (index.id() && _idTest)
+    if (_disallowNullIds && !index.id())
+    {
+#ifdef ADDLE_DEBUG
+        if (DebugBehavior::test(DebugBehavior::PrintFactorySelectionInfo))
+        {
+            //% "The selector's id was null and the filter does not allow null ids."
+            qDebug() << qUtf8Printable(qtTrId("debug-messages.factory-select.filter-disallows-null-ids"));
+        }
+#endif
+        return false;
+    }
+    
+    if (_idTest)
     {
         if (!_idTest(index.id()))
         {

@@ -17,8 +17,14 @@
 #include <QObject>
 #include <QUrl>
 
+#include <QReadWriteLock>
+#include <QReadLocker>
+#include <QWriteLocker>
+
 namespace Addle {
 
+class IMessageContext;
+    
 /**
  * @class FileRequest
  * @brief Communicates (potentially asynchronously) between a presenter and a
@@ -42,66 +48,80 @@ public:
 
     Action action() const { return _action; }
 
-    QUrl url() const { return _url; }
+    QUrl url() const { const QReadLocker lock(&_lock); return _url; }
     void setUrl(QUrl url)
     { 
         if (isDone()) return;
-
-        if (_url != url)
-        { 
-            _url = url; 
-            emit urlChanged(_url);
-        } 
+        if (_url == url) return;
+        
+        {
+            const QWriteLocker lock(&_lock); 
+            _url = url;
+        }
+        
+        emit urlChanged(_url);
     }
     
-    QString filePath() const { return _url.toLocalFile(); }
+    QString filePath() const { const QReadLocker lock(&_lock); return _url.toLocalFile(); }
     void setFilePath(QString path)
     {
+        const QWriteLocker lock(&_lock); 
         setUrl(QUrl::fromLocalFile(path));
     }
     
-    QString directory() const { return _directory; }
-    void setDirectory(QString directory) { _directory = directory; }
+    QString directory() const { const QReadLocker lock(&_lock); return _directory; }
+    void setDirectory(QString directory) { const QWriteLocker lock(&_lock); _directory = directory; }
     
     QUrl setUntitled(QString directory = QString(),
         QString baseName = QString(),
         QString discriminator = QString(),
         QString extension = QString());
 
-    bool urlIsAccepted() const { return _urlIsAccepted; }
+    bool urlIsAccepted() const { const QReadLocker lock(&_lock); return _urlIsAccepted; }
 
-    bool isCanceled() const { return _isCanceled; }
-    bool isCompleted() const { return _isCompleted; }
-    bool isDone() const { return _isCanceled || _isCompleted; }
+    bool isCanceled() const { const QReadLocker lock(&_lock); return _isCanceled; }
+    bool isCompleted() const { const QReadLocker lock(&_lock); return _isCompleted; }
+    bool isDone() const { const QReadLocker lock(&_lock); return _isCanceled || _isCompleted; }
     
-    int modelType() const { return _modelType; }
-    void setModelType(int type) { _modelType = type; }
+    GenericFormatModelTypeInfo modelType() const { const QReadLocker lock(&_lock); return _modelType; }
+    void setModelType(GenericFormatModelTypeInfo type) { const QWriteLocker lock(&_lock); _modelType = type; }
 
-    QList<GenericFormatId> availableFormats() { return _availableFormats; }
-    void setAvailableFormats(QList<GenericFormatId> formats) { _availableFormats = formats; }
+    QList<GenericFormatId> availableFormats() const { const QReadLocker lock(&_lock); return _availableFormats; }
+    void setAvailableFormats(QList<GenericFormatId> formats) { const QWriteLocker lock(&_lock); _availableFormats = formats; }
 
     // A TrId for the label for a file filter that selects for all available
     // formats, e.g., "Image files". If left blank, a generic label will be used.
-    const char* allFormatsLabelTrId() { return _allFormatsLabelTrId; }
-    void setAllFormatsLabelTrId(const char* label) { _allFormatsLabelTrId = label; }
+    const char* allFormatsLabelTrId() const { const QReadLocker lock(&_lock); return _allFormatsLabelTrId; }
+    void setAllFormatsLabelTrId(const char* label) { const QWriteLocker lock(&_lock); _allFormatsLabelTrId = label; }
 
-    GenericFormatId favoriteFormat() { return _favoriteFormat; }
-    void setFavoriteFormat(GenericFormatId format) { _favoriteFormat = format; }
+    GenericFormatId favoriteFormat() const { const QReadLocker lock(&_lock); return _favoriteFormat; }
+    void setFavoriteFormat(GenericFormatId format) { const QWriteLocker lock(&_lock); _favoriteFormat = format; }
 
+    IMessageContext* messageContext() const { const QReadLocker lock(&_lock); return _messageContext; }
+    void setMessageContext(IMessageContext* messageContext) { const QWriteLocker lock(&_lock); _messageContext = messageContext; }
+    
 public slots:
     void acceptUrl()
     { 
         if (isDone()) return;
-
-        _urlIsAccepted = true;
+        
+        {
+            const QWriteLocker lock(&_lock); 
+            _urlIsAccepted = true;
+        }
+        
         emit urlAccepted();
     }
 
     void cancel()
     {
         if (isDone()) return;
-
-        _isCanceled = true;
+        
+        {
+            const QWriteLocker lock(&_lock);
+            _isCanceled = true;
+        }
+        
         emit canceled();
         emit done();
     }
@@ -109,8 +129,12 @@ public slots:
     void complete()
     {
         if (isDone()) return;
-
-        _isCompleted = true;
+        
+        {
+            const QWriteLocker lock(&_lock); 
+            _isCompleted = true;
+        }
+        
         emit completed();
         emit done();
     }
@@ -126,6 +150,8 @@ signals:
     void done();
 
 private:
+    mutable QReadWriteLock _lock;
+    
     const Action _action;
 
     QUrl _url;
@@ -133,9 +159,11 @@ private:
     bool _isCanceled = false;
     bool _isCompleted = false;
     
-    int _modelType = -1;
+    GenericFormatModelTypeInfo _modelType;
     
     QString _directory;
+    
+    IMessageContext* _messageContext = nullptr;
 
     QList<GenericFormatId> _availableFormats;
     const char* _allFormatsLabelTrId = nullptr;

@@ -55,6 +55,12 @@ public:
             return *this;
         }
         
+        inline Filter& disallowNullIds()
+        {
+            _disallowNullIds = true;
+            return *this;
+        }
+        
         template<class Interface>
         inline typename std::enable_if<
             std::is_base_of<QObject, Interface>::value ||
@@ -112,6 +118,9 @@ public:
         
     private:
         AddleId _id;
+        
+        bool _disallowNullIds = false;
+        
         std::function<bool(AddleId)> _idTest;
         QList<std::function<bool(QVariant)>> _argTests;
     };

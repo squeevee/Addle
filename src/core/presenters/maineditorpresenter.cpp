@@ -109,6 +109,9 @@ void MainEditorPresenter::initialize(Mode mode)
             //{ DefaultTools::Measure, nullptr }
         }
     }};
+    
+    _messageContext = ServiceLocator::makeUnique<IMessageContext>();
+    _initHelper.setCheckpoint(InitCheck_MessageContext);
 
     _view = ServiceLocator::makeUnique<IMainEditorView>(std::ref(*this));
     _initHelper.setCheckpoint(InitCheck_View);
@@ -195,7 +198,7 @@ void MainEditorPresenter::loadDocument(QSharedPointer<FileRequest> request)
         ASSERT_INIT(); 
         if (!_loadDocumentHelper.canLoad()) return;
         
-        request->setModelType(GenericFormatModelInfo::indexOf<IDocument>());
+        request->setModelType(GenericFormatModelTypeInfo::fromType<IDocument>());
         request->setFavoriteFormat(CoreFormats::PNG);
         request->setDirectory(
                 cpplinq::from(QStandardPaths::standardLocations(QStandardPaths::PicturesLocation))

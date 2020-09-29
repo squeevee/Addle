@@ -19,33 +19,58 @@
 #include "interfaces/services/iformatservice.hpp"
 
 #include "idtypes/formatid.hpp"
+#include "utilities/mplmap.hpp"
 
 namespace Addle {
 
 class ADDLE_CORE_EXPORT FormatService : public virtual IFormatService
 {
 public:
-    FormatService();
     virtual ~FormatService() = default;
 
 protected:
     GenericFormatModel importModel_p(QIODevice& device, const GenericImportExportInfo& info);
 
 private:
-    template <class ModelType>
-    void setupFormat();
+    struct visitor_setupFormatType
+    {
+        typedef void result_type;
+        
+        visitor_setupFormatType(FormatService& service_)
+            : service(service_)
+        {
+        }
+        
+        template<typename ModelType>
+        inline void operator()(_formatModelTypeWrapper<ModelType>) const 
+        {
+            service.setupFormatType_impl<ModelType>();
+        }
+        
+        inline void operator()(_formatModelTypeWrapper<GenericFormatModelTypeInfo::NullModelType>) const
+        {
+            Q_UNREACHABLE();
+        }
+        
+        FormatService& service;
+    };
+    
+    void updateFormatType(GenericFormatModelTypeInfo type);
+    
+    template<class ModelType>
+    void setupFormatType_impl();
 
     QHash<QString, GenericFormatId> _formats_bySuffix;
     QHash<QString, GenericFormatId> _formats_byMimeType;
     QHash<QByteArray, GenericFormatId> _formats_bySignature;
-    QHash<std::type_index, QSet<GenericFormatId>> _formats_byModelType;
-        // TODO: use a fixed-size array indexed by generic model type index
-        // instead of using std::type_index
-    QHash<GenericFormatId, GenericFormatDriver> _drivers_byFormat;
-
+    
+    MPLMap<GenericFormatModelTypeInfo::types, QSet<GenericFormatId>> _formats_byModelType;
+    
     GenericFormatId inferFormatFromSignature(QIODevice& device);
 
     int _maxSignatureLength = 0;
+    
+    friend class visitor_setupFormat;
 };
 
 } // namespace Addle

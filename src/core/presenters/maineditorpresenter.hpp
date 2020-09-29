@@ -21,7 +21,6 @@
 #include <memory>
 
 #include "helpers/undostackhelper.hpp"
-#include "helpers/messagecontexthelper.hpp"
 #include "helpers/loadhelper.hpp"
 
 #include "interfaces/presenters/imaineditorpresenter.hpp"
@@ -35,6 +34,7 @@
 #include "interfaces/presenters/icanvaspresenter.hpp"
 #include "interfaces/presenters/iviewportpresenter.hpp"
 #include "interfaces/presenters/icolorselectionpresenter.hpp"
+#include "interfaces/presenters/imessagecontext.hpp"
 
 #include "utilities/presenter/filerequest.hpp"
 
@@ -78,19 +78,17 @@ class ADDLE_CORE_EXPORT MainEditorPresenter : public QObject, public virtual IMa
         InitCheck_CanvasPresenter,
         InitCheck_ViewPortPresenter,
         InitCheck_ColorSelection,
+        InitCheck_MessageContext,
         InitCheck_View
     };
 
 public:
     MainEditorPresenter()
-        : _messageContextHelper(*this)
     {
         _undoStackHelper.undoStateChanged.bind(&MainEditorPresenter::undoStateChanged, this);
 
         _isEmptyCache.calculateBy(&MainEditorPresenter::isEmpty_p, this);
         _isEmptyCache.onChange.bind(&MainEditorPresenter::isEmptyChanged, this);
-        
-        _messageContextHelper.onMessagePosted.bind(&MainEditorPresenter::messagePosted, this);
         
         _loadDocumentHelper.onLoaded.bind(&MainEditorPresenter::onLoadDocumentCompleted, this);
     }
@@ -103,7 +101,8 @@ public:
     ICanvasPresenter& canvasPresenter() const { ASSERT_INIT_CHECKPOINT(InitCheck_CanvasPresenter); return *_canvasPresenter; }
     IViewPortPresenter& viewPortPresenter() const { ASSERT_INIT_CHECKPOINT(InitCheck_ViewPortPresenter); return *_viewPortPresenter; }
     IColorSelectionPresenter& colorSelection() const { ASSERT_INIT_CHECKPOINT(InitCheck_ColorSelection); return *_colorSelection; }
-
+    IMessageContext& messageContext() const { ASSERT_INIT_CHECKPOINT(InitCheck_MessageContext); return *_messageContext; }
+    
     void setMode(Mode mode);
     Mode mode() const { return _mode; }
 
@@ -150,7 +149,6 @@ public slots:
     void undo() { try { ASSERT_INIT(); _undoStackHelper.undo(); } ADDLE_SLOT_CATCH }
     void redo() { try { ASSERT_INIT(); _undoStackHelper.redo(); } ADDLE_SLOT_CATCH }
 
-    void postMessage(QSharedPointer<IMessagePresenter> message) { _messageContextHelper.postMessage(message); }
 signals: 
     void undoStateChanged();
 
@@ -166,11 +164,12 @@ private:
 
     Mode _mode = (Mode)NULL;
 
-    std::unique_ptr<IMainEditorView> _view = nullptr;
-    std::unique_ptr<IViewPortPresenter> _viewPortPresenter = nullptr;
-    std::unique_ptr<ICanvasPresenter> _canvasPresenter = nullptr;
+    std::unique_ptr<IMainEditorView> _view;
+    std::unique_ptr<IViewPortPresenter> _viewPortPresenter;
+    std::unique_ptr<ICanvasPresenter> _canvasPresenter;
+    std::unique_ptr<IMessageContext> _messageContext;
 
-    std::unique_ptr<IColorSelectionPresenter> _colorSelection = nullptr;
+    std::unique_ptr<IColorSelectionPresenter> _colorSelection;
 
     QSharedPointer<IDocumentPresenter> _document;
     PropertyCache<bool> _isEmptyCache;
@@ -191,7 +190,6 @@ private:
     QSharedPointer<IToolPresenter> _currentToolPresenter;
 
     UndoStackHelper _undoStackHelper;
-    MessageContextHelper _messageContextHelper;
 
     QList<QSharedPointer<IPalettePresenter>> _palettes;
 

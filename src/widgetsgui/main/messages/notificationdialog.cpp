@@ -24,7 +24,7 @@ void NotificationDialog::initialize(QSharedPointer<IMessagePresenter> presenter)
     
     setText(_presenter->text());
 #ifdef ADDLE_DEBUG
-    if (_presenter->exception())
+    if (!_presenter->debugText().isEmpty())
     {
         setStyleSheet(
         "QTextEdit {"
@@ -32,7 +32,7 @@ void NotificationDialog::initialize(QSharedPointer<IMessagePresenter> presenter)
             "min-width: 720px;"
         "}");
         
-        setDetailedText(_presenter->exception()->what());
+        setDetailedText(_presenter->debugText());
     }
 #endif // ADDLE_DEBUG
 }

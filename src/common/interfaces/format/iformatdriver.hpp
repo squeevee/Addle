@@ -36,13 +36,17 @@ public:
 
     virtual FormatId<ModelType> id() const = 0;
 
-    virtual ModelType* importModel(QIODevice& device, ImportExportInfo<ModelType> info) = 0;
-    virtual void exportModel(ModelType* model, QIODevice& device, ImportExportInfo<ModelType> info) = 0;
+    virtual ModelType* importModel(QIODevice& device, const ImportExportInfo<ModelType>& info) = 0;
+    virtual void exportModel(ModelType* model, QIODevice& device, const ImportExportInfo<ModelType>& info) = 0;
 };
 
 typedef IFormatDriver<IDocument> IDocumentFormatDriver;
+typedef IFormatDriver<IBrush> IBrushFormatDriver;
+typedef IFormatDriver<IPalette> IPaletteFormatDriver;
 
-DECL_PERSISTENT_OBJECT_TYPE(IDocumentFormatDriver, DocumentFormatId);
+DECL_PERSISTENT_OBJECT_TYPE(IDocumentFormatDriver,  DocumentFormatId);
+DECL_PERSISTENT_OBJECT_TYPE(IBrushFormatDriver,     BrushFormatId);
+DECL_PERSISTENT_OBJECT_TYPE(IPaletteFormatDriver,   PaletteFormatId);
 
 } // namespace Addle
 #endif // IFORMATDRIVER_HPP

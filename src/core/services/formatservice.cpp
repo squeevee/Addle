@@ -17,6 +17,8 @@
 
 #include "globals.hpp"
 
+#include "utilities/taskprogresshandle.hpp"
+
 #include "servicelocator.hpp"
 #include "exceptions/formatexception.hpp"
 #include "utilities/iocheck.hpp"
@@ -24,17 +26,11 @@
 #include "utilities/idinfo.hpp"
 
 using namespace Addle;
-FormatService::FormatService()
-{
-    setupFormat<IDocument>(); // TODO use MPL to automatically populate all model types
-}
 
 GenericFormatModel FormatService::importModel_p(QIODevice& device, const GenericImportExportInfo& info)
 { 
-    std::type_index modelTypeIndex(info.modelType());
-
-    ADDLE_ASSERT(_formats_byModelType.contains(modelTypeIndex));
-
+    updateFormatType(info.type());
+    
     QFile* file = qobject_cast<QFile*>(&device);
     if (file)
     {
@@ -62,22 +58,22 @@ GenericFormatModel FormatService::importModel_p(QIODevice& device, const Generic
         (format = impliedBySuffix)
     )
     {
-        GenericFormatDriver driver;
-        
-        if(_drivers_byFormat.contains(format))
-        {
-            driver = _drivers_byFormat.value(format);
-        }
-        else
-        {
-            
-        }
+        GenericFormatDriver driver = GenericFormatDriver::get(format);
         
         ADDLE_ASSERT(driver.supportsImport());
 
-        info.notifyAccepted();
-
         GenericFormatModel result = driver.importModel(device, info);
+        
+        if (info.progressHandle())
+        {
+            auto& cursor = info.progressHandle()->cursor();
+            double min = cursor.min();
+            double max = cursor.max();
+            for (int i = 0; i < 1000; ++i)
+            {
+                cursor.setProgress(i / (1000 * (max - min)) + min);
+            }
+        }
 
         return result;
     }
@@ -107,15 +103,20 @@ GenericFormatId FormatService::inferFormatFromSignature(QIODevice& device)
     return GenericFormatId();
 }
 
+void FormatService::updateFormatType(GenericFormatModelTypeInfo type)
+{
+    if (_formats_byModelType[type.index()] == GenericFormatId::getFor(type))
+        return;
+    
+    _formats_byModelType[type.index()].clear();
+    boost::apply_visitor(visitor_setupFormatType(*this), type);
+}
+
 template<class ModelType>
-void FormatService::setupFormat()
+void FormatService::setupFormatType_impl()
 {
     for (FormatId<ModelType> format : noDetach(IdInfo::getIds<FormatId<ModelType>>()))
     {
-        // TODO use lambdas to defer the actual get until the particular format
-        // is requested.
-        auto& driver = ServiceLocator::get<IFormatDriver<ModelType>>(format);
-        _drivers_byFormat.insert(format, GenericFormatDriver(driver));
         _formats_byMimeType.insert(format.mimeType(), GenericFormatId(format));
 
         int length = format.fileSignature().length();
@@ -126,7 +127,7 @@ void FormatService::setupFormat()
                 _maxSignatureLength = length;
         }
         
-        _formats_byModelType[std::type_index(typeid(ModelType))].insert(format);
+        _formats_byModelType.get<ModelType>().insert(format);
 
         for (QString& suffix : format.fileExtensions())
         {

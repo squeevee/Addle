@@ -1,5 +1,8 @@
 #include "servicelocator.hpp"
 
+#include "exceptions/fileexception.hpp"
+#include "exceptions/formatexception.hpp"
+
 #include "interfaces/services/iformatservice.hpp"
 
 #include "utilities/iocheck.hpp"
@@ -9,7 +12,9 @@ using namespace Addle;
 
 void LoadTask::doTask()
 {
-    if (!_request || _request->url().isEmpty())
+    ADDLE_ASSERT(_request);
+    
+    if (_request->url().isEmpty())
         interrupt();
 
     if (_request->url().isLocalFile())
@@ -17,6 +22,7 @@ void LoadTask::doTask()
         QString filename = _request->url().toLocalFile();
         auto info = GenericImportExportInfo::make(_request->modelType());
         info.setFileInfo(QFileInfo(filename));
+        info.setProgressHandle(&progressHandle());
         
         QFile file(filename);
         IOCheck().openFile(file, QFileDevice::ReadOnly);
@@ -27,4 +33,31 @@ void LoadTask::doTask()
     {
         ADDLE_LOGIC_ERROR_M("not implemented"); // did I already do that?
     }
+}
+
+void LoadTask::onError()
+{
+    try
+    {
+        auto messageContext = _request->messageContext();
+        auto taskError = error();
+
+        ADDLE_ASSERT(taskError);
+        if (!messageContext)
+            ADDLE_THROW(*taskError);
+        
+        if (typeid(*taskError) == typeid(FileException))
+        {
+            FileException& ex = static_cast<FileException&>(*taskError);
+        }
+        else if (typeid(*taskError) == typeid(FormatException))
+        {
+            FormatException& ex = static_cast<FormatException&>(*taskError);
+        }
+        else
+        {
+            ADDLE_THROW(*taskError);
+        }
+    }
+    ADDLE_SLOT_CATCH
 }

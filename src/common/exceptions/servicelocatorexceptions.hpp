@@ -82,7 +82,7 @@ public:
             AddleId id
         )
         : ServiceLocatorException(
-            //% "No factory was found for the interface \"%1\" at the ID \"%2\"."
+            //% "No factory was found for the interface \"%1\" and the ID \"%2\"."
             qtTrId("debug-messages.service-locator.factory-by-id-not-found-error")
                 .arg(requestedInterfaceName)
                 .arg(id.key())
@@ -100,66 +100,6 @@ public:
 #endif
 public:
     virtual ~FactoryNotFoundException() = default;
-};
-
-/**
- * @class ServiceNotFoundException
- * @brief Thrown by ServiceLocator if no service was found for a given
- * interface, and one could not be made, (i.e., there also was no factory for
- * it).
- */
-class ADDLE_COMMON_EXPORT ServiceNotFoundException : public ServiceLocatorException
-{
-    ADDLE_EXCEPTION_BOILERPLATE(ServiceNotFoundException)
-#ifdef ADDLE_DEBUG
-public:
-    ServiceNotFoundException(
-            const char* requestedInterfaceName
-        ) : ServiceLocatorException(
-            //% "No service was found for the interface \"%1\"."
-            qtTrId("debug-messages.service-locator.service-not-found-error")
-                .arg(requestedInterfaceName)
-        ),
-        _requestedInterfaceName(requestedInterfaceName)
-    {
-    }    
-private:
-    const char* _requestedInterfaceName;
-#else
-public:
-    ServiceNotFoundException() = default;
-#endif
-public:
-    virtual ~ServiceNotFoundException() = default;
-};
-
-class ADDLE_COMMON_EXPORT PersistentObjectNotFoundException : public ServiceLocatorException
-{
-    ADDLE_EXCEPTION_BOILERPLATE(PersistentObjectNotFoundException)
-#ifdef ADDLE_DEBUG
-public:
-    PersistentObjectNotFoundException(
-            const char* requestedInterfaceName,
-            AddleId id
-        ) : ServiceLocatorException(
-            //% "No persistent object was found for the interface \"%1\" at the ID \"%2\"."
-            qtTrId("debug-messages.service-locator.service-not-found-error")
-                .arg(requestedInterfaceName)
-                .arg(id)
-        ),
-        _requestedInterfaceName(requestedInterfaceName),
-        _id(id)
-    {
-    }    
-private:
-    const AddleId _id;
-    const char* _requestedInterfaceName;
-#else
-public:
-    PersistentObjectNotFoundException() = default;
-#endif
-public:
-    virtual ~PersistentObjectNotFoundException() = default;
 };
 
 } // namespace Addle

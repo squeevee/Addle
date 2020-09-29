@@ -45,13 +45,18 @@ public:
     bool isUrgent() const { ASSERT_INIT(); return _isUrgent; }
     
     QSharedPointer<AddleException> exception() const { ASSERT_INIT(); return _exception; }
-    
+#ifdef ADDLE_DEBUG
+    QString debugText() const { return _debugText; }
+#endif
 private:
     Tone _tone;
     QString _text;
     bool _isUrgent;
     IMessageContext* _context;
     QSharedPointer<AddleException> _exception;
+#ifdef ADDLE_DEBUG
+   QString _debugText;
+#endif
 
     InitializeHelper _initHelper;
 };

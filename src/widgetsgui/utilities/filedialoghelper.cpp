@@ -144,9 +144,9 @@ QStringList FileDialogHelper::makeNameFilters()
                     return format == _request->favoriteFormat();
                 })
         >>  cpplinq::thenby_ascending(
-                [] (GenericFormatId format) {
+                [] (GenericFormatId format) -> CollatingString {
                     return format.name();
-                }) //TODO: use QCollator
+                })
         )
     {
         QStringList filterExtensions = 

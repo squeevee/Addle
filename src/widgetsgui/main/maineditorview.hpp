@@ -42,6 +42,8 @@ class LayersManager;
 
 class FileDialogHelper;
 
+class IMessagePresenter;
+
 class ADDLE_WIDGETSGUI_EXPORT MainEditorView : public QMainWindow, public IMainEditorView
 {
     Q_OBJECT

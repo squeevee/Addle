@@ -31,7 +31,7 @@ public:
     
 private:
     void onTaskComplete_p();
-    void onTaskFailed_p();
+//     void onTaskFailed_p();
     
     QSharedPointer<FileRequest> _request;
     QSharedPointer<PresenterType> _presenter;
@@ -51,10 +51,10 @@ public:
             this, &AsyncTask::completed,
             this, std::bind(&LoadHelper<ModelType, PresenterType>::onTaskComplete_p, &helper)
         );
-        connect(
-            this, &AsyncTask::failed,
-            this, std::bind(&LoadHelper<ModelType, PresenterType>::onTaskFailed_p, &helper)
-        );
+//         connect(
+//             this, &AsyncTask::failed,
+//             this, std::bind(&LoadHelper<ModelType, PresenterType>::onTaskFailed_p, &helper)
+//         );
     }
     
     GenericSharedFormatModel model() const
@@ -85,6 +85,7 @@ private slots:
 
 protected:
     void doTask() override;
+    void onError() override;
     
 private:
     QSharedPointer<FileRequest> _request;
@@ -142,11 +143,11 @@ void LoadHelper<ModelType, PresenterType>::onTaskComplete_p()
     onLoaded(_presenter);
 }
 
-template<class ModelType, class PresenterType>
-void LoadHelper<ModelType, PresenterType>::onTaskFailed_p()
-{
-    qWarning() << qUtf8Printable(_task->error()->what());
-}
+// template<class ModelType, class PresenterType>
+// void LoadHelper<ModelType, PresenterType>::onTaskFailed_p()
+// {
+// 
+// }
 
 } // namespace Addle
 

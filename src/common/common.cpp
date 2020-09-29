@@ -101,29 +101,29 @@ DEFINE_STATIC_ID_METADATA_CUSTOM(CoreFormats::JPEG, DocumentFormatId::MetaData,
     /*file sig:*/   QByteArrayLiteral("\xFF\xD8\xFF")
 )
 
-// DEFINE_STATIC_ID_METADATA_CUSTOM(CoreFormats::GIF, DocumentFormatId::MetaData,
-//                     QUuid(),
-//     /*mime type:*/  QStringLiteral("image/gif"),
-//     /*file ext:*/   QStringLiteral("gif"),
-//     /*file sig:*/   QByteArrayLiteral("GIF8")
-//                         technically it's GIF87a or GIF89a
-//                         TODO: support multiple signatures per format ?
-// )
-// 
-// DEFINE_STATIC_ID_METADATA_CUSTOM(CoreFormats::WebP, DocumentFormatId::MetaData,
-//                     QUuid(),
-//     /*mime type:*/  QStringLiteral("image/webp"),
-//     /*file ext:*/   QStringLiteral("webp"),
-//     /*file sig:*/   QByteArrayLiteral("WEBP")
-// )
-// 
-// DEFINE_STATIC_ID_METADATA_CUSTOM(CoreFormats::ORA, DocumentFormatId::MetaData,
-//                     QUuid(),
-//     /*mime type:*/  QStringLiteral("image/openraster"),
-//     /*file ext:*/   QStringLiteral("ora"),
-//     /*file sig:*/   QByteArray()
-//                         TODO: file signatures are optional
-// )
+DEFINE_STATIC_ID_METADATA_CUSTOM(CoreFormats::GIF, DocumentFormatId::MetaData,
+                    QUuid(),
+    /*mime type:*/  QStringLiteral("image/gif"),
+    /*file ext:*/   QStringLiteral("gif"),
+    /*file sig:*/   QByteArrayLiteral("GIF8")
+                        // technically it's GIF87a or GIF89a
+                        // TODO: support multiple signatures per format ?
+)
+
+DEFINE_STATIC_ID_METADATA_CUSTOM(CoreFormats::WebP, DocumentFormatId::MetaData,
+                    QUuid(),
+    /*mime type:*/  QStringLiteral("image/webp"),
+    /*file ext:*/   QStringLiteral("webp"),
+    /*file sig:*/   QByteArrayLiteral("WEBP")
+)
+
+DEFINE_STATIC_ID_METADATA_CUSTOM(CoreFormats::ORA, DocumentFormatId::MetaData,
+                    QUuid(),
+    /*mime type:*/  QStringLiteral("image/openraster"),
+    /*file ext:*/   QStringLiteral("ora"),
+    /*file sig:*/   QByteArray()
+                        // TODO: file signatures are optional
+)
 
 DEFINE_STATIC_ID_METADATA(CorePalettes::BasicPalette)
 
@@ -155,9 +155,9 @@ QHash<AddleId, QSharedPointer<const AddleId::BaseMetaData>> AddleId::_dynamicMet
 
     STATIC_ID_METADATA_ENTRY(CoreFormats::PNG),
     STATIC_ID_METADATA_ENTRY(CoreFormats::JPEG),
-//     STATIC_ID_METADATA_ENTRY(CoreFormats::GIF),
-//     STATIC_ID_METADATA_ENTRY(CoreFormats::WebP),
-//     STATIC_ID_METADATA_ENTRY(CoreFormats::ORA),
+    STATIC_ID_METADATA_ENTRY(CoreFormats::GIF),
+    STATIC_ID_METADATA_ENTRY(CoreFormats::WebP),
+    STATIC_ID_METADATA_ENTRY(CoreFormats::ORA),
 
     STATIC_ID_METADATA_ENTRY(CorePalettes::BasicPalette),
 

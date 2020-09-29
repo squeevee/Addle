@@ -21,6 +21,9 @@
 #include <QString>
 #include <QUrl>
 #include <QFileInfo>
+
+#include <QReadWriteLock>
+
 namespace Addle {
 
 enum ImportExportDirection
@@ -30,6 +33,8 @@ enum ImportExportDirection
     exporting
 };
 
+class TaskProgressHandle;
+
 // Data about a resource (i.e., a file or stream) that is to be imported or
 // exported as a format model.
 template<class ModelType>
@@ -38,31 +43,124 @@ class ImportExportInfo
 public:
     typedef ImportExportDirection Direction;
 
-    Direction direction() const { return _direction; }
-    void setDirection(Direction direction) { _direction = direction; }
+    ImportExportInfo() = default;
+    ImportExportInfo(const ImportExportInfo& other)
+    {
+        const QReadLocker lock(&other._lock);
+        
+        _direction = other._direction;
+        _format = other._format;
+        _url = other._url;
+        _progress = other._progress;
+    }
+    
+    ImportExportInfo(ImportExportInfo&& other)
+    {
+        const QWriteLocker lock(&other._lock);
+        
+        _direction = other._direction;
+        _format = other._format;
+        _url = std::move(other._url);
+        _progress = std::move(other._progress);
+    }
+    
+    Direction direction() const 
+    { 
+        const QReadLocker lock(&_lock); 
+        return _direction; 
+    }
+    
+    void setDirection(Direction direction)
+    { 
+        const QWriteLocker lock(&_lock); 
+        _direction = direction; 
+    }
 
-    FormatId<ModelType> format() const { return _format; }
-    void setFormat(const FormatId<ModelType>& format) { _format = format; }
+    FormatId<ModelType> format() const 
+    { 
+        const QReadLocker lock(&_lock);
+        return _format;
+    }
+    
+    void setFormat(const FormatId<ModelType>& format) 
+    { 
+        const QWriteLocker lock(&_lock);
+        _format = format; 
+    }
 
-    QFileInfo fileInfo() const { return _fileInfo; }
-    void setFileInfo(const QFileInfo& fileInfo) { _fileInfo = fileInfo; }
+    QFileInfo fileInfo() const
+    { 
+        const QReadLocker lock(&_lock);
+        return _fileInfo; 
+    }
+    
+    void setFileInfo(const QFileInfo& fileInfo)
+    { 
+        const QWriteLocker lock(&_lock);
+        _fileInfo = fileInfo; 
+    }
 
-    QString filename() const { return _fileInfo.filePath(); }
-    void setFilename(const QString& filename) { _fileInfo = QFileInfo(filename); }
+    QString filename() const
+    { 
+        const QReadLocker lock(&_lock);
+        return _fileInfo.filePath(); 
+    }
+    
+    void setFilename(const QString& filename)
+    { 
+        const QWriteLocker lock(&_lock);
+        _fileInfo = QFileInfo(filename); 
+    }
 
-    QUrl url() const { return _url; }
-    void setUrl(const QUrl& url) { _url = url; }
+    QUrl url() const
+    { 
+        const QReadLocker lock(&_lock);
+        return _url; 
+    }
+    
+    void setUrl(const QUrl& url)
+    { 
+        const QWriteLocker lock(&_lock);
+        _url = url;
+    }
 
-    void notifyAccepted() const { if (_callback_accepted) _callback_accepted(); }
-    void setCallbackAccepted(std::function<void()> callback) { _callback_accepted = callback; }
+//     void notifyAccepted() const
+//     { 
+//         {
+//             const QReadLocker lock(&_lock); 
+//             if (!_callback_accepted) return
+//         }
+//         _callback_accepted();
+//     }
+//     
+//     void setCallbackAccepted(std::function<void()> callback)
+//     { 
+//         const QWriteLocker lock(&_lock); 
+//         _callback_accepted = callback;
+//     }
 
+    TaskProgressHandle* progressHandle() const
+    { 
+        const QReadLocker lock(&_lock);
+        return _progress; 
+    }
+    
+    void setProgressHandle(TaskProgressHandle* progress)
+    { 
+        const QWriteLocker lock(&_lock);
+        _progress = progress; 
+    }
+    
 private:
+    mutable QReadWriteLock _lock;
+    
     Direction _direction = Direction::unassigned;
     FormatId<ModelType> _format;
     QUrl _url;
     QFileInfo _fileInfo;
 
-    std::function<void()> _callback_accepted;
+//     std::function<void()> _callback_accepted;
+    TaskProgressHandle* _progress = nullptr;
 };
 
 typedef ImportExportInfo<IDocument> DocumentImportExportInfo;

@@ -21,6 +21,7 @@
 #include "presenters/layerpresenter.hpp"
 #include "presenters/colorselectionpresenter.hpp"
 #include "presenters/palettepresenter.hpp"
+#include "presenters/messagecontext.hpp"
 #include "presenters/assets/brushpresenter.hpp"
 #include "presenters/tools/assetselectionpresenter.hpp"
 #include "presenters/tools/navigatetoolpresenter.hpp"
@@ -56,6 +57,7 @@ extern "C" void addle_core_config()
     config->addAutoFactory<IDocumentFormatDriver, QtImageFormatDriver>(
         ServiceConfig::Filter()
             .byId<DocumentFormatId>(&QtImageFormatDriver::idIsSupported)
+            .disallowNullIds()
     );
     
     // # Models
@@ -147,7 +149,7 @@ extern "C" void addle_core_config()
     config->addAutoFactory<ICanvasPresenter, CanvasPresenter>();
     config->addAutoFactory<IColorSelectionPresenter, ColorSelectionPresenter>();
     config->addAutoFactory<IViewPortPresenter, ViewPortPresenter>();
-    //config->addAutoFactory<IApplicationErrorPresenter, ApplicationErrorPresenter>();
+    config->addAutoFactory<IMessageContext, MessageContext>();
     config->addAutoFactory<ILayerPresenter, LayerPresenter>();
     config->addAutoFactory<IDocumentPresenter, DocumentPresenter>();
     config->addAutoFactory<IBrushOperationPresenter, BrushOperationPresenter>();
