@@ -19,17 +19,13 @@
 namespace Addle {
 
 class AddleException;
+class NotificationPresenterBuilder;
 class INotificationPresenter : public IMessagePresenter
 {
 public:
     virtual ~INotificationPresenter() = default;
 
-    virtual void initialize(
-        QString text,
-        Tone tone,
-        bool isUrgent = false,
-        IMessageContext* context = nullptr,
-        QSharedPointer<AddleException> exception = nullptr) = 0;
+    virtual void initialize(const NotificationPresenterBuilder& builder) = 0;
 
     virtual QSharedPointer<AddleException> exception() const = 0;
 #ifdef ADDLE_DEBUG

@@ -88,6 +88,20 @@ QByteArray IOCheck::peek(QIODevice& device, int maxSize, bool* eof) const
 IOCheck::FileValidator::FileValidator(const IOCheck& owner, QFile* file_, QIODevice::OpenMode mode)
     : _owner(owner), file(file_), info(*file_)
 {
+    if (
+        !(mode & QIODevice::ReadOnly || mode & QIODevice::WriteOnly)
+        || (mode & QIODevice::NewOnly && mode & QIODevice::ExistingOnly)
+        || (mode & QIODevice::NewOnly && mode & QIODevice::ReadOnly && !(mode & QIODevice::WriteOnly))
+        || (mode & QIODevice::Append && mode & QIODevice::ReadOnly && !(mode & QIODevice::WriteOnly))
+        || (mode & QIODevice::Truncate && mode & QIODevice::ReadOnly && !(mode & QIODevice::WriteOnly))
+        || (mode & QIODevice::ExistingOnly && !(mode & QIODevice::ReadOnly))
+        || (mode & QIODevice::Append && mode & QIODevice::Truncate)
+    )
+    {
+        //% "The file mode was not understood."
+        ADDLE_LOGIC_ERROR_M(qtTrId("debug-messages.io-check.invalid-file-mode"));
+    }
+    
     writing = mode & QIODevice::WriteOnly
         || mode & QIODevice::Append
         || mode & QIODevice::Truncate;
@@ -100,27 +114,36 @@ IOCheck::FileValidator::FileValidator(const IOCheck& owner, QFile* file_, QIODev
         operation = FileException::OpenReadOnly;
     else if (writing)
         operation = FileException::OpenWriteOnly;
-    else
-        //% "The file mode was not understood."
-        ADDLE_LOGIC_ERROR_M(qtTrId("debug-messages.io-check.invalid-file-mode"));
+    
+    mustExist = mode & QIODevice::ReadOnly
+        || mode & QIODevice::ExistingOnly;
+        
+    mustNotExist = mode & QIODevice::NewOnly;
 }
 
 void IOCheck::FileValidator::validateExistance() const
 {
-    if (!info.exists())
+    ADDLE_ASSERT(!(mustExist && mustNotExist));
+    
+    if (mustExist && !info.exists())
     {
-        Problems existanceProblems = Problem::DoesNotExist;
+        Problems existenceProblems = Problem::DoesNotExist;
         QDir ancestor;
 
         if (!info.dir().exists())
         {
-            existanceProblems |= Problem::IncompleteDirPath;
+            existenceProblems |= Problem::IncompleteDirPath;
             //TODO: find nearest real ancestor; create path if createPath is set
         }
         
-        FileException ex(operation, existanceProblems, info);
+        FileException ex(operation, existenceProblems, info);
 
         _owner.throw_(std::move(ex), file);
+        return;
+    }
+    else if (mustNotExist && info.exists())
+    {
+        _owner.throw_(FileException(operation, Problem::AlreadyExists));
         return;
     }
 

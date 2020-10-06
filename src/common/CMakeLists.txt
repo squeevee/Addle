@@ -13,7 +13,7 @@ set (common_sources
     utilities/asynctask.cpp
     utilities/configuration/serviceconfig.cpp
     utilities/errors.cpp
-    utilities/strings.cpp
+    utilities/collatingstring.cpp
     utilities/iocheck.cpp
     utilities/indexvariant.cpp
     utilities/taskprogresshandle.cpp

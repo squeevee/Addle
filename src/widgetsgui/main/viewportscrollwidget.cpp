@@ -27,7 +27,7 @@ ViewPortScrollWidget::ViewPortScrollWidget(IViewPortPresenter& presenter, QWidge
     new PropertyBinding(
         this,
         WidgetProperties::enabled,
-        qobject_interface_cast(&_presenter),
+        &_presenter,
         IViewPortPresenter::Meta::Properties::canNavigate,
         PropertyBinding::ReadOnly
     );

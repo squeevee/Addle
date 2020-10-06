@@ -49,7 +49,8 @@ void RenderStack::remove(QWeakPointer<IRenderStep> step)
     if (step)
     {
         auto s_step = step.toStrongRef();
-        disconnect(qobject_interface_cast(s_step.data()), SIGNAL(changed(QRect)), this, SLOT(onRenderStepChange(QRect)));
+        // TODO
+        disconnect(qobject_interface_cast<QObject*>(s_step.data()), SIGNAL(changed(QRect)), this, SLOT(onRenderStepChange(QRect)));
 
         areaHint = s_step->areaHint();
     }

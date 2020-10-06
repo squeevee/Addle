@@ -15,6 +15,7 @@
 #include "exceptions/addleexception.hpp"
 #include "exceptions/unhandledexception.hpp"
 
+#include "interfaces/presenters/messages/imessagepresenter.hpp"
 #include "interfaces/presenters/tools/inavigatetoolpresenter.hpp"
 
 #include "interfaces/models/ipalette.hpp"
@@ -56,6 +57,8 @@ inline void registerQMetaTypes()
     //SaveEvent::_type = QEvent::registerEventType(SaveEvent::_type);
 
     qRegisterMetaType<IPalette::ColorArray>("ColorArray");
+    
+    qRegisterMetaType<QSharedPointer<IMessagePresenter>>();
 }
 
 } // namespace Addle

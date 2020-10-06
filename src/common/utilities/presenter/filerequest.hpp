@@ -77,8 +77,10 @@ public:
         QString discriminator = QString(),
         QString extension = QString());
 
+    bool overwriteIsAllowed() const { const QReadLocker lock(&_lock); return _overwriteIsAllowed; }
+    
     bool urlIsAccepted() const { const QReadLocker lock(&_lock); return _urlIsAccepted; }
-
+    
     bool isCanceled() const { const QReadLocker lock(&_lock); return _isCanceled; }
     bool isCompleted() const { const QReadLocker lock(&_lock); return _isCompleted; }
     bool isDone() const { const QReadLocker lock(&_lock); return _isCanceled || _isCompleted; }
@@ -155,6 +157,8 @@ private:
     const Action _action;
 
     QUrl _url;
+    bool _overwriteIsAllowed = false;
+    
     bool _urlIsAccepted = false;
     bool _isCanceled = false;
     bool _isCompleted = false;

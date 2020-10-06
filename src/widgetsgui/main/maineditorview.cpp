@@ -18,6 +18,7 @@
 
 #include "utils.hpp"
 
+#include "interfaces/presenters/imessagecontext.hpp"
 #include "interfaces/presenters/tools/itoolpresenter.hpp"
 #include "interfaces/services/iapplicationsservice.hpp"
 #include "interfaces/views/imessageview.hpp"
@@ -47,14 +48,14 @@ void MainEditorView::initialize(IMainEditorPresenter& presenter)
 
     _presenter = &presenter;
     
-    connect_interface(_presenter, SIGNAL(messagePosted(QSharedPointer<IMessagePresenter>)),
-                              this, SLOT(onMessagePosted(QSharedPointer<IMessagePresenter>)));
+    connect_interface(&_presenter->messageContext(), SIGNAL(messagePosted(QSharedPointer<Addle::IMessagePresenter>)),
+                              this, SLOT(onMessagePosted(QSharedPointer<Addle::IMessagePresenter>)));
                             
     connect_interface(_presenter, SIGNAL(undoStateChanged()),
                               this, SLOT(onUndoStateChanged()));
 
-    connect_interface(_presenter, SIGNAL(documentPresenterChanged(QSharedPointer<IDocumentPresenter>)),
-                              this, SLOT(onDocumentChanged(QSharedPointer<IDocumentPresenter>)));   
+    connect_interface(_presenter, SIGNAL(documentPresenterChanged(QSharedPointer<Addle::IDocumentPresenter>)),
+                              this, SLOT(onDocumentChanged(QSharedPointer<Addle::IDocumentPresenter>)));   
 }
 
 void MainEditorView::setupUi()
@@ -73,7 +74,7 @@ void MainEditorView::setupUi()
     new PropertyBinding(
         _toolBar_editorToolSelection,
         WidgetProperties::enabled,
-        qobject_interface_cast(_presenter),
+        _presenter,
         IMainEditorPresenter::Meta::Properties::empty,
         PropertyBinding::ReadOnly,
         BindingConverter::negate()
@@ -109,7 +110,7 @@ void MainEditorView::setupUi()
     new PropertyBinding(
         _optionGroup_toolSelection,
         WidgetProperties::value,
-        qobject_interface_cast(_presenter),
+        _presenter,
         IMainEditorPresenter::Meta::Properties::currentTool
     );
 
@@ -246,16 +247,15 @@ void MainEditorView::onAction_save()
     ADDLE_SLOT_CATCH
 }
 
-void MainEditorView::onMessagePosted(QSharedPointer<IMessagePresenter> message)
+void MainEditorView::onUrgentMessageMade(ITopLevelView* view)
 {
-    try
-    {
-        ASSERT_INIT();
-        auto view = ServiceLocator::make<IMessageView>(message);
-        
-        view->show();
-    }
-    ADDLE_SLOT_CATCH
+    QWidget* viewWidget = qobject_interface_cast<QWidget*>(view);
+    ADDLE_ASSERT(viewWidget);
+    
+    auto wf = viewWidget->windowFlags() | Qt::Window;
+    viewWidget->setParent(this);
+    viewWidget->setWindowFlags(wf);
+    viewWidget->setWindowModality(Qt::WindowModal);
 }
 
 void MainEditorView::onToolBarNeedsShown()
@@ -318,27 +318,4 @@ void MainEditorView::closeEvent(QCloseEvent* event)
         emit tlv_closed();
     }
     ADDLE_EVENT_CATCH(event)
-}
-
-
-void MainEditorView::tlv_show()
-{
-    try
-    {
-        ASSERT_INIT();
-        if (!_uiIsSetup)
-            setupUi();
-        QWidget::show();
-    }
-    ADDLE_SLOT_CATCH
-}
-
-void MainEditorView::tlv_close()
-{
-    try
-    {
-        ASSERT_INIT();
-        QWidget::close();
-    }
-    ADDLE_SLOT_CATCH
 }

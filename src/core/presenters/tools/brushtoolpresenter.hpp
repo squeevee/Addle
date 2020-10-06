@@ -89,7 +89,7 @@ signals:
     void cursorChanged(QCursor cursor); 
     
 private slots:
-    void onDocumentChanged(QSharedPointer<IDocumentPresenter> document);
+    void onDocumentChanged(QSharedPointer<Addle::IDocumentPresenter> document);
     void onColorChanged(ColorInfo info);
     void onBrushSelectionChanged();
     void onSelectedLayerChanged();

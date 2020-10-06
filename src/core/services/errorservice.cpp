@@ -13,9 +13,11 @@
 #include "servicelocator.hpp"
 
 #include "interfaces/presenters/messages/inotificationpresenter.hpp"
+#include "interfaces/views/itoplevelview.hpp"
 #include "interfaces/views/imessageview.hpp"
 
 #include "utilities/debugging/debugbehavior.hpp"
+#include "utilities/presenter/messagebuilders.hpp"
 
 using namespace Addle;
 
@@ -65,25 +67,31 @@ void ErrorService::displayError(QSharedPointer<UnhandledException> ex)
 #endif
 
     auto message = ServiceLocator::makeShared<INotificationPresenter>(
+        NotificationPresenterBuilder(
 #ifdef ADDLE_DEBUG
-        QString(ex->what()), 
+            QString(ex->what()), 
 #else 
-        //: Displayed in "release" builds of Addle if an error occurs in some part
-        //: of the application and was not handled there. If this message is
-        //: displayed, it indicates a potentially serious bug of unknown nature.
-        //
-        //: As Addle's error handling matures, this message will likely require
-        //: retooling.
-        //
-        //% "An unknown error occurred within Addle. The application may be in an"
-        //% "unstable state. Proceed with caution."
-        qtTrId("ui.release-unhandled-error"),
+            //: Displayed in "release" builds of Addle if an error occurs in
+            //: some part of the application and was not handled there. If this 
+            //: message is displayed, it indicates a potentially serious bug of 
+            //: unknown nature.
+            //
+            //: As Addle's error handling matures, this message will likely 
+            //: require retooling.
+            //
+            //% "An unknown error occurred within Addle. The application may "
+            //% "be in an unstable state. Proceed with caution."
+            qtTrId("ui.release-unhandled-error"),
 #endif // ADDLE_DEBUG
-        IMessagePresenter::Problem,
-        true,    //isUrgent
-        nullptr, //context
-        ex       //exception
+            IMessagePresenter::Problem
+        )
+            .setIsUrgentHint(true)
+            .setException(ex)
     );
     
-    ServiceLocator::make<IMessageView>(message)->show();
+    //TODO: cleaner
+    auto view = ServiceLocator::make<IMessageView>(message);
+    auto tlv = qobject_interface_cast<ITopLevelView*>(view);
+    ADDLE_ASSERT(tlv);
+    tlv->open();
 }

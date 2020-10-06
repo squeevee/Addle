@@ -37,7 +37,7 @@ NavigateToolOptionsBar::NavigateToolOptionsBar(INavigateToolPresenter& presenter
     new PropertyBinding(
         _optionGroup_navigateOperation, 
         WidgetProperties::value,
-        qobject_interface_cast(&_presenter),
+        &_presenter,
         INavigateToolPresenter::Meta::Properties::navigateOperation
     );
 

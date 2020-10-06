@@ -6,8 +6,8 @@ void NotificationDialog::initialize(QSharedPointer<IMessagePresenter> presenter)
 {
     const Initializer init(_initHelper);
     
-    ADDLE_ASSERT(qobject_cast<INotificationPresenter*>(qobject_interface_cast(presenter)));
-    _presenter = presenter.staticCast<INotificationPresenter>();
+    _presenter = qobject_interface_cast<INotificationPresenter>(presenter);
+    ADDLE_ASSERT(_presenter);
     
     setWindowModality(Qt::ApplicationModal);
     setAttribute(Qt::WA_DeleteOnClose);
@@ -19,6 +19,8 @@ void NotificationDialog::initialize(QSharedPointer<IMessagePresenter> presenter)
         break;
     case IMessagePresenter::Problem:
         setIcon(QMessageBox::Critical);
+        break;
+    default:
         break;
     }
     
@@ -36,16 +38,3 @@ void NotificationDialog::initialize(QSharedPointer<IMessagePresenter> presenter)
     }
 #endif // ADDLE_DEBUG
 }
-
-void NotificationDialog::tlv_show()
-{
-    ASSERT_INIT();
-    QWidget::show();
-}
-
-void NotificationDialog::tlv_close()
-{
-    ASSERT_INIT();
-    QWidget::close();
-}
-

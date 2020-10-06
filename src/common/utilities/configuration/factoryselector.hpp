@@ -154,17 +154,34 @@ public:
     }
     
     
+    FactorySelector& addArg(QObject* arg)
+    {
+        _args.append(QVariant::fromValue(arg));
+        return *this;
+    }
+    
+    FactorySelector& addArg(QObject& arg)
+    {
+        _args.append(QVariant::fromValue(&arg));
+        return *this;
+    }
+    
+    FactorySelector& addArg(QSharedPointer<QObject> arg)
+    {
+        _args.append(QVariant::fromValue(arg.data()));
+        return *this;
+    }
+    
     template<class Interface>
     inline typename std::enable_if<
-        Traits::implemented_as_QObject<
-            typename std::remove_const<Interface>::type
-        >::value,
+        Traits::implemented_as_QObject<typename std::remove_cv<Interface>::type>::value
+        && !std::is_convertible<typename std::remove_cv<Interface>::type*, QObject*>::value,
         FactorySelector&
     >::type addArg(QSharedPointer<Interface> arg)
     {
         _args.append(
-            QVariant::fromValue(qobject_interface_cast(
-                const_cast<typename std::remove_const<Interface>::type*>(arg.data())
+            QVariant::fromValue(qobject_interface_cast<QObject*>(
+                const_cast<typename std::remove_cv<Interface>::type*>(arg.data())
             ))
         );
         return *this;
@@ -172,15 +189,14 @@ public:
     
     template<class Interface>
     inline typename std::enable_if<
-        Traits::implemented_as_QObject<
-            typename std::remove_const<Interface>::type
-        >::value,
+        Traits::implemented_as_QObject<typename std::remove_cv<Interface>::type>::value
+        && !std::is_convertible<typename std::remove_cv<Interface>::type*, QObject*>::value,
         FactorySelector&
     >::type addArg(Interface* arg)
     {
         _args.append(
-            QVariant::fromValue(qobject_interface_cast(
-                const_cast<typename std::remove_const<Interface>::type*>(arg)
+            QVariant::fromValue(qobject_interface_cast<QObject*>(
+                const_cast<typename std::remove_cv<Interface>::type*>(arg)
             ))
         );
         return *this;
@@ -188,15 +204,14 @@ public:
     
     template<class Interface>
     inline typename std::enable_if<
-        Traits::implemented_as_QObject<
-            typename std::remove_const<Interface>::type
-        >::value,
+        Traits::implemented_as_QObject<typename std::remove_cv<Interface>::type>::value
+        && !std::is_convertible<typename std::remove_cv<Interface>::type*, QObject*>::value,
         FactorySelector&
     >::type addArg(Interface& arg)
     {
         _args.append(
-            QVariant::fromValue(qobject_interface_cast(
-                const_cast<typename std::remove_const<Interface>::type*>(&arg)
+            QVariant::fromValue(qobject_interface_cast<QObject*>(
+                const_cast<typename std::remove_cv<Interface>::type*>(&arg)
             ))
         );
         return *this;

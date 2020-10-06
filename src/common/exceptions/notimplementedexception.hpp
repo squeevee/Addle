@@ -18,7 +18,7 @@ public:
                 qtTrId("debug-message.not-implemented-excpetion.no-note")
                 //% "The feature \"%1\" is not yet implemented."
                 : qtTrId("debug-messages.not-implemented-exception.note")
-                    .arg(note)
+                    .arg(note);
         }())
 #endif
     {

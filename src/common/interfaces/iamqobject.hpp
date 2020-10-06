@@ -14,22 +14,14 @@
 
 namespace Addle {
 
-template<class Interface>
-typename std::enable_if<
-    !std::is_const<Interface>::value,
-    QObject*
->::type qobject_interface_cast(Interface* object);
-
-template<class Interface>
-typename std::enable_if<
-    !std::is_const<Interface>::value,
-    const QObject*
->::type qobject_interface_cast(const Interface* object);
-
 /**
- * @brief Special interface that provides access to an underlying QObject
+ * @brief A special interface that indicates its implementation is a QObject.
+ * Use qobject_cast to access the underlying QObject (or to safely cast to 
+ * another type supported by qobject_cast).
  * 
- * Use wtih qobject_interface_cast and connect_interface
+ * Interfaces that want to expose QObject features should publicly (virtually)
+ * inherit IAmQObject. Classes implementing this should do so with the
+ * convenience macro IAMQOBJECT_IMPL
  */
 class IAmQObject
 {
@@ -37,18 +29,11 @@ protected:
     virtual QObject* asQObject_p() = 0;
     virtual const QObject* asQObject_p() const = 0;
 
-    template<class Interface>
-    friend typename std::enable_if<
-        !std::is_const<Interface>::value,
-        QObject*
-    >::type qobject_interface_cast(Interface* object);
-
-    template<class Interface>
-    friend typename std::enable_if<
-        !std::is_const<Interface>::value,
-        const QObject*
-    >::type qobject_interface_cast(const Interface* object);
-
+    template<class OutType, class InType>
+    friend OutType qobject_interface_cast(InType* object);
+    
+    template<class OutType, class InType>
+    friend OutType qobject_interface_cast(const InType* object);
 };
 
 /**

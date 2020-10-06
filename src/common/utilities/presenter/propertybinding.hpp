@@ -81,6 +81,42 @@ public:
         const char* targetProperty,
         Direction direction = ReadWrite,
         const Converter& converter = Converter());
+    
+    template<class Interface>
+    PropertyBinding(
+        Interface* local,
+        const char* localProperty,
+        QObject* target,
+        const char* targetProperty,
+        Direction direction = ReadWrite,
+        const Converter& converter = Converter())
+        : PropertyBinding(
+            qobject_interface_cast<QObject*>(local),
+            localProperty,
+            target,
+            targetProperty,
+            direction,
+            converter)
+    {
+    }
+    
+    template<class Interface>
+    PropertyBinding(
+        QObject* local,
+        const char* localProperty,
+        Interface* target,
+        const char* targetProperty,
+        Direction direction = ReadWrite,
+        const Converter& converter = Converter())
+        : PropertyBinding(
+            local,
+            localProperty,
+            qobject_interface_cast<QObject*>(target),
+            targetProperty,
+            direction,
+            converter)
+    {
+    }
 
     virtual ~PropertyBinding();
 

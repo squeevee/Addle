@@ -123,14 +123,14 @@ void SizeSelector::setPresenter(const PresenterAssignment<ISizeSelectionPresente
     {
         _customPxSpinBox->setEnabled(false);
         _customPxBinding = new PropertyBinding(_customPxSpinBox, "value",
-            qobject_interface_cast(_presenter.data()), "size",
+            _presenter.data(), "size",
             PropertyBinding::ReadOnly);
     }
     else
     {
         _customPxSpinBox->setEnabled(true);
         _customPxBinding = new PropertyBinding(_customPxSpinBox, "value",
-            qobject_interface_cast(_presenter.data()), "size",
+            _presenter.data(), "size",
             PropertyBinding::ReadWrite);
     }
 

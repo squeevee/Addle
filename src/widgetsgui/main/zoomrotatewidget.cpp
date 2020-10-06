@@ -27,7 +27,7 @@ ZoomRotateWidget::ZoomRotateWidget(IViewPortPresenter& presenter, QWidget* paren
     new PropertyBinding(
         this,
         WidgetProperties::enabled,
-        qobject_interface_cast(&_presenter),
+        &_presenter,
         IViewPortPresenter::Meta::Properties::canNavigate
     );
 
@@ -40,7 +40,7 @@ ZoomRotateWidget::ZoomRotateWidget(IViewPortPresenter& presenter, QWidget* paren
     new PropertyBinding(
         _action_zoomIn,
         WidgetProperties::enabled,
-        qobject_interface_cast(&_presenter), 
+        &_presenter, 
         IViewPortPresenter::Meta::Properties::canZoomIn,
         PropertyBinding::ReadOnly
     );
@@ -54,7 +54,7 @@ ZoomRotateWidget::ZoomRotateWidget(IViewPortPresenter& presenter, QWidget* paren
     new PropertyBinding(
         _action_zoomOut,
         WidgetProperties::enabled,
-        qobject_interface_cast(&_presenter), 
+        &_presenter, 
         IViewPortPresenter::Meta::Properties::canZoomOut,
         PropertyBinding::ReadOnly
     );
@@ -91,7 +91,7 @@ ZoomRotateWidget::ZoomRotateWidget(IViewPortPresenter& presenter, QWidget* paren
     new PropertyBinding(
         _slider_zoom,
         IViewPortPresenter::Meta::Properties::zoom,
-        qobject_interface_cast(&_presenter),
+        &_presenter,
         ZoomSlider::ZOOM_PROPERTY_NAME
     );
 
@@ -104,7 +104,7 @@ ZoomRotateWidget::ZoomRotateWidget(IViewPortPresenter& presenter, QWidget* paren
     new PropertyBinding(
         _spinBox_zoomPercent,
         WidgetProperties::value,
-        qobject_interface_cast(&_presenter),
+        &_presenter,
         IViewPortPresenter::Meta::Properties::zoom,
         PropertyBinding::ReadWrite,
         BindingConverter::scale(100)

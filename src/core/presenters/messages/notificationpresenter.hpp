@@ -21,6 +21,8 @@
 
 namespace Addle {
 
+class NotificationPresenterBuilder;
+    
 class ADDLE_CORE_EXPORT NotificationPresenter : public QObject, public INotificationPresenter
 {
     Q_OBJECT
@@ -29,12 +31,7 @@ class ADDLE_CORE_EXPORT NotificationPresenter : public QObject, public INotifica
 public:
     virtual ~NotificationPresenter() = default;
 
-    void initialize(
-        QString text,
-        Tone tone,
-        bool isUrgent = false,
-        IMessageContext* context = nullptr,
-        QSharedPointer<AddleException> exception = nullptr);
+    void initialize(const NotificationPresenterBuilder& builder);
 
     IMessageContext* context() const { ASSERT_INIT(); return _context; }
 

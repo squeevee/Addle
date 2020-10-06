@@ -284,7 +284,7 @@ void ApplicationService::startGraphicalApplication()
         //presenter->loadDocument(_startingUrl);
     }
 
-    presenter->view().show();
+    presenter->view().open();
 }
 
 void ApplicationService::quitting()
@@ -300,7 +300,7 @@ void ApplicationService::quitting()
 void ApplicationService::registerMainEditorPresenter(IMainEditorPresenter* presenter)
 {
     _mainEditorPresenters.insert(presenter);
-    _mainEditorPresenters_byQObjects[qobject_interface_cast(presenter)] = presenter;
+    _mainEditorPresenters_byQObjects[qobject_interface_cast<QObject*>(presenter)] = presenter;
     connect_interface(presenter, SIGNAL(destroyed()), this, SLOT(onMainEditorPresenterDestroyed()));
 }
 

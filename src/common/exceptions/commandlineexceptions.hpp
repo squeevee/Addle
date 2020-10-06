@@ -72,6 +72,7 @@ public:
     {
     }
 };
+
 } // namespace Addle
 
 #endif // COMMANDLINEEXCEPTIONS_HPP

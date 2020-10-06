@@ -9,8 +9,11 @@
 #ifndef HELPERCALLBACK_HPP
 #define HELPERCALLBACK_HPP
 
-#include <QList>
+#include <utility>
 #include <functional>
+
+#include <QList>
+
 namespace Addle {
 
 /**

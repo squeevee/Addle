@@ -178,7 +178,7 @@ void MainEditorPresenter::newDocument()
         {
             IMainEditorPresenter* newPresenter = ServiceLocator::make<IMainEditorPresenter>(_mode);
             newPresenter->newDocument();
-            newPresenter->view().show();
+            newPresenter->view().open();
         }
         else
         {
@@ -204,6 +204,7 @@ void MainEditorPresenter::loadDocument(QSharedPointer<FileRequest> request)
                 cpplinq::from(QStandardPaths::standardLocations(QStandardPaths::PicturesLocation))
             >>  cpplinq::first_or_default()
         );
+        request->setMessageContext(_messageContext.get());
 //         request->setUrl(
 //             QUrl::fromLocalFile(QStandardPaths::standardLocations(QStandardPaths::PicturesLocation).constFirst())
 //         );

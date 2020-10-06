@@ -32,6 +32,7 @@ set (
     presenters/colorselectionpresenter.cpp
     presenters/palettepresenter.cpp
     presenters/messages/notificationpresenter.cpp
+    presenters/messages/fileissuepresenter.cpp
     presenters/helpers/brushiconhelper.cpp
     presenters/helpers/loadhelper.cpp
     presenters/helpers/savetask.cpp

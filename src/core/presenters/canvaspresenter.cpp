@@ -51,7 +51,7 @@ bool CanvasPresenter::event(QEvent* e)
         if (e->type() == CanvasMouseEvent::type())
         {
             QSharedPointer<IToolPresenter> tool = _mainEditorPresenter->currentToolPresenter();
-            if (tool && qobject_interface_cast(tool)->event(e) && e->isAccepted())
+            if (tool && sendInterfaceEvent(tool, e) && e->isAccepted())
                 return true;
 
             // handle as the canvas

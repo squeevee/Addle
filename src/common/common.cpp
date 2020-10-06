@@ -6,12 +6,12 @@
  * MIT License. See "LICENSE" for full details.
  */
 
+#include <boost/mpl/for_each.hpp>
 #include <QString>
 #include <QByteArray>
 
 #include "servicelocator.hpp"
 #include "globals.hpp"
-
 
 #include "idtypes/addleid.hpp"
 #include "idtypes/brushengineid.hpp"
@@ -52,6 +52,8 @@
 
 namespace Addle {
 
+///@cond FALSE
+    
 #define DEFINE_STATIC_ID_METADATA_CUSTOM(x, DataType, ...) \
 const QSharedPointer<const AddleId::BaseMetaData> GET_STATIC_ID_METADATA(x)::_metaData \
     = QSharedPointer<const AddleId::BaseMetaData>(new DataType( \
@@ -66,10 +68,8 @@ const QSharedPointer<const AddleId::BaseMetaData> GET_STATIC_ID_METADATA(x)::_me
     ::qMetaTypeId<std::remove_const<decltype(x)>::type>(), \
     QUuid() \
 ));
-#define STATIC_ID_METADATA_ENTRY(x) { x, GET_STATIC_ID_METADATA(x)::_metaData }
 
 // Static ID metadata definitions
-///@cond FALSE
 
 DEFINE_STATIC_ID_METADATA(Modules::Core)
 DEFINE_STATIC_ID_METADATA(Modules::WidgetsGui)
@@ -98,16 +98,17 @@ DEFINE_STATIC_ID_METADATA_CUSTOM(CoreFormats::JPEG, DocumentFormatId::MetaData,
                         QStringLiteral("jfif"),
                         QStringLiteral("jif")
                     },          
-    /*file sig:*/   QByteArrayLiteral("\xFF\xD8\xFF")
+    /*file sig:*/   { QByteArrayLiteral("\xFF\xD8\xFF") }
 )
 
 DEFINE_STATIC_ID_METADATA_CUSTOM(CoreFormats::GIF, DocumentFormatId::MetaData,
                     QUuid(),
     /*mime type:*/  QStringLiteral("image/gif"),
-    /*file ext:*/   QStringLiteral("gif"),
-    /*file sig:*/   QByteArrayLiteral("GIF8")
-                        // technically it's GIF87a or GIF89a
-                        // TODO: support multiple signatures per format ?
+    /*file ext:*/   { QStringLiteral("gif") },
+    /*file sig:*/   QByteArrayList({ 
+                        QByteArrayLiteral("GIF87a"),
+                        QByteArrayLiteral("GIF89a")
+                    })
 )
 
 DEFINE_STATIC_ID_METADATA_CUSTOM(CoreFormats::WebP, DocumentFormatId::MetaData,
@@ -120,9 +121,7 @@ DEFINE_STATIC_ID_METADATA_CUSTOM(CoreFormats::WebP, DocumentFormatId::MetaData,
 DEFINE_STATIC_ID_METADATA_CUSTOM(CoreFormats::ORA, DocumentFormatId::MetaData,
                     QUuid(),
     /*mime type:*/  QStringLiteral("image/openraster"),
-    /*file ext:*/   QStringLiteral("ora"),
-    /*file sig:*/   QByteArray()
-                        // TODO: file signatures are optional
+    /*file ext:*/   QStringLiteral("ora")
 )
 
 DEFINE_STATIC_ID_METADATA(CorePalettes::BasicPalette)
@@ -138,44 +137,19 @@ DEFINE_STATIC_ID_METADATA(CoreTools::Eyedrop)
 DEFINE_STATIC_ID_METADATA(CoreTools::Navigate)
 DEFINE_STATIC_ID_METADATA(CoreTools::Measure)
 
-///@endcond
-
-// Dynamic ID metadata definition
-
-QHash<AddleId, QSharedPointer<const AddleId::BaseMetaData>> AddleId::_dynamicMetaData = {
-    STATIC_ID_METADATA_ENTRY(Modules::Core),
-    STATIC_ID_METADATA_ENTRY(Modules::WidgetsGui),
-    
-    STATIC_ID_METADATA_ENTRY(CoreBrushEngines::PathEngine),
-    STATIC_ID_METADATA_ENTRY(CoreBrushEngines::RasterEngine),
-
-    STATIC_ID_METADATA_ENTRY(CoreBrushes::BasicBrush),
-    STATIC_ID_METADATA_ENTRY(CoreBrushes::SoftBrush),
-    STATIC_ID_METADATA_ENTRY(CoreBrushes::BasicEraser),
-
-    STATIC_ID_METADATA_ENTRY(CoreFormats::PNG),
-    STATIC_ID_METADATA_ENTRY(CoreFormats::JPEG),
-    STATIC_ID_METADATA_ENTRY(CoreFormats::GIF),
-    STATIC_ID_METADATA_ENTRY(CoreFormats::WebP),
-    STATIC_ID_METADATA_ENTRY(CoreFormats::ORA),
-
-    STATIC_ID_METADATA_ENTRY(CorePalettes::BasicPalette),
-
-    STATIC_ID_METADATA_ENTRY(CoreTools::Select),
-    STATIC_ID_METADATA_ENTRY(CoreTools::Brush),
-    STATIC_ID_METADATA_ENTRY(CoreTools::Eraser),
-    STATIC_ID_METADATA_ENTRY(CoreTools::Fill),
-    STATIC_ID_METADATA_ENTRY(CoreTools::Text),
-    STATIC_ID_METADATA_ENTRY(CoreTools::Shapes),
-    STATIC_ID_METADATA_ENTRY(CoreTools::Stickers),
-    STATIC_ID_METADATA_ENTRY(CoreTools::Eyedrop),
-    STATIC_ID_METADATA_ENTRY(CoreTools::Navigate),
-    STATIC_ID_METADATA_ENTRY(CoreTools::Measure)
-};
-
 #undef DEFINE_STATIC_METADATA_CUSTOM
 #undef DEFINE_STATIC_METADATA
-#undef STATIC_ID_METADATA_ENTRY
+
+///@endcond
+
+AddleId::metaData_t AddleId::_dynamicMetaData = AddleId::MetaDataBuilder()
+    .reserve(200)
+    .initFor<CoreBrushEngines::all_brush_engines>()
+    .initFor<CoreBrushes::all_brushes>()
+    .initFor<CoreBrushes::all_erasers>()
+    .initFor<CoreFormats::all_formats>()
+    .initFor<CorePalettes::all_palettes>()
+    .initFor<CoreTools::all_tools>();
 
 QHash<int, QSet<AddleId>> IdInfo::_idsByType = QHash<int, QSet<AddleId>>();
 
@@ -184,13 +158,13 @@ int CanvasMouseEvent::_type = QEvent::User;
 const QColor DefaultBackgroundColor = Qt::white;
 
 const ColorInfo GlobalColorInfo::Black = ColorInfo(
-                //: Name of the color black (#000000)
-    Qt::black,  QT_TRID_NOOP("global-color-names.black")
+                        //: Name of the color black (#000000)
+    Qt::black,          QT_TRID_NOOP("global-color-names.black")
 );
 
 const ColorInfo GlobalColorInfo::White = ColorInfo(
-                //: Name of the color white (#FFFFFF)
-    Qt::white,  QT_TRID_NOOP("global-color-names.white")
+                        //: Name of the color white (#FFFFFF)
+    Qt::white,          QT_TRID_NOOP("global-color-names.white")
 );
 
 const ColorInfo GlobalColorInfo::Transparent = ColorInfo(
@@ -199,9 +173,9 @@ const ColorInfo GlobalColorInfo::Transparent = ColorInfo(
 );
 
 const QHash<QRgb, ColorInfo> GlobalColorInfo::ByRGB = {
-    { QColor(Qt::black).rgba(), GlobalColorInfo::Black },
-    { QColor(Qt::white).rgba(), GlobalColorInfo::White },
-    { QColor(Qt::transparent).rgba(), GlobalColorInfo::Transparent }
+    { QColor(Qt::black).rgba(),         GlobalColorInfo::Black },
+    { QColor(Qt::white).rgba(),         GlobalColorInfo::White },
+    { QColor(Qt::transparent).rgba(),   GlobalColorInfo::Transparent }
 };
 
 
@@ -212,8 +186,7 @@ const QHash<QRgb, ColorInfo> GlobalColorInfo::ByRGB = {
 // can assign metadata if desired.
 
 // The debug implementation of `dynamic_qtTrId()` will also check against this
-// set and warn about requests for ones not listed here -- so we can ensure
-// thorough l10ns.
+// set and warn about requests for ones not listed here.
 
 const QSet<QByteArray> _DYNAMIC_TRIDS_REGISTRY = {
 

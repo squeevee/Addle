@@ -15,6 +15,7 @@
 #include "filedialoghelper.hpp"
 #include "utils.hpp"
 
+#include "utilities/collatingstring.hpp"
 #include "utilities/idinfo.hpp"
 
 using namespace Addle;
@@ -146,8 +147,7 @@ QStringList FileDialogHelper::makeNameFilters()
         >>  cpplinq::thenby_ascending(
                 [] (GenericFormatId format) -> CollatingString {
                     return format.name();
-                })
-        )
+                }))
     {
         QStringList filterExtensions = 
                 cpplinq::from(format.fileExtensions())

@@ -121,7 +121,7 @@ public:
 
 signals:
     void topSelectedLayerChanged(QSharedPointer<ILayerPresenter>);
-    void documentPresenterChanged(QSharedPointer<IDocumentPresenter> documentPresenter);
+    void documentPresenterChanged(QSharedPointer<Addle::IDocumentPresenter> documentPresenter);
     void isEmptyChanged(bool);
 
 public slots:
@@ -151,9 +151,6 @@ public slots:
 
 signals: 
     void undoStateChanged();
-
-signals:
-    void messagePosted(QSharedPointer<IMessagePresenter> message);
 
 private:
     void onLoadDocumentCompleted();

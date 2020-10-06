@@ -24,17 +24,10 @@ public:
         {
             rebuildCache();
         }
-        
-        //alright the *next thing* is linq: this is embarrassing
-        
-        QSet<IdType> result;
-        
-        for (AddleId id : noDetach(_idsByType.value(qMetaTypeId<IdType>())))
-        {
-            result.insert(static_cast<IdType>(id));
-        }
-        
-        return result;
+
+        return cpplinq::from(_idsByType.value(qMetaTypeId<IdType>()))
+            >> cpplinq::cast<IdType>()
+            >> cpplinq::to_QSet();
     }
     
     template<class Interface>

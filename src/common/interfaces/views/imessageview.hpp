@@ -1,24 +1,15 @@
 #ifndef IMESSAGEVIEW_HPP
 #define IMESSAGEVIEW_HPP
 
-#include "itoplevelview.hpp"
+#include "interfaces/iamqobject.hpp"
+#include "interfaces/traits.hpp"
 
-#include "interfaces/presenters/messages/imessagepresenter.hpp"
-#include "interfaces/presenters/messages/inotificationpresenter.hpp"
-#include "interfaces/presenters/messages/ifileissuepresenter.hpp"
+#include "iviewfor.hpp"
 
 namespace Addle {
 
 class IMessagePresenter;
-class IMessageView : public ITopLevelView
-{
-public:
-    virtual ~IMessageView() = default;
-
-    virtual void initialize(QSharedPointer<IMessagePresenter> presenter) = 0;
-    
-    virtual QSharedPointer<IMessagePresenter> presenter() const = 0;
-};
+typedef IViewForShared<IMessagePresenter> IMessageView;
 
 DECL_MAKEABLE(IMessageView);
 

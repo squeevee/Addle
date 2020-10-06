@@ -49,7 +49,7 @@ ColorSelector::ColorSelector(IColorSelectionPresenter& presenter, QWidget* paren
     new PropertyBinding(
         _indicator->_well1,
         "info",
-        qobject_interface_cast(&_presenter),
+        &_presenter,
         IColorSelectionPresenter::Meta::Properties::color1,
         PropertyBinding::ReadOnly
     );
@@ -57,7 +57,7 @@ ColorSelector::ColorSelector(IColorSelectionPresenter& presenter, QWidget* paren
     new PropertyBinding(
         _indicator->_well2,
         "info",
-        qobject_interface_cast(&_presenter),
+        &_presenter,
         IColorSelectionPresenter::Meta::Properties::color2,
         PropertyBinding::ReadOnly
     );

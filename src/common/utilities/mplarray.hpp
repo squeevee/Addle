@@ -10,6 +10,7 @@
 #include <boost/mpl/contains.hpp>
 #include <boost/mpl/find.hpp>
 #include <boost/mpl/for_each.hpp>
+#include <boost/mpl/is_sequence.hpp>
 
 #include "utilities/errors.hpp"
 
@@ -19,37 +20,60 @@ namespace Addle {
 // https://stackoverflow.com/questions/36453874/is-it-possible-to-loop-over-template-parameters
     
 template <typename T>
-struct _mpl_map_wrapper {};
+struct _mpl_mapped_array_wrapper {};
 
 template <typename T>
-struct _mpl_map_default_initializer
+struct _mpl_mapped_array_default_initializer
 {
-   template<typename Key>
-   inline static T make()
-   {
-       return T();
-   }
+   template<typename Key> inline T operator()() const { return T(); }
 };
 
 /**
  * @class 
- * @brief Maps values of type TValue to types in KeySequence (also accessible by
- * the int position of a given key type in KeySequence).
+ * @brief An array of TValue mapped to member types of KeySequence by index
+ * 
+ * @tparam KeySequence 
+ * MPL-compatible forward sequence of types
  * 
  * @tparam Initializer 
- * Must be a class with a static template function make() with return type TValue.
+ * Optional. Must be a class with a operator() taking a type parameter Key that
+ * is the current member of KeySequence and returning the TValue value
+ * corresponding to that key.
  */
-template <typename KeySequence, typename TValue, typename Initializer = _mpl_map_default_initializer<TValue>>
-class MPLMap
+template<
+    typename KeySequence,
+    typename TValue,
+    typename ValueInitializer = _mpl_mapped_array_default_initializer<TValue>
+>
+class MPLMappedArray
 {
+    static_assert(
+        boost::mpl::is_sequence<KeySequence>::type::value,
+        "KeySequence must be an MPL-compatible forward sequence"
+    );
 public:
     static constexpr std::size_t size = boost::mpl::size<KeySequence>::type::value;
     
-    MPLMap()
+    inline MPLMappedArray()
+    {
+        ValueInitializer valueInitializer;
+        boost::mpl::for_each<
+            KeySequence, _mpl_mapped_array_wrapper<boost::mpl::placeholders::_1>
+        >(functor_init(_data, valueInitializer));
+    }
+    
+    inline MPLMappedArray(ValueInitializer& valueInitializer)
     {
         boost::mpl::for_each<
-            KeySequence, _mpl_map_wrapper<boost::mpl::placeholders::_1>
-        >(visitor_init(_data));
+            KeySequence, _mpl_mapped_array_wrapper<boost::mpl::placeholders::_1>
+        >(functor_init(_data, valueInitializer));
+    }
+    
+    inline MPLMappedArray(const ValueInitializer& valueInitializer)
+    {
+        boost::mpl::for_each<
+            KeySequence, _mpl_mapped_array_wrapper<boost::mpl::placeholders::_1>
+        >(functor_init(_data, valueInitializer));
     }
     
     /// @note KeySequence must be random-accessible.
@@ -145,23 +169,31 @@ public:
         
         return _data[index];
     }
+    
+    inline TValue* begin() { return _data; }
+    inline const TValue* begin() const { return _data; }
+    
+    inline TValue* end() { return (TValue*)_data + size; }
+    inline const TValue* end() const { return (const TValue*)_data + size; }
+    
 private:
-    struct visitor_init
+    struct functor_init
     {
-        visitor_init(TValue (&data_)[size])
-            : data(data_)
+        functor_init(TValue (&data_)[size], ValueInitializer& init_)
+            : data(data_), init(init_)
         {
         }
         
         template<typename Key>
-        void operator()(_mpl_map_wrapper<Key>) const
+        void operator()(_mpl_mapped_array_wrapper<Key>) const
         {
             
-            data[index++] = Initializer::template make<Key>();
+            data[index++] = init.template operator()<Key>();
         }
         
         mutable int index = 0;
         TValue (&data)[size];
+        ValueInitializer& init;
     };
     
     TValue _data[size];
@@ -169,12 +201,30 @@ private:
 
 /**
  * @class
- * @brief MPLMap that infers its value type from the provided Initializer.
+ * @brief MPLMappedArray that infers its value type from the provided Initializer.
  */
 template<typename KeySequence, typename Initializer>
-class MPLAutoMap : public MPLMap<decltype(Initializer::template make<boost::mpl::placeholders::_1>()), KeySequence, Initializer>
+class MPLAutoMappedArray : public MPLMappedArray<
+    decltype(
+        std::declval<Initializer>()
+            .template operator()<boost::mpl::placeholders::_1>()
+    ), KeySequence, Initializer>
 {
-    typedef decltype(Initializer::template make<boost::mpl::placeholders::_1>()) type;
+public:
+    typedef decltype(
+        std::declval<Initializer>()
+            .template operator()<boost::mpl::placeholders::_1>()
+    ) type;
+    
+    MPLAutoMappedArray() = default;
+    MPLAutoMappedArray(Initializer& init)
+        : MPLMappedArray<type, KeySequence, Initializer>(init)
+    {
+    }
+    MPLAutoMappedArray(const Initializer& init)
+        : MPLMappedArray<type, KeySequence, Initializer>(init)
+    {
+    }
 };
 
 } // namespace Addle;

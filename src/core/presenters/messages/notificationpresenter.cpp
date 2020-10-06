@@ -8,24 +8,26 @@
 
 #include "notificationpresenter.hpp"
 
+#include "utilities/presenter/messagebuilders.hpp"
+
 #include "utils.hpp"
 
 using namespace Addle;
 
-void NotificationPresenter::initialize(
-    QString text,
-    Tone tone,
-    bool isUrgent,
-    IMessageContext* context,
-    QSharedPointer<AddleException> exception)
+void NotificationPresenter::initialize(const NotificationPresenterBuilder& builder)
 {
     const Initializer init(_initHelper);
 
-    _text = text;
-    _tone = tone;
-    _isUrgent = isUrgent;
-    _context = context;
-    _exception = exception;
+    _text = builder.textHint();
+    
+    ADDLE_ASSERT(builder.toneHint());
+    _tone = *builder.toneHint();
+    
+    ADDLE_ASSERT(builder.isUrgentHint());
+    _isUrgent = *builder.isUrgentHint();
+    
+    _context = builder.context();
+    _exception = builder.exception();
     
 #ifdef ADDLE_DEBUG
     if (_exception)

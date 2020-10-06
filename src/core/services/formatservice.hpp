@@ -19,7 +19,7 @@
 #include "interfaces/services/iformatservice.hpp"
 
 #include "idtypes/formatid.hpp"
-#include "utilities/mplmap.hpp"
+#include "utilities/mplarray.hpp"
 
 namespace Addle {
 
@@ -29,7 +29,9 @@ public:
     virtual ~FormatService() = default;
 
 protected:
-    GenericFormatModel importModel_p(QIODevice& device, const GenericImportExportInfo& info);
+    GenericFormatModel importModel_p(QIODevice& device, 
+        const ImportExportInfo& info,
+        GenericFormatModelTypeInfo type = GenericFormatModelTypeInfo());
 
 private:
     struct visitor_setupFormatType
@@ -64,7 +66,7 @@ private:
     QHash<QString, GenericFormatId> _formats_byMimeType;
     QHash<QByteArray, GenericFormatId> _formats_bySignature;
     
-    MPLMap<GenericFormatModelTypeInfo::types, QSet<GenericFormatId>> _formats_byModelType;
+    MPLMappedArray<GenericFormatModelTypeInfo::types, QSet<GenericFormatId>> _formats_byModelType;
     
     GenericFormatId inferFormatFromSignature(QIODevice& device);
 

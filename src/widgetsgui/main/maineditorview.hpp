@@ -21,13 +21,17 @@
 
 #include <memory>
 
+#include "helpers/toplevelviewhelper.hpp"
+
 #include "utilities/optiongroup.hpp"
 
 #include "interfaces/views/imaineditorview.hpp"
 #include "interfaces/presenters/imaineditorpresenter.hpp"
 
+#include "utils.hpp"
 #include "utilities/initializehelper.hpp"
 #include "utilities/qobject.hpp"
+#include "utilities/view/messageviewhelper.hpp"
 
 namespace Addle {
 
@@ -50,24 +54,38 @@ class ADDLE_WIDGETSGUI_EXPORT MainEditorView : public QMainWindow, public IMainE
     Q_INTERFACES(Addle::IMainEditorView Addle::ITopLevelView)
     IAMQOBJECT_IMPL    
 public:
+    MainEditorView()
+        : _tlvHelper(this, std::bind(&MainEditorView::setupUi, this))
+    {
+        _tlvHelper.onOpened.bind(&MainEditorView::tlv_opened, this);
+        _tlvHelper.onClosed.bind(&MainEditorView::tlv_closed, this);
+        
+        _messageViewHelper.onUrgentViewMade.bind(&MainEditorView::onUrgentMessageMade, this);
+    }
     virtual ~MainEditorView() = default;
 
-    void initialize(IMainEditorPresenter& presenter);
-    IMainEditorPresenter& presenter() const { ASSERT_INIT(); return *_presenter; }
+    void initialize(IMainEditorPresenter& presenter) override;
+    IMainEditorPresenter& presenter() const override{ ASSERT_INIT(); return *_presenter; }
     
 public slots:
-    void tlv_show();
-    void tlv_close();
+    void tlv_open() override { try { ASSERT_INIT(); _tlvHelper.open(); } ADDLE_SLOT_CATCH }
+    void tlv_close() override { try { ASSERT_INIT(); _tlvHelper.close(); } ADDLE_SLOT_CATCH } 
 
 signals:
-    void tlv_shown();
-    void tlv_closed();
+    void tlv_opened() override;
+    void tlv_closed() override;
     
 private slots:
     void onAction_open();
     void onAction_save();
 
-    void onMessagePosted(QSharedPointer<IMessagePresenter> message);
+    void onMessagePosted(QSharedPointer<Addle::IMessagePresenter> message)
+    {
+        try {
+            ASSERT_INIT();
+            _messageViewHelper.onMessagePosted(message);
+        } ADDLE_SLOT_CATCH
+    }
 
     void onUndoStateChanged();
 
@@ -76,13 +94,14 @@ private slots:
 
     void onPresenterEmptyChanged(bool);
 
-    void onDocumentChanged(QSharedPointer<IDocumentPresenter> document);
+    void onDocumentChanged(QSharedPointer<Addle::IDocumentPresenter> document);
 
 protected:
-    void closeEvent(QCloseEvent* event);
+    void closeEvent(QCloseEvent* event) override;
 
 private:
     void setupUi();
+    void onUrgentMessageMade(ITopLevelView* view);
     
     IMainEditorPresenter* _presenter = nullptr;
     
@@ -142,7 +161,11 @@ private:
     ColorSelector* _colorSelector;
 
     FileDialogHelper* _fileDialogHelper;
-
+    
+    TopLevelViewHelper _tlvHelper;
+    
+    MessageViewHelper _messageViewHelper;
+    
     bool _uiIsSetup = false;
 
     InitializeHelper _initHelper;

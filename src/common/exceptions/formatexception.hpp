@@ -15,7 +15,6 @@
 #include "addleexception.hpp"
 
 #include "utilities/format/importexportinfo.hpp"
-#include "utilities/format/genericformat.hpp"
 
 namespace Addle {
 
@@ -32,7 +31,7 @@ public:
     };
     Q_ENUM(Why)
 
-    FormatException(Why why, GenericFormatId format, const GenericImportExportInfo& importExportInfo = GenericImportExportInfo())
+    FormatException(Why why, GenericFormatId format, const ImportExportInfo& importExportInfo = ImportExportInfo())
         : AddleException(
 #ifdef ADDLE_DEBUG
         //% "A format exception occurred:\n"
@@ -54,11 +53,11 @@ public:
 
     Why why() const { return _why; }
 
-    const GenericImportExportInfo& importExportInfo() const { return _importExportInfo; }
+    const ImportExportInfo& importExportInfo() const { return _importExportInfo; }
     GenericFormatId formatId() const { return _format; }
 
 private:
-    const GenericImportExportInfo _importExportInfo;
+    const ImportExportInfo _importExportInfo;
     const GenericFormatId _format;
     const Why _why;
 };

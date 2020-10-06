@@ -27,12 +27,14 @@ set (
     main/viewport.cpp
     main/zoomrotatewidget.cpp
     main/messages/notificationdialog.cpp
+    main/messages/fileissuedialog.cpp
     main/tooloptionsbars/brushtooloptionsbar.cpp
     main/tooloptionsbars/navigatetooloptionsbar.cpp
     main/tooloptionsbars/tooloptionbarbase.cpp
     utilities/colorwell.cpp
     utilities/guiutils.cpp
     utilities/graphicsmouseeventblocker.cpp
+    utilities/iconlabel.cpp
     utilities/optiongroup.cpp
     utilities/popupbutton.cpp
     utilities/filedialoghelper.cpp

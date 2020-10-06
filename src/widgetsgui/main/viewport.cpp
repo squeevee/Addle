@@ -71,9 +71,9 @@ ViewPort::ViewPort(IViewPortPresenter& presenter)
 
     connect_interface(
         _presenter.mainEditorPresenter(),
-        SIGNAL(documentPresenterChanged(QSharedPointer<IDocumentPresenter>)),
+        SIGNAL(documentPresenterChanged(QSharedPointer<Addle::IDocumentPresenter>)),
         this,
-        SLOT(setDocument(QSharedPointer<IDocumentPresenter>))
+        SLOT(setDocument(QSharedPointer<Addle::IDocumentPresenter>))
     );
 
     setDocument(_presenter.mainEditorPresenter()->documentPresenter());

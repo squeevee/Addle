@@ -1,14 +1,16 @@
-#ifndef AddleId_HPP
-#define AddleId_HPP
-
-#include "compat.hpp"
 /**
  * Addle source code
  * @file
  * @copyright Copyright 2020 Eleanor Hawk
- * @copyright Modification and distribution permitted under the terms of the
- * MIT License. See "LICENSE" for full details.
+ * Modification and distribution permitted under the terms of the MIT License. 
+ * See "LICENSE" for full details.
  */
+#ifndef ADDLEID_HPP
+#define ADDLEID_HPP
+
+#include "compat.hpp"
+
+#include <boost/mpl/for_each.hpp>
 
 #include <QSharedPointer>
 
@@ -27,6 +29,14 @@ constexpr QUuid ADDLE_NAMESPACE_UUID
 
 template<typename IdType, quintptr Id>
 class StaticIdMetaData;
+
+// A general-purpose static wrapper, mainly for including static AddleIds in MPL
+// sequences.
+template<typename IdType, quintptr Id>
+struct StaticIdWrapper
+{
+    static constexpr IdType value = IdType(Id);
+};
 
 /**
  * @class AddleId
@@ -106,11 +116,12 @@ protected:
 private:
     quintptr _value;
 
-    static QHash<AddleId, QSharedPointer<const BaseMetaData>> _dynamicMetaData;
+    typedef QHash<AddleId, QSharedPointer<const BaseMetaData>> metaData_t;
+    static metaData_t _dynamicMetaData;
 
     template<typename IdType, quintptr Id>
     friend class StaticIdMetaData;
-
+    
     inline QVariant asQVariant_p() const
     {
         if (isValid())
@@ -119,10 +130,49 @@ private:
             return QVariant::fromValue(*this);
     }
 
+    // Used in common.cpp to initialize _dynamicMetaData for known static IDs.
+    struct MetaDataBuilder
+    {
+        inline MetaDataBuilder& reserve(int size)
+        {
+            _metaData.reserve(size);
+            return *this;
+        }
+        
+        template<typename Sequence>
+        inline MetaDataBuilder& initFor()
+        {
+            boost::mpl::for_each<Sequence>(functor_initializeMetaData(_metaData));
+            return *this;
+        }
+        
+        inline operator AddleId::metaData_t() const { return _metaData; }
+        
+        struct functor_initializeMetaData
+        {
+            inline functor_initializeMetaData(metaData_t& metaData_)
+                : metaData(metaData_)
+            {
+            }
+            
+            template<typename IdType, quintptr Id>
+            inline void operator()(StaticIdWrapper<IdType, Id>) const
+            {
+                metaData[static_cast<IdType>(Id)] = StaticIdMetaData<IdType, Id>::_metaData;
+            }
+            
+            metaData_t& metaData;
+        };
+        
+    private:
+        AddleId::metaData_t _metaData;
+    };
+    
     friend constexpr uint qHash(const AddleId& id, uint seed = 0)
     {
         return ::qHash(id._value, seed);
     }
+    
     friend class IdInfo;
 };
 
@@ -138,7 +188,7 @@ public: \
 namespace Addle { inline T::T(const AddleId& other) : AddleId(!other.isNull() && other.metaTypeId() == qMetaTypeId<T>() ? (quintptr)other : 0) {} }
 
 #define DECLARE_STATIC_ID_METADATA(id, key_) \
-template<> class StaticIdMetaData<std::remove_const<decltype(id)>::type, static_cast<quintptr>(id)> { \
+template<> class StaticIdMetaData<std::remove_cv<decltype(id)>::type, static_cast<quintptr>(id)> { \
 public: \
     static constexpr const char* key = key_; \
 private: \
@@ -147,11 +197,14 @@ private: \
 };
 
 #define GET_STATIC_ID_METADATA(id) \
-StaticIdMetaData<std::remove_const<decltype(id)>::type, static_cast<quintptr>(id)>
+StaticIdMetaData<std::remove_cv<decltype(id)>::type, static_cast<quintptr>(id)>
+
+#define STATIC_ID_WRAPPER(id) \
+StaticIdWrapper<std::remove_cv<decltype(id)>::type, static_cast<quintptr>(id)>
 
 } // namespace Addle
 
 Q_DECLARE_METATYPE(Addle::AddleId);
 Q_DECLARE_TYPEINFO(Addle::AddleId, Q_PRIMITIVE_TYPE);
 
-#endif // AddleId_HPP
+#endif // ADDLEID_HPP

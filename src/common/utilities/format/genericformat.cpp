@@ -7,16 +7,19 @@
  */
 
 #include "genericformat.hpp"
-#include "utilities/errors.hpp"
+
+#include <boost/mpl/for_each.hpp>
 
 #include "interfaces/models/idocument.hpp"
 #include "interfaces/models/ibrush.hpp"
 #include "interfaces/models/ipalette.hpp"
 #include "interfaces/format/iformatdriver.hpp"
 
-#include "servicelocator.hpp"
 #include "utilities/collections.hpp"
+#include "utilities/errors.hpp"
 #include "utilities/idinfo.hpp"
+
+#include "servicelocator.hpp"
 
 using namespace Addle;
 
@@ -71,22 +74,22 @@ struct visitor_importModel
 {
     typedef GenericFormatModel result_type;
 
-    visitor_importModel(QIODevice& device_, const GenericImportExportInfo& genericInfo_)
-        : device(device_), genericInfo(genericInfo_)
+    visitor_importModel(QIODevice& device_, const ImportExportInfo& info_)
+        : device(device_), info(info_)
     {
     }
 
     template<typename ModelType>
     GenericFormatModel operator()(IFormatDriver<ModelType>* driver) const
     {
-        return driver->importModel(device, genericInfo.get<ModelType>());
+        return driver->importModel(device, info);
     }
 
     QIODevice& device;
-    const GenericImportExportInfo& genericInfo;
+    const ImportExportInfo& info;
 };
 
-GenericFormatModel GenericFormatDriver::importModel(QIODevice& device, GenericImportExportInfo info)
+GenericFormatModel GenericFormatDriver::importModel(QIODevice& device, const ImportExportInfo& info)
 {
     return boost::apply_visitor(visitor_importModel(device, info), _value);
 }

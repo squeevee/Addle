@@ -2,12 +2,12 @@
 #define IMESSAGEPRESENTER_HPP
 
 #include <QString>
+#include "interfaces/views/imessageview.hpp"
 #include "interfaces/iamqobject.hpp"
 
 namespace Addle {
 
 class IMessageContext;
-class IMessageView;
 class IMessagePresenter : public virtual IAmQObject
 {
 public:
@@ -34,5 +34,6 @@ public:
 } // namespace Addle
 
 Q_DECLARE_INTERFACE(Addle::IMessagePresenter, "org.addle.IMessagePresenter");
+Q_DECLARE_METATYPE(QSharedPointer<Addle::IMessagePresenter>);
 
 #endif // IMESSAGEPRESENTER_HPP

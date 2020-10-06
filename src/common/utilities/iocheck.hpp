@@ -116,6 +116,9 @@ private:
 
         bool mustBeFile = true;
         bool createPath = false;
+        
+        bool mustExist = false;
+        bool mustNotExist = false;
 
         void validateExistance() const;
         void validatePermissions() const;

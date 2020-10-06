@@ -30,7 +30,7 @@ QtImageFormatDriver::QtImageFormatDriver(DocumentFormatId id)
     _name = QImageReader::imageFormatsForMimeType(mimeType).constFirst();
 }
 
-IDocument* QtImageFormatDriver::importModel(QIODevice& device, const DocumentImportExportInfo& info)
+IDocument* QtImageFormatDriver::importModel(QIODevice& device, const ImportExportInfo& info)
 {
     QImage image;
     image.load(&device, _name);
@@ -50,7 +50,7 @@ IDocument* QtImageFormatDriver::importModel(QIODevice& device, const DocumentImp
 }
 
 
-void QtImageFormatDriver::exportModel(IDocument* model, QIODevice& device, const DocumentImportExportInfo& info)
+void QtImageFormatDriver::exportModel(IDocument* model, QIODevice& device, const ImportExportInfo& info)
 {
 
 }

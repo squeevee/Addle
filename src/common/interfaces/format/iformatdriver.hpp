@@ -36,8 +36,8 @@ public:
 
     virtual FormatId<ModelType> id() const = 0;
 
-    virtual ModelType* importModel(QIODevice& device, const ImportExportInfo<ModelType>& info) = 0;
-    virtual void exportModel(ModelType* model, QIODevice& device, const ImportExportInfo<ModelType>& info) = 0;
+    virtual ModelType* importModel(QIODevice& device, const ImportExportInfo& info) = 0;
+    virtual void exportModel(ModelType* model, QIODevice& device, const ImportExportInfo& info) = 0;
 };
 
 typedef IFormatDriver<IDocument> IDocumentFormatDriver;

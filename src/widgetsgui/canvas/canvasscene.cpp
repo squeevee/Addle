@@ -56,7 +56,7 @@ void CanvasScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
 
     CanvasMouseEvent canvasMouseEvent = graphicsMouseToCanvasMouseEvent(mouseEvent);
     mouseEvent->setAccepted(
-        qobject_interface_cast(&_presenter)->event(&canvasMouseEvent) && canvasMouseEvent.isAccepted()
+        sendInterfaceEvent(&_presenter, &canvasMouseEvent) && canvasMouseEvent.isAccepted()
     );
 }
 
@@ -68,7 +68,7 @@ void CanvasScene::mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent)
 
     CanvasMouseEvent canvasMouseEvent = graphicsMouseToCanvasMouseEvent(mouseEvent);
     mouseEvent->setAccepted(
-        qobject_interface_cast(&_presenter)->event(&canvasMouseEvent) && canvasMouseEvent.isAccepted()
+        sendInterfaceEvent(&_presenter, &canvasMouseEvent) && canvasMouseEvent.isAccepted()
     );
 }
 
@@ -80,7 +80,7 @@ void CanvasScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* mouseEvent)
 
     CanvasMouseEvent canvasMouseEvent = graphicsMouseToCanvasMouseEvent(mouseEvent);
     mouseEvent->setAccepted(
-        qobject_interface_cast(&_presenter)->event(&canvasMouseEvent) && canvasMouseEvent.isAccepted()
+        sendInterfaceEvent(&_presenter, &canvasMouseEvent) && canvasMouseEvent.isAccepted()
     );
 }
 

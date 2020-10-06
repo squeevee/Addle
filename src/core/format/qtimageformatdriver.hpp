@@ -32,8 +32,8 @@ public:
 
     DocumentFormatId id() const { return _id; }
 
-    IDocument* importModel(QIODevice& device, const DocumentImportExportInfo& info);
-    void exportModel(IDocument* model, QIODevice& device, const DocumentImportExportInfo& info);
+    IDocument* importModel(QIODevice& device, const ImportExportInfo& info);
+    void exportModel(IDocument* model, QIODevice& device, const ImportExportInfo& info);
 
     static bool idIsSupported(DocumentFormatId id)
     { 

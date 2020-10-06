@@ -93,7 +93,7 @@ void BrushToolPresenter::initialize(IMainEditorPresenter* owner, Mode mode)
 
     _hoverPreview = std::unique_ptr<HoverPreview>(new HoverPreview(*this));
 
-    connect_interface(_mainEditor, SIGNAL(documentPresenterChanged(QSharedPointer<IDocumentPresenter>)), this, SLOT(onDocumentChanged(QSharedPointer<IDocumentPresenter>)));
+    connect_interface(_mainEditor, SIGNAL(documentPresenterChanged(QSharedPointer<Addle::IDocumentPresenter>)), this, SLOT(onDocumentChanged(QSharedPointer<Addle::IDocumentPresenter>)));
     connect_interface(_canvas, SIGNAL(hasMouseChanged(bool)), this, SLOT(onCanvasHasMouseChanged(bool)));
     connect_interface(_brushSelection.get(), SIGNAL(selectionChanged(QList<AddleId>)), this, SLOT(onBrushSelectionChanged()));
     connect_interface(_viewPort, SIGNAL(zoomChanged(double)), this, SLOT(onViewPortZoomChanged(double)));

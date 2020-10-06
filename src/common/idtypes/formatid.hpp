@@ -20,9 +20,8 @@ class FormatId final : public AddleId
     ID_TYPE_BOILERPLATE(FormatId)
 public:
     inline QString mimeType() const { return isValid() ? static_cast<const MetaData&>(baseMetaData()).mimeType : QString(); }
-    inline QString fileExtension() const { return isValid() ? static_cast<const MetaData&>(baseMetaData()).fileExtension : QString(); }
     inline QStringList fileExtensions() const { return isValid() ? static_cast<const MetaData&>(baseMetaData()).fileExtensions : QStringList(); }
-    inline QByteArray fileSignature() const { return isValid() ? static_cast<const MetaData&>(baseMetaData()).fileSignature : QByteArray(); }
+    inline QByteArrayList fileSignatures() const { return isValid() ? static_cast<const MetaData&>(baseMetaData()).fileSignatures : QByteArrayList(); }
     
     inline QString name() const { return isValid() ? dynamic_qtTrId({ "formats", key(), "name" }) : QString(); }
 
@@ -33,27 +32,24 @@ private:
             QString fileExtension_, QByteArray fileSignature_ = QByteArray())
             : BaseMetaData(key_, metaTypeId_, uuid_),
             mimeType(mimeType_),
-            fileExtension(fileExtension_),
-            fileExtensions({ fileExtension_ }),
-            fileSignature(fileSignature_)
+            fileExtensions(fileExtension_.isEmpty() ? QStringList()     : QStringList({ fileExtension_ })),
+            fileSignatures(fileSignature_.isEmpty() ? QByteArrayList()  : QByteArrayList({fileSignature_}))
         {
         }
         inline MetaData(const char* const key_, int metaTypeId_, QUuid uuid_, QString mimeType_,
-            QStringList fileExtensions_, QByteArray fileSignature_ = QByteArray())
+            QStringList fileExtensions_, QByteArrayList fileSignatures_ = QByteArrayList())
             : BaseMetaData(key_, metaTypeId_, uuid_),
             mimeType(mimeType_),
-            fileExtension(fileExtensions_.constFirst()),
             fileExtensions(fileExtensions_),
-            fileSignature(fileSignature_)
+            fileSignatures(fileSignatures_)
         {
         }
 
         virtual ~MetaData() = default;
 
         QString mimeType;
-        QString fileExtension;
         QStringList fileExtensions;
-        QByteArray fileSignature;
+        QByteArrayList fileSignatures;
     };
 
     template<typename IdType, quintptr id>
@@ -66,9 +62,8 @@ template<> class StaticIdMetaData<std::remove_const<decltype(id)>::type, static_
 public: \
     static constexpr const char* key = key_; \
     static QString mimeType() { return static_cast<const IdType::MetaData&>(*_metaData).mimeType; } \
-    static QString fileExtension() { return static_cast<const IdType::MetaData&>(*_metaData).fileExtension; } \
     static QStringList fileExtensions() { return static_cast<const IdType::MetaData&>(*_metaData).fileExtensions; } \
-    static QByteArray fileSignature() { return static_cast<const IdType::MetaData&>(*_metaData).fileSignature; } \
+    static QByteArrayList fileSignatures() { return static_cast<const IdType::MetaData&>(*_metaData).fileSignatures; } \
 private: \
     static const QSharedPointer<const AddleId::BaseMetaData> _metaData; \
     friend class AddleId; \

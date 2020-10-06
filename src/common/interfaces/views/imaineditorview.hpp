@@ -9,6 +9,7 @@
 #ifndef IMAINEDITORVIEW_HPP
 #define IMAINEDITORVIEW_HPP
 
+#include "iviewfor.hpp"
 #include "itoplevelview.hpp"
 
 #include "interfaces/traits.hpp"
@@ -16,18 +17,15 @@
 namespace Addle {
 
 class IMainEditorPresenter;
-class IMainEditorView : public ITopLevelView
+class IMainEditorView : public IViewFor<IMainEditorPresenter>, public ITopLevelView
 {
 public:
+    typedef IMainEditorPresenter PresenterType;
+    
     virtual ~IMainEditorView() = default;
-
-    virtual void initialize(IMainEditorPresenter& presenter) = 0;
-
-    virtual IMainEditorPresenter& presenter() const = 0;
 };
 
 DECL_MAKEABLE(IMainEditorView)
-
 
 } // namespace Addle
 

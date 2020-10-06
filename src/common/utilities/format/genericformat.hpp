@@ -2,8 +2,17 @@
  * Addle source code
  * @file
  * @copyright Copyright 2020 Eleanor Hawk
- * @copyright Modification and distribution permitted under the terms of the
- * MIT License. See "LICENSE" for full details.
+ * Modification and distribution permitted under the terms of the MIT License. 
+ * See "LICENSE" for full details.
+ * 
+ * Low-level classes and interfaces involved in formatting and serialization are
+ * defined in terms of the particular model type being formatted. This file
+ * provides high-level abstractions of those classes and interfaces, so they can 
+ * be handled and used as needed by generic format management and serialization 
+ * pipeline code.
+ * 
+ * Boost Variants and MPL are used to achieve this. Use those libraries to
+ * interact with the underlying strong types if desired.
  */
 
 #ifndef GENERICFORMAT_HPP
@@ -11,36 +20,44 @@
 
 #include <typeinfo>
 
-#include <boost/variant.hpp>
-#include <boost/mpl/vector.hpp>
-#include <boost/mpl/at.hpp>
-#include <boost/mpl/size.hpp>
+#include <boost/mpl/contains.hpp>
+#include <boost/mpl/push_front.hpp>
 #include <boost/mpl/transform.hpp>
+#include <boost/mpl/vector.hpp>
+
 #include <boost/type_traits/add_pointer.hpp>
-#include <boost/type_traits/type_identity.hpp>
+
+#include <boost/variant.hpp>
 
 #include <QSharedPointer>
 #include <QMetaType>
 
-#include "utilities/mplmap.hpp"
-
 #include "idtypes/formatid.hpp"
-#include "importexportinfo.hpp"
 
 namespace Addle {
 
-template<class ModelType> class IFormatDriver;
+template<class ModelType>
+class IFormatDriver;
 
 template<typename ModelType>
 struct _formatModelTypeWrapper {};
 
-/**
- * Boost.MPL sequence of format model types supported by the generic format classes.
- */
+class ImportExportInfo;
 
+/**
+ * @class
+ * Identifies and provides information about one of the model types supported by 
+ * the generic format types. The default-constructed instance is a null object 
+ * (represented internally / in visitors  by identifying the placeholder class
+ * NullModelType.)
+ * 
+ * The canonical list of model types supported by the generic format classes is
+ * provided by `GenericFormatModelTypeInfo::types` as a Boost.MPL sequence.
+ */
 class GenericFormatModelTypeInfo
 {
 public:
+    
     typedef boost::mpl::vector<
         IDocument,
         IBrush,
@@ -107,10 +124,7 @@ private:
         
         template<typename ModelType>
         inline GenericFormatModelTypeInfo operator()(FormatId<ModelType>) const;
-        
-        template<typename ModelType>
-        inline GenericFormatModelTypeInfo operator()(const ImportExportInfo<ModelType>&) const;
-        
+                
         template<typename ModelType>
         inline GenericFormatModelTypeInfo operator()(const ModelType*) const;
         
@@ -127,7 +141,6 @@ private:
     variant_t _value;
     
     friend class GenericFormatId;
-    friend class GenericImportExportInfo;
     friend class GenericFormatModel;
     friend class GenericSharedFormatModel;
     friend class GenericFormatDriver;
@@ -135,6 +148,10 @@ private:
     friend class visitor_getIdsFor;
 };
 
+/**
+ * @class
+ * @brief Generic abstraction of a FormatId.
+ */
 class ADDLE_COMMON_EXPORT GenericFormatId
 {
 public:
@@ -242,162 +259,10 @@ private:
     }
 };
 
-class ADDLE_COMMON_EXPORT GenericImportExportInfo
-{
-public:
-    typedef boost::make_variant_over<
-        boost::mpl::transform<
-            GenericFormatModelTypeInfo::types,
-            ImportExportInfo<boost::mpl::placeholders::_1>
-        >::type
-    >::type variant_t;
-
-    inline GenericImportExportInfo() = default;
-
-    template<class ModelType>
-    inline GenericImportExportInfo(const ImportExportInfo<ModelType>& info)
-        : _value(info)
-    {
-    }
-    
-    GenericImportExportInfo(const GenericImportExportInfo&) = default;
-
-    ImportExportDirection direction() const;
-    void setDirection(ImportExportDirection direction);
-
-    GenericFormatId format() const { return boost::apply_visitor(visitor_getFormat(), _value); }
-    template<class ModelType>
-    inline void setFormat(FormatId<ModelType> id)
-    {
-        setFormat(id);
-    }
-    void setFormat(GenericFormatId format);
-
-    QFileInfo fileInfo() const { return boost::apply_visitor(visitor_getFileInfo(), _value); }
-    void setFileInfo(QFileInfo fileInfo) { boost::apply_visitor(visitor_setFileInfo(fileInfo), _value); }
-
-    QString filename() const { return boost::apply_visitor(visitor_getFilename(), _value); }
-    void setFilename(const QString& filename);
-
-    QUrl url() const;
-    void setUrl(const QUrl& url) { boost::apply_visitor(visitor_setUrl(url), _value); }
-
-//     void notifyAccepted() const { boost::apply_visitor(visitor_notifyAccepted(), _value); }
-//     void setCallbackAccepted(std::function<void()> callback);
-
-    TaskProgressHandle* progressHandle() const { return boost::apply_visitor(visitor_getProgressHandle(), _value); }
-    void setProgressHandle(TaskProgressHandle* progress) { boost::apply_visitor(visitor_setProgressHandle(progress), _value); }
-
-    template<class ModelType>
-    inline const ImportExportInfo<ModelType>& get() const
-    {
-        return boost::get<const ImportExportInfo<ModelType>&>(_value);
-    }
-    inline const variant_t& variant() const { return _value; }
-    inline GenericFormatModelTypeInfo type() const { return boost::apply_visitor(GenericFormatModelTypeInfo::visitor_getType(), _value); }
-
-    static GenericImportExportInfo make(GenericFormatModelTypeInfo type)
-    {
-        // assert type is not null?
-        // This header is included by interfaces, I wouldn't want to include 
-        // errors.hpp here, so I may need to define a bespoke exception class
-        // for this.
-        return boost::apply_visitor(visitor_make(), type._value);
-    }
-    
-private:
-    struct visitor_getFormat
-    {
-        typedef GenericFormatId result_type;
-        template<class ModelType>
-        inline GenericFormatId operator()(const ImportExportInfo<ModelType>& info) const { return info.format(); }
-    };
-
-    struct visitor_getFilename
-    {
-        typedef QString result_type;
-        template<class ModelType>
-        inline QString operator()(const ImportExportInfo<ModelType>& info) const { return info.filename(); }
-    };
-
-    struct visitor_getFileInfo
-    {
-        typedef QFileInfo result_type;
-        template<class ModelType>
-        inline QFileInfo operator()(const ImportExportInfo<ModelType>& info) const { return info.fileInfo(); }
-    };
-    
-    
-    struct visitor_setFileInfo
-    {
-        typedef void result_type;
-        visitor_setFileInfo(QFileInfo fileInfo_)
-            : fileInfo(fileInfo_)
-        {
-        }
-        template<class ModelType>
-        inline void operator()(ImportExportInfo<ModelType>& info) const { info.setFileInfo(fileInfo); }
-        QFileInfo fileInfo;
-    };
-    
-    struct visitor_setUrl
-    {
-        typedef void result_type;
-        visitor_setUrl(QUrl url_)
-            : url(url_)
-        {
-        }
-        template<class ModelType>
-        inline void operator()(ImportExportInfo<ModelType>& info) const { info.setUrl(url); }
-        QUrl url;
-    };
-
-//     struct visitor_notifyAccepted
-//     {
-//         typedef void result_type;
-//         template<class ModelType>
-//         inline void operator()(const ImportExportInfo<ModelType>& info) const { info.notifyAccepted(); }
-//     };
-    
-    struct visitor_getProgressHandle
-    {
-        typedef TaskProgressHandle* result_type;
-        template<class ModelType>
-        inline 
-        TaskProgressHandle* operator()(const ImportExportInfo<ModelType>& info) const { return info.progressHandle(); }
-    };
-
-    struct visitor_setProgressHandle
-    {
-        typedef void result_type;
-        visitor_setProgressHandle(TaskProgressHandle* progress_)
-            : progress(progress_)
-        {
-        }
-        template<class ModelType>
-        inline void operator()(ImportExportInfo<ModelType>& info) const { info.setProgressHandle(progress); }
-        TaskProgressHandle* progress;
-    };
-    
-    struct visitor_make
-    {
-        typedef GenericImportExportInfo result_type;
-                
-        template<class ModelType>
-        GenericImportExportInfo operator()(_formatModelTypeWrapper<ModelType>) const 
-        {
-            return ImportExportInfo<ModelType>();
-        }
-        
-        GenericImportExportInfo operator()(_formatModelTypeWrapper<GenericFormatModelTypeInfo::NullModelType>) const
-        {
-            Q_UNREACHABLE();
-        }
-    };
-
-    variant_t _value;
-};
-
+/**
+ * @class
+ * @brief Generic abstraction of a plain pointer to a format model.
+ */
 class ADDLE_COMMON_EXPORT GenericFormatModel
 {
 public:
@@ -420,9 +285,9 @@ public:
     void destroy();
 
     template<class ModelType>
-    inline const ImportExportInfo<ModelType>& get() const
+    inline ModelType* get() const
     {
-        return boost::get<const ImportExportInfo<ModelType>&>(_value);
+        return boost::get<ModelType*>(_value);
     }
     
     inline const variant_t& variant() const { return _value; }
@@ -432,6 +297,10 @@ private:
     variant_t _value;
 };
 
+/**
+ * @class
+ * @brief Generic abstraction of a QSharedPointer to a format model.
+ */
 class ADDLE_COMMON_EXPORT GenericSharedFormatModel
 {
 public:
@@ -465,7 +334,9 @@ public:
     inline void clear() { boost::apply_visitor(visitor_clear(), _value); }
     
     inline const variant_t& variant() const { return _value; }
-    inline GenericFormatModelTypeInfo type() const { return boost::apply_visitor(GenericFormatModelTypeInfo::visitor_getType(), _value); }
+    inline GenericFormatModelTypeInfo type() const { 
+        return boost::apply_visitor(GenericFormatModelTypeInfo::visitor_getType(), _value);
+    }
     
 private:
     struct visitor_wrapSharedModel
@@ -493,6 +364,10 @@ private:
     variant_t _value;
 };
 
+/**
+ * @class
+ * @brief Generic abstraction of a reference to IFormatDriver.
+ */
 class ADDLE_COMMON_EXPORT GenericFormatDriver
 {
 public:
@@ -525,8 +400,8 @@ public:
     bool supportsImport() const;
     bool supportsExport() const;
 
-    GenericFormatModel importModel(QIODevice& device, GenericImportExportInfo info);
-    void exportModel(GenericFormatModel model, QIODevice& device, GenericImportExportInfo info);
+    GenericFormatModel importModel(QIODevice& device, const ImportExportInfo& info);
+    void exportModel(GenericFormatModel model, QIODevice& device, const ImportExportInfo& info);
     
     template<class ModelType>
     inline IFormatDriver<ModelType>* get() const
@@ -557,12 +432,6 @@ inline GenericFormatModelTypeInfo GenericFormatModelTypeInfo::visitor_getType::o
 }
 
 template<typename ModelType>
-inline GenericFormatModelTypeInfo GenericFormatModelTypeInfo::visitor_getType::operator()(const ImportExportInfo<ModelType>&) const
-{
-    return GenericFormatModelTypeInfo(_formatModelTypeWrapper<ModelType>());
-}
-
-template<typename ModelType>
 inline GenericFormatModelTypeInfo GenericFormatModelTypeInfo::visitor_getType::operator()(const ModelType*) const
 {
     return GenericFormatModelTypeInfo(_formatModelTypeWrapper<ModelType>());
@@ -586,10 +455,9 @@ inline GenericFormatModelTypeInfo GenericFormatModelTypeInfo::visitor_getType::o
     return GenericFormatModelTypeInfo(_formatModelTypeWrapper<ModelType>());
 }
 
-}
+} // namespace Addle
 
 Q_DECLARE_METATYPE(Addle::GenericFormatId);
-Q_DECLARE_METATYPE(Addle::GenericImportExportInfo);
 Q_DECLARE_METATYPE(Addle::GenericFormatModel);
 Q_DECLARE_METATYPE(Addle::GenericSharedFormatModel);
 Q_DECLARE_METATYPE(Addle::GenericFormatDriver);

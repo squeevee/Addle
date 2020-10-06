@@ -41,7 +41,7 @@ protected:
     void focusOutEvent(QFocusEvent* focusEvent);
 
 private slots:
-    void setDocument(QSharedPointer<IDocumentPresenter> documentPresenter);
+    void setDocument(QSharedPointer<Addle::IDocumentPresenter> documentPresenter);
     void onTransformsChanged();
     void updateCursor();
 

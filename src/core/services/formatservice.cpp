@@ -27,9 +27,17 @@
 
 using namespace Addle;
 
-GenericFormatModel FormatService::importModel_p(QIODevice& device, const GenericImportExportInfo& info)
-{ 
-    updateFormatType(info.type());
+GenericFormatModel FormatService::importModel_p(
+    QIODevice& device, 
+    const ImportExportInfo& info,
+    GenericFormatModelTypeInfo type)
+{
+    if (type.isNull())
+        type = info.modelType();
+    
+    ADDLE_ASSERT(!type.isNull());
+    
+    updateFormatType(type);
     
     QFile* file = qobject_cast<QFile*>(&device);
     if (file)
@@ -63,17 +71,6 @@ GenericFormatModel FormatService::importModel_p(QIODevice& device, const Generic
         ADDLE_ASSERT(driver.supportsImport());
 
         GenericFormatModel result = driver.importModel(device, info);
-        
-        if (info.progressHandle())
-        {
-            auto& cursor = info.progressHandle()->cursor();
-            double min = cursor.min();
-            double max = cursor.max();
-            for (int i = 0; i < 1000; ++i)
-            {
-                cursor.setProgress(i / (1000 * (max - min)) + min);
-            }
-        }
 
         return result;
     }
@@ -117,18 +114,18 @@ void FormatService::setupFormatType_impl()
 {
     for (FormatId<ModelType> format : noDetach(IdInfo::getIds<FormatId<ModelType>>()))
     {
+        _formats_byModelType.get<ModelType>().insert(format);
         _formats_byMimeType.insert(format.mimeType(), GenericFormatId(format));
 
-        int length = format.fileSignature().length();
-        if (length > 0)
+        for (QByteArray signature : noDetach(format.fileSignatures()))
         {
-            _formats_bySignature.insert(format.fileSignature(), format);
-            if (length > _maxSignatureLength)
-                _maxSignatureLength = length;
+            ADDLE_ASSERT(!signature.isEmpty());
+            
+            _formats_bySignature.insert(signature, format);
+            if (signature.length() > _maxSignatureLength)
+                _maxSignatureLength = signature.length();
         }
         
-        _formats_byModelType.get<ModelType>().insert(format);
-
         for (QString& suffix : format.fileExtensions())
         {
             _formats_bySuffix.insert(suffix, format);

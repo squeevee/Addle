@@ -30,6 +30,7 @@
 #include "presenters/operations/brushoperationpresenter.hpp"
 
 #include "presenters/messages/notificationpresenter.hpp"
+#include "presenters/messages/fileissuepresenter.hpp"
 
 #include "rendering/renderstack.hpp"
 
@@ -160,6 +161,7 @@ extern "C" void addle_core_config()
     
     // ## Message presenters
     config->addAutoFactory<INotificationPresenter, NotificationPresenter>();
+    config->addAutoFactory<IFileIssuePresenter, FileIssuePresenter>();
 
     // ## Tool presenters
     config->addAutoFactory<IAssetSelectionPresenter, AssetSelectionPresenter>();

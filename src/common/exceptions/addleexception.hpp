@@ -22,7 +22,7 @@
 #include <QSharedPointer>
 
 namespace Addle {
-
+    
 /**
  * @brief Base class for exceptions in Addle.
  */
@@ -52,7 +52,7 @@ public:
 
     // Makes a copy of this exception as its most derived polymorphic type.
     virtual AddleException* clone() const = 0;
-
+    
 #ifdef ADDLE_DEBUG
     const char* what() const noexcept { return _whatBytes.constData(); }
     [[noreturn]] void debugRaise(const char* function, const char* file, const int line);
@@ -68,8 +68,8 @@ private:
 
 #define ADDLE_EXCEPTION_BOILERPLATE(T) \
 public: \
-    [[noreturn]] void raise() const { throw *this; } \
-    AddleException* clone() const { return new T(*this); } \
+    [[noreturn]] void raise() const override { throw *this; } \
+    AddleException* clone() const override { return new T(*this); } \
     bool isLogicError() const { return Traits::is_logic_error<T>::value; } \
     bool isRuntimeError() const { return Traits::is_runtime_error<T>::value; }
 

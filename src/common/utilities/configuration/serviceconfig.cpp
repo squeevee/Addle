@@ -12,7 +12,7 @@ bool ServiceConfig::Filter::test(const FactorySelector& index) const
 #ifdef ADDLE_DEBUG
         if (DebugBehavior::test(DebugBehavior::PrintFactorySelectionInfo))
         {
-            //% "The selector's id was null and the filter does not allow null ids."
+            //% "The filter rejected the selector's null id."
             qDebug() << qUtf8Printable(qtTrId("debug-messages.factory-select.filter-disallows-null-ids"));
         }
 #endif
@@ -39,7 +39,8 @@ bool ServiceConfig::Filter::test(const FactorySelector& index) const
 #ifdef ADDLE_DEBUG    
         if (DebugBehavior::test(DebugBehavior::PrintFactorySelectionInfo))
         {
-            //% "The filter expected more arguments than were provided by the selector.\n"
+            //% "The filter expected more arguments than were provided by the "
+            //% "selector.\n"
             //% " expected: %1\n"
             //% "   actual: %2"
             qDebug() << qUtf8Printable(qtTrId("debug-messages.factory-select.too-few-arguments")
@@ -52,12 +53,23 @@ bool ServiceConfig::Filter::test(const FactorySelector& index) const
     
     for (int i = 0; i < qMin(index.argCount(), _argTests.count()); ++i)
     {
-        if (_argTests.at(i) && !_argTests.at(i)(index.argAt(i)))
+        if (!_argTests.at(i)) continue;
+        
+        auto arg = index.argAt(i);
+        
+        ADDLE_ASSERT_M(
+            arg.type() != QVariant::Invalid, 
+            //% "The filter expects an argument at index %1 but an invalid "
+            //% "argument was given by the selector. The argument "
+            qtTrId("debug-messages.factory-select.unusable-arg")
+                .arg(i)
+        );
+
+        if (!_argTests.at(i)(arg))
         {
-#ifdef ADDLE_DEBUG    
+#ifdef ADDLE_DEBUG
             if (DebugBehavior::test(DebugBehavior::PrintFactorySelectionInfo))
             {
-                QVariant arg = index.argAt(i);
                 QString typeName;
                 QString repr;
                 if (arg.canConvert<QObject*>())
@@ -86,7 +98,6 @@ bool ServiceConfig::Filter::test(const FactorySelector& index) const
             return false;
         }
     }
-    
     return true;
 }
 

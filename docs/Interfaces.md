@@ -217,7 +217,90 @@ convenience for things like property bindings that operate on properties by
 name. Regular getters and setters should be exposed by the interface and used in
 all other contexts. 
 
+## Factory filters
+
+A new (October 2020) feature implemented in Addle allows ServiceLocator to
+choose factories at runtime based on the arguments passed to `make`.
+
+An example of the motivating case for this feature:
+
+```c++
+
+// Interfaces
+
+class ISpiffPresenter : ... { ... };
+
+class IRedSpiffPresenter : public ISpiffPresenter { ... };
+class IBlueSpiffPresenter : public ISpiffPresenter { ... };
+
+class ISpiffView : ...
+{
+public:
+    virtual void initialize(ISpiffPresenter&) = 0;
+    ...
+};
+
+// Implementations
+
+class RedSpiffView : ..., public ISpiffView { ... };
+class BlueSpiffView : ..., public ISpiffView { ... };
+
+// Service configuration
+
+{
+    config->addAutoFactory<ISpiffView, RedSpiffView>(
+        ServiceConfig::Filter()
+            .byArg<IRedSpiffPresenter>()
+    );
+
+    config->addAutoFactory<ISpiffView, BlueSpiffView>(
+        ServiceConfig::Filter()
+            .byArg<IBlueSpiffPresenter>()
+    );
+}
+
+// Use case
+
+void makeSpiffView(ISpiffPresenter& presenter)
+{
+    ISpiffView* view = ServiceLocator::make<ISpiffView>(presenter);
+    ...
+}
+
+```
+
+Here, `makeSpiffView` will make a `RedSpiffView` or a `BlueSpiffView` depending
+on whether `presenter` is red or blue respectively. However, `makeSpiffView` is
+not required to know the full mapping of specialized presenters to views -- all
+of that is offloaded onto the configuration of the ServiceLocator, i.e., the
+expert of mapping interfaces and implementations for a given module.
+
+A factory filter can also be given a predicate for a given argument to select 
+based on the argument's value or properties.
+
+```c++
+{
+    config->addAutoFactory<ISpiffView, CeruleanSpiffView>(
+        ServiceConfig::Filter()
+            .byArg<IBlueSpiffPresenter>([](const IBlueSpiffPresenter& p) -> bool {
+                return p.isCerulean();
+            })
+    );
+}
+```
+
+Any number of arguments can be filtered for. Similar predicates can also be put 
+on the AddleId used by ServiceLocator when making a persistent object.
+
+This pattern somewhat resembles dependency injection and seems to have similar
+advantages in the way it allows for complex decoupled code. I'm not married to
+it in its current incarnation (it has a bit of design smell in my opinion), but
+it's at least the start of something exciting.
+
 ## Views
+
+(In light of the new factory filters feature, Views may become less of a special
+case in the future.)
 
 See the "Model-Presenter-View" section of [Overview](./Overview.md).
 

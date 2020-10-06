@@ -14,22 +14,20 @@
 
 namespace Addle {
 
-// TODO: Make this a template class? Various top-level views don't really need
-// a common polymorphic interface, just common functionality.
 class ITopLevelView : public virtual IAmQObject
 {
 public:
     virtual ~ITopLevelView() = default;
 
-    inline void show() { tlv_show(); }
+    inline void open() { tlv_open(); }
     inline void close() { tlv_close(); }
     
 public slots:
-    virtual void tlv_show() = 0;
+    virtual void tlv_open() = 0;
     virtual void tlv_close() = 0;
 
 signals:
-    virtual void tlv_shown() = 0;
+    virtual void tlv_opened() = 0;
     virtual void tlv_closed() = 0;
 };
 

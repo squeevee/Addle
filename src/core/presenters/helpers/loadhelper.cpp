@@ -2,9 +2,15 @@
 
 #include "exceptions/fileexception.hpp"
 #include "exceptions/formatexception.hpp"
+#include "exceptions/notimplementedexception.hpp"
 
 #include "interfaces/services/iformatservice.hpp"
 
+#include "interfaces/presenters/imessagecontext.hpp"
+#include "interfaces/presenters/messages/inotificationpresenter.hpp"
+#include "interfaces/presenters/messages/ifileissuepresenter.hpp"
+
+#include "utilities/presenter/messagebuilders.hpp"
 #include "utilities/iocheck.hpp"
 #include "loadhelper.hpp"
 
@@ -13,6 +19,7 @@ using namespace Addle;
 void LoadTask::doTask()
 {
     ADDLE_ASSERT(_request);
+    ADDLE_ASSERT(_request->action() == FileRequest::Load);
     
     if (_request->url().isEmpty())
         interrupt();
@@ -20,18 +27,20 @@ void LoadTask::doTask()
     if (_request->url().isLocalFile())
     {    
         QString filename = _request->url().toLocalFile();
-        auto info = GenericImportExportInfo::make(_request->modelType());
+        
+        ImportExportInfo info;
+        info.setModelType(_request->modelType());
         info.setFileInfo(QFileInfo(filename));
         info.setProgressHandle(&progressHandle());
         
         QFile file(filename);
-        IOCheck().openFile(file, QFileDevice::ReadOnly);
+        IOCheck().openFile(file, QIODevice::ReadOnly | QIODevice::ExistingOnly);
         
         _model = ServiceLocator::get<IFormatService>().importModel(file, info);
     }
     else
     {
-        ADDLE_LOGIC_ERROR_M("not implemented"); // did I already do that?
+        ADDLE_THROW(NotImplementedException());
     }
 }
 
@@ -40,24 +49,25 @@ void LoadTask::onError()
     try
     {
         auto messageContext = _request->messageContext();
-        auto taskError = error();
+        auto taskError      = error();
+        QUrl url            = _request->url();
+        QDir relativeDir    = QDir(_request->directory());
 
         ADDLE_ASSERT(taskError);
-        if (!messageContext)
-            ADDLE_THROW(*taskError);
         
-        if (typeid(*taskError) == typeid(FileException))
-        {
-            FileException& ex = static_cast<FileException&>(*taskError);
-        }
-        else if (typeid(*taskError) == typeid(FormatException))
-        {
-            FormatException& ex = static_cast<FormatException&>(*taskError);
-        }
-        else
+        auto issuePresenter = ServiceLocator::makeShared<IFileIssuePresenter>(
+            FileIssuePresenterBuilder()
+                .setException(taskError)
+                .setUrl(url)
+                .setRelativeDir(relativeDir)
+        );
+        
+        if (!messageContext || issuePresenter->issue() == IFileIssuePresenter::UnknownIssue)
         {
             ADDLE_THROW(*taskError);
         }
+        
+        messageContext->postMessage(issuePresenter);
     }
     ADDLE_SLOT_CATCH
 }

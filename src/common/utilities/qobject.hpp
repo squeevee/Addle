@@ -14,47 +14,49 @@
 #include <QPointer>
 
 #include "interfaces/iamqobject.hpp"
+
+// template<>
+// inline QObject* qobject_cast<QObject*>(Addle::IAmQObject* object)
+// {
+//     return object->asQObject_p();
+// }
+// 
+// template<>
+// inline const QObject* qobject_cast<const QObject*>(const Addle::IAmQObject* object)
+// {
+//     return object->asQObject_p();
+// }
+
 namespace Addle {
-
-// TODO probably just replace these with overloads of qobject_cast. The usage
-// becomes less weird if a destination type is just a required template
-// parameter, and if PropertyBinding is extended to accept IAmQObject that 
-// eliminates almost all direct usage of this function anyway.
     
-/**
- * @brief Acquire QObject from Interface
- */
-template<class Interface>
-typename std::enable_if<
-    !std::is_const<Interface>::value,
-    QObject*
->::type qobject_interface_cast(Interface* object)
+template<class OutType, class InType>
+inline OutType qobject_interface_cast(InType* object)
 {
-    return static_cast<IAmQObject*>(object)->asQObject_p();
+    return qobject_cast<OutType>(static_cast<IAmQObject*>(object)->asQObject_p());
 }
 
-/**
- * @brief Acquire QObject from Interface
- */
-template<class Interface>
-typename std::enable_if<
-    !std::is_const<Interface>::value,
-    const QObject*
->::type qobject_interface_cast(const Interface* object)
+template<class OutType, class InType>
+inline OutType qobject_interface_cast(const InType* object)
 {
-    return static_cast<const IAmQObject*>(object)->asQObject_p();
+    return qobject_cast<OutType>(static_cast<const IAmQObject*>(object)->asQObject_p());
 }
 
-template<class Interface>
-QObject* qobject_interface_cast(QSharedPointer<Interface> object)
+template<class OutType, class InType>
+inline QSharedPointer<OutType> qobject_interface_cast(QSharedPointer<InType> object)
 {
-    return qobject_interface_cast(object.data());
+    if (qobject_interface_cast<OutType*>(object.data()))
+        return qSharedPointerCast<OutType>(object);
+    else
+        return nullptr;
 }
 
-template<class Interface>
-const QObject* qobject_interface_cast(QSharedPointer<const Interface> object)
+template<class OutType, class InType>
+inline QSharedPointer<const OutType> qobject_interface_cast(QSharedPointer<const InType> object)
 {
-    return qobject_interface_cast(object.data());
+    if (qobject_interface_cast<const OutType*>(object.data()))
+        return qSharedPointerCast<const OutType>(object);
+    else
+        return nullptr;
 }
 
 /**
@@ -69,8 +71,7 @@ inline QMetaObject::Connection connect_interface(
         Qt::ConnectionType type = Qt::AutoConnection
     )
 {
-    const QObject* qsender = qobject_interface_cast(sender);
-    return QObject::connect(qsender, signal, receiver, slot, type);
+    return QObject::connect(qobject_interface_cast<const QObject*>(sender), signal, receiver, slot, type);
 }
 
 /**
@@ -85,8 +86,7 @@ inline QMetaObject::Connection connect_interface(
         Qt::ConnectionType type = Qt::AutoConnection
     )
 {
-    const QObject* qreceiver = qobject_interface_cast<Interface>(receiver);
-    return QObject::connect(sender, signal, qreceiver, slot, type);
+    return QObject::connect(sender, signal, qobject_interface_cast<const QObject*>(receiver), slot, type);
 }
 
 /**
@@ -162,20 +162,8 @@ inline QMetaObject::Connection connect_interface2(
         const char* slot
     )
 {
-    // static_assert(
-    //     implemented_as_QObject<SenderInterface>::value,
-    //     "connect_interface may only be done with interfaces for QObjects"
-    // );
-    // static_assert(
-    //     implemented_as_QObject<ReceiverInterface>::value,
-    //     "connect_interface may only be done with interfaces for QObjects"
-    // );
-
-    const QObject* qsender = qobject_interface_cast(sender);//dynamic_cast<const QObject*>(sender);
-    const QObject* qreceiver = qobject_interface_cast(receiver);//dynamic_cast<const QObject*>(receiver);
-
-
-    //dynamic asserts
+    const QObject* qsender = qobject_interface_cast<QObject*>(sender);
+    const QObject* qreceiver = qobject_interface_cast<QObject*>(receiver);
 
     return QObject::connect(qsender, signal, qreceiver, slot);
 }
@@ -183,13 +171,25 @@ inline QMetaObject::Connection connect_interface2(
 template<class Interface>
 inline bool sendInterfaceEvent(Interface* receiver, QEvent* event)
 {
-    return QCoreApplication::sendEvent(qobject_interface_cast(receiver), event);
+    return QCoreApplication::sendEvent(qobject_interface_cast<QObject*>(receiver), event);
+}
+
+template<class Interface>
+inline bool sendInterfaceEvent(QSharedPointer<Interface> receiver, QEvent* event)
+{
+    return sendInterfaceEvent(receiver.data(), event);
 }
 
 template<class Interface>
 inline void postInterfaceEvent(Interface* receiver, QEvent* event, int priority = Qt::NormalEventPriority)
 {
-    QCoreApplication::postEvent(qobject_interface_cast(receiver), event, priority);
+    QCoreApplication::postEvent(qobject_interface_cast<QObject*>(receiver), event, priority);
+}
+
+template<class Interface>
+inline void postInterfaceEvent(QSharedPointer<Interface> receiver, QEvent* event, int priority = Qt::NormalEventPriority)
+{
+    postInterfaceEvent(receiver.data(), event, priority);
 }
 
 } // namespace Addle

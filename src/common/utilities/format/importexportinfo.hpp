@@ -14,6 +14,7 @@
 #include <functional>
 
 #include "idtypes/formatid.hpp"
+#include "genericformat.hpp"
 
 #include <QSharedData>
 #include <QSharedDataPointer>
@@ -26,22 +27,19 @@
 
 namespace Addle {
 
-enum ImportExportDirection
-{
-    unassigned,
-    importing,
-    exporting
-};
-
 class TaskProgressHandle;
 
 // Data about a resource (i.e., a file or stream) that is to be imported or
 // exported as a format model.
-template<class ModelType>
 class ImportExportInfo
 {
 public:
-    typedef ImportExportDirection Direction;
+    enum Direction
+    {
+        unassigned,
+        importing,
+        exporting
+    };
 
     ImportExportInfo() = default;
     ImportExportInfo(const ImportExportInfo& other)
@@ -76,16 +74,28 @@ public:
         _direction = direction; 
     }
 
-    FormatId<ModelType> format() const 
+    GenericFormatId format() const 
     { 
         const QReadLocker lock(&_lock);
         return _format;
     }
     
-    void setFormat(const FormatId<ModelType>& format) 
+    void setFormat(GenericFormatId format) 
     { 
         const QWriteLocker lock(&_lock);
         _format = format; 
+    }
+    
+    GenericFormatModelTypeInfo modelType() const
+    {
+        const QReadLocker lock(&_lock);
+        return _modelType;
+    }
+    
+    void setModelType(GenericFormatModelTypeInfo modelType)
+    {
+        const QWriteLocker lock(&_lock);
+        _modelType = modelType;
     }
 
     QFileInfo fileInfo() const
@@ -155,15 +165,14 @@ private:
     mutable QReadWriteLock _lock;
     
     Direction _direction = Direction::unassigned;
-    FormatId<ModelType> _format;
+    GenericFormatModelTypeInfo _modelType;
+    GenericFormatId _format;
     QUrl _url;
     QFileInfo _fileInfo;
 
 //     std::function<void()> _callback_accepted;
     TaskProgressHandle* _progress = nullptr;
 };
-
-typedef ImportExportInfo<IDocument> DocumentImportExportInfo;
 
 } // namespace Addle
 #endif // FORMATPORTAGEINFO_HPP 
