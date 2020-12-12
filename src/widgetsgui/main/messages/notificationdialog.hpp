@@ -20,15 +20,10 @@ class NotificationDialog : public QMessageBox, public IMessageView, public ITopL
     Q_INTERFACES(Addle::IMessageView Addle::ITopLevelView)
     IAMQOBJECT_IMPL
 public:
-    NotificationDialog()
-        : _tlvHelper(this)
-    {
-        _tlvHelper.onOpened.bind(&NotificationDialog::tlv_opened, this);
-        _tlvHelper.onClosed.bind(&NotificationDialog::tlv_closed, this);
-    }
+    NotificationDialog(QSharedPointer<INotificationPresenter> presenter);
     virtual ~NotificationDialog() = default;
     
-    void initialize(QSharedPointer<IMessagePresenter> presenter) override;
+    //void initialize(QSharedPointer<IMessagePresenter> presenter) override;
     
     QSharedPointer<IMessagePresenter> presenter() const override
     {

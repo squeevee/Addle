@@ -42,19 +42,23 @@
 
 using namespace Addle;
 
-void MainEditorView::initialize(IMainEditorPresenter& presenter)
-{
-    const Initializer init(_initHelper);
 
-    _presenter = &presenter;
+MainEditorView::MainEditorView(IMainEditorPresenter& presenter)
+    : _presenter(presenter),
+    _tlvHelper(this, std::bind(&MainEditorView::setupUi, this))
+{
+    _tlvHelper.onOpened.bind(&MainEditorView::tlv_opened, this);
+    _tlvHelper.onClosed.bind(&MainEditorView::tlv_closed, this);
     
-    connect_interface(&_presenter->messageContext(), SIGNAL(messagePosted(QSharedPointer<Addle::IMessagePresenter>)),
+    _messageViewHelper.onUrgentViewMade.bind(&MainEditorView::onUrgentMessageMade, this);
+    
+    connect_interface(&_presenter.messageContext(), SIGNAL(messagePosted(QSharedPointer<Addle::IMessagePresenter>)),
                               this, SLOT(onMessagePosted(QSharedPointer<Addle::IMessagePresenter>)));
                             
-    connect_interface(_presenter, SIGNAL(undoStateChanged()),
+    connect_interface(&_presenter, SIGNAL(undoStateChanged()),
                               this, SLOT(onUndoStateChanged()));
 
-    connect_interface(_presenter, SIGNAL(documentPresenterChanged(QSharedPointer<Addle::IDocumentPresenter>)),
+    connect_interface(&_presenter, SIGNAL(documentPresenterChanged(QSharedPointer<Addle::IDocumentPresenter>)),
                               this, SLOT(onDocumentChanged(QSharedPointer<Addle::IDocumentPresenter>)));   
 }
 
@@ -74,24 +78,24 @@ void MainEditorView::setupUi()
     new PropertyBinding(
         _toolBar_editorToolSelection,
         WidgetProperties::enabled,
-        _presenter,
+        &_presenter,
         IMainEditorPresenter::Meta::Properties::empty,
         PropertyBinding::ReadOnly,
         BindingConverter::negate()
     );
 
-    _viewPort = new ViewPort(_presenter->viewPortPresenter());
-    _viewPortScrollWidget = new ViewPortScrollWidget(_presenter->viewPortPresenter(), this);
+    _viewPort = new ViewPort(_presenter.viewPortPresenter());
+    _viewPortScrollWidget = new ViewPortScrollWidget(_presenter.viewPortPresenter(), this);
     _viewPortScrollWidget->setViewPort(_viewPort);
     QMainWindow::setCentralWidget(_viewPortScrollWidget);
     _viewPort->setFocus();
     
-    connect_interface(_presenter, SIGNAL(isEmptyChanged(bool)), this, SLOT(onPresenterEmptyChanged(bool)));
+    connect_interface(&_presenter, SIGNAL(isEmptyChanged(bool)), this, SLOT(onPresenterEmptyChanged(bool)));
 
     _statusBar = new QStatusBar(this);
     QMainWindow::setStatusBar(_statusBar);
 
-    _zoomRotateWidget = new ZoomRotateWidget(_presenter->viewPortPresenter(), this);
+    _zoomRotateWidget = new ZoomRotateWidget(_presenter.viewPortPresenter(), this);
     _statusBar->addPermanentWidget(_zoomRotateWidget);
     _zoomRotateWidget->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
 
@@ -110,26 +114,26 @@ void MainEditorView::setupUi()
     new PropertyBinding(
         _optionGroup_toolSelection,
         WidgetProperties::value,
-        _presenter,
+        &_presenter,
         IMainEditorPresenter::Meta::Properties::currentTool
     );
 
     _action_new = new QAction(this);
     _action_new->setIcon(ADDLE_ICON("new"));
     _action_new->setToolTip(qtTrId("ui.new.description"));
-    connect_interface(_action_new, SIGNAL(triggered()), _presenter, SLOT(newDocument()));
+    connect_interface(_action_new, SIGNAL(triggered()), &_presenter, SLOT(newDocument()));
 
     _action_undo = new QAction(this);
     _action_undo->setIcon(ADDLE_ICON("undo"));
     _action_undo->setToolTip(qtTrId("ui.undo.description"));
-    _action_undo->setEnabled(_presenter->canUndo());
-    connect_interface(_action_undo, SIGNAL(triggered()), _presenter, SLOT(undo()));
+    _action_undo->setEnabled(_presenter.canUndo());
+    connect_interface(_action_undo, SIGNAL(triggered()), &_presenter, SLOT(undo()));
 
     _action_redo = new QAction(this);
     _action_redo->setIcon(ADDLE_ICON("redo"));
     _action_redo->setToolTip(qtTrId("ui.redo.description"));
-    _action_redo->setEnabled(_presenter->canRedo());
-    connect_interface(_action_redo, SIGNAL(triggered()), _presenter, SLOT(redo()));
+    _action_redo->setEnabled(_presenter.canRedo());
+    connect_interface(_action_redo, SIGNAL(triggered()), &_presenter, SLOT(redo()));
     
     _toolBar_documentActions->addAction(_action_new);
     _toolBar_documentActions->addAction(_action_open);
@@ -140,7 +144,7 @@ void MainEditorView::setupUi()
 
     ToolSetupHelper setupHelper(
         this,
-        *_presenter,
+        _presenter,
         _optionGroup_toolSelection
     );
 
@@ -190,7 +194,7 @@ void MainEditorView::setupUi()
     _layersManager = new LayersManager(this);
     addDockWidget(Qt::RightDockWidgetArea, _layersManager);
 
-    _colorSelector = new ColorSelector(_presenter->colorSelection(), this);
+    _colorSelector = new ColorSelector(_presenter.colorSelection(), this);
 
     addDockWidget(Qt::BottomDockWidgetArea, _colorSelector);
 
@@ -206,8 +210,8 @@ void MainEditorView::onUndoStateChanged()
         ASSERT_INIT();
         //TODO: replace with PropertyBindings
 
-        _action_undo->setEnabled(_presenter->canUndo());
-        _action_redo->setEnabled(_presenter->canRedo());
+        _action_undo->setEnabled(_presenter.canUndo());
+        _action_redo->setEnabled(_presenter.canRedo());
     }
     ADDLE_SLOT_CATCH
 }
@@ -220,7 +224,7 @@ void MainEditorView::onAction_open()
         QSharedPointer<FileRequest> request(new FileRequest(FileRequest::Load));
         _fileDialogHelper->setRequest(request);
         
-        _presenter->loadDocument(request);
+        _presenter.loadDocument(request);
         
 //         QUrl file = QFileDialog::getOpenFileUrl(
 //             this, 

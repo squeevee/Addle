@@ -30,9 +30,9 @@ struct visitor_getIdsFor
     template<typename ModelType>
     QSet<GenericFormatId> operator()(_formatModelTypeWrapper<ModelType>) const
     {
-        return cpplinq::from(IdInfo::getIds<FormatId<ModelType>>())
-            >> cpplinq::cast<GenericFormatId>()
-            >> cpplinq::to_QSet();
+//         return cpplinq::from(IdInfo::getIds<FormatId<ModelType>>())
+//             >> cpplinq::cast<GenericFormatId>()
+//             >> cpplinq::to_QSet();
     }
     
     QSet<GenericFormatId> operator()(_formatModelTypeWrapper<GenericFormatModelTypeInfo::NullModelType>) const

@@ -42,6 +42,8 @@ signals:
     virtual void cursorChanged(QCursor cursor) = 0;
 };
 
+DECL_LOCAL_REPO_MEMBER(IToolPresenter, ToolId)
+
 } // namespace Addle
 
 Q_DECLARE_INTERFACE(Addle::IToolPresenter, "org.addle.IToolPresenter");

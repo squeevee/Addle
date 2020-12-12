@@ -37,6 +37,7 @@
 #include "interfaces/presenters/imaineditorpresenter.hpp"
 #include "interfaces/presenters/tools/ibrushtoolpresenter.hpp"
 #include "exceptions/commandlineexceptions.hpp"
+#include "exceptions/factoryexception.hpp"
 #include "exceptions/fileexception.hpp"
 #include "exceptions/formatexception.hpp"
 #include "exceptions/initializeexceptions.hpp"
@@ -236,6 +237,7 @@ const QSet<QByteArray> _DYNAMIC_TRIDS_REGISTRY = {
 } // namespace Addle
 
 #include "moc_globals.cpp"
+#include "exceptions/moc_factoryexception.cpp"
 #include "exceptions/moc_formatexception.cpp"
 #include "exceptions/moc_fileexception.cpp"
 #include "utilities/moc_genericeventfilter.cpp"

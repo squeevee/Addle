@@ -118,11 +118,11 @@ void LoadHelper<ModelType, PresenterType>::load(QSharedPointer<FileRequest> requ
     _request = request;
     _task->setRequest(request);
     
-    _request->setAvailableFormats(
-        cpplinq::from(IdInfo::getIds<FormatId<ModelType>>())
-            >>  cpplinq::cast<GenericFormatId>()
-            >>  cpplinq::to_QList()
-    );
+//     _request->setAvailableFormats(
+//         cpplinq::from(IdInfo::getIds<FormatId<ModelType>>())
+//             >>  cpplinq::cast<GenericFormatId>()
+//             >>  cpplinq::to_QList()
+//     );
         
     if (_request->url().isEmpty() || !QFileInfo(_request->url().toLocalFile()).isFile())
     {

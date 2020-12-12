@@ -33,7 +33,10 @@ class ADDLE_COMMON_EXPORT IndexVariant
 public:
     IndexVariant() = default;
     IndexVariant(const IndexVariant& other) = default;
-    IndexVariant(const QVariant& var);
+    IndexVariant(const QVariant& var) 
+        : _var( variantCanHash(var) ? var : QVariant())
+    {
+    } // no longer throws
 
     uint hash(uint seed = 0) const;
 

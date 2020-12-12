@@ -34,6 +34,8 @@
 
 #include "idtypes/formatid.hpp"
 
+#include "../multirepository.hpp"
+
 namespace Addle {
 
 template<class ModelType>
@@ -364,6 +366,14 @@ private:
     variant_t _value;
 };
 
+
+typedef make_multirepository_over<
+    boost::mpl::transform<
+        GenericFormatModelTypeInfo::types,
+        IFormatDriver<boost::mpl::placeholders::_1>
+    >::type
+>::type GenericFormatDriverRepository;
+
 /**
  * @class
  * @brief Generic abstraction of a reference to IFormatDriver.
@@ -380,6 +390,10 @@ public:
 
     GenericFormatDriver() = default;
 
+    GenericFormatDriver(GenericFormatDriverRepository::value_t value)
+    {
+    }
+    
     template<class ModelType>
     GenericFormatDriver(IFormatDriver<ModelType>& driver)
         : _value(&driver)

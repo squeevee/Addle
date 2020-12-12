@@ -2,12 +2,14 @@
 
 using namespace Addle;
 
-void NotificationDialog::initialize(QSharedPointer<IMessagePresenter> presenter)
+NotificationDialog::NotificationDialog(QSharedPointer<INotificationPresenter> presenter)
+    : _presenter(presenter),
+    _tlvHelper(this)
 {
-    const Initializer init(_initHelper);
-    
-    _presenter = qobject_interface_cast<INotificationPresenter>(presenter);
     ADDLE_ASSERT(_presenter);
+    
+    _tlvHelper.onOpened.bind(&NotificationDialog::tlv_opened, this);
+    _tlvHelper.onClosed.bind(&NotificationDialog::tlv_closed, this);
     
     setWindowModality(Qt::ApplicationModal);
     setAttribute(Qt::WA_DeleteOnClose);

@@ -18,6 +18,11 @@
 
 using namespace Addle;
 
+CanvasPresenter::CanvasPresenter()
+{
+    
+}
+
 void CanvasPresenter::initialize(IMainEditorPresenter& mainEditorPresenter)
 {
     const Initializer init(_initHelper);

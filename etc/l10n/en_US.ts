@@ -310,7 +310,7 @@
         <translation>Custom</translation>
     </message>
     <message id="debug-messages.starting-addle">
-        <location filename="../../src/addle/addle.cpp" line="60" />
+        <location filename="../../src/addle/addle.cpp" line="62" />
         <source>Starting Addle. This is a debug build.</source>
         <translation>Starting Addle. This is a debug build.</translation>
     </message>
@@ -881,6 +881,19 @@ Assertion failed: `%2`</translation>
         <location filename="../../src/common/utilities/view/guitrids.hpp" line="10" />
         <source />
         <translation type="unfinished" />
+    </message>
+    <message id="debug-messages.factory-exception">
+        <location filename="../../src/common/exceptions/factoryexception.hpp" line="30" />
+        <source>A factory error occurred.
+       why: %1
+ interface: %2
+        id: %3
+</source>
+        <translation>A factory error occurred.
+       why: %1
+ interface: %2
+        id: %3
+</translation>
     </message>
 </context>
 </TS>

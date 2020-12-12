@@ -24,6 +24,7 @@ class ADDLE_CORE_EXPORT CanvasPresenter : public QObject, public ICanvasPresente
     Q_INTERFACES(Addle::ICanvasPresenter)
     IAMQOBJECT_IMPL
 public: 
+    CanvasPresenter();
     virtual ~CanvasPresenter() = default;
 
     void initialize(IMainEditorPresenter& mainEditorPresenter);

@@ -45,215 +45,358 @@
 #include <QHash>
 #include <QSharedPointer>
 
-#define CPPLINQ_NOEXCEPT noexcept
-#include <cpplinq/cpplinq.hpp>
+#include <boost/type_traits/is_detected_convertible.hpp>
+
+// #define CPPLINQ_NOEXCEPT noexcept
+// #include <cpplinq/cpplinq.hpp>
 
 #include "compat.hpp"
 #include "hashfunctions.hpp"
 
-namespace cpplinq {
-
-namespace detail {
-
-template<typename range_t>
-struct _noexcept_front : std::integral_constant<bool, noexcept(std::declval<range_t>().front())> {};
-    
-template<typename range_t>
-struct _noexcept_next : std::integral_constant<bool, noexcept(std::declval<range_t>().next())> {};
-
-template<typename caster_t, typename source_t>
-struct _noexcept_caster : std::integral_constant<bool, noexcept(
-    std::declval<caster_t>()(std::declval<source_t>())
-)> {};
-
-template<typename dest_t>
-struct static_caster
-{
-    template<typename source_t>
-    inline dest_t operator()(const source_t& s) const noexcept { return static_cast<dest_t>(s); }
-};
-
-template<typename dest_t>
-struct dynamic_caster
-{
-    template<typename source_t>
-    inline dest_t operator()(const source_t& s) const { return dynamic_cast<dest_t>(s); }
-};
-  
-template<typename range_t, typename dest_t, typename caster_t = static_caster<dest_t>>
-struct cast_range : base_range
-{
-    static_assert(
-        !std::is_reference<dest_t>::value || std::is_const<dest_t>::value,
-        "cannot cast to non-const reference type"
-    );
-    
-    typedef cast_range this_type;
-    typedef dest_t value_type;
-    typedef dest_t return_type;
-
-    static constexpr bool returns_reference = std::is_reference<dest_t>::value;
-    
-    typedef range_t range_type;
-    typedef typename range_type::return_type source_t;
-    
-    range_type          range;
-    
-    inline cast_range(range_type range_)
-        : range(range_)
-    {
-    }
-    
-    inline cast_range(const cast_range&) noexcept = default;
-    inline cast_range(cast_range&&) noexcept = default;
-    
-    inline return_type front() const noexcept(
-            _noexcept_front<range_t>::value &&
-            _noexcept_caster<caster_t, source_t>::value
-        )
-    {
-        return caster_t()(range.front());
-    }
-    
-    inline bool next() noexcept(
-            _noexcept_next<range_t>::value
-        )
-    {
-        return range.next();
-    }
-    
-    template<typename range_tBuilder>
-    inline typename get_builtup_type<range_tBuilder, this_type>::type
-        operator>>(range_tBuilder range_builder) noexcept
-    {
-        return range_builder.build(*this);
-    }
-};
-
-template<typename dest_t, typename caster_t = static_caster<dest_t>>
-struct cast_builder
-{
-    typedef cast_builder    this_type;
-    
-    template<typename range_t>
-    inline cast_range<range_t, dest_t, caster_t> build(range_t range) const noexcept
-    {
-        return cast_range<range_t, dest_t, caster_t>(range);
-    }
-};
-
-struct _placeholder_1;
-struct _placeholder_2;
-
-template<typename qt_sequence_t, typename T>
-struct _qt_sequence_helper;
-
-template<typename T>
-struct _qt_sequence_helper<QList<_placeholder_1>, T>
-{
-    typedef QList<T> type;
-    static inline void add(type& seq, const T& t) noexcept { seq.append(t); }
-};
-
-template<typename T>
-struct _qt_sequence_helper<QVector<_placeholder_1>, T>
-{
-    typedef QVector<T> type;
-    static inline void add(type& seq, const T& t) noexcept { seq.append(t); }
-};
-
-template<typename T>
-struct _qt_sequence_helper<QSet<_placeholder_1>, T>
-{
-    typedef QSet<T> type;
-    static inline void add(type& seq, const T& t) noexcept { seq.insert(t); }
-};
-
-template<typename qt_sequence_t>
-struct to_qt_sequence_builder : base_builder
-{
-    typedef to_qt_sequence_builder this_type;
-    
-    int reserve;
-    
-    to_qt_sequence_builder(int reserve_)
-        : reserve(reserve_)
-    {
-    }
-    
-    to_qt_sequence_builder(const to_qt_sequence_builder&) = default;
-    to_qt_sequence_builder(to_qt_sequence_builder&&) = default;
-    
-    template <typename range_t>
-    inline typename _qt_sequence_helper<
-        qt_sequence_t, typename range_t::value_type
-    >::type build(range_t range) const 
-        noexcept(_noexcept_front<range_t>::value && _noexcept_next<range_t>::value)
-    {
-        auto result = typename _qt_sequence_helper<
-            qt_sequence_t, typename range_t::value_type
-        >::type();
-        if (reserve > 0)
-        {
-            result.reserve(reserve);
-        }
-        
-        while(range.next())
-        {
-            _qt_sequence_helper<
-                qt_sequence_t, typename range_t::value_type
-            >::add(result, range.front());
-        }
-        
-        return result;
-    }
-};
-
-template<typename TRange>
-inline experimental::container_iterator<typename cleanup_type<TRange>::type> begin(TRange&& range)
-{
-    return experimental::container_iterator<typename cleanup_type<TRange>::type>(std::move(range));
-}
-
-template<typename TRange>
-inline experimental::container_iterator<typename cleanup_type<TRange>::type> end(TRange&&)
-{
-    return experimental::container_iterator<typename cleanup_type<TRange>::type>();
-}
-
-} // namespace detail
-
-template<typename dest_t>
-inline detail::cast_builder<dest_t> cast() noexcept
-{
-    return detail::cast_builder<dest_t>();
-}
-
-template<typename dest_t>
-inline detail::cast_builder<dest_t> dynamicCast() noexcept
-{
-    return detail::cast_builder<dest_t, detail::dynamic_caster<dest_t>>();
-}
-    
-inline detail::to_qt_sequence_builder<QList<detail::_placeholder_1>>
-    to_QList(int reserve = 0) noexcept
-{
-    return detail::to_qt_sequence_builder<QList<detail::_placeholder_1>>(reserve);
-}
-
-inline detail::to_qt_sequence_builder<QVector<detail::_placeholder_1>>
-    to_QVector(int reserve = 0) noexcept
-{
-    return detail::to_qt_sequence_builder<QVector<detail::_placeholder_1>>(reserve);
-}
-
-inline detail::to_qt_sequence_builder<QSet<detail::_placeholder_1>>
-    to_QSet(int reserve = 0) noexcept
-{
-    return detail::to_qt_sequence_builder<QSet<detail::_placeholder_1>>(reserve);
-}
-
-} // namespace cpplinq
+// namespace cpplinq {
+// 
+// namespace detail {
+// 
+// template<typename range_t>
+// struct _noexcept_front : std::integral_constant<bool, noexcept(std::declval<range_t>().front())> {};
+//     
+// template<typename range_t>
+// struct _noexcept_next : std::integral_constant<bool, noexcept(std::declval<range_t>().next())> {};
+// 
+// template<typename caster_t, typename source_t>
+// struct _noexcept_caster : std::integral_constant<bool, noexcept(
+//     std::declval<caster_t>()(std::declval<source_t>())
+// )> {};
+// /*
+// template<typename dest_t>
+// struct static_cast_functor
+// {
+//     static_assert(
+//         !std::is_reference<dest_t>::value
+//         || std::is_const<typename std::remove_reference<dest_t>::type>::value,
+//         "cannot cast to non-const reference type"
+//     );
+//         
+//     template<typename source_t>
+//     inline dest_t operator()(const source_t& s) const noexcept { return static_cast<dest_t>(s); }
+// };
+// 
+// template<typename dest_t>
+// struct dynamic_cast_functor
+// {
+//     static_assert(
+//         !std::is_reference<dest_t>::value
+//         || std::is_const<typename std::remove_reference<dest_t>::type>::value,
+//         "cannot cast to non-const reference type"
+//     );
+//         
+//     template<typename source_t>
+//     inline dest_t operator()(const source_t& s) const { return dynamic_cast<dest_t>(s); }
+// };
+// 
+// struct const_ref_functor
+// {
+//     template<typename source_t>
+//     inline const source_t& operator()(const source_t& s) const { return s; }
+// };
+// 
+// struct add_ref_functor
+// {
+//     template<typename source_t>
+//     inline source_t& operator()(source_t& s) const { return s; }
+//     
+//     template<typename source_t>
+//     inline const source_t& operator()(const source_t& s) const { return s; }
+// };
+// 
+// struct remove_ref_functor
+// {
+//     template<typename source_t>
+//     inline source_t operator()(const source_t& s) const { return s; }
+// };
+// 
+// struct deref_functor
+// {
+//     template<typename pointer_t>
+//     inline auto operator()(const pointer_t& p) const
+//         -> std::reference_wrapper<std::remove_reference<decltype(*p)>>
+//     {
+//         return ref(*p);
+//     }
+// };
+// 
+// struct address_functor
+// {
+//     template<typename source_t>
+//     inline source_t* operator()(const source_t& p) const
+//     {
+//         return &p;
+//     }
+// };
+// 
+// template<typename TValue>
+// class opt_ref
+// {
+//     typedef TValue value_type;
+// 
+//     inline opt_ref() noexcept
+//         : _pointer(nullptr)
+//     {
+//     }
+// 
+//     inline explicit opt_ref(value_type& value) noexcept
+//         :   _pointer(std::addressof(value))
+//     {
+//     }
+// 
+//     inline opt_ref(const opt_ref&) = default;
+//     inline opt_ref(opt_ref&& other) noexcept
+//         :   _pointer(other._pointer)
+//     {
+//         other._pointer = nullptr;
+//     }
+// 
+//     inline void swap(opt_ref& other) noexcept
+//     { 
+//         std::swap(_pointer, other._pointer);
+//     }
+// 
+//     inline opt_ref& operator= (const opt_ref& other) noexcept
+//     {
+//         _pointer = other._pointer;
+//         return *this;
+//     }
+// 
+//     inline opt_ref& operator= (opt_ref&& other) noexcept
+//     {
+//         _pointer = other._pointer;
+//         other._pointer = nullptr;
+//         return *this;
+//     }
+// 
+//     inline opt_ref & operator= (value_type& value) noexcept
+//     {
+//         _pointer = std::addressof(value);
+//         return *this;
+//     }
+// 
+//     inline void clear() noexcept
+//     {
+//         _pointer = nullptr;
+//     }
+// 
+//     inline value_type* get_ptr() const noexcept
+//     {
+//         return _pointer;
+//     }
+// 
+//     inline value_type & get() const noexcept
+//     {
+//         assert(_pointer);
+//         return *_pointer;
+//     }
+// 
+//     inline bool has_value () const noexcept
+//     {
+//         return static_cast<bool>(_pointer);
+//     }
+// 
+//     explicit operator bool() const noexcept
+//     {
+//         return has_value();
+//     }
+// 
+//     inline value_type& operator* () const noexcept
+//     {
+//         return get();
+//     }
+// 
+//     inline value_type* operator-> () const noexcept
+//     {
+//         return get_ptr();
+//     }
+// 
+// private:
+//     value_type* _pointer;
+//     bool _is_initialized;
+// };
+// */
+// 
+// 
+// template<typename T>
+// using _has_isNull_t = decltype(std::declval<T>().isNull());
+// 
+// struct not_null_predicate
+// {
+//     template<typename T>
+//     inline bool operator()(const T& value) const 
+//     {
+//         return !is_null_impl(value);
+//     }
+//     
+// private:
+//     template<typename T_>
+//     static inline typename std::enable_if<
+//         boost::is_detected_convertible<bool, _has_isNull_t, T_>::value,
+//         bool
+//     >::type is_null_impl(const T_& value)
+//     {
+//         return value.isNull();
+//     }
+//     
+//     template<typename T_>
+//     static inline typename std::enable_if<
+//         !boost::is_detected_convertible<bool, _has_isNull_t, T_>::value
+//         && std::is_convertible<T_, bool>::value,
+//         bool
+//     >::type is_null_impl(const T_& value)
+//     {
+//         return !static_cast<bool>(value);
+//     }
+// };
+// 
+// struct _placeholder_1;
+// struct _placeholder_2;
+// 
+// template<typename qt_sequence_t, typename T>
+// struct _qt_sequence_helper;
+// 
+// template<typename T>
+// struct _qt_sequence_helper<QList<_placeholder_1>, T>
+// {
+//     typedef QList<T> type;
+//     static inline void add(type& seq, const T& t) noexcept { seq.append(t); }
+// };
+// 
+// template<typename T>
+// struct _qt_sequence_helper<QVector<_placeholder_1>, T>
+// {
+//     typedef QVector<T> type;
+//     static inline void add(type& seq, const T& t) noexcept { seq.append(t); }
+// };
+// 
+// template<typename T>
+// struct _qt_sequence_helper<QSet<_placeholder_1>, T>
+// {
+//     typedef QSet<T> type;
+//     static inline void add(type& seq, const T& t) noexcept { seq.insert(t); }
+// };
+// 
+// template<typename qt_sequence_t>
+// struct to_qt_sequence_builder : base_builder
+// {
+//     typedef to_qt_sequence_builder this_type;
+//     
+//     int reserve;
+//     
+//     to_qt_sequence_builder(int reserve_)
+//         : reserve(reserve_)
+//     {
+//     }
+//     
+//     to_qt_sequence_builder(const to_qt_sequence_builder&) = default;
+//     to_qt_sequence_builder(to_qt_sequence_builder&&) = default;
+//     
+//     template <typename range_t>
+//     inline typename _qt_sequence_helper<
+//         qt_sequence_t, typename range_t::value_type
+//     >::type build(range_t range) const 
+//         noexcept(_noexcept_front<range_t>::value && _noexcept_next<range_t>::value)
+//     {
+//         auto result = typename _qt_sequence_helper<
+//             qt_sequence_t, typename range_t::value_type
+//         >::type();
+//         if (reserve > 0)
+//         {
+//             result.reserve(reserve);
+//         }
+//         
+//         while(range.next())
+//         {
+//             _qt_sequence_helper<
+//                 qt_sequence_t, typename range_t::value_type
+//             >::add(result, range.front());
+//         }
+//         
+//         return result;
+//     }
+// };
+// /*
+// template<typename TRange>
+// inline experimental::container_iterator<typename cleanup_type<TRange>::type> begin(TRange&& range)
+// {
+//     return experimental::container_iterator<typename cleanup_type<TRange>::type>(std::move(range));
+// }
+// 
+// template<typename TRange>
+// inline experimental::container_iterator<typename cleanup_type<TRange>::type> end(const TRange&)
+// {
+//     return experimental::container_iterator<typename cleanup_type<TRange>::type>();
+// }*/
+// 
+// } // namespace detail
+// /*
+// template<typename dest_t>
+// inline detail::select_builder<detail::static_cast_functor<dest_t>> cast() noexcept
+// {
+//     return select(detail::static_cast_functor<dest_t>());
+// }
+// 
+// template<typename dest_t>
+// inline detail::select_builder<detail::dynamic_cast_functor<dest_t>> dynamic_cast_() noexcept
+// {
+//     return select(detail::dynamic_cast_functor<dest_t>());
+// }
+// 
+// inline detail::select_builder<detail::const_ref_functor> const_ref() noexcept
+// {
+//     return select(detail::const_ref_functor());
+// }
+// 
+// inline detail::select_builder<detail::add_ref_functor> add_ref() noexcept
+// {
+//     return select(detail::add_ref_functor());
+// }
+// 
+// inline detail::select_builder<detail::remove_ref_functor> remove_ref() noexcept
+// {
+//     return select(detail::remove_ref_functor());
+// }
+// 
+// inline detail::select_builder<detail::deref_functor> deref() noexcept
+// {
+//     return select(detail::deref_functor());
+// }
+// 
+// inline detail::select_builder<detail::address_functor> address() noexcept
+// {
+//     return select(detail::address_functor());
+// }
+//     */
+// inline detail::where_builder<detail::not_null_predicate> where_not_null() noexcept
+// {
+//     return where(detail::not_null_predicate());
+// }
+//     
+// inline detail::to_qt_sequence_builder<QList<detail::_placeholder_1>>
+//     to_QList(int reserve = 0) noexcept
+// {
+//     return detail::to_qt_sequence_builder<QList<detail::_placeholder_1>>(reserve);
+// }
+// 
+// inline detail::to_qt_sequence_builder<QVector<detail::_placeholder_1>>
+//     to_QVector(int reserve = 0) noexcept
+// {
+//     return detail::to_qt_sequence_builder<QVector<detail::_placeholder_1>>(reserve);
+// }
+// 
+// inline detail::to_qt_sequence_builder<QSet<detail::_placeholder_1>>
+//     to_QSet(int reserve = 0) noexcept
+// {
+//     return detail::to_qt_sequence_builder<QSet<detail::_placeholder_1>>(reserve);
+// }
+// 
+// } // namespace cpplinq
 
 namespace Addle {
 

@@ -11,7 +11,7 @@
 
 #include "interfaces/presenters/tools/itoolpresenter.hpp"
 
-#include "utilities/presenter/propertycache.hpp"
+#include "utilities/lazyvalue.hpp"
 #include "utilities/canvas/canvasmouseevent.hpp"
 
 #include <QEvent>

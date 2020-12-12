@@ -8,7 +8,7 @@
 
 #include "interfaces/presenters/messages/ifileissuepresenter.hpp"
 
-#include "utilities/presenter/propertycache.hpp"
+#include "utilities/lazyvalue.hpp"
 #include "utilities/initializehelper.hpp"
 
 namespace Addle {
@@ -79,8 +79,8 @@ private:
     bool _canRetryWithPrivilege = false;
     bool _canPreview = false;
     
-    PropertyCache<QString> _cache_text;
-    PropertyCache<KeyValueList<QString, QString>> _cache_fileStats;
+    LazyProperty<QString> _cache_text;
+    LazyProperty<KeyValueList<QString, QString>> _cache_fileStats;
     
     bool _fileExists = false;
     QString _filename;

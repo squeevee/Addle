@@ -18,7 +18,7 @@
 #include "utils.hpp"
 #include "utilities/initializehelper.hpp"
 #include "utilities/presetmap.hpp"
-#include "utilities/presenter/propertycache.hpp"
+#include "utilities/lazyvalue.hpp"
 
 namespace Addle {
 
@@ -261,9 +261,9 @@ private:
 
     ZoomPreset _zoomPreset;
 
-    PropertyCache<bool> _canNavigateCache;
-    PropertyCache<bool> _canZoomInCache;
-    PropertyCache<bool> _canZoomOutCache;
+    LazyProperty<bool> _canNavigateCache;
+    LazyProperty<bool> _canZoomInCache;
+    LazyProperty<bool> _canZoomOutCache;
 
     bool _hasFocus = false;
 
@@ -277,9 +277,9 @@ private:
     //The center of the viewport in the canvas' coordinates.
     QPointF _position;
 
-    PropertyCache<TransformPair> _transformCache;
+    LazyProperty<TransformPair> _transformCache;
 
-    PropertyCache<ScrollState> _scrollStateCache;
+    LazyProperty<ScrollState> _scrollStateCache;
 
     TransformPair transforms_p();
 

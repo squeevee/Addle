@@ -192,6 +192,40 @@ inline void postInterfaceEvent(QSharedPointer<Interface> receiver, QEvent* event
     postInterfaceEvent(receiver.data(), event, priority);
 }
 
+template<class Interface>
+class InterfacePointer
+{
+    static_assert(
+       Traits::implemented_as_QObject<Interface>::value,
+       "InterfacePointer may only be used for interfaces implemented as QObject"
+    );
+    typedef typename std::conditional<
+        std::is_const<Interface>::value,
+        const QObject,
+        QObject
+    >::type ObjectType;
+    
+public:
+    inline InterfacePointer(Interface* interface = nullptr)
+        : _inner(qobject_interface_cast<ObjectType>(interface))
+    {
+    }
+    
+    inline Interface& operator*() const { return *qobject_cast<Interface*>(_inner.data()); }
+    
+    inline Interface* data() const { return qobject_cast<Interface*>(_inner.data()); }
+    inline Interface* operator->() const { return qobject_cast<Interface*>(_inner.data()); }
+    
+private:
+    QPointer<ObjectType> _inner;
+};
+
+template<class OutType, class InType>
+inline InterfacePointer<OutType> qobject_interface_cast(InterfacePointer<InType> ptr)
+{
+    return InterfacePointer<OutType>(qobject_interface_cast<OutType*>(ptr.data()));
+}
+
 } // namespace Addle
 
 #endif // QOBJECT_HPP

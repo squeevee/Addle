@@ -18,6 +18,7 @@
 
 #include "utilities/debugging/debugbehavior.hpp"
 #include "utilities/presenter/messagebuilders.hpp"
+#include "utilities/qobject.hpp"
 
 using namespace Addle;
 

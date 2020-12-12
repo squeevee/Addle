@@ -54,18 +54,11 @@ class ADDLE_WIDGETSGUI_EXPORT MainEditorView : public QMainWindow, public IMainE
     Q_INTERFACES(Addle::IMainEditorView Addle::ITopLevelView)
     IAMQOBJECT_IMPL    
 public:
-    MainEditorView()
-        : _tlvHelper(this, std::bind(&MainEditorView::setupUi, this))
-    {
-        _tlvHelper.onOpened.bind(&MainEditorView::tlv_opened, this);
-        _tlvHelper.onClosed.bind(&MainEditorView::tlv_closed, this);
-        
-        _messageViewHelper.onUrgentViewMade.bind(&MainEditorView::onUrgentMessageMade, this);
-    }
+    MainEditorView(IMainEditorPresenter& presenter);
     virtual ~MainEditorView() = default;
 
-    void initialize(IMainEditorPresenter& presenter) override;
-    IMainEditorPresenter& presenter() const override{ ASSERT_INIT(); return *_presenter; }
+    //void initialize(IMainEditorPresenter& presenter) override;
+    IMainEditorPresenter& presenter() const override{ ASSERT_INIT(); return _presenter; }
     
 public slots:
     void tlv_open() override { try { ASSERT_INIT(); _tlvHelper.open(); } ADDLE_SLOT_CATCH }
@@ -103,7 +96,7 @@ private:
     void setupUi();
     void onUrgentMessageMade(ITopLevelView* view);
     
-    IMainEditorPresenter* _presenter = nullptr;
+    IMainEditorPresenter& _presenter;
     
     QMenuBar* _menuBar;
     QToolBar* _toolBar_documentActions;

@@ -25,15 +25,15 @@ public:
             rebuildCache();
         }
 
-        return cpplinq::from(_idsByType.value(qMetaTypeId<IdType>()))
-            >> cpplinq::cast<IdType>()
-            >> cpplinq::to_QSet();
+//         return cpplinq::from(_idsByType.value(qMetaTypeId<IdType>()))
+//             >> cpplinq::cast<IdType>()
+//             >> cpplinq::to_QSet();
     }
     
     template<class Interface>
-    static QSet<typename Traits::id_type<Interface>::type> getIdsFor()
+    static QSet<typename Traits::repo_id_type<Interface>::type> getIdsFor()
     {
-        return getIds<typename Traits::id_type<Interface>::type>();
+        return getIds<typename Traits::repo_id_type<Interface>::type>();
     }
     
 private:

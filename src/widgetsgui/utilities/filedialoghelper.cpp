@@ -83,10 +83,10 @@ void FileDialogHelper::onUrlChanged(QUrl url)
 
 void FileDialogHelper::onAccepted()
 {
-    _request->setUrl(
-            cpplinq::from(_dialog->selectedUrls())
-        >>  cpplinq::first_or_default()
-    );
+//     _request->setUrl(
+//             cpplinq::from(_dialog->selectedUrls())
+//         >>  cpplinq::first_or_default()
+//     );
 }
 
 void FileDialogHelper::onRejected()
@@ -138,32 +138,32 @@ QStringList FileDialogHelper::makeNameFilters()
     QStringList result;
     QStringList allExtensions;  
 
-    for (auto format :
-            cpplinq::from(_request->availableFormats())
-        >>  cpplinq::orderby_descending(
-                [this] (GenericFormatId format) {
-                    return format == _request->favoriteFormat();
-                })
-        >>  cpplinq::thenby_ascending(
-                [] (GenericFormatId format) -> CollatingString {
-                    return format.name();
-                }))
-    {
-        QStringList filterExtensions = 
-                cpplinq::from(format.fileExtensions())
-            >>  cpplinq::select(
-                    [] (const QString& ext) -> QString {
-                        return "*." % ext;
-                    })
-            >>  cpplinq::to_QList();
-
-        result <<
-            qtTrId(FILE_FILTER_TRID)
-                .arg(format.name())
-                .arg(filterExtensions.join(' '));
-
-        allExtensions.append(filterExtensions);
-    }
+//     for (auto format :
+//             cpplinq::from(_request->availableFormats())
+//         >>  cpplinq::orderby_descending(
+//                 [this] (GenericFormatId format) {
+//                     return format == _request->favoriteFormat();
+//                 })
+//         >>  cpplinq::thenby_ascending(
+//                 [] (GenericFormatId format) -> CollatingString {
+//                     return format.name();
+//                 }))
+//     {
+//         QStringList filterExtensions = 
+//                 cpplinq::from(format.fileExtensions())
+//             >>  cpplinq::select(
+//                     [] (const QString& ext) -> QString {
+//                         return "*." % ext;
+//                     })
+//             >>  cpplinq::to_QList();
+// 
+//         result <<
+//             qtTrId(FILE_FILTER_TRID)
+//                 .arg(format.name())
+//                 .arg(filterExtensions.join(' '));
+// 
+//         allExtensions.append(filterExtensions);
+//     }
 
     QString allFormatsFilter = 
         qtTrId(FILE_FILTER_TRID)

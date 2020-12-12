@@ -59,62 +59,81 @@
 
 using namespace Addle;
 
-void MainEditorPresenter::initialize(Mode mode)
+MainEditorPresenter::MainEditorPresenter(
+        Mode mode,       
+        std::unique_ptr<ICanvasPresenter> canvasPresenter,
+        std::unique_ptr<IColorSelectionPresenter> colorSelection,
+        std::unique_ptr<IViewPortPresenter> viewPortPresenter,
+        std::unique_ptr<IMessageContext> messageContext,
+        std::unique_ptr<IRepository<IPalettePresenter>> palettes,
+        std::unique_ptr<IRepository<IToolPresenter>> tools)
+    : _mode(mode),
+    _canvasPresenter(std::move(canvasPresenter)),
+    _colorSelection(std::move(colorSelection)),
+    _viewPortPresenter(std::move(viewPortPresenter)),
+    _messageContext(std::move(messageContext)),
+    _palettes(std::move(palettes)),
+    _tools(std::move(tools))
 {
-    const Initializer init(_initHelper);
+    _undoStackHelper.undoStateChanged.bind(&MainEditorPresenter::undoStateChanged, this);
+
+    _isEmptyCache.calculateBy(&MainEditorPresenter::isEmpty_p, this);
+    _isEmptyCache.onChange.bind(&MainEditorPresenter::isEmptyChanged, this);
     
-    ServiceLocator::get<IApplicationService>().registerMainEditorPresenter(this);
+    _loadDocumentHelper.onLoaded.bind(&MainEditorPresenter::onLoadDocumentCompleted, this);
 
-    _mode = mode;
+    //ServiceLocator::get<IApplicationService>().registerMainEditorPresenter(this);
 
-    _viewPortPresenter = ServiceLocator::makeUnique<IViewPortPresenter>(this);
-    _initHelper.setCheckpoint(InitCheck_ViewPortPresenter);
+    //_viewPortPresenter = ServiceLocator::makeUnique<IViewPortPresenter>(this);
+    //_initHelper.setCheckpoint(InitCheck_ViewPortPresenter);
 
-    _canvasPresenter = ServiceLocator::makeUnique<ICanvasPresenter>(std::ref(*this));
-    _initHelper.setCheckpoint(InitCheck_CanvasPresenter);
+    //_canvasPresenter = ServiceLocator::makeUnique<ICanvasPresenter>(std::ref(*this));
+    //_initHelper.setCheckpoint(InitCheck_CanvasPresenter);
     
-    _palettes = { 
-        ServiceLocator::makeShared<IPalettePresenter>(CorePalettes::BasicPalette)
-    };
-
-    _colorSelection = ServiceLocator::makeUnique<IColorSelectionPresenter>(_palettes);
-    _colorSelection->setPalette(_palettes.first());
-    _initHelper.setCheckpoint(InitCheck_ColorSelection);
-
-    _brushTool = ServiceLocator::makeShared<IBrushToolPresenter>(
-        this,
-        IBrushToolPresenter::Mode::Brush
-    );
-
-    _eraserTool = ServiceLocator::makeShared<IBrushToolPresenter>(
-        this,
-        IBrushToolPresenter::Mode::Eraser
-    );
-
-    _navigateTool = ServiceLocator::makeShared<INavigateToolPresenter>(
-        this
-    );
-
-    _tools = {{
-        Mode::Editor,
-        {
-            //{ DefaultTools::Select, nullptr },
-            { CoreTools::Brush, _brushTool },
-            { CoreTools::Eraser, _eraserTool },
-            //{ DefaultTools::Text, nullptr },
-            //{ DefaultTools::Shapes, nullptr },
-            //{ DefaultTools::Stickers, nullptr },
-            //{ DefaultTools::Eyedrop, nullptr },
-            { CoreTools::Navigate, _navigateTool }
-            //{ DefaultTools::Measure, nullptr }
-        }
-    }};
+    _palettes->add(CorePalettes::BasicPalette);
     
-    _messageContext = ServiceLocator::makeUnique<IMessageContext>();
-    _initHelper.setCheckpoint(InitCheck_MessageContext);
+//     _palettes = { 
+//         ServiceLocator::makeShared<IPalettePresenter>(CorePalettes::BasicPalette)
+//     };
 
-    _view = ServiceLocator::makeUnique<IMainEditorView>(std::ref(*this));
-    _initHelper.setCheckpoint(InitCheck_View);
+    //_colorSelection = ServiceLocator::makeUnique<IColorSelectionPresenter>(_palettes);
+    //_colorSelection->setPalette(_palettes.first());
+    //_initHelper.setCheckpoint(InitCheck_ColorSelection);
+
+//     _brushTool = ServiceLocator::makeShared<IBrushToolPresenter>(
+//         this,
+//         IBrushToolPresenter::Mode::Brush
+//     );
+// 
+//     _eraserTool = ServiceLocator::makeShared<IBrushToolPresenter>(
+//         this,
+//         IBrushToolPresenter::Mode::Eraser
+//     );
+// 
+//     _navigateTool = ServiceLocator::makeShared<INavigateToolPresenter>(
+//         this
+//     );
+// 
+//     _tools = {{
+//         Mode::Editor,
+//         {
+//             { DefaultTools::Select, nullptr },
+//             { CoreTools::Brush, _brushTool },
+//             { CoreTools::Eraser, _eraserTool },
+//             { DefaultTools::Text, nullptr },
+//             { DefaultTools::Shapes, nullptr },
+//             { DefaultTools::Stickers, nullptr },
+//             { DefaultTools::Eyedrop, nullptr },
+//             { CoreTools::Navigate, _navigateTool }
+//             { DefaultTools::Measure, nullptr }
+//         }
+//     }};
+    
+    //_messageContext = ServiceLocator::makeUnique<IMessageContext>();
+    //_initHelper.setCheckpoint(InitCheck_MessageContext);
+
+    //_view = ServiceLocator::makeUnique<IMainEditorView>(std::ref(*this));
+    //_initHelper.setCheckpoint(InitCheck_View);
 
 //     _loadDocumentTask = new LoadDocumentTask(this);
 //     connect(_loadDocumentTask, &AsyncTask::completed, this, &MainEditorPresenter::onLoadDocumentCompleted);
@@ -200,10 +219,10 @@ void MainEditorPresenter::loadDocument(QSharedPointer<FileRequest> request)
         
         request->setModelType(GenericFormatModelTypeInfo::fromType<IDocument>());
         request->setFavoriteFormat(CoreFormats::PNG);
-        request->setDirectory(
-                cpplinq::from(QStandardPaths::standardLocations(QStandardPaths::PicturesLocation))
-            >>  cpplinq::first_or_default()
-        );
+//         request->setDirectory(
+//                 cpplinq::from(QStandardPaths::standardLocations(QStandardPaths::PicturesLocation))
+//             >>  cpplinq::first_or_default()
+//         );
         request->setMessageContext(_messageContext.get());
 //         request->setUrl(
 //             QUrl::fromLocalFile(QStandardPaths::standardLocations(QStandardPaths::PicturesLocation).constFirst())
@@ -383,18 +402,18 @@ void MainEditorPresenter::onLoadDocumentFailed()
 
 void MainEditorPresenter::setCurrentTool(ToolId tool)
 {
-    ASSERT_INIT(); 
-    if (tool == _currentTool)
-        return;
-
-    const auto& toolPresenters = _tools.value(_mode);
-    ADDLE_ASSERT(!tool || toolPresenters.contains(tool));
-
-    _currentTool = tool;
-    auto previousTool = _currentToolPresenter;
-    _currentToolPresenter = toolPresenters.value(tool);
-    emit currentToolChanged(_currentTool);
-    emit _currentToolPresenter->setSelected(true);
-    if (previousTool)
-        emit previousTool->setSelected(false);
+//     ASSERT_INIT(); 
+//     if (tool == _currentTool)
+//         return;
+// 
+//     const auto& toolPresenters = _tools.value(_mode);
+//     ADDLE_ASSERT(!tool || toolPresenters.contains(tool));
+// 
+//     _currentTool = tool;
+//     auto previousTool = _currentToolPresenter;
+//     _currentToolPresenter = toolPresenters.value(tool);
+//     emit currentToolChanged(_currentTool);
+//     emit _currentToolPresenter->setSelected(true);
+//     if (previousTool)
+//         emit previousTool->setSelected(false);
 }

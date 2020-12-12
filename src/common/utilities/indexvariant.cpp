@@ -19,14 +19,11 @@ QHash<int, uint(*)(QVariant, uint)> IndexVariant::_hashers = {
     { QMetaType::QByteArray, &hasher<QByteArray> }
 };
 
-IndexVariant::IndexVariant(const QVariant& var)
-    : _var(var)
-{
-    ADDLE_ASSERT(variantCanHash(var));
-}
-
 uint IndexVariant::hash(uint seed) const
 {
+    if (_var.isNull())
+        return 0; //?
+    
     int type = _var.userType();
 
     // If a hasher is explicitly registered for a type, that is preferred.

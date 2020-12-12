@@ -26,6 +26,7 @@ public:
 };
 
 DECL_MAKEABLE(IMainEditorView)
+DECL_INIT_PARAMS(IMainEditorView, IMainEditorPresenter&)
 
 } // namespace Addle
 

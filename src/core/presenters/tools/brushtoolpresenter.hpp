@@ -21,7 +21,7 @@
 #include "interfaces/editing/ibrushengine.hpp"
 #include "interfaces/presenters/tools/iassetselectionpresenter.hpp"
 
-#include "utilities/presenter/propertycache.hpp"
+#include "utilities/lazyvalue.hpp"
 
 #include "utilities/asynctask.hpp"
 #include "utilities/model/colorinfo.hpp"
@@ -144,7 +144,7 @@ public:
     void update();
     void setPosition(QPointF);
 
-    PropertyCache<bool> isVisible_cache;
+    LazyProperty<bool> isVisible_cache;
 private:
     bool calc_visible();
 

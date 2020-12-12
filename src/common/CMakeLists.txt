@@ -8,10 +8,9 @@ set (common_sources
     ${INTERFACES}
     
     common.cpp
-    servicelocator.cpp
     exceptions/addleexception.cpp
     utilities/asynctask.cpp
-    utilities/configuration/serviceconfig.cpp
+    #utilities/config/bindingfilter.cpp
     utilities/errors.cpp
     utilities/collatingstring.cpp
     utilities/iocheck.cpp

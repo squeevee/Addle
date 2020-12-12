@@ -20,7 +20,7 @@
 #include "utilities/heirarchylist.hpp"
 
 #include "utilities/model/layergroupinfo.hpp"
-#include "utilities/presenter/propertycache.hpp"
+#include "utilities/lazyvalue.hpp"
 #include "utilities/helpercallback.hpp"
 #include "servicelocator.hpp"
 namespace Addle {
@@ -201,7 +201,7 @@ private:
 
     LayerList _layers;
 
-    PropertyCache<QSharedPointer<ILayerPresenter>> _topSelectedLayer;
+    LazyProperty<QSharedPointer<ILayerPresenter>> _topSelectedLayer;
 
     QSet<LayerNode*> _layerSelection;
     std::set<LayerNode*, LayerList::Node::Comparator> _layerSelection_ordered;

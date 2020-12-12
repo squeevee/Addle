@@ -20,15 +20,10 @@ class FileIssueDialog : public QDialog, public IMessageView, public ITopLevelVie
     Q_INTERFACES(Addle::IMessageView Addle::ITopLevelView)
     IAMQOBJECT_IMPL
 public:
-    FileIssueDialog()
-        : _tlvHelper(this, std::bind(&FileIssueDialog::setupUi, this))
-    {
-        _tlvHelper.onOpened.bind(&FileIssueDialog::tlv_opened, this);
-        _tlvHelper.onClosed.bind(&FileIssueDialog::tlv_closed, this);
-    }
+    FileIssueDialog(QSharedPointer<IFileIssuePresenter> presenter);
     virtual ~FileIssueDialog() = default;
     
-    void initialize(QSharedPointer<IMessagePresenter> presenter) override;
+    //void initialize(QSharedPointer<IMessagePresenter> presenter) override;
     
     QSharedPointer<IMessagePresenter> presenter() const override { ASSERT_INIT(); return _presenter; }
         

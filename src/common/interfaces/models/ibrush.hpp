@@ -60,7 +60,7 @@ public:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(IBrush::PreviewHints);
 
-DECL_PERSISTENT_OBJECT_TYPE(IBrush, BrushId);
+DECL_GLOBAL_REPO_MEMBER(IBrush, BrushId);
 
 } // namespace Addle
 

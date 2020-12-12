@@ -34,7 +34,8 @@ public:
     virtual MultiArray<ColorInfo, 2> colors() const = 0;
 };
 
-DECL_MAKEABLE(IPalettePresenter);
+DECL_MAKEABLE(IPalettePresenter)
+DECL_LOCAL_REPO_MEMBER(IPalettePresenter, PaletteId)
 
 } // namespace Addle
 

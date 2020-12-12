@@ -44,9 +44,9 @@ typedef IFormatDriver<IDocument> IDocumentFormatDriver;
 typedef IFormatDriver<IBrush> IBrushFormatDriver;
 typedef IFormatDriver<IPalette> IPaletteFormatDriver;
 
-DECL_PERSISTENT_OBJECT_TYPE(IDocumentFormatDriver,  DocumentFormatId);
-DECL_PERSISTENT_OBJECT_TYPE(IBrushFormatDriver,     BrushFormatId);
-DECL_PERSISTENT_OBJECT_TYPE(IPaletteFormatDriver,   PaletteFormatId);
+DECL_GLOBAL_REPO_MEMBER(IDocumentFormatDriver,  DocumentFormatId);
+DECL_GLOBAL_REPO_MEMBER(IBrushFormatDriver,     BrushFormatId);
+DECL_GLOBAL_REPO_MEMBER(IPaletteFormatDriver,   PaletteFormatId);
 
 } // namespace Addle
 #endif // IFORMATDRIVER_HPP

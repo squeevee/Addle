@@ -19,7 +19,6 @@
 
 #include "utilities/taskprogresshandle.hpp"
 
-#include "servicelocator.hpp"
 #include "exceptions/formatexception.hpp"
 #include "utilities/iocheck.hpp"
 #include "utilities/errors.hpp"

@@ -26,6 +26,9 @@ namespace Addle {
 class ADDLE_CORE_EXPORT FormatService : public virtual IFormatService
 {
 public:
+    FormatService(GenericFormatDriverRepository drivers)
+    {   
+    }
     virtual ~FormatService() = default;
 
 protected:

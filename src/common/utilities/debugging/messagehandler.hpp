@@ -67,25 +67,25 @@ static void addleMessageHandler(QtMsgType type,
     try 
     {
         static DebugBehavior::DebugBehaviorFlags behavior = DebugBehavior::get();
-        static IErrorService& errorService = ServiceLocator::get<IErrorService>();
+        //static IErrorService& errorService = ServiceLocator::get<IErrorService>();
 
-        if (behavior.testFlag(DebugBehavior::InterceptQObjectConnectFailure))
-        {
-            if (message.contains(QStringLiteral("QObject::connect")))
-            {
-                errorService.reportUnhandledError(QtWarningAsException(message, DebugBehavior::InterceptQObjectConnectFailure));
-                return;
-            }
-        }
-
-        if (behavior.testFlag(DebugBehavior::InterceptQStringArgFailure))
-        {
-            if (message.contains(QStringLiteral("QString::arg")))
-            {
-                errorService.reportUnhandledError(QtWarningAsException(message, DebugBehavior::InterceptQStringArgFailure));
-                return;
-            }
-        }
+//         if (behavior.testFlag(DebugBehavior::InterceptQObjectConnectFailure))
+//         {
+//             if (message.contains(QStringLiteral("QObject::connect")))
+//             {
+//                 errorService.reportUnhandledError(QtWarningAsException(message, DebugBehavior::InterceptQObjectConnectFailure));
+//                 return;
+//             }
+//         }
+// 
+//         if (behavior.testFlag(DebugBehavior::InterceptQStringArgFailure))
+//         {
+//             if (message.contains(QStringLiteral("QString::arg")))
+//             {
+//                 errorService.reportUnhandledError(QtWarningAsException(message, DebugBehavior::InterceptQStringArgFailure));
+//                 return;
+//             }
+//         }
 
         defaultHandler(type, context, message);
     }

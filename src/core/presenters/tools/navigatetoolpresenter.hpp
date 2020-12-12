@@ -17,7 +17,7 @@
 #include "toolhelpers/mousehelper.hpp"
 #include "toolhelpers/toolselecthelper.hpp"
 
-#include "utilities/presenter/propertycache.hpp"
+#include "utilities/lazyvalue.hpp"
 namespace Addle {
 
 class ADDLE_CORE_EXPORT NavigateToolPresenter : public QObject, public virtual INavigateToolPresenter
@@ -36,8 +36,8 @@ public:
         : _selectHelper(*this)
     {
         _mouseHelper.onMove.bind(&NavigateToolPresenter::onMove, this);
-        _mouseHelper.onEngage.bind(&PropertyCache<QCursor>::recalculate, &_cache_cursor);
-        _mouseHelper.onDisengage.bind(&PropertyCache<QCursor>::recalculate, &_cache_cursor);
+        _mouseHelper.onEngage.bind(&LazyProperty<QCursor>::recalculate, &_cache_cursor);
+        _mouseHelper.onDisengage.bind(&LazyProperty<QCursor>::recalculate, &_cache_cursor);
 
         _cache_cursor.calculateBy(&NavigateToolPresenter::cursor_p, this);
         _cache_cursor.onChange.bind(&NavigateToolPresenter::cursorChanged, this);
@@ -76,7 +76,7 @@ private:
     IMainEditorPresenter* _owner;
     IViewPortPresenter* _viewPort;
 
-    PropertyCache<QCursor> _cache_cursor;
+    LazyProperty<QCursor> _cache_cursor;
 
     MouseHelper _mouseHelper;
     ToolSelectHelper _selectHelper;

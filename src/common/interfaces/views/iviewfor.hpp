@@ -3,6 +3,7 @@
 
 #include <QSharedPointer>
 
+#include "interfaces/traits.hpp"
 #include "interfaces/iamqobject.hpp"
 
 namespace Addle {
@@ -12,10 +13,8 @@ class IViewFor : public virtual IAmQObject
 {
 public:
     typedef PresenterType_ PresenterType;
-    
     virtual ~IViewFor() = default;
     
-    virtual void initialize(PresenterType& presenter) = 0;
     virtual PresenterType& presenter() const = 0;
 };
 
@@ -24,13 +23,21 @@ class IViewForShared : public virtual IAmQObject
 {
 public:
     typedef PresenterType_ PresenterType;
-    
     virtual ~IViewForShared() = default;
     
-    virtual void initialize(QSharedPointer<PresenterType> presenter) = 0;
     virtual QSharedPointer<PresenterType> presenter() const = 0;
 };
+
+namespace Traits {
+
+template<class PresenterType_>
+struct init_params<IViewFor<PresenterType_>> { typedef std::tuple<PresenterType_&> type; };
+
+template<class PresenterType_>
+struct init_params<IViewForShared<PresenterType_>> { typedef std::tuple<QSharedPointer<PresenterType_>> type; };
     
+}
+
 } // namespace Addle
 
 #endif // IVIEWFOR_HPP

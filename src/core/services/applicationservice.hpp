@@ -14,27 +14,41 @@
 #include <QUrl>
 #include "interfaces/services/iapplicationsservice.hpp"
 
+#include "interfaces/services/ifactory.hpp"
+#include "interfaces/presenters/imaineditorpresenter.hpp"
+#include "interfaces/services/ierrorservice.hpp"
+
+#include "interfaces/services/iviewrepository.hpp"
+#include "interfaces/views/imaineditorview.hpp"
+
 namespace Addle {
 
+class IErrorService;
 class ADDLE_CORE_EXPORT ApplicationService : public QObject, public IApplicationService
 {
     Q_OBJECT
     IAMQOBJECT_IMPL
 public:
-
+    ApplicationService(
+        const IFactory<IMainEditorPresenter>& mainEditorPresenterFactory
+    )
+        : _mainEditorPresenterFactory(mainEditorPresenterFactory)
+    {
+    }
+    
     virtual ~ApplicationService();
 
-    bool start();
+    bool start() override;
 
-    StartupMode startupMode() { return _startupMode; }
+    StartupMode startupMode() override { return _startupMode; }
 
-    int exitCode() { return _exitCode; }
+    int exitCode() override { return _exitCode; }
 
-    void registerMainEditorPresenter(IMainEditorPresenter* presenter);
-    QSet<IMainEditorPresenter*> mainEditorPresenters() const { return _mainEditorPresenters; }
+    void registerMainEditorPresenter(IMainEditorPresenter* presenter) override;
+    QSet<IMainEditorPresenter*> mainEditorPresenters() const override { return _mainEditorPresenters; }
 
 public slots:
-    void quitting();
+    void quitting() override;
 
 private slots:
     void onMainEditorPresenterDestroyed();
@@ -51,6 +65,8 @@ private:
 
     QSet<IMainEditorPresenter*> _mainEditorPresenters;
     QHash<QObject*, IMainEditorPresenter*> _mainEditorPresenters_byQObjects;
+    
+    const IFactory<IMainEditorPresenter>& _mainEditorPresenterFactory;
 };
 
 } // namespace Addle

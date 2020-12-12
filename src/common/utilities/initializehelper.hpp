@@ -54,13 +54,13 @@ public:
     inline void check(int checkpoint = INT_MAX) const
     {
         //potential threading hazard // meh
-        if (_depth > 0 && checkpoint > _checkpoint)
-            ADDLE_THROW(InvalidInitializeException(
-                InvalidInitializeException::Why::improper_order
-            ));
-
-        if (!_isInitialized && checkpoint > _checkpoint)
-            ADDLE_THROW(NotInitializedException());
+//         if (_depth > 0 && checkpoint > _checkpoint)
+//             ADDLE_THROW(InvalidInitializeException(
+//                 InvalidInitializeException::Why::improper_order
+//             ));
+// 
+//         if (!_isInitialized && checkpoint > _checkpoint)
+//             ADDLE_THROW(NotInitializedException());
     }
 
     // Checkpoint values are arbitrary and internal to a class (and its

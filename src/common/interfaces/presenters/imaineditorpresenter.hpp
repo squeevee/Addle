@@ -21,7 +21,11 @@
 
 #include "idtypes/toolid.hpp"
 
+#include "tools/itoolpresenter.hpp"
+
 #include "ihaveundostackpresenter.hpp"
+#include "interfaces/services/ifactory.hpp"
+#include "interfaces/services/irepository.hpp"
 
 namespace Addle {
 
@@ -32,7 +36,6 @@ class IMainEditorView;
 class ICanvasPresenter;
 class IViewPortPresenter;
 class IColorSelectionPresenter;
-class IToolPresenter;
 class IDocumentPresenter;
 class IMessageContext;
 
@@ -53,8 +56,6 @@ public:
         Viewer
     };
 
-    virtual void initialize(Mode mode) = 0;
-
     virtual IMainEditorView& view() const = 0;
 
     virtual ICanvasPresenter& canvasPresenter() const = 0;
@@ -74,7 +75,7 @@ public:
     virtual ToolId currentTool() const = 0;
     virtual void setCurrentTool(ToolId tool) = 0;
 
-    virtual QHash<ToolId, QSharedPointer<IToolPresenter>> tools() const = 0;
+    virtual const IRepository<IToolPresenter>& tools() const = 0;
 
     virtual QSharedPointer<IToolPresenter> currentToolPresenter() const = 0;
 
@@ -98,10 +99,12 @@ DECL_INTERFACE_META_PROPERTIES(
     DECL_INTERFACE_PROPERTY(empty)
 )
 
-DECL_MAKEABLE(IMainEditorPresenter);
+DECL_MAKEABLE(IMainEditorPresenter)
+DECL_INIT_PARAMS(IMainEditorPresenter, IMainEditorPresenter::Mode)
 
 } // namespace Addle
 
 Q_DECLARE_INTERFACE(Addle::IMainEditorPresenter, "org.addle.IMainEditorPresenter")
+//Q_DECLARE_METATYPE(Addle::IMainEditorPresenter::Mode)
 
 #endif // IMAINEDITORPRESENTER_HPP

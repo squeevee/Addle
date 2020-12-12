@@ -16,12 +16,14 @@
 
 using namespace Addle;
 
-void FileIssueDialog::initialize(QSharedPointer<IMessagePresenter> presenter)
+FileIssueDialog::FileIssueDialog(QSharedPointer<IFileIssuePresenter> presenter)
+    : _presenter(presenter),
+    _tlvHelper(this, std::bind(&FileIssueDialog::setupUi, this))
 {
-    const Initializer init(_initHelper);
-    
-    _presenter = qobject_interface_cast<IFileIssuePresenter>(presenter);
     ADDLE_ASSERT(_presenter);
+    
+    _tlvHelper.onOpened.bind(&FileIssueDialog::tlv_opened, this);
+    _tlvHelper.onClosed.bind(&FileIssueDialog::tlv_closed, this);
     
     connect_interface(this, SIGNAL(rejected()), _presenter, SIGNAL(cancel()));
 }

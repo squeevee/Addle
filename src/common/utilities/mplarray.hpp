@@ -15,6 +15,9 @@
 #include "utilities/errors.hpp"
 
 namespace Addle {
+    
+// DEPRECATED
+// Hey why did nobody tell me about Boost.Fusion?
 
 // Thanks to Stack Overflow user 101010
 // https://stackoverflow.com/questions/36453874/is-it-possible-to-loop-over-template-parameters
