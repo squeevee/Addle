@@ -25,6 +25,8 @@ public:
     virtual ~IMainEditorView() = default;
 };
 
+template<> struct Traits::has_deferred_binding<IMainEditorView> : std::true_type {};
+
 DECL_MAKEABLE(IMainEditorView)
 DECL_INIT_PARAMS(IMainEditorView, IMainEditorPresenter&)
 

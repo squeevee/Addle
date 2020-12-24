@@ -1,77 +1,109 @@
-#ifndef BINDINGFILTER_HPP
-#define BINDINGFILTER_HPP
+/**
+ * Addle source code
+ * @file
+ * @copyright Copyright 2020 Eleanor Hawk
+ * Modification and distribution permitted under the terms of the MIT License. 
+ * See "LICENSE" for full details.
+ */
+
+#pragma once
 
 #include <functional>
+#include <tuple>
+
+#include <boost/type_traits/detected_or.hpp>
+#include <boost/type_traits/is_detected_convertible.hpp>
 
 #include "interfaces/iamqobject.hpp"
+#include "interfaces/traits.hpp"
+#include "interfaces/services/ifactory.hpp"
 
-#include "idtypes/addleid.hpp"
+#include "utilities/qobject.hpp"
 
-#include "bindingselector.hpp"
-#include "utilities/collections.hpp"
+namespace Addle::config_detail {
 
-namespace Addle { namespace Config { namespace detail {
-   
-class BindingFilter 
+template<typename Interface>
+using binding_filter_t = 
+    std::function<bool(const init_params_placeholder_t<Interface>&)>;
+    
+template<typename Interface, typename F>
+inline binding_filter_t<Interface> make_binding_filter(F&& f)
 {
-public:
-    BindingFilter() = default;
-    BindingFilter(const BindingFilter&) = default;
-    
-    inline BindingFilter& byId(AddleId id) { _ids.append(id); return *this; }
-    
-    template<typename IdType, typename id_predicate_t>
-    inline BindingFilter& byId(id_predicate_t p, bool allowNull = false)
-    {
-        _idPredicate = [=](AddleId id) -> bool {
-            auto id_ = static_cast<IdType>(id);
-            return (id_ || allowNull) && static_cast<bool>(p(id_));
-        };
-        return *this;
-    }
-    
-    template<typename T>
-    inline typename std::enable_if<
-        !Traits::implemented_as_QObject<T>::value,
-        BindingFilter&
-    >::type byParam(const T& v)
-    {
-        Param param;
-        param.metaType = qMetaTypeId<T>();
-        param.value = QVariant::fromValue(v);
-        _params.append(param);
-        return *this;
-    }
-        
-    inline bool isSimple() const
-    {
-//         return !_idPredicate
-//             && !(
-//                     cpplinq::from(_params)
-//                     >>  cpplinq::all([] (const Param& p) -> bool { 
-//                         return !p.valuePredicate && !p.interface_iid; 
-//                     })
-//                 ); 
-    }
-    
-    bool test(const BindingSelector& selector) const;
-private:    
-    struct Param
-    {
-        int metaType = QMetaType::UnknownType;
-        const char* interface_iid = nullptr;
-        QVariant value;
-        
-        std::function<bool(QVariant)> valuePredicate;
-    };
-    
-    QList<AddleId> _ids;
-    
-    std::function<bool(AddleId)> _idPredicate;
-    
-    QList<Param> _params;
-};
-    
-}}} // namespace Addle::Config::detail
+    return make_binding_filter<Interface>(std::forward<F>(f));
+}
 
-#endif // BINDINGFILTER_HPP
+template<typename T>
+using _static_cast_bool_t = decltype(static_cast<bool>(std::declval<T>()));
+
+template<typename T>
+using _dereferenced_t = decltype(*std::declval<T>());
+
+template<typename T>
+using _is_pointer_like = std::conjunction<
+        boost::is_detected<_static_cast_bool_t, T>,
+        boost::is_detected<_dereferenced_t, T>
+    >;
+
+// converts a parameter into a `const QObject*` from one of the following forms:
+// - reference to (optionaly const-qualified) QObject
+// - object, such as pointer, dereferenceable into (optionally const-qualified)
+//  QObject
+// - reference to (optionally const-qualified) interface implemented as QObject
+// - object, such as pointer, dereferenceable into (optionally const-qualified) 
+//  interface implemented as QObject
+template<typename Parameter>
+inline const QObject* _inspect_as_qobject(Parameter&& p)
+{
+    if constexpr (std::is_convertible_v<Parameter*, const QObject*>)
+    {
+        return static_cast<const QObject*>(std::addressof(p));
+    }
+    else if constexpr (_is_pointer_like<Parameter>::value)
+    {
+        if (!static_cast<bool>(p))
+            return nullptr;
+        
+        return static_cast<const QObject*>(std::addressof(*p));
+    }
+    else if constexpr (Traits::implemented_as_QObject<
+            std::remove_cv_t<std::remove_reference_t<Parameter>>
+        >::value)
+    {
+        return static_cast<const QObject*>(
+            std::addressof(qobject_interface_cast<const QObject&>(p))
+        );
+    }
+    else if constexpr (std::conjunction_v<
+            _is_pointer_like<Parameter>,
+            Traits::implemented_as_QObject<
+                std::remove_cv_t<std::remove_reference_t<_dereferenced_t<Parameter>>>
+            >
+        >)
+    {
+        if (!static_cast<bool>(p))
+            return nullptr;
+        
+        return static_cast<const QObject*>(
+            std::addressof(qobject_interface_cast<const QObject&>(*p))
+        );
+    }
+    else
+    {
+        static_assert(std::is_void_v<Parameter>, "Unsupported parameter");
+    }
+}
+
+template<typename Interface, std::size_t N>
+inline binding_filter_t<Interface> filter_binding_by_parameter_qiid(const char* qiid)
+{
+    static_assert(has_init_params<Interface>::value);
+    
+    QByteArray qiid_(qiid);
+
+    return [qiid_] (const init_params_t<Interface>& params) -> bool {
+        const QObject* param = _inspect_as_qobject(std::get<N>(params));
+        return param->inherits(qiid_.constData());
+    };
+}
+
+} // namespace Addle::config_detail

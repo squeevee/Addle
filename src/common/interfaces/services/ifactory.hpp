@@ -14,7 +14,7 @@
 
 namespace Addle {
     
-namespace Config { namespace detail {
+namespace config_detail {
     
 struct _nil_params {};
 
@@ -29,7 +29,7 @@ using init_params_placeholder_t = typename boost::detected_or<
 template<class Interface>
 using has_init_params = boost::is_detected<init_params_t, Interface>;
         
-}} // namespace Config::detail
+} // namespace config_detail
 
 template<class Interface>
 class IFactory
@@ -46,23 +46,23 @@ public:
     inline Interface* make(ArgTypes... args) const
     {
         static_assert(
-            Config::detail::has_init_params<Interface>::value || sizeof...(args) == 0,
+            config_detail::has_init_params<Interface>::value || sizeof...(args) == 0,
             "Interface does not accept initialization parameters. You must call "
             "make without any arguments."
         );
-        return make_p(Config::detail::init_params_placeholder_t<Interface>(args...));
+        return make_p(config_detail::init_params_placeholder_t<Interface>(args...));
     }
     
     template<typename... ArgTypes>
     inline QSharedPointer<Interface> makeShared(ArgTypes... args) const
     {
         static_assert(
-            Config::detail::has_init_params<Interface>::value || sizeof...(args) == 0,
+            config_detail::has_init_params<Interface>::value || sizeof...(args) == 0,
             "Interface does not accept initialization parameters. You must call "
             "make without any arguments."
         );
         return QSharedPointer<Interface>(
-            make_p(Config::detail::init_params_placeholder_t<Interface>(args...))
+            make_p(config_detail::init_params_placeholder_t<Interface>(args...))
         );
     }
     
@@ -70,17 +70,17 @@ public:
     inline std::unique_ptr<Interface> makeUnique(ArgTypes... args) const
     {
         static_assert(
-            Config::detail::has_init_params<Interface>::value || sizeof...(args) == 0,
+            config_detail::has_init_params<Interface>::value || sizeof...(args) == 0,
             "Interface does not accept initialization parameters. You must call "
             "make without any arguments."
         );
         return std::unique_ptr<Interface>(
-            make_p(Config::detail::init_params_placeholder_t<Interface>(args...))
+            make_p(config_detail::init_params_placeholder_t<Interface>(args...))
         );
     }
     
-protected:
-    virtual Interface* make_p(const Config::detail::init_params_placeholder_t<Interface>& params) const = 0;
+//protected:
+    virtual Interface* make_p(const config_detail::init_params_placeholder_t<Interface>& params) const = 0;
 };
 
 namespace Traits {

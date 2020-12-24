@@ -41,10 +41,41 @@
 
 #include "format/qtimageformatdriver.hpp"
 
+#include "utilities/view/viewrepository.hpp"
 
-// #include "utilities/config/config.hpp"
+#include "utilities/config/injectorconfig.hpp"
 
 using namespace Addle;
+
+std::unique_ptr<InjectorConfig> Addle::core_config()
+{
+    auto config = std::make_unique<InjectorConfig>(
+        bind<IApplicationService, ApplicationService>(),
+        bind<IMainEditorPresenter, MainEditorPresenter>(),
+        bind<ICanvasPresenter, CanvasPresenter>(),
+        bind<IColorSelectionPresenter, ColorSelectionPresenter>(),
+        bind<IViewPortPresenter, ViewPortPresenter>(),
+        bind<IMessageContext, MessageContext>(),
+        bind<IPalettePresenter, PalettePresenter>(),
+                                                   
+        bind<IViewRepository<IMainEditorView>, ViewRepository<IMainEditorView>>(),
+                                               
+        defer_binding<IMainEditorView>()
+    );
+    
+    return config;
+}
+
+
+// boost::di::injector<IApplicationService&, IFactory<IMainEditorPresenter>&> config_core ()
+// {   
+//     return boost::di::make_injector(
+//         boost::di::bind<IApplicationService>().to<ApplicationService>(),
+//         boost::di::bind<IFactory<IMainEditorPresenter>>().to(
+//             Addle::Config::FactoryBinding<MainEditorPresenter>()
+//         )
+//     );
+// }
 
 // namespace Addle { namespace Config {
 //     
@@ -63,14 +94,14 @@ using namespace Addle;
 
 // extern "C" void addle_core_config(Config::ServiceContainer& container)
 // {
-//     auto coreBindings = new Config::detail::BindingSet();
+//     auto coreBindings = new config_detail::BindingSet();
 //     
 //     coreBindings->bind<IApplicationService, ApplicationService>();
 //     coreBindings->bind<IMainEditorPresenter, MainEditorPresenter>();
 //     
 //     container.addBindings(coreBindings);
 //     
-//     auto config = new ServiceConfig(container, Modules::Core);
+//     auto config = new CoreConfig(container, Modules::Core);
 //     
 //     config->addFactory<IApplicationService, ApplicationService>();
 //     config->addFactory<IFormatService, FormatService>();
@@ -86,7 +117,7 @@ using namespace Addle;
 //     
 //     config->commit();
 
-//     auto config = new ServiceConfig(Modules::Core);
+//     auto config = new CoreConfig(Modules::Core);
 //     
 //     # Editing    
 //     config->addAutoFactory<IBrushEngine, PathBrushEngine>(CoreBrushEngines::PathEngine);
@@ -97,7 +128,7 @@ using namespace Addle;
 //     
 //     # Format
 //     config->addAutoFactory<IDocumentFormatDriver, QtImageFormatDriver>(
-//         ServiceConfig::Filter()
+//         CoreConfig::Filter()
 //             .byId<DocumentFormatId>(&QtImageFormatDriver::idIsSupported)
 //             .disallowNullIds()
 //     );

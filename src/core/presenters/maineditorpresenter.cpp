@@ -30,7 +30,7 @@
 
 #include "exceptions/fileexception.hpp"
 
-#include "interfaces/services/iapplicationsservice.hpp"
+#include "interfaces/services/iapplicationservice.hpp"
 
 #include "interfaces/presenters/iviewportpresenter.hpp"
 #include "interfaces/presenters/icanvaspresenter.hpp"
@@ -90,7 +90,7 @@ MainEditorPresenter::MainEditorPresenter(
     //_canvasPresenter = ServiceLocator::makeUnique<ICanvasPresenter>(std::ref(*this));
     //_initHelper.setCheckpoint(InitCheck_CanvasPresenter);
     
-    _palettes->add(CorePalettes::BasicPalette);
+    //_palettes->add(CorePalettes::BasicPalette);
     
 //     _palettes = { 
 //         ServiceLocator::makeShared<IPalettePresenter>(CorePalettes::BasicPalette)

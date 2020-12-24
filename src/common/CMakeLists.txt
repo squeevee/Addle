@@ -1,5 +1,5 @@
 find_package(Qt5 REQUIRED COMPONENTS Core Gui)
-find_package(Boost REQUIRED)
+find_package(Boost REQUIRED COMPONENTS headers)
 
 set (CMAKE_AUTOMOC ON)
 set ( CMAKE_AUTORCC ON )
@@ -41,7 +41,7 @@ endif()
 add_definitions(-DADDLE_EXPORTING_COMMON)
 
 add_library( addlecommon SHARED ${common_sources} )
-target_link_libraries(addlecommon Qt5::Core Qt5::Gui Boost::headers)
+target_link_libraries(addlecommon Qt5::Core Qt5::Gui Boost::headers Boost.DI)
 
 if (UNIX)
     install( TARGETS addlecommon )

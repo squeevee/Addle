@@ -29,6 +29,7 @@ protected:
     typedef QHash<IdType, LazyValue<QSharedPointer<Interface>>> data_t;
 public:
     class Iterator
+        // boost iterator facade?
     {
     public:
         Iterator() = default;
@@ -68,11 +69,11 @@ public:
     
     inline QList<IdType> ids() const { return data_p().keys(); }
     
-    virtual void add(QList<IdType> ids) = 0;
-    inline void add(IdType id) { add(QList<IdType>({id})); }
-    
-    virtual void remove(QList<IdType> ids) = 0;
-    inline void remove(IdType id) { remove(QList<IdType>({id})); }
+//     virtual void add(QList<IdType> ids) = 0;
+//     inline void add(IdType id) { add(QList<IdType>({id})); }
+//     
+//     virtual void remove(QList<IdType> ids) = 0;
+//     inline void remove(IdType id) { remove(QList<IdType>({id})); }
     
 protected:
     virtual const data_t& data_p() const = 0;

@@ -284,7 +284,8 @@ void ApplicationService::startGraphicalApplication()
         //presenter->loadDocument(_startingUrl);
     }
 
-    presenter->view().open();
+    _mainEditorViewRepository.add(*presenter);
+    _mainEditorViewRepository.get(*presenter).open();
 }
 
 void ApplicationService::quitting()

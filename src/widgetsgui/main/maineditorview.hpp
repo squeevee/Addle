@@ -25,6 +25,8 @@
 
 #include "utilities/optiongroup.hpp"
 
+#include "interfaces/services/iapplicationservice.hpp"
+
 #include "interfaces/views/imaineditorview.hpp"
 #include "interfaces/presenters/imaineditorpresenter.hpp"
 
@@ -54,7 +56,7 @@ class ADDLE_WIDGETSGUI_EXPORT MainEditorView : public QMainWindow, public IMainE
     Q_INTERFACES(Addle::IMainEditorView Addle::ITopLevelView)
     IAMQOBJECT_IMPL    
 public:
-    MainEditorView(IMainEditorPresenter& presenter);
+    MainEditorView(IApplicationService&, IMainEditorPresenter& presenter);
     virtual ~MainEditorView() = default;
 
     //void initialize(IMainEditorPresenter& presenter) override;

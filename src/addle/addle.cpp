@@ -2,8 +2,8 @@
  * Addle source code
  * @file
  * @copyright Copyright 2020 Eleanor Hawk
- * @copyright Modification and distribution permitted under the terms of the
- * MIT License. See "LICENSE" for full details.
+ * Modification and distribution permitted under the terms of the MIT License. 
+ * See "LICENSE" for full details.
  */
 
 #include <QApplication>
@@ -14,7 +14,7 @@
 #include "utilities/config/registerqmetatypes.hpp"
 #include "utilities/qobject.hpp"
 
-#include "interfaces/services/iapplicationsservice.hpp"
+//#include "interfaces/services/iapplicationservice.hpp"
 
 #include "globals.hpp"
 #include "utils.hpp"
@@ -25,17 +25,14 @@
 #include "utilities/debugging/messagehandler.hpp"
 #endif
 
-// #include "utilities/config/config.hpp"
-// 
-// extern "C" void addle_core_config(Addle::Config::ServiceContainer&);
-// extern "C" void addle_widgetsgui_config(Addle::ServiceContainer&);
+#include "utilities/config/injectorconfig.hpp"
 
 using namespace Addle;
 
+extern void widgetsgui_config(InjectorConfig& config);
+
 int main(int argc, char *argv[])
 {
-#ifdef ADDLE_DEBUG
-#endif //ADDLE_DEBUG
     registerQMetaTypes();
 
     QApplication a(argc, argv);
@@ -59,21 +56,16 @@ int main(int argc, char *argv[])
 #ifdef ADDLE_DEBUG
     //% "Starting Addle. This is a debug build."
     qDebug() << qUtf8Printable(qtTrId("debug-messages.starting-addle"));
-#endif
-
-    Config::ServiceContainer services;
-    services.addBindings<Modules::all_modules>();
     
-    //addle_core_config(services);
-    //addle_widgetsgui_config(services);
-
-#ifdef ADDLE_DEBUG
     DebugBehavior::get(); // initialize flags before installing message handler
     qInstallMessageHandler(&addleMessageHandler);
 #endif
     
-    IApplicationService& appService = services.get<IApplicationService>();
-
+    auto config = core_config();
+    widgetsgui_config(*config);
+    
+    auto& appService = config->getSingleton<IApplicationService>();
+        
     if (appService.start())
     {
         connect_interface(&a, SIGNAL(aboutToQuit()), &appService, SLOT(quitting()), Qt::ConnectionType::DirectConnection);

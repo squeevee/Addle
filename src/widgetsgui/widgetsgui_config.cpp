@@ -13,6 +13,27 @@
 
 // #include "utilities/config/config.hpp"
 
+// #include "utilities/config/injector.hpp"
+// #include "utilities/config/factory.hpp"
+
+#include "utilities/config/injectorconfig.hpp"
+
+using namespace Addle;
+
+void widgetsgui_config(InjectorConfig& config)
+{
+    config.extend(
+        bind<IMainEditorView, MainEditorView>()
+    );
+}
+
+// boost::di::injector<IFactory<IMainEditorView>&> config_widgetsgui ()
+// {   
+//     return boost::di::make_injector(
+//         boost::di::bind<IFactory<IMainEditorView>>().to(Addle::Config::FactoryBinding<MainEditorView>())
+//     );
+// }
+
 // namespace Addle { namespace Config {
 // 
 // template<>

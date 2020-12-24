@@ -20,7 +20,7 @@
 
 #include "interfaces/presenters/imessagecontext.hpp"
 #include "interfaces/presenters/tools/itoolpresenter.hpp"
-#include "interfaces/services/iapplicationsservice.hpp"
+#include "interfaces/services/iapplicationservice.hpp"
 #include "interfaces/views/imessageview.hpp"
 
 #include "layers/layersmanager.hpp"
@@ -43,7 +43,7 @@
 using namespace Addle;
 
 
-MainEditorView::MainEditorView(IMainEditorPresenter& presenter)
+MainEditorView::MainEditorView(IApplicationService& as, IMainEditorPresenter& presenter)
     : _presenter(presenter),
     _tlvHelper(this, std::bind(&MainEditorView::setupUi, this))
 {

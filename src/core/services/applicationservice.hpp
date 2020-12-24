@@ -12,7 +12,7 @@
 #include "compat.hpp"
 #include <QObject>
 #include <QUrl>
-#include "interfaces/services/iapplicationsservice.hpp"
+#include "interfaces/services/iapplicationservice.hpp"
 
 #include "interfaces/services/ifactory.hpp"
 #include "interfaces/presenters/imaineditorpresenter.hpp"
@@ -30,9 +30,11 @@ class ADDLE_CORE_EXPORT ApplicationService : public QObject, public IApplication
     IAMQOBJECT_IMPL
 public:
     ApplicationService(
-        const IFactory<IMainEditorPresenter>& mainEditorPresenterFactory
+        const IFactory<IMainEditorPresenter>& mainEditorPresenterFactory,
+        IViewRepository<IMainEditorView>& mainEditorViewRepository
     )
-        : _mainEditorPresenterFactory(mainEditorPresenterFactory)
+        : _mainEditorPresenterFactory(mainEditorPresenterFactory),
+        _mainEditorViewRepository(mainEditorViewRepository)
     {
     }
     
@@ -67,6 +69,7 @@ private:
     QHash<QObject*, IMainEditorPresenter*> _mainEditorPresenters_byQObjects;
     
     const IFactory<IMainEditorPresenter>& _mainEditorPresenterFactory;
+    IViewRepository<IMainEditorView>& _mainEditorViewRepository;
 };
 
 } // namespace Addle

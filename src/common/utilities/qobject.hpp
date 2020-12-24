@@ -207,7 +207,7 @@ class InterfacePointer
     
 public:
     inline InterfacePointer(Interface* interface = nullptr)
-        : _inner(qobject_interface_cast<ObjectType>(interface))
+        : _inner(qobject_interface_cast<ObjectType*>(interface))
     {
     }
     

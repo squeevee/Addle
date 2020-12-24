@@ -44,6 +44,17 @@ using presenter_key_t = typename std::conditional<
     typename View::PresenterType*,
     QSharedPointer<typename View::PresenterType>
 >::type;
+
+template<class View>
+inline presenter_key_t<View> presenter_arg_to_key(presenter_arg_t<View> presenter)
+{
+    static_assert(presenter_arg_is_reference<View>::value || presenter_arg_is_shared_pointer<View>::value);
+    
+    if constexpr (presenter_arg_is_reference<View>::value)
+        return std::addressof(presenter);
+    else
+        return presenter;
+}
     
 }}
 
@@ -181,7 +192,7 @@ private:
         View_&
     >::type get_impl(PresenterType& presenter) const
     {
-        return *data_p()[&presenter];
+        return *data_p().value(std::addressof(presenter));
     }
     
     template<class View_>
@@ -190,7 +201,7 @@ private:
         View_&
     >::type get_impl(const QSharedPointer<PresenterType>& presenter) const
     {
-        return *data_p()[presenter];
+        return *data_p().value(presenter);
     }
     
     template<class View_>

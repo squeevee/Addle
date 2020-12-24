@@ -13,7 +13,6 @@
 #include <type_traits>
 #include "idtypes/addleid.hpp"
 
-#include <boost/mpl/placeholders.hpp>
 
 namespace Addle {
 namespace Traits {
@@ -51,6 +50,9 @@ template<typename I> struct is_gettable : std::integral_constant<bool,
 > {};
 
 template<typename I> struct gettable_template_info {};
+
+template<typename I> struct has_deferred_binding : std::false_type {};
+template<typename I> struct has_extensible_binding : std::false_type {};
 
 } // namespace Traits
 

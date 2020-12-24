@@ -65,7 +65,7 @@ namespace Modules
     >::type all_modules;
 }
 DECLARE_STATIC_ID_METADATA(Modules::Core,       "org.addle.core");
-DECLARE_STATIC_ID_METADATA(Modules::WidgetsGui, "org.addle.widgetsGui");
+DECLARE_STATIC_ID_METADATA(Modules::WidgetsGui, "org.addle.widgets_gui");
 
 #undef START_MODULE_IDS
 
