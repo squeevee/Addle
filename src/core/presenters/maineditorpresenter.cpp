@@ -66,7 +66,8 @@ MainEditorPresenter::MainEditorPresenter(
         std::unique_ptr<IViewPortPresenter> viewPortPresenter,
         std::unique_ptr<IMessageContext> messageContext,
         std::unique_ptr<IRepository<IPalettePresenter>> palettes,
-        std::unique_ptr<IRepository<IToolPresenter>> tools)
+        std::unique_ptr<IRepository<IToolPresenter>> tools
+    )
     : _mode(mode),
     _canvasPresenter(std::move(canvasPresenter)),
     _colorSelection(std::move(colorSelection)),
@@ -81,60 +82,12 @@ MainEditorPresenter::MainEditorPresenter(
     _isEmptyCache.onChange.bind(&MainEditorPresenter::isEmptyChanged, this);
     
     _loadDocumentHelper.onLoaded.bind(&MainEditorPresenter::onLoadDocumentCompleted, this);
-
-    //ServiceLocator::get<IApplicationService>().registerMainEditorPresenter(this);
-
-    //_viewPortPresenter = ServiceLocator::makeUnique<IViewPortPresenter>(this);
-    //_initHelper.setCheckpoint(InitCheck_ViewPortPresenter);
-
-    //_canvasPresenter = ServiceLocator::makeUnique<ICanvasPresenter>(std::ref(*this));
-    //_initHelper.setCheckpoint(InitCheck_CanvasPresenter);
     
-    //_palettes->add(CorePalettes::BasicPalette);
+    _palettes->addStaticIds<CorePalettes::all_palettes>();
+    _colorSelection->setPalette(_palettes->getShared(CorePalettes::BasicPalette));
     
-//     _palettes = { 
-//         ServiceLocator::makeShared<IPalettePresenter>(CorePalettes::BasicPalette)
-//     };
-
-    //_colorSelection = ServiceLocator::makeUnique<IColorSelectionPresenter>(_palettes);
-    //_colorSelection->setPalette(_palettes.first());
-    //_initHelper.setCheckpoint(InitCheck_ColorSelection);
-
-//     _brushTool = ServiceLocator::makeShared<IBrushToolPresenter>(
-//         this,
-//         IBrushToolPresenter::Mode::Brush
-//     );
-// 
-//     _eraserTool = ServiceLocator::makeShared<IBrushToolPresenter>(
-//         this,
-//         IBrushToolPresenter::Mode::Eraser
-//     );
-// 
-//     _navigateTool = ServiceLocator::makeShared<INavigateToolPresenter>(
-//         this
-//     );
-// 
-//     _tools = {{
-//         Mode::Editor,
-//         {
-//             { DefaultTools::Select, nullptr },
-//             { CoreTools::Brush, _brushTool },
-//             { CoreTools::Eraser, _eraserTool },
-//             { DefaultTools::Text, nullptr },
-//             { DefaultTools::Shapes, nullptr },
-//             { DefaultTools::Stickers, nullptr },
-//             { DefaultTools::Eyedrop, nullptr },
-//             { CoreTools::Navigate, _navigateTool }
-//             { DefaultTools::Measure, nullptr }
-//         }
-//     }};
-    
-    //_messageContext = ServiceLocator::makeUnique<IMessageContext>();
-    //_initHelper.setCheckpoint(InitCheck_MessageContext);
-
-    //_view = ServiceLocator::makeUnique<IMainEditorView>(std::ref(*this));
-    //_initHelper.setCheckpoint(InitCheck_View);
-
+    _tools->add( { CoreTools::Brush, CoreTools::Eraser, CoreTools::Navigate } );
+        
 //     _loadDocumentTask = new LoadDocumentTask(this);
 //     connect(_loadDocumentTask, &AsyncTask::completed, this, &MainEditorPresenter::onLoadDocumentCompleted);
 //     connect(_loadDocumentTask, &AsyncTask::failed, this, &MainEditorPresenter::onLoadDocumentFailed);

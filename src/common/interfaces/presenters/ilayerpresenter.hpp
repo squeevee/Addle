@@ -44,7 +44,7 @@ signals:
     virtual void updated(QRect area) = 0;
 };
 
-DECL_MAKEABLE(ILayerPresenter)
+ADDLE_DECL_MAKEABLE(ILayerPresenter)
 
 
 } // namespace Addle

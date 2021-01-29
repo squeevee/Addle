@@ -56,7 +56,7 @@ protected:
         GenericFormatModelTypeInfo type = GenericFormatModelTypeInfo()) = 0;
 };
 
-DECL_SERVICE(IFormatService)
+ADDLE_DECL_SERVICE(IFormatService)
 
 } // namespace Addle
 #endif // IFORMATSERVICE_HPP

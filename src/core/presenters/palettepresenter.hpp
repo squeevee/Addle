@@ -28,6 +28,8 @@ public:
 
     void initialize(IPalette& model);
     void initialize(PaletteId id);
+    
+    PaletteId id() const { return _model->id(); }
 
     IPalette& model() const { ASSERT_INIT(); return *_model; }
 

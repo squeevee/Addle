@@ -24,7 +24,7 @@ public:
     virtual ~IFillToolPresenter() = default;
 };
 
-DECL_MAKEABLE(IFillToolPresenter)
+ADDLE_DECL_MAKEABLE(IFillToolPresenter)
 
 
 } // namespace Addle

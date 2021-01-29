@@ -199,7 +199,7 @@ DECL_INTERFACE_META_PROPERTIES(
     DECL_INTERFACE_PROPERTY(zoom)        // double
 );
 
-DECL_MAKEABLE(IViewPortPresenter)
+ADDLE_DECL_MAKEABLE(IViewPortPresenter)
 
 
 

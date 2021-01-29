@@ -98,7 +98,7 @@ public:
      * 
      * @note
      * Interface must specify it is gettable by ID (e.g. with the
-     * `DECL_GLOBAL_REPO_MEMBER` macro)
+     * `ADDLE_DECL_SINGLETON_REPO_MEMBER` macro)
      */
     template<class Interface, class IdType>
     static Interface& get(IdType id)
@@ -177,7 +177,7 @@ public:
     static Interface* make(ArgTypes... args)
     {
 //         static_assert(
-//             Traits::is_public_makeable<Interface>::value,
+//             Traits::is_makeable<Interface>::value,
 //             "Interface must be publicly makeable."
 //         );
 // 

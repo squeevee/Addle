@@ -9,7 +9,7 @@
 #ifndef IMAINEDITORVIEW_HPP
 #define IMAINEDITORVIEW_HPP
 
-#include "iviewfor.hpp"
+#include "iviewbase.hpp"
 #include "itoplevelview.hpp"
 
 #include "interfaces/traits.hpp"
@@ -17,18 +17,21 @@
 namespace Addle {
 
 class IMainEditorPresenter;
-class IMainEditorView : public IViewFor<IMainEditorPresenter>, public ITopLevelView
+class IMainEditorView : public IViewBase<IMainEditorPresenter>, public ITopLevelView
 {
 public:
-    typedef IMainEditorPresenter PresenterType;
+    using IViewBase<IMainEditorPresenter>::PresenterType;
     
     virtual ~IMainEditorView() = default;
 };
 
-template<> struct Traits::has_deferred_binding<IMainEditorView> : std::true_type {};
+ADDLE_DECL_MAKEABLE(IMainEditorView)
 
-DECL_MAKEABLE(IMainEditorView)
-DECL_INIT_PARAMS(IMainEditorView, IMainEditorPresenter&)
+namespace aux_IMainEditorView {
+    using namespace aux_IViewBase;
+}
+
+ADDLE_VIEW_FACTORY_PARAMETERS(IMainEditorView)
 
 } // namespace Addle
 

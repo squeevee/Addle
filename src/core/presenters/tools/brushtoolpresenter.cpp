@@ -43,6 +43,26 @@
 #include <QSharedPointer>
 using namespace Addle;
 
+BrushToolPresenter::BrushToolPresenter(ToolId id)
+    : _mode([id] {
+            switch(id)
+            {
+                case CoreTools::Brush:
+                    return Mode::Brush;
+                case CoreTools::Eraser:
+                    return Mode::Eraser;
+                default:
+                    Q_UNREACHABLE();
+            }
+        }()),
+    _selectHelper(*this)
+{
+    _mouseHelper.onEngage.bind(&BrushToolPresenter::onEngage, this);  
+    _mouseHelper.onMove.bind(&BrushToolPresenter::onMove, this);
+    _mouseHelper.onDisengage.bind(&BrushToolPresenter::onDisengage, this);
+    _selectHelper.onIsSelectedChanged.bind(&BrushToolPresenter::onSelectedChanged, this);
+}
+    
 void BrushToolPresenter::initialize(IMainEditorPresenter* owner, Mode mode)
 {
     const Initializer init(_initHelper);
@@ -52,7 +72,7 @@ void BrushToolPresenter::initialize(IMainEditorPresenter* owner, Mode mode)
     _viewPort = &_mainEditor->viewPortPresenter();
     _colorSelection = &_mainEditor->colorSelection();
     
-    _mode = mode;
+    //_mode = mode;
 
     _previewProvider = QSharedPointer<const IBrushPresenter::PreviewInfoProvider>(
         new BrushPreviewProvider(this)
@@ -101,7 +121,7 @@ void BrushToolPresenter::initialize(IMainEditorPresenter* owner, Mode mode)
     connect_interface(_mainEditor, SIGNAL(topSelectedLayerChanged(QSharedPointer<ILayerPresenter>)), this, SLOT(onSelectedLayerChanged()));
 }
 
-ToolId BrushToolPresenter::id()
+ToolId BrushToolPresenter::id() const
 {
     ASSERT_INIT();
     switch(_mode)

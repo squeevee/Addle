@@ -33,7 +33,7 @@ public:
 #endif
 };
 
-DECL_MAKEABLE(INotificationPresenter);
+ADDLE_DECL_MAKEABLE(INotificationPresenter);
 
 } // namespace Addle
 

@@ -13,106 +13,217 @@
 #include <boost/di/extension/injections/extensible_injector.hpp>
 #include "interfaces/services/irepository.hpp"
 
+#include "injectbundle.hpp"
+
 namespace Addle::config_detail {
 
-template<typename Interface, typename Injector>
-class RepositoryHelper
+template<typename Interface, typename Derived>
+class repository_base_add_by_id 
+    : public virtual irepository_base_add_by_id<Interface>
 {
-    using IdType = typename IRepository<Interface>::IdType;
-    using data_t = QHash<IdType, LazyValue<QSharedPointer<Interface>>>;
-    
+    using IdType = typename repo_info<Interface>::IdType;
 public:
-    RepositoryHelper(const Injector& injector_)
-        : injector(const_cast<Injector&>(injector_))
-    {
-    }
+    virtual ~repository_base_add_by_id() = default;
     
-    void add(IdType id)
-    {
-        if (data.contains(id))
-            return;
-        
-        data[id] = [&, id] () {
-            auto injector = boost::di::make_injector(
-                boost::di::extension::make_extensible(injector),
-                boost::di::bind<IdType>().to(id)[boost::di::override]
-            );
-            
-            return QSharedPointer<Interface>(
-                injector.template create<Interface*>()
-            );
-        };
-    }
+protected:
+    void add_byId(QList<IdType> ids) override;
     
-    void remove(IdType id)
-    {
-        if (!data.contains(id))
-            return; // error?
-            
-        data.remove(id);
-    }
-    
-    Injector& injector;
-    data_t data;
+private:
+    Interface* make(IdType id) const;
 };
 
-template<typename Interface, typename Injector>
-class SingletonRepository : public IRepository<Interface>
+template<class Interface, typename Derived>
+using _deferred_repository_base_add_by_id = mp_optional_eval_t<
+        boost::mp11::mp_valid<_deferred_irepository_base_add_by_id, Interface>,
+        repository_base_add_by_id,
+        Interface,
+        Derived
+    >;
+
+template<typename Interface, typename Derived>
+class repository_base_add_by_factory_params 
+    : public virtual irepository_base_add_by_factory_params<Interface>
 {
-    using IdType = typename IRepository<Interface>::IdType;
-    using data_t = typename IRepository<Interface>::data_t;
+    using IdType = typename repo_info<Interface>::IdType;
+public:
+    virtual ~repository_base_add_by_factory_params() = default;
+    
+protected:
+    Interface& add_new_by_params_p(const factory_params_t<Interface>&) override;
+};
+
+template<class Interface, typename Derived>
+using _deferred_repository_base_add_by_factory_params = mp_optional_eval_t<
+        boost::mp11::mp_valid<_deferred_irepository_base_add_by_factory_params, Interface>,
+        repository_base_add_by_factory_params,
+        Interface,
+        Derived
+    >;
+    
+template<typename Interface, typename Derived>
+using repository_base = boost::mp11::mp_apply<
+        mp_polymorphic_inherit,
+        typename mp_where_valid<
+            _deferred_repository_base_add_by_id,
+            _deferred_repository_base_add_by_factory_params
+        >::template fn<Interface, Derived>
+    >;
+
+template<typename Interface>
+class Repository 
+    :   public repository_base<Interface, Repository<Interface>>, 
+        public IRepository<Interface>
+{
+    using typename IRepository<Interface>::IdType;
+    using typename IRepository<Interface>::data_t;
     
     static_assert(
-        Traits::is_global_repo_gettable<Interface>::value,
-        ""
+        boost::mp11::mp_all_of_q<
+                typename config_detail::repo_info<Interface>
+                        ::_interface_factory_parameters::value_types,
+                boost::mp11::mp_compose<
+                    boost::remove_cv_ref_t, 
+                    boost::is_complete
+                >
+            >::value,
+        "One or more of the factory parameters for this interface was an "
+        "incomplete type."
     );
+        
+    // Resolves to an InjectBundle whose template parameters are
+    // a `const IRepository<T>&` for every T needed to create Interface.
+    using repo_deps_t = 
+        boost::mp11::mp_apply<
+            InjectBundle,
+            boost::mp11::mp_transform_q<
+                boost::mp11::mp_compose<
+                    boost::remove_cv_ref_t, 
+                    IRepository, 
+                    std::add_const_t, 
+                    std::add_lvalue_reference_t
+                >,
+                boost::mp11::mp_filter_q<
+                    boost::mp11::mp_compose<
+                        boost::remove_cv_ref_t, 
+                        Traits::is_singleton_repo_member
+                    >,
+                    typename config_detail::repo_info<Interface>
+                        ::_interface_factory_parameters::value_types
+                >
+            >
+        >;
+        
 public:
-    SingletonRepository(const Injector& injector)
-        : _repo_helper(injector)
+    Repository(
+            const IFactory<Interface>& factory, 
+            repo_deps_t repoDependencies
+        ) 
+        : _factory(factory), 
+        _repoDependencies(repoDependencies)
     {
+    }
+    
+    virtual ~Repository() = default;
+    
+    
+    void add(QList<QSharedPointer<Interface>> instances) override
+    {
+        for (auto instance : instances)
+        {
+            LazyValue<QSharedPointer<Interface>> v;
+            v.initialize(QSharedPointer<Interface>(instance));
+            _data.insert(instance->id(), v);
+        }
+    }
+    
+    void remove(QList<IdType> ids) override 
+    {
+        //TODO
     }
     
 protected:
-    const data_t& data_p() const override
-    { 
-        lazy_initialize();
-        return _repo_helper.data;
-    }
+    const data_t& data_p() const override { return _data; }
     
 private:
-    inline void lazy_initialize()
-    {
-        if (_isInitialized)
-            return;
-        
-        // add all existing IDs of type and subscribe for future additions.
-    }
+    const IFactory<Interface>& _factory;
+    repo_deps_t _repoDependencies;
+    data_t _data;
     
-    mutable bool _isInitialized = false;
-    mutable RepositoryHelper<Interface, Injector> _repo_helper;
+    template<typename, typename> friend class repository_base_add_by_id;
+    template<typename, typename> friend class repository_base_add_by_factory_params;
 };
 
-template<typename Interface, typename Injector>
-class UniqueRepository : public IRepository<Interface>
+template<typename Interface, typename Derived>
+void repository_base_add_by_id<Interface, Derived>::add_byId(QList<IdType> ids)
 {
-    using IdType = typename IRepository<Interface>::IdType;
-    using data_t = typename IRepository<Interface>::data_t;
-    
-    static_assert(
-        Traits::is_local_repo_gettable<Interface>::value,
-        ""
-    );
-public:
-    UniqueRepository(const Injector& injector)
-        : _repo_helper(injector)
+    for (auto id : ids)
     {
+        LazyValue<QSharedPointer<Interface>> v(
+            [this, id] () -> QSharedPointer<Interface> {
+                return QSharedPointer<Interface>(this->make(id));
+            }
+        );
+        
+        static_cast<Derived*>(this)->_data.insert(id, v);
     }
+}
+
+template<typename Interface, typename Derived>
+Interface* repository_base_add_by_id<Interface, Derived>::make(IdType id) const
+{
+    if constexpr (has_factory_params<Interface>::value)
+    {
+        return std::apply(
+            [this] (auto&&... args) {
+                return static_cast<const Derived*>(this)->_factory.make(
+                    std::forward<decltype(args)>(args)...
+                );
+            },
+            generate_tuple_over<factory_params_t<Interface>>(
+                [this, id] (auto i) {
+                    using Tag = typename decltype(i)::type::tag_type;
+                    using Value = typename decltype(i)::type::value_type;
+                    if constexpr (
+                            std::is_same<
+                                Tag, 
+                                generic_id_parameter::factory_param_tags::id
+                            >::value
+                        )
+                    {
+                        return generic_id_parameter::id_ = id;
+                    }
+                    else
+                    {
+                        const auto& otherRepo = static_cast<const Derived*>(this)
+                            ->_repoDependencies.template value<
+                                const IRepository<boost::remove_cv_ref_t<Value>>&
+                            >();
+                            
+                        return boost::parameter
+                            ::keyword<Tag>::instance = otherRepo.get(id);
+                    }
+                }
+            )
+        );
+    }
+    else // no factory parameters
+    {
+        return static_cast<const Derived*>(this)->_factory.make();
+    }
+}
+
+template<typename Interface, typename Derived>
+Interface& repository_base_add_by_factory_params<Interface, Derived>
+    ::add_new_by_params_p(const factory_params_t<Interface>& params) 
+{
+    Interface* instance = static_cast<Derived*>(this)->_factory.make(params);
     
-protected:
-    const data_t& data_p() const override { return _repo_helper.data; }
+    LazyValue<QSharedPointer<Interface>> v;
+    v.initialize(QSharedPointer<Interface>(instance));
     
-private:
-    RepositoryHelper<Interface, Injector> _repo_helper;
-};
+    static_cast<Derived*>(this)->_data.insert(instance->id(), v);
+    
+    return *instance;
+}
 
 } // namespace namespace Addle::config_detail

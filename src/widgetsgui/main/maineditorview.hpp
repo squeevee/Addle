@@ -56,15 +56,15 @@ class ADDLE_WIDGETSGUI_EXPORT MainEditorView : public QMainWindow, public IMainE
     Q_INTERFACES(Addle::IMainEditorView Addle::ITopLevelView)
     IAMQOBJECT_IMPL    
 public:
-    MainEditorView(IApplicationService&, IMainEditorPresenter& presenter);
+//     MainEditorView(/*IApplicationService&, IMainEditorPresenter& presenter*/);
     virtual ~MainEditorView() = default;
 
     //void initialize(IMainEditorPresenter& presenter) override;
-    IMainEditorPresenter& presenter() const override{ ASSERT_INIT(); return _presenter; }
+    IMainEditorPresenter& presenter() const override{ ASSERT_INIT(); /*return _presenter;*/ assert(false); }
     
 public slots:
-    void tlv_open() override { try { ASSERT_INIT(); _tlvHelper.open(); } ADDLE_SLOT_CATCH }
-    void tlv_close() override { try { ASSERT_INIT(); _tlvHelper.close(); } ADDLE_SLOT_CATCH } 
+    void tlv_open() override { try { ASSERT_INIT(); /*_tlvHelper.open();*/ } ADDLE_SLOT_CATCH }
+    void tlv_close() override { try { ASSERT_INIT(); /*_tlvHelper.close();*/ } ADDLE_SLOT_CATCH } 
 
 signals:
     void tlv_opened() override;
@@ -98,7 +98,7 @@ private:
     void setupUi();
     void onUrgentMessageMade(ITopLevelView* view);
     
-    IMainEditorPresenter& _presenter;
+//     IMainEditorPresenter& _presenter;
     
     QMenuBar* _menuBar;
     QToolBar* _toolBar_documentActions;
@@ -157,7 +157,7 @@ private:
 
     FileDialogHelper* _fileDialogHelper;
     
-    TopLevelViewHelper _tlvHelper;
+//     TopLevelViewHelper _tlvHelper;
     
     MessageViewHelper _messageViewHelper;
     

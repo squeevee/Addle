@@ -30,7 +30,7 @@ public:
     //
 };
 
-DECL_MAKEABLE(IBrushOperationPresenter);
+ADDLE_DECL_MAKEABLE(IBrushOperationPresenter);
 
 } // namespace Addle
 #endif // IBRUSHOPERATIONPRESENTER_HPP

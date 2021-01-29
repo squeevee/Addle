@@ -22,9 +22,9 @@ using namespace Addle;
 
 void widgetsgui_config(InjectorConfig& config)
 {
-    config.extend(
-        bind<IMainEditorView, MainEditorView>()
-    );
+//     config.extend(
+//         bind<IMainEditorView, MainEditorView>()
+//     );
 }
 
 // boost::di::injector<IFactory<IMainEditorView>&> config_widgetsgui ()

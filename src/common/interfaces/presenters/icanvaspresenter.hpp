@@ -37,7 +37,7 @@ signals:
     virtual void hasMouseChanged(bool value) = 0;
 };
 
-DECL_MAKEABLE(ICanvasPresenter);
+ADDLE_DECL_MAKEABLE(ICanvasPresenter);
 
 } // namespace Addle
 

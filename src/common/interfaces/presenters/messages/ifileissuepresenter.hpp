@@ -127,7 +127,7 @@ signals:
     virtual void previewUpdated(QPixmap preview) = 0;
 };
 
-DECL_MAKEABLE(IFileIssuePresenter);
+ADDLE_DECL_MAKEABLE(IFileIssuePresenter);
 
 } // namespace Addle
 

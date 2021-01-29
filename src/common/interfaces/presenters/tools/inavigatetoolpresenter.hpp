@@ -51,7 +51,7 @@ DECL_INTERFACE_META_PROPERTIES(
     DECL_INTERFACE_PROPERTY(navigateOperation)
 )
 
-DECL_MAKEABLE(INavigateToolPresenter)
+ADDLE_DECL_MAKEABLE(INavigateToolPresenter)
 
 
 } // namespace Addle

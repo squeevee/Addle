@@ -40,13 +40,17 @@ public:
     virtual void exportModel(ModelType* model, QIODevice& device, const ImportExportInfo& info) = 0;
 };
 
-typedef IFormatDriver<IDocument> IDocumentFormatDriver;
-typedef IFormatDriver<IBrush> IBrushFormatDriver;
-typedef IFormatDriver<IPalette> IPaletteFormatDriver;
+namespace aux_IDocumentFormatDriver { using namespace config_detail::generic_id_parameter; }
+using IDocumentFormatDriver = IFormatDriver<IDocument>;
+ADDLE_DECL_SINGLETON_REPO_MEMBER(IDocumentFormatDriver,  DocumentFormatId)
 
-DECL_GLOBAL_REPO_MEMBER(IDocumentFormatDriver,  DocumentFormatId);
-DECL_GLOBAL_REPO_MEMBER(IBrushFormatDriver,     BrushFormatId);
-DECL_GLOBAL_REPO_MEMBER(IPaletteFormatDriver,   PaletteFormatId);
+namespace aux_IBrushFormatDriver { using namespace config_detail::generic_id_parameter; }
+using IBrushFormatDriver = IFormatDriver<IBrush>;
+ADDLE_DECL_SINGLETON_REPO_MEMBER(IBrushFormatDriver,     BrushFormatId)
+
+namespace aux_IPaletteFormatDriver { using namespace config_detail::generic_id_parameter; }
+using IPaletteFormatDriver = IFormatDriver<IPalette>;
+ADDLE_DECL_SINGLETON_REPO_MEMBER(IPaletteFormatDriver,   PaletteFormatId)
 
 } // namespace Addle
 #endif // IFORMATDRIVER_HPP

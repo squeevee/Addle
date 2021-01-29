@@ -32,7 +32,9 @@ public:
     virtual void paint(BrushStroke& painter) const = 0;
 };
 
-DECL_GLOBAL_REPO_MEMBER(IBrushEngine, BrushEngineId);
+namespace aux_IBrushEngine { using namespace config_detail::generic_id_parameter; }
+
+ADDLE_DECL_SINGLETON_REPO_MEMBER(IBrushEngine, BrushEngineId);
 } // namespace Addle
 
 #endif // IBRUSHENGINE_HPP

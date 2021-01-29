@@ -49,7 +49,7 @@ signals:
 
 };
 
-DECL_MAKEABLE(IDocument)
+ADDLE_DECL_MAKEABLE(IDocument)
 
 
 } // namespace Addle

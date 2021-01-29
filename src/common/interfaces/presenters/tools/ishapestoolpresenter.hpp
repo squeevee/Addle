@@ -26,7 +26,7 @@ public:
     virtual ~IShapesToolPresenter() = default;
 };
 
-DECL_MAKEABLE(IShapesToolPresenter)
+ADDLE_DECL_MAKEABLE(IShapesToolPresenter)
 
 
 } // namespace Addle

@@ -11,7 +11,7 @@
 
 #include "compat.hpp"
 
-#include <boost/mpl/vector.hpp>
+#include <boost/mp11.hpp>
 
 #include "idtypes/brushengineid.hpp"
 #include "idtypes/brushid.hpp"
@@ -59,10 +59,10 @@ namespace Modules
     constexpr ModuleId Core         = START_MODULE_IDS + 0x00;
     constexpr ModuleId WidgetsGui   = START_MODULE_IDS + 0x01;
     
-    typedef boost::mpl::vector<
+    typedef boost::mp11::mp_list<
         STATIC_ID_WRAPPER(Core),
         STATIC_ID_WRAPPER(WidgetsGui)
-    >::type all_modules;
+    > all_modules;
 }
 DECLARE_STATIC_ID_METADATA(Modules::Core,       "org.addle.core");
 DECLARE_STATIC_ID_METADATA(Modules::WidgetsGui, "org.addle.widgets_gui");
@@ -75,10 +75,10 @@ namespace CoreBrushEngines
     constexpr BrushEngineId PathEngine      = START_CORE_BRUSH_ENGINE_IDS + 0x00;
     constexpr BrushEngineId RasterEngine    = START_CORE_BRUSH_ENGINE_IDS + 0x01;
     
-    typedef boost::mpl::vector<
+    typedef boost::mp11::mp_list<
         STATIC_ID_WRAPPER(PathEngine),
         STATIC_ID_WRAPPER(RasterEngine)
-    >::type all_brush_engines;
+    > all_brush_engines;
 }
 DECLARE_STATIC_ID_METADATA(CoreBrushEngines::PathEngine,    "path-brush-engine");
 DECLARE_STATIC_ID_METADATA(CoreBrushEngines::RasterEngine,  "raster-brush-engine");
@@ -92,16 +92,16 @@ namespace CoreBrushes
     constexpr BrushId BasicBrush    = START_CORE_BRUSH_IDS + 0x00;
     constexpr BrushId SoftBrush     = START_CORE_BRUSH_IDS + 0x01;
     
-    typedef boost::mpl::vector<
+    typedef boost::mp11::mp_list<
         STATIC_ID_WRAPPER(BasicBrush),
         STATIC_ID_WRAPPER(SoftBrush)
-    >::type all_brushes;
+    > all_brushes;
 
     constexpr BrushId BasicEraser   = START_CORE_ERASER_IDS + 0x00;
     
-    typedef boost::mpl::vector<
+    typedef boost::mp11::mp_list<
         STATIC_ID_WRAPPER(BasicEraser)
-    >::type all_erasers;
+    > all_erasers;
 }
 DECLARE_STATIC_ID_METADATA(CoreBrushes::BasicBrush,     "basic-brush");
 DECLARE_STATIC_ID_METADATA(CoreBrushes::SoftBrush,      "soft-brush");
@@ -121,13 +121,13 @@ namespace CoreFormats
     constexpr DocumentFormatId WebP = START_CORE_DOCUMENT_FORMAT_IDS + 0x03;
     constexpr DocumentFormatId ORA  = START_CORE_DOCUMENT_FORMAT_IDS + 0x04;
     
-    typedef boost::mpl::vector<
+    typedef boost::mp11::mp_list<
         STATIC_ID_WRAPPER(PNG),
         STATIC_ID_WRAPPER(JPEG),
         STATIC_ID_WRAPPER(GIF),
         STATIC_ID_WRAPPER(WebP),
         STATIC_ID_WRAPPER(ORA)
-    >::type all_formats;
+    > all_formats;
 }
 DECLARE_STATIC_FORMAT_ID_METADATA(CoreFormats::PNG,     "format-png");
 DECLARE_STATIC_FORMAT_ID_METADATA(CoreFormats::JPEG,    "format-jpeg");
@@ -144,9 +144,9 @@ namespace CorePalettes
 {
     constexpr PaletteId BasicPalette    = START_CORE_PALETTE_IDS + 0x00;
     
-    typedef boost::mpl::vector<
+    typedef boost::mp11::mp_list<
         STATIC_ID_WRAPPER(BasicPalette)
-    >::type all_palettes;
+    > all_palettes;
 }
 DECLARE_STATIC_ID_METADATA(CorePalettes::BasicPalette,  "basic-palette");
 
@@ -166,7 +166,7 @@ namespace CoreTools
     constexpr ToolId Navigate   = START_TOOL_IDS + 0x08;
     constexpr ToolId Measure    = START_TOOL_IDS + 0x09;
     
-    typedef boost::mpl::vector<
+    typedef boost::mp11::mp_list<
         STATIC_ID_WRAPPER(Select),
         STATIC_ID_WRAPPER(Brush),
         STATIC_ID_WRAPPER(Eraser),
@@ -177,7 +177,7 @@ namespace CoreTools
         STATIC_ID_WRAPPER(Eyedrop),
         STATIC_ID_WRAPPER(Navigate),
         STATIC_ID_WRAPPER(Measure)
-    >::type all_tools;
+    > all_tools;
 }
 DECLARE_STATIC_ID_METADATA(CoreTools::Select,   "select-tool");
 DECLARE_STATIC_ID_METADATA(CoreTools::Brush,    "brush-tool");

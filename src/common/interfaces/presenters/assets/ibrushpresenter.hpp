@@ -72,8 +72,11 @@ public:
     virtual void setPreviewInfo(QSharedPointer<const PreviewInfoProvider> info) = 0;
 };
 
-DECL_MAKEABLE(IBrushPresenter)
-DECL_LOCAL_REPO_MEMBER(IBrushPresenter, BrushId)
+namespace aux_IBrushPresenter {
+    using namespace config_detail::generic_id_parameter;
+}
+
+ADDLE_DECL_UNIQUE_REPO_MEMBER(IBrushPresenter, BrushId)
 
 } // namespace Addle
 #endif // IBRUSHPRESENTER_HPP

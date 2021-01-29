@@ -60,7 +60,8 @@ public:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(IBrush::PreviewHints);
 
-DECL_GLOBAL_REPO_MEMBER(IBrush, BrushId);
+namespace aux_IBrush { using namespace config_detail::generic_id_parameter; }
+ADDLE_DECL_SINGLETON_REPO_MEMBER(IBrush, BrushId);
 
 } // namespace Addle
 

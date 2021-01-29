@@ -37,7 +37,7 @@ signals:
 };
 
 
-DECL_MAKEABLE(IEyedropToolPresenter)
+ADDLE_DECL_MAKEABLE(IEyedropToolPresenter)
 
 
 } // namespace Addle

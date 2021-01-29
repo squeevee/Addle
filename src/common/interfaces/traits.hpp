@@ -13,93 +13,70 @@
 #include <type_traits>
 #include "idtypes/addleid.hpp"
 
+#include <boost/mp11.hpp>
 
-namespace Addle {
-namespace Traits {
+#include "utilities/config/factoryparameters.hpp"
 
-template<typename I> struct is_public_makeable : std::false_type {};
-template<typename I> struct is_private_makeable : std::false_type {};
 
-template<typename I>
-struct is_makeable : std::integral_constant<bool,
-    is_public_makeable<I>::value
-    || is_private_makeable<I>::value
-> {};
+namespace Addle::Traits {
 
-// TODO: template aliases instead of derived structs for metafunctions
-// TODO: boost::disjunction
+template<typename Interface> struct is_makeable : std::false_type {};
 
-template<typename I> struct init_params {};
+template<typename Interface> struct is_singleton : std::false_type {};
 
-template<typename I> struct is_service : std::false_type {};
-template<typename I> struct is_singleton_gettable : std::false_type {};
+template<typename Interface> struct repo_id_type {};
 
-template<typename I> struct repo_id_type {};
+template<typename Interface> struct is_singleton_repo_member : std::false_type {};
+template<typename Interface> struct is_unique_repo_member : std::false_type {};
 
-template<typename I> struct is_global_repo_gettable : std::false_type {};
-template<typename I> struct is_local_repo_gettable : std::false_type {};
+template<typename Interface>
+using is_repo_member = boost::mp11::mp_or<
+        is_singleton_repo_member<Interface>,
+        is_unique_repo_member<Interface>
+    >;
 
-template<typename I> struct is_repo_gettable : std::integral_constant<bool,
-    is_global_repo_gettable<I>::value
-    || is_local_repo_gettable<I>::value
-> {};
+} // namespace Addle::Traits
 
-template<typename I> struct is_gettable : std::integral_constant<bool,
-    is_singleton_gettable<I>::value
-    || is_repo_gettable<I>::value
-> {};
+#define ADDLE_DECL_MAKEABLE(Interface)                                      \
+    template<> struct Addle::Traits                                         \
+        ::is_makeable<Interface> : std::true_type {}; 
 
-template<typename I> struct gettable_template_info {};
+#define ADDLE_DECL_SERVICE(Interface)                                       \
+    template<> struct Addle::Traits                                         \
+        ::is_singleton<Interface> : std::true_type {};             
 
-template<typename I> struct has_deferred_binding : std::false_type {};
-template<typename I> struct has_extensible_binding : std::false_type {};
 
-} // namespace Traits
+#define ADDLE_DECL_SINGLETON_REPO_MEMBER_BASIC(Interface, IdType)           \
+    ADDLE_DECL_MAKEABLE(Interface)                                          \
+    template<> struct Addle::Traits                                         \
+        ::is_singleton_repo_member<Interface> : std::true_type {};          \
+    template<> struct Addle::Traits                                         \
+        ::repo_id_type<Interface> { using type = IdType; };                 
+        
+        
+#define ADDLE_DECL_SINGLETON_REPO_MEMBER(Interface, IdType)                 \
+    ADDLE_DECL_SINGLETON_REPO_MEMBER_BASIC(Interface, IdType)               \
+    ADDLE_DECL_FACTORY_PARAMETERS(                                          \
+        Interface,                                                          \
+        (required                                                           \
+            ( id, (typename Addle::Traits::repo_id_type<Interface>::type))  \
+        )                                                                   \
+    )
 
-/**
- * @def
- * @brief Declares that Interface can be made with ServiceLocator::make()
- */
-#define DECL_MAKEABLE(Interface) \
-namespace Traits { template<> struct is_public_makeable<Interface> : std::true_type {}; }
+#define ADDLE_DECL_UNIQUE_REPO_MEMBER_BASIC(Interface, IdType)              \
+    ADDLE_DECL_MAKEABLE(Interface)                                          \
+    template<> struct Addle::Traits                                         \
+        ::is_unique_repo_member<Interface> : std::true_type {};             \
+    template<> struct Addle::Traits                                         \
+        ::repo_id_type<Interface> { using type = IdType; };                 
+        
+#define ADDLE_DECL_UNIQUE_REPO_MEMBER(Interface, IdType)                    \
+    ADDLE_DECL_UNIQUE_REPO_MEMBER_BASIC(Interface, IdType)                  \
+    ADDLE_DECL_FACTORY_PARAMETERS(                                          \
+        Interface,                                                          \
+        (required                                                           \
+            ( id, (typename Addle::Traits::repo_id_type<Interface>::type))  \
+        )                                                                   \
+    )
 
-#define DECL_INIT_PARAMS(Interface, ...) \
-namespace Traits { template<> struct init_params<Interface> { typedef std::tuple<__VA_ARGS__> type; }; }
-
-/**
- * @def
- * @brief Declares that Interface is a service.
- */
-#define DECL_SERVICE(Interface) \
-namespace Traits { \
-    template<> struct is_private_makeable<Interface> : std::true_type {}; \
-    template<> struct is_singleton_gettable<Interface> : std::true_type {}; \
-    template<> struct is_service<Interface> : std::true_type {}; \
-}
-
-/**
- * @def 
- * @brief Delcares that Interface belongs in a global repository, with instances
- * identified by IdType.
- */
-#define DECL_GLOBAL_REPO_MEMBER(Interface, IdType) \
-namespace Traits { \
-    template<> struct is_private_makeable<Interface> : std::true_type {}; \
-    template<> struct is_global_repo_gettable<Interface> : std::true_type {}; \
-    template<> struct repo_id_type<Interface> { typedef IdType type; }; \
-}
-
-/**
- * @def 
- * @brief Declares that Interface is permissible in a local repository, with
- * instances identified by IdType.
- */
-#define DECL_LOCAL_REPO_MEMBER(Interface, IdType) \
-namespace Traits { \
-    template<> struct is_private_makeable<Interface> : std::true_type {}; \
-    template<> struct is_local_repo_gettable<Interface> : std::true_type {}; \
-    template<> struct repo_id_type<Interface> { typedef IdType type; }; \
-}
-
-} // namespace Addle
 #endif // TRAITS_HPP

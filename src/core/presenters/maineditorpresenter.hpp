@@ -9,6 +9,8 @@
 #ifndef MAINEDITORPRESENTER_HPP
 #define MAINEDITORPRESENTER_HPP
 
+#include <boost/di.hpp>
+
 #include "compat.hpp"
 #include <QObject>
 #include <QList>
@@ -77,6 +79,7 @@ class ADDLE_CORE_EXPORT MainEditorPresenter : public QObject, public virtual IMa
     IAMQOBJECT_IMPL
 
 public:
+        
     MainEditorPresenter(
         Mode mode,
         std::unique_ptr<ICanvasPresenter> canvasPresenter,
@@ -88,61 +91,61 @@ public:
     );
     virtual ~MainEditorPresenter() = default;
 
-    IMainEditorView& view() const { return *_view; }
+    IMainEditorView& view() const override { return *_view; }
 
-    ICanvasPresenter& canvasPresenter() const { return *_canvasPresenter; }
-    IViewPortPresenter& viewPortPresenter() const {  return *_viewPortPresenter; }
-    IColorSelectionPresenter& colorSelection() const { return *_colorSelection; }
-    IMessageContext& messageContext() const { return *_messageContext; }
+    ICanvasPresenter& canvasPresenter() const override { return *_canvasPresenter; }
+    IViewPortPresenter& viewPortPresenter() const override {  return *_viewPortPresenter; }
+    IColorSelectionPresenter& colorSelection() const override { return *_colorSelection; }
+    IMessageContext& messageContext() const override { return *_messageContext; }
     
-    void setMode(Mode mode);
-    Mode mode() const { return _mode; }
+    void setMode(Mode mode) override;
+    Mode mode() const override { return _mode; }
 
     // # IHaveDocumentPresenter
 
-    QSharedPointer<IDocumentPresenter> documentPresenter() const { ASSERT_INIT(); return _document; }
-    bool isEmpty() const { ASSERT_INIT(); return _isEmptyCache.value(); }
+    QSharedPointer<IDocumentPresenter> documentPresenter() const override { ASSERT_INIT(); return _document; }
+    bool isEmpty() const override { ASSERT_INIT(); return _isEmptyCache.value(); }
 
-    QSharedPointer<ILayerPresenter> topSelectedLayer() const;
+    QSharedPointer<ILayerPresenter> topSelectedLayer() const override;
     
-    QSharedPointer<FileRequest> pendingDocumentFileRequest() const
+    QSharedPointer<FileRequest> pendingDocumentFileRequest() const override
     {
         ASSERT_INIT();
         return _pendingDocumentFileRequest;
     }
 
 signals:
-    void topSelectedLayerChanged(QSharedPointer<ILayerPresenter>);
-    void documentPresenterChanged(QSharedPointer<Addle::IDocumentPresenter> documentPresenter);
-    void isEmptyChanged(bool);
+    void topSelectedLayerChanged(QSharedPointer<ILayerPresenter>) override;
+    void documentPresenterChanged(QSharedPointer<Addle::IDocumentPresenter> documentPresenter) override;
+    void isEmptyChanged(bool) override;
 
 public slots:
-    void newDocument();
-    void loadDocument(QSharedPointer<FileRequest> request);
+    void newDocument() override;
+    void loadDocument(QSharedPointer<FileRequest> request) override;
 
 public:
-    ToolId currentTool() const { ASSERT_INIT(); return _currentTool; }
-    void setCurrentTool(ToolId tool);
-    const IRepository<IToolPresenter>& tools() const { ASSERT_INIT(); return *_tools; }
+    ToolId currentTool() const override { ASSERT_INIT(); return _currentTool; }
+    void setCurrentTool(ToolId tool) override;
+    const IRepository<IToolPresenter>& tools() const override { ASSERT_INIT(); return *_tools; }
 
-    QSharedPointer<IToolPresenter> currentToolPresenter() const { ASSERT_INIT(); return _currentToolPresenter; }
+    QSharedPointer<IToolPresenter> currentToolPresenter() const override { ASSERT_INIT(); return _currentToolPresenter; }
 
 signals:
-    void currentToolChanged(ToolId tool);
+    void currentToolChanged(ToolId tool) override;
 
 public:
-    bool canUndo() const { ASSERT_INIT(); return _undoStackHelper.canUndo(); }
-    bool canRedo() const { ASSERT_INIT(); return _undoStackHelper.canRedo(); }
+    bool canUndo() const override { ASSERT_INIT(); return _undoStackHelper.canUndo(); }
+    bool canRedo() const override { ASSERT_INIT(); return _undoStackHelper.canRedo(); }
 
     //rename?
-    void push(QSharedPointer<IUndoOperationPresenter> undoable) { _undoStackHelper.push(undoable); }
+    void push(QSharedPointer<IUndoOperationPresenter> undoable) override { _undoStackHelper.push(undoable); }
 
 public slots: 
-    void undo() { try { ASSERT_INIT(); _undoStackHelper.undo(); } ADDLE_SLOT_CATCH }
-    void redo() { try { ASSERT_INIT(); _undoStackHelper.redo(); } ADDLE_SLOT_CATCH }
+    void undo() override { try { ASSERT_INIT(); _undoStackHelper.undo(); } ADDLE_SLOT_CATCH }
+    void redo() override { try { ASSERT_INIT(); _undoStackHelper.redo(); } ADDLE_SLOT_CATCH }
 
 signals: 
-    void undoStateChanged();
+    void undoStateChanged() override;
 
 private:
     void onLoadDocumentCompleted();

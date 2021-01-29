@@ -23,7 +23,7 @@ signals:
     virtual void messageClosed() = 0;
 };
 
-DECL_MAKEABLE(IMessageContext)
+ADDLE_DECL_MAKEABLE(IMessageContext)
 
 } // namespace Addle
 

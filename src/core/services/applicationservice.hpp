@@ -30,11 +30,11 @@ class ADDLE_CORE_EXPORT ApplicationService : public QObject, public IApplication
     IAMQOBJECT_IMPL
 public:
     ApplicationService(
-        const IFactory<IMainEditorPresenter>& mainEditorPresenterFactory,
-        IViewRepository<IMainEditorView>& mainEditorViewRepository
+        const IFactory<IMainEditorPresenter>& mainEditorPresenterFactory/*,
+        IViewRepository<IMainEditorView>& mainEditorViewRepository*/
     )
-        : _mainEditorPresenterFactory(mainEditorPresenterFactory),
-        _mainEditorViewRepository(mainEditorViewRepository)
+        : _mainEditorPresenterFactory(mainEditorPresenterFactory)/*,
+        _mainEditorViewRepository(mainEditorViewRepository)*/
     {
     }
     
@@ -69,7 +69,7 @@ private:
     QHash<QObject*, IMainEditorPresenter*> _mainEditorPresenters_byQObjects;
     
     const IFactory<IMainEditorPresenter>& _mainEditorPresenterFactory;
-    IViewRepository<IMainEditorView>& _mainEditorViewRepository;
+//     IViewRepository<IMainEditorView>& _mainEditorViewRepository;
 };
 
 } // namespace Addle

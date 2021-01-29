@@ -29,13 +29,22 @@ public:
 
     virtual void initialize(IPalette& model) = 0;
     virtual void initialize(PaletteId id) = 0;
+    
+    virtual PaletteId id() const = 0;
 
     virtual IPalette& model() const = 0;
     virtual MultiArray<ColorInfo, 2> colors() const = 0;
 };
 
-DECL_MAKEABLE(IPalettePresenter)
-DECL_LOCAL_REPO_MEMBER(IPalettePresenter, PaletteId)
+namespace aux_IPalettePresenter {
+    ADDLE_FACTORY_PARAMETER_NAME( model )
+}
+
+ADDLE_DECL_UNIQUE_REPO_MEMBER_BASIC(IPalettePresenter, PaletteId)
+ADDLE_DECL_FACTORY_PARAMETERS(
+    IPalettePresenter,
+    (required  ( model, (IPalette&) ))
+)
 
 } // namespace Addle
 

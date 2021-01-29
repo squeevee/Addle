@@ -32,7 +32,7 @@ using namespace Addle;
 extern void widgetsgui_config(InjectorConfig& config);
 
 int main(int argc, char *argv[])
-{
+{   
     registerQMetaTypes();
 
     QApplication a(argc, argv);
@@ -62,10 +62,11 @@ int main(int argc, char *argv[])
 #endif
     
     auto config = core_config();
-    widgetsgui_config(*config);
+    //widgetsgui_config(*config);
     
     auto& appService = config->getSingleton<IApplicationService>();
         
+    
     if (appService.start())
     {
         connect_interface(&a, SIGNAL(aboutToQuit()), &appService, SLOT(quitting()), Qt::ConnectionType::DirectConnection);

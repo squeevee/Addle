@@ -39,7 +39,7 @@ signals:
     virtual void changed(QRect area) = 0;
 };
 
-DECL_MAKEABLE(IRenderStack);
+ADDLE_DECL_MAKEABLE(IRenderStack);
 
 } // namespace Addle
 

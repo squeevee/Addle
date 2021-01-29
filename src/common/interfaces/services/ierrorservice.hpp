@@ -44,7 +44,7 @@ signals:
     virtual void unhandledErrorReported(QSharedPointer<UnhandledException> ex) = 0;
 };
 
-DECL_SERVICE(IErrorService)
+ADDLE_DECL_SERVICE(IErrorService)
 
 } // namespace Addle
 

@@ -27,7 +27,7 @@ public:
     virtual const QFileSelector& selector() = 0;
 };
 
-DECL_SERVICE(IAppearanceService);
+ADDLE_DECL_SERVICE(IAppearanceService);
 } // namespace Addle
 
 #endif // IAPPEARANCESERVICE_HPP

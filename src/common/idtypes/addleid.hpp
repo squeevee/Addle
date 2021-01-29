@@ -10,7 +10,7 @@
 
 #include "compat.hpp"
 
-#include <boost/mpl/for_each.hpp>
+#include <boost/mp11.hpp>
 
 #include <QSharedPointer>
 
@@ -142,7 +142,7 @@ private:
         template<typename Sequence>
         inline MetaDataBuilder& initFor()
         {
-            boost::mpl::for_each<Sequence>(functor_initializeMetaData(_metaData));
+            boost::mp11::mp_for_each<Sequence>(functor_initializeMetaData(_metaData));
             return *this;
         }
         

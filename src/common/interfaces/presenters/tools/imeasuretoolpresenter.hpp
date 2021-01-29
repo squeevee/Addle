@@ -38,7 +38,7 @@ signals:
 
 
 
-DECL_MAKEABLE(IMeasureToolPresenter)
+ADDLE_DECL_MAKEABLE(IMeasureToolPresenter)
 
 
 } // namespace Addle

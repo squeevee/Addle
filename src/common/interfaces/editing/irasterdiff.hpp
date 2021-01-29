@@ -46,7 +46,7 @@ public:
     virtual void blockingUncompress() = 0;
 };
 
-DECL_MAKEABLE(IRasterDiff)
+ADDLE_DECL_MAKEABLE(IRasterDiff)
 
 
 } // namespace Addle

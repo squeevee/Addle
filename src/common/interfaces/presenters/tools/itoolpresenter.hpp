@@ -30,7 +30,7 @@ public:
     
     virtual IMainEditorPresenter* owner() = 0;
 
-    virtual ToolId id() = 0;
+    virtual ToolId id() const = 0;
 
     virtual bool isSelected() const = 0;
     virtual void setSelected(bool isSelected) = 0;
@@ -42,7 +42,11 @@ signals:
     virtual void cursorChanged(QCursor cursor) = 0;
 };
 
-DECL_LOCAL_REPO_MEMBER(IToolPresenter, ToolId)
+namespace aux_IToolPresenter {
+    using namespace config_detail::generic_id_parameter;
+}
+
+ADDLE_DECL_UNIQUE_REPO_MEMBER(IToolPresenter, ToolId)
 
 } // namespace Addle
 

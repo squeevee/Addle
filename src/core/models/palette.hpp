@@ -9,6 +9,7 @@
 #ifndef PALETTE_HPP
 #define PALETTE_HPP
 
+#include <QtDebug>
 #include "compat.hpp"
 #include <QObject>
 #include <QHash>
@@ -16,15 +17,23 @@
 #include "interfaces/models/ipalette.hpp"
 
 #include "utilities/initializehelper.hpp"
+
+#include <boost/di.hpp>
+
 namespace Addle {
 class ADDLE_CORE_EXPORT Palette : public QObject, public IPalette
 {
     Q_OBJECT
     IAMQOBJECT_IMPL
 public:
-    Palette(PaletteId id)
+    BOOST_DI_INJECT(
+            Palette, 
+            /*(named = aux_IPalette::id_)*/ PaletteId id, 
+            /*(named = aux_IPalette::builder_)*/ const PaletteBuilder& builder
+        )
         : _id(id)
     {
+        initialize(builder);
     }
     virtual ~Palette() = default;
 

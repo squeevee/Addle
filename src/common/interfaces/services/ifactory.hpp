@@ -5,6 +5,9 @@
 #include <type_traits>
 #include <boost/type_traits/detected_or.hpp>
 #include <boost/type_traits/is_detected.hpp>
+#include <boost/type_traits/is_complete.hpp>
+
+#include <boost/mp11.hpp>
 
 #include <QSharedPointer>
 
@@ -13,80 +16,97 @@
 //#include "utilities/initparams/baseinitparams.hpp"
 
 namespace Addle {
+
+template<class> class IFactory;
     
 namespace config_detail {
-    
-struct _nil_params {};
+
+template<class, typename, typename> struct factory_parameter_dispatcher; 
 
 template<class Interface>
-using init_params_t = typename Traits::init_params<Interface>::type;
-
-template<class Interface>
-using init_params_placeholder_t = typename boost::detected_or<
-        _nil_params, init_params_t, Interface
-    >::type;
+using factory_params_t = typename Traits::factory_parameters<Interface>::type;
     
 template<class Interface>
-using has_init_params = boost::is_detected<init_params_t, Interface>;
-        
-} // namespace config_detail
+using has_factory_params = boost::is_detected<factory_params_t, Interface>;
 
 template<class Interface>
-class IFactory
+class ifactory_base_with_params
 {
-    static_assert(
-        Traits::is_makeable<Interface>::value,
-        "A factory may only be instantiated for a makeable type."
-    );
-    
 public:
-    virtual ~IFactory() = default;
-
+    virtual ~ifactory_base_with_params() = default;
+    
+    inline Interface* make(const factory_params_t<Interface>& p) const
+    {
+        return make_p(p);
+    }
+    
     template<typename... ArgTypes>
     inline Interface* make(ArgTypes... args) const
     {
-        static_assert(
-            config_detail::has_init_params<Interface>::value || sizeof...(args) == 0,
-            "Interface does not accept initialization parameters. You must call "
-            "make without any arguments."
-        );
-        return make_p(config_detail::init_params_placeholder_t<Interface>(args...));
+        auto dispatcher = make_factory_parameter_dispatcher<Interface>(
+                std::bind(
+                    &ifactory_base_with_params<Interface>::make_p,
+                    this,
+                    std::placeholders::_1
+                )
+            );
+        
+        return dispatcher(std::forward<ArgTypes>(args)...);
     }
+    
+protected:
+    // called by factory_parameter_dispatcher
+    virtual Interface* make_p(const factory_params_t<Interface>&) const = 0;
+    
+//     friend class factory_parameter_dispatcher<Interface>;
+};
+
+
+template<class Interface>
+class ifactory_base_without_params
+{
+public:
+    virtual ~ifactory_base_without_params() = default;
+    
+    inline Interface* make() const { return make_p(); }
+    
+protected:
+    virtual Interface* make_p() const = 0;
+};
+
+} // namespace config_detail
+
+template<class Interface>
+class IFactory 
+    : public boost::mp11::mp_if<
+        config_detail::has_factory_params<Interface>,
+        config_detail::ifactory_base_with_params<Interface>,
+        config_detail::ifactory_base_without_params<Interface>
+    >
+{
+    static_assert(boost::is_complete<Interface>::value);
+    static_assert(Traits::is_makeable<Interface>::value);
     
     template<typename... ArgTypes>
     inline QSharedPointer<Interface> makeShared(ArgTypes... args) const
     {
-        static_assert(
-            config_detail::has_init_params<Interface>::value || sizeof...(args) == 0,
-            "Interface does not accept initialization parameters. You must call "
-            "make without any arguments."
-        );
-        return QSharedPointer<Interface>(
-            make_p(config_detail::init_params_placeholder_t<Interface>(args...))
-        );
+        return QSharedPointer<Interface>(this->make(std::forward<ArgTypes>(args)...));
     }
     
     template<typename... ArgTypes>
     inline std::unique_ptr<Interface> makeUnique(ArgTypes... args) const
     {
-        static_assert(
-            config_detail::has_init_params<Interface>::value || sizeof...(args) == 0,
-            "Interface does not accept initialization parameters. You must call "
-            "make without any arguments."
-        );
-        return std::unique_ptr<Interface>(
-            make_p(config_detail::init_params_placeholder_t<Interface>(args...))
-        );
+        return std::unique_ptr<Interface>(this->make(std::forward<ArgTypes>(args)...));
     }
     
-//protected:
-    virtual Interface* make_p(const config_detail::init_params_placeholder_t<Interface>& params) const = 0;
+public:
+    virtual ~IFactory() = default;
 };
 
 namespace Traits {
     
 template<class Interface>
-struct is_singleton_gettable<IFactory<Interface>> : std::true_type {};
+struct is_singleton<IFactory<Interface>> : std::true_type {};
 
 template<class T>
 struct is_factory : std::false_type {};

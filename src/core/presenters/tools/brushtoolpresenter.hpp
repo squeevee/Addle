@@ -48,20 +48,13 @@ class ADDLE_CORE_EXPORT BrushToolPresenter : public QObject, public virtual IBru
     Q_INTERFACES(Addle::IToolPresenter Addle::IBrushToolPresenter)
     IAMQOBJECT_IMPL
 public:
-    BrushToolPresenter()
-        : _selectHelper(*this)
-    {
-        _mouseHelper.onEngage.bind(&BrushToolPresenter::onEngage, this);  
-        _mouseHelper.onMove.bind(&BrushToolPresenter::onMove, this);
-        _mouseHelper.onDisengage.bind(&BrushToolPresenter::onDisengage, this);
-        _selectHelper.onIsSelectedChanged.bind(&BrushToolPresenter::onSelectedChanged, this);
-    }
+    BrushToolPresenter(ToolId id);
     virtual ~BrushToolPresenter() = default;
 
     void initialize(IMainEditorPresenter* owner, Mode mode);
 
     IMainEditorPresenter* owner() { ASSERT_INIT(); return _mainEditor; }
-    ToolId id();
+    ToolId id() const;
 
     IAssetSelectionPresenter& brushSelection() { ASSERT_INIT(); return *_brushSelection; }
     void selectBrush(BrushId id) { brushSelection().select(id); }
@@ -107,7 +100,7 @@ private:
 
     bool _grace;
 
-    Mode _mode = (Mode)NULL;
+    const Mode _mode;
 
     QMetaObject::Connection _connection_onSizeChanged;
     QMetaObject::Connection _connection_onSelectedLayerChanged;

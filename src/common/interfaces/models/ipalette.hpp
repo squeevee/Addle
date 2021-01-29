@@ -44,8 +44,24 @@ signals:
     virtual void colorsChanged(ColorArray colors) = 0;
 };
 
-DECL_MAKEABLE(IPalette)
-DECL_GLOBAL_REPO_MEMBER(IPalette, PaletteId);
+namespace aux_IPalette {
+    ADDLE_FACTORY_PARAMETER_ALIAS( config_detail::generic_id_parameter, id )
+    ADDLE_FACTORY_PARAMETER_NAME( builder )
+}
+
+ADDLE_DECL_SINGLETON_REPO_MEMBER_BASIC(IPalette, PaletteId);
+ADDLE_DECL_FACTORY_PARAMETERS(
+    IPalette, 
+    (required 
+        (id,      (PaletteId)) 
+        (builder, (const PaletteBuilder&)) 
+    ) 
+        // TODO: r-value
+        // or better still, could the builder be folded into the parameter
+        // definition?
+)
+
+// TODO: factory parameters
 
 } // namespace Addle
 

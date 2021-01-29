@@ -62,7 +62,7 @@ signals:
 
 
 
-DECL_MAKEABLE(ISelectToolPresenter)
+ADDLE_DECL_MAKEABLE(ISelectToolPresenter)
 
 
 } // namespace Addle

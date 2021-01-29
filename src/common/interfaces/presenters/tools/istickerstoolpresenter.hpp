@@ -25,7 +25,7 @@ public:
     virtual ~IStickersToolPresenter() = default;
 };
 
-DECL_MAKEABLE(IStickersToolPresenter)
+ADDLE_DECL_MAKEABLE(IStickersToolPresenter)
 
 
 } // namespace Addle

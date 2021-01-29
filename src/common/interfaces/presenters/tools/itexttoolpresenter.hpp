@@ -23,7 +23,7 @@ public:
     virtual ~ITextToolPresenter() = default;
 };
 
-DECL_MAKEABLE(ITextToolPresenter)
+ADDLE_DECL_MAKEABLE(ITextToolPresenter)
 
 
 } // namespace Addle

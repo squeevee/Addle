@@ -44,7 +44,7 @@ public slots:
 
 };
 
-DECL_MAKEABLE(ILayer)
+ADDLE_DECL_MAKEABLE(ILayer)
 
 
 } // namespace Addle

@@ -99,10 +99,25 @@ DECL_INTERFACE_META_PROPERTIES(
     DECL_INTERFACE_PROPERTY(empty)
 )
 
-DECL_MAKEABLE(IMainEditorPresenter)
-DECL_INIT_PARAMS(IMainEditorPresenter, IMainEditorPresenter::Mode)
+ADDLE_DECL_MAKEABLE(IMainEditorPresenter)
+
+namespace aux_IMainEditorPresenter {
+    ADDLE_FACTORY_PARAMETER_NAME( mode )
+    ADDLE_FACTORY_PARAMETER_NAME( foo )
+    ADDLE_FACTORY_PARAMETER_NAME( bar )
+    ADDLE_FACTORY_PARAMETER_NAME( baz )
+}
+
+ADDLE_DECL_FACTORY_PARAMETERS(
+    IMainEditorPresenter,
+    (optional 
+        (mode,  (IMainEditorPresenter::Mode), IMainEditorPresenter::Mode::Editor)
+//         (baz,   (const ShortLived&),  ShortLived())
+    )
+)
 
 } // namespace Addle
+
 
 Q_DECLARE_INTERFACE(Addle::IMainEditorPresenter, "org.addle.IMainEditorPresenter")
 //Q_DECLARE_METATYPE(Addle::IMainEditorPresenter::Mode)

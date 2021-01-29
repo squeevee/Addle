@@ -60,7 +60,7 @@ signals:
     virtual void favoritesChanged(QList<AddleId> favorites) = 0;
 };
 
-DECL_MAKEABLE(IAssetSelectionPresenter);
+ADDLE_DECL_MAKEABLE(IAssetSelectionPresenter);
 
 } // namespace Addle
 

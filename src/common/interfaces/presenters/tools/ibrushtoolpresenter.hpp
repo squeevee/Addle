@@ -59,7 +59,7 @@ signals:
 DECL_INTERFACE_META_PROPERTIES(IBrushToolPresenter,
     DECL_INTERFACE_PROPERTY(selectedBrush)
 )
-DECL_MAKEABLE(IBrushToolPresenter)
+ADDLE_DECL_MAKEABLE(IBrushToolPresenter)
 
 
 } // namespace Addle

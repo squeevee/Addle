@@ -18,6 +18,8 @@
 #include "interfaces/presenters/tools/itoolpresenter.hpp"
 #include "interfaces/views/imaineditorview.hpp"
 
+#include "interfaces/models/ipalette.hpp"
+
 #ifndef ADDLE_CONFIG_INTERFACES
 
 #define ADDLE_CONFIG_INTERFACES \
@@ -29,7 +31,8 @@
     Addle::IMessageContext, \
     Addle::IPalettePresenter, \
     Addle::IToolPresenter, \
-    Addle::IMainEditorView
+    Addle::IPalette//, 
+    //Addle::IMainEditorView
 
 // ADDLE_CONFIG_INTERFACES contains a comma-separated list of the 
 // unqualified names of interfaces exposed to the dependency injector.

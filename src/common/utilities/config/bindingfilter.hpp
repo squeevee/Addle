@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include <boost/parameter.hpp>
+
 #include <functional>
 #include <tuple>
 
@@ -20,12 +22,30 @@
 
 #include "utilities/qobject.hpp"
 
-namespace Addle::config_detail {
+namespace Addle {
+    
+namespace config_detail {
 
 template<typename Interface>
-using binding_filter_t = 
-    std::function<bool(const init_params_placeholder_t<Interface>&)>;
+using _binding_filter_arg_factory_params_t = const factory_params_t<Interface>&;
+
+template<typename Interface>
+using _binding_filter_arg_id_t = typename Traits::repo_id_type<Interface>::type;
     
+template<typename Interface>
+using binding_filter_arg_t = typename boost::mp11::mp_if<
+        has_factory_params<Interface>,
+        boost::mp11::mp_defer<_binding_filter_arg_factory_params_t, Interface>,
+        boost::mp11::mp_if<
+            Traits::is_repo_member<Interface>,
+            boost::mp11::mp_defer<_binding_filter_arg_id_t, Interface>,
+            boost::mp11::mp_identity<void>
+        >
+    >::type;
+    
+template<typename Interface>
+using binding_filter_t = std::function<bool(binding_filter_arg_t<Interface>)>;
+
 template<typename Interface, typename F>
 inline binding_filter_t<Interface> make_binding_filter(F&& f)
 {
@@ -44,7 +64,8 @@ using _is_pointer_like = std::conjunction<
         boost::is_detected<_dereferenced_t, T>
     >;
 
-// converts a parameter into a `const QObject*` from one of the following forms:
+// normalizes a parameter into a `const QObject*` from one of the following
+// forms:
 // - reference to (optionaly const-qualified) QObject
 // - object, such as pointer, dereferenceable into (optionally const-qualified)
 //  QObject
@@ -93,17 +114,58 @@ inline const QObject* _inspect_as_qobject(Parameter&& p)
     }
 }
 
-template<typename Interface, std::size_t N>
-inline binding_filter_t<Interface> filter_binding_by_parameter_qiid(const char* qiid)
-{
-    static_assert(has_init_params<Interface>::value);
-    
-    QByteArray qiid_(qiid);
+} // namespace config_detail
 
-    return [qiid_] (const init_params_t<Interface>& params) -> bool {
-        const QObject* param = _inspect_as_qobject(std::get<N>(params));
-        return param->inherits(qiid_.constData());
+namespace Config {
+
+template<typename Interface, typename Filter, typename... ParameterTags>
+inline auto filter_by_factory_parameters(Filter&& f, const boost::parameter::keyword<ParameterTags>&...)
+{
+    static_assert(config_detail::has_factory_params<Interface>::value);
+    
+    return [f] (const config_detail::factory_params_t<Interface>& params) -> bool {
+        return std::apply(
+            f,
+            generate_tuple_over<boost::mp11::mp_list<ParameterTags...>>(
+                [&params](auto t) -> auto& {
+                    using ParameterTag_ = typename decltype(t)::type;
+                    return params[boost::parameter::keyword<ParameterTag_>::instance];
+                }
+            )
+        );
     };
 }
 
-} // namespace Addle::config_detail
+template<typename Interface, typename ParameterTag>
+inline auto filter_by_factory_parameter_qiid(const char* qiid, const boost::parameter::keyword<ParameterTag>& tag)
+{
+    QByteArray qiid_(qiid);
+
+    return filter_by_factory_parameters(
+        [qiid_] (auto&& arg) -> bool {
+            const QObject* obj = config_detail::_inspect_as_qobject(std::forward<decltype(arg)>(arg));
+            return obj && obj->inherits(qiid_.constData());
+        },
+        tag
+    );
+}
+
+template<typename IdType>
+inline auto filter_by_id(IdType id)
+{
+    return [id] (const auto& params) -> bool {
+        return params[config_detail::generic_id_parameter::id_] == id;
+    };
+}
+
+template<typename Interface, typename Function>
+inline auto filter_by(Function&& f)
+{
+    return [f] (config_detail::binding_filter_arg_t<Interface> arg) -> bool {
+        return std::apply(f, arg);
+    };
+}
+
+}
+
+} // namespace Addle

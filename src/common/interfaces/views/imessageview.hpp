@@ -4,14 +4,21 @@
 #include "interfaces/iamqobject.hpp"
 #include "interfaces/traits.hpp"
 
-#include "iviewfor.hpp"
+#include "iviewbase.hpp"
 
 namespace Addle {
 
 class IMessagePresenter;
-typedef IViewForShared<IMessagePresenter> IMessageView;
+using IMessageView = IViewBase<IMessagePresenter, aux_IViewBase::shared_presenter_tag>;
 
-DECL_MAKEABLE(IMessageView);
+ADDLE_DECL_MAKEABLE(IMessageView);
+
+namespace aux_IMessageView {
+    using namespace aux_IViewBase; 
+        // enables factory parameter "presenter"
+}
+
+ADDLE_VIEW_FACTORY_PARAMETERS(IMessageView)
 
 } // namespace Addle
 

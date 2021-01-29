@@ -116,7 +116,7 @@ protected:
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(IRasterSurface::InitFlags)
-DECL_MAKEABLE(IRasterSurface);
+ADDLE_DECL_MAKEABLE(IRasterSurface);
 
 } // namespace Addle
 #endif // IRASTERSURFACE_HPP

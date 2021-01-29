@@ -61,7 +61,7 @@ bool ApplicationService::start()
         ) << std::endl;
         std::cerr << ex.what() << std::endl;
         if (DebugBehavior::test(DebugBehavior::AbortOnStartupError))
-            std::abort();
+            std::terminate();
 #else
         std::cerr << qPrintable(ex.errorText()) << std::endl;
 #endif
@@ -99,7 +99,7 @@ bool ApplicationService::start()
                 ) << std::endl;
                 std::cerr << ex.what() << std::endl;
                 if (DebugBehavior::test(DebugBehavior::AbortOnStartupError))
-                    std::abort();
+                    std::terminate();
             }
             catch(...)
             {
@@ -109,7 +109,7 @@ bool ApplicationService::start()
                 ) << std::endl;
             }
             if (DebugBehavior::test(DebugBehavior::AbortOnStartupError))
-                std::abort();
+                std::terminate();
 #endif
             _exitCode = ErrorCodes::UNKNOWN_ERROR_CODE;
             quitting();
@@ -284,8 +284,8 @@ void ApplicationService::startGraphicalApplication()
         //presenter->loadDocument(_startingUrl);
     }
 
-    _mainEditorViewRepository.add(*presenter);
-    _mainEditorViewRepository.get(*presenter).open();
+//     _mainEditorViewRepository.add(*presenter);
+//     _mainEditorViewRepository.get(*presenter).open();
 }
 
 void ApplicationService::quitting()

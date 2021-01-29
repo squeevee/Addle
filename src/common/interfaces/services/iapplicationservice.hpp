@@ -42,7 +42,7 @@ public slots:
     virtual void quitting() = 0;
 };
 
-DECL_SERVICE(IApplicationService)
+ADDLE_DECL_SERVICE(IApplicationService)
 
 
 } // namespace Addle
