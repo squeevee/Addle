@@ -213,53 +213,47 @@ public:
     virtual ~mp_virtual_inherit() = default;
 };
 
-template<class LF>
-struct mp_where_valid_q
-{
-    struct _nil {};
+namespace metaprogramming_detail {
     
-    template<typename T>
-    using _is_not_nil = boost::mp11::mp_not<std::is_same<T, _nil>>;
+template<class... R>
+struct mp_build_list_r;
+
+template<class C, class T, class... R>
+using mp_build_list = boost::mp11::mp_if<
+        C,
+        boost::mp11::mp_push_front<typename mp_build_list_r<R...>::type, T>,
+        typename mp_build_list_r<R...>::type
+    >;
+
+template<class C, class T, class... R>
+struct mp_build_list_r<C, T, R...> { using type = mp_build_list<C, T, R...>; };
+
+template<>
+struct mp_build_list_r<> { using type = boost::mp11::mp_list<>; };
+
+} // namespace metaprogramming_detail
+
+// Alias for `mp_list<...>` with members built from the given arguments.
+// 
+// This metafunction follows a similar form to mp_cond where arguments are
+// alternating C, T pairs. For every C where static_cast<bool>(C::value) == true
+// the corresponding T will be appended to the resulting list.
+//
+// If no C is true, then the result is mp_list<>
+using metaprogramming_detail::mp_build_list;
+
+template<class T>
+using mp_undefer = typename T::type;
     
-    template<typename... T>
-    struct _transform
-    {
-        template<typename F>
-        using fn = typename boost::mp11::mp_eval_or<
-                _nil,
-                F::template fn,
-                T...
-            >;
-    };
-    
-    template<typename... T>
-    using fn = boost::mp11::mp_filter<
-            _is_not_nil,
-            boost::mp11::mp_transform_q<
-                _transform<T...>,
-                LF
-            >
-        >;
-};
-
-template<template<typename...> class... F>
-using mp_where_valid = mp_where_valid_q<boost::mp11::mp_list<boost::mp11::mp_quote<F>...>>;
-
-
-// maybe I missed something, but I couldn't find anything quite like this in mp11
-// if C is true, this is an alias for F<T...>, and if C is false, this is an
-// invalid type.
-
-template<bool C, template<typename...> class F, typename... T>
-using mp_optional_eval_c = boost::mp11::mp_if_c<C, boost::mp11::mp_defer<F, T...>, std::enable_if<false>>;
-
-template<bool C, template<typename...> class F, typename... T>
-using mp_optional_eval_c_t = typename mp_optional_eval_c<C, F, T...>::type; 
-
-template<typename C, template<typename...> class F, typename... T>
-using mp_optional_eval = mp_optional_eval_c<static_cast<bool>(C::value), F, T...>;
-
-template<typename C, template<typename...> class F, typename... T>
-using mp_optional_eval_t = typename mp_optional_eval<C, F, T...>::type; 
+// Unwraps a list L of deferred types then applies the undeferred types to a 
+// function F.
+template<template<typename...> class F, class L>
+using mp_apply_undeferred = boost::mp11::mp_apply<
+        F,
+        boost::mp11::mp_transform<
+            mp_undefer,
+            L
+        >
+    >;
 
 } // namespace Addle

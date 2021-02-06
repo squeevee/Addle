@@ -20,12 +20,12 @@ class NotificationDialog : public QMessageBox, public IMessageView, public ITopL
     Q_INTERFACES(Addle::IMessageView Addle::ITopLevelView)
     IAMQOBJECT_IMPL
 public:
-    NotificationDialog(QSharedPointer<INotificationPresenter> presenter);
+    NotificationDialog(INotificationPresenter& presenter);
     virtual ~NotificationDialog() = default;
     
     //void initialize(QSharedPointer<IMessagePresenter> presenter) override;
     
-    QSharedPointer<IMessagePresenter> presenter() const override
+    IMessagePresenter& presenter() const override
     {
         ASSERT_INIT();
         return _presenter;
@@ -42,7 +42,7 @@ signals:
 private:
     void setupUi();
     
-    QSharedPointer<INotificationPresenter> _presenter;
+    INotificationPresenter& _presenter;
         
     TopLevelViewHelper _tlvHelper;
     InitializeHelper _initHelper;

@@ -32,14 +32,6 @@ private:
     Interface* make(IdType id) const;
 };
 
-template<class Interface, typename Derived>
-using _deferred_repository_base_add_by_id = mp_optional_eval_t<
-        boost::mp11::mp_valid<_deferred_irepository_base_add_by_id, Interface>,
-        repository_base_add_by_id,
-        Interface,
-        Derived
-    >;
-
 template<typename Interface, typename Derived>
 class repository_base_add_by_factory_params 
     : public virtual irepository_base_add_by_factory_params<Interface>
@@ -52,21 +44,21 @@ protected:
     Interface& add_new_by_params_p(const factory_params_t<Interface>&) override;
 };
 
-template<class Interface, typename Derived>
-using _deferred_repository_base_add_by_factory_params = mp_optional_eval_t<
-        boost::mp11::mp_valid<_deferred_irepository_base_add_by_factory_params, Interface>,
-        repository_base_add_by_factory_params,
-        Interface,
-        Derived
-    >;
-    
 template<typename Interface, typename Derived>
-using repository_base = boost::mp11::mp_apply<
+using repository_base = mp_apply_undeferred<
         mp_polymorphic_inherit,
-        typename mp_where_valid<
-            _deferred_repository_base_add_by_id,
-            _deferred_repository_base_add_by_factory_params
-        >::template fn<Interface, Derived>
+        mp_build_list<
+            boost::mp11::mp_bool<repo_info<Interface>::can_populate_by_id>,
+                boost::mp11::mp_defer<repository_base_add_by_id,
+                    Interface,
+                    Derived
+                >,
+            boost::mp11::mp_valid<factory_params_t, Interface>,
+                boost::mp11::mp_defer<repository_base_add_by_factory_params,
+                    Interface,
+                    Derived
+                >
+        >
     >;
 
 template<typename Interface>

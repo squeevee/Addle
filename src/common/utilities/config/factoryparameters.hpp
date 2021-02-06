@@ -12,6 +12,7 @@
 #include <boost/preprocessor.hpp>
 #include <boost/callable_traits/return_type.hpp>
 #include <boost/type_traits/is_complete.hpp>
+#include <boost/type_traits/is_detected.hpp>
  
 #include "taggedvalueset.hpp"
 
@@ -121,6 +122,12 @@ struct basic_arg_predicate
         );
     };
 };
+
+template<class Interface>
+using factory_params_t = typename Traits::factory_parameters<Interface>::type;
+    
+template<class Interface>
+using has_factory_params = boost::is_detected<factory_params_t, Interface>;
 
 } // namespace config_detail
 

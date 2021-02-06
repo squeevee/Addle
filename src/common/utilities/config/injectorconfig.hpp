@@ -29,6 +29,9 @@
 #include "bindingfilter.hpp"
 #include "dynamicbindingserver.hpp"
 
+#include "interfaces/views/iviewrepository.hpp"
+#include "utilities/view/viewrepository.hpp"
+
 #include "utilities/generate_tuple_over.hpp"
 
 #include "injectbundle.hpp"
@@ -71,7 +74,7 @@ template<typename T>
 using is_injector_instantiable = mp_or<Traits::is_singleton<T>, is_injector_makeable<T>>;
 
 template<typename... Interfaces>
-using module_injector_exposed_types =
+using injector_exposed_types =
     mp_append<
         mp_transform<
             std::add_lvalue_reference_t,
@@ -89,22 +92,19 @@ using module_injector_exposed_types =
             QSharedPointer,
             mp_filter<is_injector_makeable, mp_list<Interfaces...>>
         >,
-        
+//         mp_transform_q<
+//             mp_compose<IFactory, std::add_lvalue_reference_t>,
+//             mp_filter<Traits::is_makeable, mp_list<Interfaces...>>
+//         >,
         mp_transform_q<
             mp_compose<IFactory, std::add_const_t, std::add_lvalue_reference_t>,
             mp_filter<Traits::is_makeable, mp_list<Interfaces...>>
-        >
-    >;
-
-template<typename... Interfaces>
-using injector_exposed_types =
-    mp_append<
-        module_injector_exposed_types<Interfaces...>,
-        
-        mp_transform_q<
-            mp_compose<IRepository, std::add_const_t, std::add_lvalue_reference_t>,
-            mp_filter<Traits::is_singleton_repo_member, mp_list<Interfaces...>>
         >,
+        
+//         mp_transform_q<
+//             mp_compose<IRepository, std::add_const_t, std::add_lvalue_reference_t>,
+//             mp_filter<Traits::is_singleton_repo_member, mp_list<Interfaces...>>
+//         >,
         
         mp_transform_q<
             mp_compose<IRepository, std::add_lvalue_reference_t>,
@@ -122,6 +122,11 @@ using injector_exposed_types =
         mp_transform_q<
             mp_compose<IRepository, QSharedPointer>,
             mp_filter<Traits::is_unique_repo_member, mp_list<Interfaces...>>
+        >,
+        
+        mp_transform_q<
+            mp_compose<IViewRepository, std::add_lvalue_reference_t>,
+            mp_filter<aux_view::is_view, mp_list<Interfaces...>>
         >
     >;
 
@@ -359,7 +364,8 @@ void apply_dynamic_bindings(DynamicBindingServer& bindingServer, Injector& injec
             else if constexpr (is_binding_kind<filled_deferred_binding, Binding>::value)
             {
                 using Impl = typename Binding::impl;
-                bindingServer.fillDeferredBinding(
+                
+                bindingServer.fillDeferredBinding<Interface>(
                     std::make_shared<Factory<Interface, Impl, Injector>>(injector)
                 );
             }
@@ -370,16 +376,32 @@ void apply_dynamic_bindings(DynamicBindingServer& bindingServer, Injector& injec
             else if constexpr (is_binding_kind<filled_conditional_binding, Binding>::value)
             {
                 using Impl = typename Binding::impl;
-                
-                std::shared_ptr<IFactory<Interface>> factory(
-                    new Factory<Interface, Impl, Injector>(injector)
-                );
-                
-                bindingServer.fillConditionalBinding(
+               
+                bindingServer.fillConditionalBinding<Interface>(
                     std::move(binding.filter),
-                    factory
+                    std::make_shared<Factory<Interface, Impl, Injector>>(injector)
                 );
             }
+        }
+    );
+}
+
+
+template<typename... Interfaces>
+auto get_view_repository_bindings(const mp_list<Interfaces...>&)
+{
+    return generate_tuple_over<
+        mp_filter<
+            aux_view::is_view,
+            mp_list<Interfaces...>
+        >
+    >(
+        [] (auto index) {
+            using View = typename decltype(index)::type;
+            
+            return boost::di::bind<IViewRepository<View>>()
+                .template to<ViewRepository<View>>()
+                [boost::di::override];
         }
     );
 }
@@ -390,7 +412,7 @@ class ModuleInjectorConfig
     using _injector_t = mp_apply<
             boost::di::injector,
             mp_append<
-                module_injector_exposed_types<Interfaces...>
+                injector_exposed_types<Interfaces...>
             >
         >;
     
@@ -461,7 +483,8 @@ public:
                     get_immediate_factory_bindings(_normalFactoryStorage, mp_list<Bindings...>{}),
                     get_singleton_repo_bindings(mp_list<Interfaces...>{}),
                     get_unique_repo_bindings(mp_list<Interfaces...>{}),
-                    get_delegate_bindings(_dynamicBindingServer, mp_list<Bindings...>{})
+                    get_delegate_bindings(_dynamicBindingServer, mp_list<Bindings...>{}),
+                    get_view_repository_bindings(mp_list<Interfaces...>{})
                 )
             )
         )
@@ -472,22 +495,16 @@ public:
     template<typename Interface>
     Interface& getSingleton()
     {
-        static_assert(Traits::is_singleton<Interface>::value);
-        
+        static_assert(
+            Traits::is_singleton<boost::remove_cv_ref_t<Interface>>::value
+        );
         return _injector.template create<Interface&>();
     }
-    
+
     template<typename... Bindings>
     InjectorConfig& extend(Bindings&&... bindings)
     {
-        using module_config_t = 
-            mp_apply<
-                ModuleInjectorConfig,
-                mp_transform<
-                    bound_interface,
-                    mp_list<Bindings...>
-                >
-            >;
+        using module_config_t = ModuleInjectorConfig<Interfaces...>;
         
         _modules.push_back(
             std::make_shared<module_config_t>(
@@ -530,7 +547,7 @@ inline config_detail::deferred_binding<Interface> defer_binding()
 }
 
 template<class Interface, class Impl>
-inline config_detail::deferred_binding<Interface> fill_deferred_binding()
+inline config_detail::filled_deferred_binding<Interface, Impl> fill_deferred_binding()
 {
     return config_detail::filled_deferred_binding<Interface, Impl> {};
 }

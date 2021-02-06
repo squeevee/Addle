@@ -9,13 +9,12 @@
 namespace Addle {
 
 class IMessagePresenter;
-using IMessageView = IViewBase<IMessagePresenter, aux_IViewBase::shared_presenter_tag>;
+using IMessageView = IViewBase<IMessagePresenter>;
 
 ADDLE_DECL_MAKEABLE(IMessageView);
 
 namespace aux_IMessageView {
-    using namespace aux_IViewBase; 
-        // enables factory parameter "presenter"
+    ADDLE_FACTORY_PARAMETER_ALIAS(aux_view, presenter)
 }
 
 ADDLE_VIEW_FACTORY_PARAMETERS(IMessageView)

@@ -72,13 +72,6 @@ protected:
 };
 
 template<class Interface>
-using _deferred_irepository_base_add_by_id = mp_optional_eval_c_t<
-        repo_info<Interface>::can_populate_by_id,
-        irepository_base_add_by_id, 
-        Interface
-    >;
-    
-template<class Interface>
 class irepository_base_add_by_factory_params
 {
 public:
@@ -106,21 +99,16 @@ protected:
 };
 
 template<class Interface>
-using _deferred_irepository_base_add_by_factory_params = mp_optional_eval_t<
-        boost::mp11::mp_valid<factory_params_t, Interface>,
-        irepository_base_add_by_factory_params, 
-        Interface
+using irepository_base = mp_apply_undeferred<
+        mp_virtual_inherit,
+        mp_build_list<
+            boost::mp11::mp_bool<repo_info<Interface>::can_populate_by_id>,
+                boost::mp11::mp_defer<irepository_base_add_by_id, Interface>,
+            boost::mp11::mp_valid<factory_params_t, Interface>, 
+                boost::mp11::mp_defer<irepository_base_add_by_factory_params, Interface>
+        >
     >;
 
-template<class Interface>
-using irepository_base = boost::mp11::mp_apply<
-        mp_virtual_inherit,
-        typename mp_where_valid<
-            _deferred_irepository_base_add_by_id,
-            _deferred_irepository_base_add_by_factory_params
-        >::template fn<Interface>
-    >;
-    
 template<typename Interface>
 using _typeof_id_property = decltype( std::declval<const Interface>().id() );
 

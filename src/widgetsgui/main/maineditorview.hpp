@@ -56,7 +56,7 @@ class ADDLE_WIDGETSGUI_EXPORT MainEditorView : public QMainWindow, public IMainE
     Q_INTERFACES(Addle::IMainEditorView Addle::ITopLevelView)
     IAMQOBJECT_IMPL    
 public:
-//     MainEditorView(/*IApplicationService&, IMainEditorPresenter& presenter*/);
+    MainEditorView(IMainEditorPresenter& presenter);
     virtual ~MainEditorView() = default;
 
     //void initialize(IMainEditorPresenter& presenter) override;

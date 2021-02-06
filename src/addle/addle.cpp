@@ -14,7 +14,7 @@
 #include "utilities/config/registerqmetatypes.hpp"
 #include "utilities/qobject.hpp"
 
-//#include "interfaces/services/iapplicationservice.hpp"
+#include "interfaces/services/iapplicationservice.hpp"
 
 #include "globals.hpp"
 #include "utils.hpp"
@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
 #endif
     
     auto config = core_config();
-    //widgetsgui_config(*config);
+    widgetsgui_config(*config);
     
     auto& appService = config->getSingleton<IApplicationService>();
         

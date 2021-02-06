@@ -71,14 +71,14 @@ std::unique_ptr<InjectorConfig> Addle::core_config()
         ),
         fill_conditional_bind<IToolPresenter, NavigateToolPresenter>(
             filter_by_id(CoreTools::Navigate)
-        )
+        ),
         
         
         //,
                                                    
 //         bind<IViewRepository<IMainEditorView>, ViewRepository<IMainEditorView>>()/*,
 //                                                                                                   
-//         defer_binding<IMainEditorView>()*/
+        defer_binding<IMainEditorView>()
     );
     
     auto&& paletteRepo = config->getSingleton<IRepository<IPalette>>();

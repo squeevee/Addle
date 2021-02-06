@@ -16,16 +16,16 @@
 
 using namespace Addle;
 
-FileIssueDialog::FileIssueDialog(QSharedPointer<IFileIssuePresenter> presenter)
+FileIssueDialog::FileIssueDialog(IFileIssuePresenter& presenter)
     : _presenter(presenter),
     _tlvHelper(this, std::bind(&FileIssueDialog::setupUi, this))
 {
-    ADDLE_ASSERT(_presenter);
+    //ADDLE_ASSERT(_presenter);
     
     _tlvHelper.onOpened.bind(&FileIssueDialog::tlv_opened, this);
     _tlvHelper.onClosed.bind(&FileIssueDialog::tlv_closed, this);
     
-    connect_interface(this, SIGNAL(rejected()), _presenter, SIGNAL(cancel()));
+    connect_interface(this, SIGNAL(rejected()), &_presenter, SIGNAL(cancel()));
 }
 
 void FileIssueDialog::setupUi()
@@ -37,7 +37,7 @@ void FileIssueDialog::setupUi()
     
     QBoxLayout* textRow = new QBoxLayout(QBoxLayout::LeftToRight);
     
-    auto tone = _presenter->tone();
+    auto tone = _presenter.tone();
     if (tone == IMessagePresenter::Issue || tone == IMessagePresenter::Problem)
     {
         QIcon icon = style()->standardIcon(
@@ -51,19 +51,19 @@ void FileIssueDialog::setupUi()
     }
     
     QLabel* label_text = new QLabel;
-    label_text->setText(_presenter->text());
+    label_text->setText(_presenter.text());
     textRow->addWidget(label_text);
     
     layout->addLayout(textRow);
     
     QBoxLayout* infoRow = new QBoxLayout(QBoxLayout::LeftToRight);
     
-    if (_presenter->canPreview())
+    if (_presenter.canPreview())
     {
         _preview = new QLabel;
         _preview->setMinimumSize(64, 64);
         _preview->setMaximumSize(64, 64); // TODO
-        _preview->setPixmap(_presenter->preview());
+        _preview->setPixmap(_presenter.preview());
         infoRow->addWidget(_preview);
     }
     
@@ -76,7 +76,7 @@ void FileIssueDialog::setupUi()
     QWidget* statsWidget = new QWidget;
     QFormLayout* statsLayout = new QFormLayout;
     
-    for (auto stat : noDetach(_presenter->fileStats()))
+    for (auto stat : noDetach(_presenter.fileStats()))
     {
         QLabel* statLabel = new QLabel(stat.first);
         QLabel* statValue = new QLabel(stat.second);
@@ -96,10 +96,10 @@ void FileIssueDialog::setupUi()
     connect(button_cancel, &QAbstractButton::clicked, this, &QDialog::reject);
     buttonStrip->addWidget(button_cancel);
     
-    if (_presenter->canOverwrite())
+    if (_presenter.canOverwrite())
     {
         QPushButton* button_overwrite = new QPushButton;
-        connect_interface(button_overwrite, SIGNAL(clicked()), _presenter, SIGNAL(overwrite()));
+        connect_interface(button_overwrite, SIGNAL(clicked()), &_presenter, SIGNAL(overwrite()));
         buttonStrip->addWidget(button_overwrite);
     }
     

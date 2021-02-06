@@ -20,7 +20,7 @@ class IMainEditorPresenter;
 class IMainEditorView : public IViewBase<IMainEditorPresenter>, public ITopLevelView
 {
 public:
-    using IViewBase<IMainEditorPresenter>::PresenterType;
+    using PresenterType = IMainEditorPresenter;
     
     virtual ~IMainEditorView() = default;
 };
@@ -28,7 +28,7 @@ public:
 ADDLE_DECL_MAKEABLE(IMainEditorView)
 
 namespace aux_IMainEditorView {
-    using namespace aux_IViewBase;
+    ADDLE_FACTORY_PARAMETER_ALIAS(aux_view, presenter)
 }
 
 ADDLE_VIEW_FACTORY_PARAMETERS(IMainEditorView)

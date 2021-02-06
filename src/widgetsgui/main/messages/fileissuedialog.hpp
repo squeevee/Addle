@@ -20,12 +20,12 @@ class FileIssueDialog : public QDialog, public IMessageView, public ITopLevelVie
     Q_INTERFACES(Addle::IMessageView Addle::ITopLevelView)
     IAMQOBJECT_IMPL
 public:
-    FileIssueDialog(QSharedPointer<IFileIssuePresenter> presenter);
+    FileIssueDialog(IFileIssuePresenter& presenter);
     virtual ~FileIssueDialog() = default;
     
     //void initialize(QSharedPointer<IMessagePresenter> presenter) override;
     
-    QSharedPointer<IMessagePresenter> presenter() const override { ASSERT_INIT(); return _presenter; }
+    IMessagePresenter& presenter() const override { ASSERT_INIT(); return _presenter; }
         
 public slots:
     void tlv_open() override { try { ASSERT_INIT(); _tlvHelper.open(); } ADDLE_SLOT_CATCH }
@@ -38,7 +38,7 @@ signals:
 private:
     void setupUi();
     
-    QSharedPointer<IFileIssuePresenter> _presenter;
+    IFileIssuePresenter& _presenter;
     
     QLabel* _preview = nullptr;
         

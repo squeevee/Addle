@@ -11,6 +11,7 @@
 
 #include <QSharedPointer>
 
+#include "utilities/config/factoryparameters.hpp"
 #include "interfaces/traits.hpp"
 
 //#include "utilities/initparams/baseinitparams.hpp"
@@ -20,14 +21,6 @@ namespace Addle {
 template<class> class IFactory;
     
 namespace config_detail {
-
-template<class, typename, typename> struct factory_parameter_dispatcher; 
-
-template<class Interface>
-using factory_params_t = typename Traits::factory_parameters<Interface>::type;
-    
-template<class Interface>
-using has_factory_params = boost::is_detected<factory_params_t, Interface>;
 
 template<class Interface>
 class ifactory_base_with_params
@@ -41,7 +34,7 @@ public:
     }
     
     template<typename... ArgTypes>
-    inline Interface* make(ArgTypes... args) const
+    inline Interface* make(ArgTypes&&... args) const
     {
         auto dispatcher = make_factory_parameter_dispatcher<Interface>(
                 std::bind(

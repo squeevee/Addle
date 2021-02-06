@@ -22,9 +22,18 @@ using namespace Addle;
 
 void widgetsgui_config(InjectorConfig& config)
 {
-//     config.extend(
-//         bind<IMainEditorView, MainEditorView>()
-//     );
+    static_assert(
+        std::is_same<
+            aux_view::presenter_of_t<Addle::IMainEditorView>,
+            Addle::IMainEditorPresenter
+        >::value
+    );
+    
+    
+    using namespace Config;
+    config.extend(
+        fill_deferred_binding<IMainEditorView, MainEditorView>()
+    );
 }
 
 // boost::di::injector<IFactory<IMainEditorView>&> config_widgetsgui ()

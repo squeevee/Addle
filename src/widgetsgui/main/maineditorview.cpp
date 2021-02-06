@@ -43,10 +43,10 @@
 using namespace Addle;
 
 
-// MainEditorView::MainEditorView(IApplicationService& as, IMainEditorPresenter& presenter)
-//     : _presenter(presenter),
-//     _tlvHelper(this, std::bind(&MainEditorView::setupUi, this))
-// {
+MainEditorView::MainEditorView(IMainEditorPresenter& presenter)
+//     : _presenter(presenter)/*,
+//     _tlvHelper(this, std::bind(&MainEditorView::setupUi, this))*/
+{
 //     _tlvHelper.onOpened.bind(&MainEditorView::tlv_opened, this);
 //     _tlvHelper.onClosed.bind(&MainEditorView::tlv_closed, this);
 //     
@@ -60,7 +60,7 @@ using namespace Addle;
 // 
 //     connect_interface(&_presenter, SIGNAL(documentPresenterChanged(QSharedPointer<Addle::IDocumentPresenter>)),
 //                               this, SLOT(onDocumentChanged(QSharedPointer<Addle::IDocumentPresenter>)));   
-// }
+}
 
 void MainEditorView::setupUi()
 {
