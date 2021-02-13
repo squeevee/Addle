@@ -5,7 +5,7 @@
 #include <utility>
 
 #include <boost/mp11.hpp>
-#include "utilities/config/factoryparameters.hpp"
+#include "utilities/config/factoryparams.hpp"
 
 #include "interfaces/traits.hpp"
 #include "interfaces/iamqobject.hpp"

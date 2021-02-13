@@ -11,7 +11,7 @@
 
 #include <QSharedPointer>
 
-#include "utilities/config/factoryparameters.hpp"
+#include "utilities/config/factoryparams.hpp"
 #include "interfaces/traits.hpp"
 
 //#include "utilities/initparams/baseinitparams.hpp"
@@ -36,7 +36,7 @@ public:
     template<typename... ArgTypes>
     inline Interface* make(ArgTypes&&... args) const
     {
-        auto dispatcher = make_factory_parameter_dispatcher<Interface>(
+        auto dispatcher = make_factory_param_dispatcher<Interface>(
                 std::bind(
                     &ifactory_base_with_params<Interface>::make_p,
                     this,
@@ -48,10 +48,10 @@ public:
     }
     
 protected:
-    // called by factory_parameter_dispatcher
+    // called by factory_param_dispatcher
     virtual Interface* make_p(const factory_params_t<Interface>&) const = 0;
     
-//     friend class factory_parameter_dispatcher<Interface>;
+//     friend class factory_param_dispatcher<Interface>;
 };
 
 

@@ -27,35 +27,35 @@ public:
     CanvasPresenter();
     virtual ~CanvasPresenter() = default;
 
-    void initialize(IMainEditorPresenter& mainEditorPresenter);
+//     void initialize(IMainEditorPresenter& mainEditorPresenter);
 
-    IMainEditorPresenter& mainEditorPresenter() { ASSERT_INIT(); return *_mainEditorPresenter; }
+//     IMainEditorPresenter& mainEditorPresenter() { ASSERT_INIT(); return *_mainEditorPresenter; }
+// 
+//     QCursor cursor() const;
+//     QString statusTip() const { return QString(); }
+// 
+//     bool event(QEvent* e);
+// 
+//     bool hasMouse() const override { return _hasMouse; }
+//     void setHasMouse(bool value);
 
-    QCursor cursor() const;
-    QString statusTip() const { return QString(); }
+// signals:
+//     void cursorChanged(QCursor cursor);
+//     void statusTipChanged(QString statusTip);
+// 
+//     void hasMouseChanged(bool);
+// 
+// private slots:
+//     void onEditorToolChanged();
+//     void onToolCursorChanged();
 
-    bool event(QEvent* e);
-
-    bool hasMouse() const override { return _hasMouse; }
-    void setHasMouse(bool value);
-
-signals:
-    void cursorChanged(QCursor cursor);
-    void statusTipChanged(QString statusTip);
-
-    void hasMouseChanged(bool);
-
-private slots:
-    void onEditorToolChanged();
-    void onToolCursorChanged();
-
-private:
-    bool _hasMouse = false;
-
-    QMetaObject::Connection _connection_toolCursor;
-
-    IMainEditorPresenter* _mainEditorPresenter;
-    InitializeHelper _initHelper;
+// private:
+//     bool _hasMouse = false;
+// 
+//     QMetaObject::Connection _connection_toolCursor;
+// 
+//     IMainEditorPresenter* _mainEditorPresenter;
+//     InitializeHelper _initHelper;
 };
 
 } // namespace Addle

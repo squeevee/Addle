@@ -60,8 +60,7 @@
 using namespace Addle;
 
 MainEditorPresenter::MainEditorPresenter(
-        Mode mode,       
-        std::unique_ptr<ICanvasPresenter> canvasPresenter,
+        Mode mode,
         std::unique_ptr<IColorSelectionPresenter> colorSelection,
         std::unique_ptr<IViewPortPresenter> viewPortPresenter,
         std::unique_ptr<IMessageContext> messageContext,
@@ -69,7 +68,6 @@ MainEditorPresenter::MainEditorPresenter(
         std::unique_ptr<IRepository<IToolPresenter>> tools
     )
     : _mode(mode),
-    _canvasPresenter(std::move(canvasPresenter)),
     _colorSelection(std::move(colorSelection)),
     _viewPortPresenter(std::move(viewPortPresenter)),
     _messageContext(std::move(messageContext)),
@@ -86,7 +84,8 @@ MainEditorPresenter::MainEditorPresenter(
     _palettes->addStaticIds<CorePalettes::all_palettes>();
     _colorSelection->setPalette(_palettes->getShared(CorePalettes::BasicPalette));
     
-    _tools->add( { CoreTools::Brush, CoreTools::Eraser, CoreTools::Navigate } );
+    _tools->bindFactoryParameters(aux_IToolPresenter::editor_ = *this);
+    _tools->add({ CoreTools::Brush, CoreTools::Eraser, CoreTools::Navigate });
         
 //     _loadDocumentTask = new LoadDocumentTask(this);
 //     connect(_loadDocumentTask, &AsyncTask::completed, this, &MainEditorPresenter::onLoadDocumentCompleted);
@@ -99,8 +98,6 @@ MainEditorPresenter::MainEditorPresenter(
 
 void MainEditorPresenter::setDocument(QSharedPointer<IDocumentPresenter> document)
 {
-    ASSERT_INIT();
-
     auto oldTopSelectedLayer = topSelectedLayer();
 
     _document = document;
@@ -126,7 +123,6 @@ void MainEditorPresenter::setDocument(QSharedPointer<IDocumentPresenter> documen
 
 QSharedPointer<ILayerPresenter> MainEditorPresenter::topSelectedLayer() const
 {
-    ASSERT_INIT();
     if (_document)
         return _document->topSelectedLayer();
     else
@@ -135,7 +131,6 @@ QSharedPointer<ILayerPresenter> MainEditorPresenter::topSelectedLayer() const
 
 void MainEditorPresenter::setMode(Mode mode)
 {
-    ASSERT_INIT(); 
     _mode = mode;
     //emit
 }
@@ -144,13 +139,11 @@ void MainEditorPresenter::newDocument()
 {
     try
     {
-        //throw 0;
-        ASSERT_INIT(); 
         if (_mode == Editor && !isEmpty())
         {
-            IMainEditorPresenter* newPresenter = ServiceLocator::make<IMainEditorPresenter>(_mode);
-            newPresenter->newDocument();
-            newPresenter->view().open();
+//             IMainEditorPresenter* newPresenter = ServiceLocator::make<IMainEditorPresenter>(_mode);
+//             newPresenter->newDocument();
+//             newPresenter->view().open();
         }
         else
         {
@@ -167,7 +160,6 @@ void MainEditorPresenter::loadDocument(QSharedPointer<FileRequest> request)
 {
     try
     {
-        ASSERT_INIT(); 
         if (!_loadDocumentHelper.canLoad()) return;
         
         request->setModelType(GenericFormatModelTypeInfo::fromType<IDocument>());

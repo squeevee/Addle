@@ -43,10 +43,19 @@ signals:
 };
 
 namespace aux_IToolPresenter {
-    using namespace config_detail::generic_id_parameter;
+    ADDLE_FACTORY_PARAMETER_ALIAS(config_detail::generic_id_parameter, id)
+    ADDLE_FACTORY_PARAMETER_NAME(editor)
 }
 
-ADDLE_DECL_UNIQUE_REPO_MEMBER(IToolPresenter, ToolId)
+//ADDLE_DECL_UNIQUE_REPO_MEMBER(IToolPresenter, ToolId)
+ADDLE_DECL_UNIQUE_REPO_MEMBER_BASIC(IToolPresenter, ToolId)
+ADDLE_DECL_FACTORY_PARAMETERS(
+    IToolPresenter,
+    (required
+        (id,        (ToolId))
+        (editor,    (IMainEditorPresenter&))
+    )
+)
 
 } // namespace Addle
 

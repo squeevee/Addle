@@ -56,9 +56,6 @@ public:
         Viewer
     };
 
-    virtual IMainEditorView& view() const = 0;
-
-    virtual ICanvasPresenter& canvasPresenter() const = 0;
     virtual IViewPortPresenter& viewPortPresenter() const = 0;
     virtual IColorSelectionPresenter& colorSelection() const = 0;
     virtual IMessageContext& messageContext() const = 0;

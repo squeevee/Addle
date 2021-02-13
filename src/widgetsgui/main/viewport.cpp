@@ -80,12 +80,12 @@ ViewPort::ViewPort(IViewPortPresenter& presenter)
 
     _presenter.setHasFocus(hasFocus());
 
-    connect_interface(
-        &_presenter.mainEditorPresenter()->canvasPresenter(),
-        SIGNAL(cursorChanged(QCursor)),
-        this,
-        SLOT(updateCursor())
-    );
+//     connect_interface(
+//         &_presenter.mainEditorPresenter()->canvasPresenter(),
+//         SIGNAL(cursorChanged(QCursor)),
+//         this,
+//         SLOT(updateCursor())
+//     );
     updateCursor();
 }
 
@@ -134,8 +134,8 @@ void ViewPort::setDocument(QSharedPointer<IDocumentPresenter> documentPresenter)
     if (!documentPresenter)
         return;
 
-    _canvasScene = new CanvasScene(_presenter.mainEditorPresenter()->canvasPresenter(), this);
-    setScene(_canvasScene);
+//     _canvasScene = new CanvasScene(_presenter.mainEditorPresenter()->canvasPresenter(), this);
+//     setScene(_canvasScene);
 }
 
 void ViewPort::focusInEvent(QFocusEvent* focusEvent)
@@ -150,5 +150,5 @@ void ViewPort::focusOutEvent(QFocusEvent* focusEvent)
 
 void ViewPort::updateCursor()
 {
-    setCursor(_presenter.mainEditorPresenter()->canvasPresenter().cursor());
+//     setCursor(_presenter.mainEditorPresenter()->canvasPresenter().cursor());
 }

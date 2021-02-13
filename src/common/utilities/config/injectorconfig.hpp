@@ -32,7 +32,7 @@
 #include "interfaces/views/iviewrepository.hpp"
 #include "utilities/view/viewrepository.hpp"
 
-#include "utilities/generate_tuple_over.hpp"
+#include "utilities/metaprogramming.hpp"
 
 #include "injectbundle.hpp"
 
@@ -221,7 +221,7 @@ using bound_interface_has_trait = mp_bind<Trait, mp_bind<bound_interface, _1>>;
 template<typename... Bindings>
 auto get_immediate_bindings(const mp_list<Bindings...>&)
 {
-    return generate_tuple_over<
+    return generate_tuple_over_list<
         mp_filter_q<
             bound_interface_has_trait<is_injector_instantiable>,
             mp_filter< is_immediate_binding , mp_list<Bindings...> >
@@ -239,7 +239,7 @@ auto get_immediate_bindings(const mp_list<Bindings...>&)
 template<typename FactoryStorage, typename... Bindings>
 auto get_immediate_factory_bindings(FactoryStorage& factoryStorage, const mp_list<Bindings...>&)
 {
-    return generate_tuple_over<
+    return generate_tuple_over_list<
         mp_filter_q<
             bound_interface_has_trait<Traits::is_makeable>,
             mp_filter< is_immediate_binding , mp_list<Bindings...> >
@@ -270,7 +270,7 @@ auto get_immediate_factory_bindings(FactoryStorage& factoryStorage, const mp_lis
 template<typename... Interfaces>
 auto get_singleton_repo_bindings(const mp_list<Interfaces...>&)
 {
-    return generate_tuple_over<
+    return generate_tuple_over_list<
         mp_filter<
             Traits::is_singleton_repo_member,
             mp_list<Interfaces...>
@@ -289,7 +289,7 @@ auto get_singleton_repo_bindings(const mp_list<Interfaces...>&)
 template<typename... Interfaces>
 auto get_unique_repo_bindings(const mp_list<Interfaces...>&)
 {
-    return generate_tuple_over<
+    return generate_tuple_over_list<
         mp_filter<
             Traits::is_unique_repo_member,
             mp_list<Interfaces...>
@@ -310,7 +310,7 @@ template<typename... Bindings>
 auto get_delegate_bindings(const DynamicBindingServer& bindingServer, const mp_list<Bindings...>&)
 {
     return std::tuple_cat(
-        generate_tuple_over<
+        generate_tuple_over_list<
             mp_filter_q<
                 bound_interface_has_trait<is_injector_instantiable>,
                 mp_filter<is_delegate_binding, mp_list<Bindings...>>
@@ -326,7 +326,7 @@ auto get_delegate_bindings(const DynamicBindingServer& bindingServer, const mp_l
                 )[boost::di::override];
             }
         ),
-        generate_tuple_over<
+        generate_tuple_over_list<
             mp_filter_q<
                 bound_interface_has_trait<Traits::is_makeable>,
                 mp_filter<is_delegate_binding, mp_list<Bindings...>>
@@ -390,7 +390,7 @@ void apply_dynamic_bindings(DynamicBindingServer& bindingServer, Injector& injec
 template<typename... Interfaces>
 auto get_view_repository_bindings(const mp_list<Interfaces...>&)
 {
-    return generate_tuple_over<
+    return generate_tuple_over_list<
         mp_filter<
             aux_view::is_view,
             mp_list<Interfaces...>

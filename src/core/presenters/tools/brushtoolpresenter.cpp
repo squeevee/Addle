@@ -43,7 +43,7 @@
 #include <QSharedPointer>
 using namespace Addle;
 
-BrushToolPresenter::BrushToolPresenter(ToolId id)
+BrushToolPresenter::BrushToolPresenter(ToolId id, IMainEditorPresenter& editor)
     : _mode([id] {
             switch(id)
             {
@@ -55,6 +55,7 @@ BrushToolPresenter::BrushToolPresenter(ToolId id)
                     Q_UNREACHABLE();
             }
         }()),
+    _mainEditor(editor),
     _selectHelper(*this)
 {
     _mouseHelper.onEngage.bind(&BrushToolPresenter::onEngage, this);  
@@ -67,10 +68,10 @@ void BrushToolPresenter::initialize(IMainEditorPresenter* owner, Mode mode)
 {
     const Initializer init(_initHelper);
 
-    _mainEditor = owner;
-    _canvas = &_mainEditor->canvasPresenter();
-    _viewPort = &_mainEditor->viewPortPresenter();
-    _colorSelection = &_mainEditor->colorSelection();
+    //_mainEditor = owner;
+    //_canvas = &_mainEditor->canvasPresenter();
+    //_viewPort = &_mainEditor->viewPortPresenter();
+    //_colorSelection = &_mainEditor->colorSelection();
     
     //_mode = mode;
 
@@ -113,12 +114,12 @@ void BrushToolPresenter::initialize(IMainEditorPresenter* owner, Mode mode)
 
     _hoverPreview = std::unique_ptr<HoverPreview>(new HoverPreview(*this));
 
-    connect_interface(_mainEditor, SIGNAL(documentPresenterChanged(QSharedPointer<Addle::IDocumentPresenter>)), this, SLOT(onDocumentChanged(QSharedPointer<Addle::IDocumentPresenter>)));
-    connect_interface(_canvas, SIGNAL(hasMouseChanged(bool)), this, SLOT(onCanvasHasMouseChanged(bool)));
+    //connect_interface(_mainEditor, SIGNAL(documentPresenterChanged(QSharedPointer<Addle::IDocumentPresenter>)), this, SLOT(onDocumentChanged(QSharedPointer<Addle::IDocumentPresenter>)));
+    //connect_interface(_canvas, SIGNAL(hasMouseChanged(bool)), this, SLOT(onCanvasHasMouseChanged(bool)));
     connect_interface(_brushSelection.get(), SIGNAL(selectionChanged(QList<AddleId>)), this, SLOT(onBrushSelectionChanged()));
     connect_interface(_viewPort, SIGNAL(zoomChanged(double)), this, SLOT(onViewPortZoomChanged(double)));
     connect_interface(_colorSelection, SIGNAL(color1Changed(ColorInfo)), this, SLOT(onColorChanged(ColorInfo)));
-    connect_interface(_mainEditor, SIGNAL(topSelectedLayerChanged(QSharedPointer<ILayerPresenter>)), this, SLOT(onSelectedLayerChanged()));
+    //connect_interface(_mainEditor, SIGNAL(topSelectedLayerChanged(QSharedPointer<ILayerPresenter>)), this, SLOT(onSelectedLayerChanged()));
 }
 
 ToolId BrushToolPresenter::id() const
@@ -349,7 +350,7 @@ void BrushToolPresenter::onDisengage()
             layer
         );
 
-        _mainEditor->push(operation);
+        //_mainEditor->push(operation);
 
         _brushStroke.clear();
 
@@ -445,7 +446,7 @@ bool BrushToolPresenter::HoverPreview::calc_visible()
         && !qIsNaN(_owner.selectedBrushPresenter()->size())
         && _owner.selectedBrushPresenter()->size() > 0
 
-        && _owner._canvas->hasMouse()
+        //&& _owner._canvas->hasMouse()
 
         && !_owner._grace;
 }
@@ -471,6 +472,7 @@ double BrushPreviewProvider::scale() const
 
 QColor BrushPreviewProvider::color() const
 {
-    if (!_presenter || !_presenter->_initHelper.isInitialized()) return QColor();
-    else return _presenter->_mainEditor->colorSelection().color1().color();
+    return QColor();
+//     if (!_presenter || !_presenter->_initHelper.isInitialized()) return QColor();
+//     else return _presenter->_mainEditor->colorSelection().color1().color();
 }

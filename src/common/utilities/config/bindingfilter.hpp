@@ -126,7 +126,7 @@ inline auto filter_by_factory_parameters(Filter&& f, const boost::parameter::key
     return [f] (const config_detail::factory_params_t<Interface>& params) -> bool {
         return std::apply(
             f,
-            generate_tuple_over<boost::mp11::mp_list<ParameterTags...>>(
+            generate_tuple_over_list<boost::mp11::mp_list<ParameterTags...>>(
                 [&params](auto t) -> auto& {
                     using ParameterTag_ = typename decltype(t)::type;
                     return params[boost::parameter::keyword<ParameterTag_>::instance];

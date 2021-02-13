@@ -47,7 +47,7 @@ protected:
                         .template to<Impl>()
                         [boost::di::override]
                 ),
-                generate_tuple_over<config_detail::factory_params_t<Interface>>(
+                generate_tuple_over_list<config_detail::factory_params_t<Interface>>(
                     [&] (auto t) {
                         using Tag = typename decltype(t)::type::tag_type;
                         using Value = typename decltype(t)::type::value_type;

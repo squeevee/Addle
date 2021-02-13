@@ -33,7 +33,6 @@
 #include "utilities/asynctask.hpp"
 #include "utilities/lazyvalue.hpp"
 
-#include "utilities/initializehelper.hpp"
 
 #include "interfaces/views/imaineditorview.hpp"
 #include "interfaces/presenters/icanvaspresenter.hpp"
@@ -82,7 +81,6 @@ public:
         
     MainEditorPresenter(
         Mode mode,
-        std::unique_ptr<ICanvasPresenter> canvasPresenter,
         std::unique_ptr<IColorSelectionPresenter> colorSelection,
         std::unique_ptr<IViewPortPresenter> viewPortPresenter,
         std::unique_ptr<IMessageContext> messageContext,
@@ -91,9 +89,6 @@ public:
     );
     virtual ~MainEditorPresenter() = default;
 
-    IMainEditorView& view() const override { return *_view; }
-
-    ICanvasPresenter& canvasPresenter() const override { return *_canvasPresenter; }
     IViewPortPresenter& viewPortPresenter() const override {  return *_viewPortPresenter; }
     IColorSelectionPresenter& colorSelection() const override { return *_colorSelection; }
     IMessageContext& messageContext() const override { return *_messageContext; }
@@ -101,16 +96,13 @@ public:
     void setMode(Mode mode) override;
     Mode mode() const override { return _mode; }
 
-    // # IHaveDocumentPresenter
-
-    QSharedPointer<IDocumentPresenter> documentPresenter() const override { ASSERT_INIT(); return _document; }
-    bool isEmpty() const override { ASSERT_INIT(); return _isEmptyCache.value(); }
+    QSharedPointer<IDocumentPresenter> documentPresenter() const override {  return _document; }
+    bool isEmpty() const override { return _isEmptyCache.value(); }
 
     QSharedPointer<ILayerPresenter> topSelectedLayer() const override;
     
     QSharedPointer<FileRequest> pendingDocumentFileRequest() const override
     {
-        ASSERT_INIT();
         return _pendingDocumentFileRequest;
     }
 
@@ -124,25 +116,25 @@ public slots:
     void loadDocument(QSharedPointer<FileRequest> request) override;
 
 public:
-    ToolId currentTool() const override { ASSERT_INIT(); return _currentTool; }
+    ToolId currentTool() const override { return _currentTool; }
     void setCurrentTool(ToolId tool) override;
-    const IRepository<IToolPresenter>& tools() const override { ASSERT_INIT(); return *_tools; }
+    const IRepository<IToolPresenter>& tools() const override { return *_tools; }
 
-    QSharedPointer<IToolPresenter> currentToolPresenter() const override { ASSERT_INIT(); return _currentToolPresenter; }
+    QSharedPointer<IToolPresenter> currentToolPresenter() const override { return _currentToolPresenter; }
 
 signals:
     void currentToolChanged(ToolId tool) override;
 
 public:
-    bool canUndo() const override { ASSERT_INIT(); return _undoStackHelper.canUndo(); }
-    bool canRedo() const override { ASSERT_INIT(); return _undoStackHelper.canRedo(); }
+    bool canUndo() const override { return _undoStackHelper.canUndo(); }
+    bool canRedo() const override { return _undoStackHelper.canRedo(); }
 
     //rename?
     void push(QSharedPointer<IUndoOperationPresenter> undoable) override { _undoStackHelper.push(undoable); }
 
 public slots: 
-    void undo() override { try { ASSERT_INIT(); _undoStackHelper.undo(); } ADDLE_SLOT_CATCH }
-    void redo() override { try { ASSERT_INIT(); _undoStackHelper.redo(); } ADDLE_SLOT_CATCH }
+    void undo() override { try { _undoStackHelper.undo(); } ADDLE_SLOT_CATCH }
+    void redo() override { try { _undoStackHelper.redo(); } ADDLE_SLOT_CATCH }
 
 signals: 
     void undoStateChanged() override;
@@ -154,34 +146,18 @@ private:
     void setDocument(QSharedPointer<IDocumentPresenter> document);
     bool isEmpty_p() const { return !_document; }
 
-    Mode _mode = (Mode)NULL;
+    Mode _mode;
 
-    std::unique_ptr<ICanvasPresenter> _canvasPresenter;
     std::unique_ptr<IColorSelectionPresenter> _colorSelection;
     std::unique_ptr<IViewPortPresenter> _viewPortPresenter;
     std::unique_ptr<IMessageContext> _messageContext;
     
     std::unique_ptr<IRepository<IPalettePresenter>> _palettes;
     
-    //const IFactory<IPalettePresenter>& _paletteFactory;
-
     std::unique_ptr<IMainEditorView> _view;
 
     QSharedPointer<IDocumentPresenter> _document;
     LazyProperty<bool> _isEmptyCache;
-
-//     QSharedPointer<ISelectToolPresenter> _selectTool;
-//     QSharedPointer<IBrushToolPresenter> _brushTool;
-//     QSharedPointer<IBrushToolPresenter> _eraserTool;
-//     QSharedPointer<IFillToolPresenter> _fillTool;
-//     QSharedPointer<ITextToolPresenter> _textTool;
-//     QSharedPointer<IShapesToolPresenter> _shapesTool;
-//     QSharedPointer<IStickersToolPresenter> _stickersTool;
-//     QSharedPointer<IEyedropToolPresenter> _eyedropTool;
-//     QSharedPointer<INavigateToolPresenter> _navigateTool;
-//     QSharedPointer<IMeasureToolPresenter> _measureTool;
-
-    //QHash<Mode, QHash<ToolId, QSharedPointer<IToolPresenter>>> _tools;
     
     std::unique_ptr<IRepository<IToolPresenter>> _tools;
     
@@ -189,8 +165,6 @@ private:
     QSharedPointer<IToolPresenter> _currentToolPresenter;
 
     UndoStackHelper _undoStackHelper;
-
-    //QList<QSharedPointer<IPalettePresenter>> _palettes;
 
     QMetaObject::Connection _connection_topSelectedLayer;
 
@@ -200,8 +174,6 @@ private:
     QSharedPointer<FileRequest> _pendingDocumentFileRequest;
     
     LoadHelper<IDocument, IDocumentPresenter> _loadDocumentHelper;
-
-    InitializeHelper _initHelper;
 };
 
 } // namespace Addle

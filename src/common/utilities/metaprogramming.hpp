@@ -163,7 +163,7 @@ public:
 };
 
 template<typename L, typename F>
-constexpr typename tuple_generator<L>::template result_t<F> generate_tuple_over(const F& f)
+constexpr typename tuple_generator<L>::template result_t<F> generate_tuple_over_list(const F& f)
 {
     return tuple_generator<L>::template gen<F>(f);
 }
@@ -174,7 +174,7 @@ template<
         typename TypeHint = metaprogramming_detail::auto_array_type_tag
     >
 constexpr typename tuple_generator<L, metaprogramming_detail::std_array_q<TypeHint>>
-    ::template result_t<F> generate_array_over(const F& f)
+    ::template result_t<F> generate_array_over_list(const F& f)
 {
     return tuple_generator<
             L, 
@@ -187,9 +187,9 @@ template<
         typename TypeHint = metaprogramming_detail::auto_array_type_tag
     >
 constexpr typename tuple_generator<L, metaprogramming_detail::std_array_q<TypeHint>>
-    ::template result_t<metaprogramming_detail::const_array_functor> const_array_from()
+    ::template result_t<metaprogramming_detail::const_array_functor> const_array_from_list()
 {
-    return generate_array_over<
+    return generate_array_over_list<
             L, 
             metaprogramming_detail::const_array_functor,
             TypeHint

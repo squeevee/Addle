@@ -18,6 +18,7 @@
 #include "idtypes/addleid.hpp"
 
 #include "utilities/metaprogramming.hpp"
+#include "utilities/config/storedparameters.hpp"
 
 namespace Addle {
     
@@ -30,9 +31,6 @@ template<typename Interface>
 struct repo_info
 {
     using IdType = typename Traits::repo_id_type<Interface>::type;
-    
-    using _interface_factory_parameters =
-        typename Traits::factory_parameters<Interface>::type;
     
     template<typename T>
     using _is_common_id_repo_member = boost::mp11::mp_and<
@@ -51,7 +49,7 @@ struct repo_info
         >;
     
     static constexpr bool can_populate_by_id = boost::mp11::mp_all_of<
-            typename _interface_factory_parameters::value_types,
+            typename factory_params_t<Interface>::value_types,
             _type_can_populate_by_id
         >::value;
         
@@ -59,41 +57,135 @@ struct repo_info
 };
 
 template<class Interface>
-class irepository_base_add_by_id
+class IRepositoryBaseCanTriviallyAddById
 {
     using IdType = typename repo_info<Interface>::IdType;
 public: 
-    virtual ~irepository_base_add_by_id() = default;
+    virtual ~IRepositoryBaseCanTriviallyAddById() = default;
     
 protected:
-    virtual void add_byId(QList<IdType> ids) = 0;
+    virtual void add_byIds(QList<IdType> ids) = 0;
     
     friend class IRepository<Interface>;
 };
 
 template<class Interface>
-class irepository_base_add_by_factory_params
+class IRepositoryBaseCanAddByFactoryParams
 {
-public:
-    virtual ~irepository_base_add_by_factory_params() = default;
+    using IdType = typename repo_info<Interface>::IdType;
+protected:
+    class IAddHandle
+    {
+    public:
+        virtual ~IAddHandle() = default;
+        
+        virtual void add_by_params(const factory_params_t<Interface>&) = 0;
+        virtual QList<QSharedPointer<Interface>> submit() = 0;
+    };
     
+    template<typename... Args>
+    struct boundAddFunction_impl
+    {
+        boundAddFunction_impl(
+                IRepositoryBaseCanAddByFactoryParams<Interface>& repo_, 
+                Args&&... args
+            )
+            : repo(repo_), 
+            params(std::forward<Args>(args)...)
+        {
+        }
+        
+        QList<QSharedPointer<Interface>> operator()(QList<IdType> ids) const
+        {
+            auto handle = repo.getAddHandle_p();
+            auto dispatcher = make_factory_param_dispatcher<Interface>(
+                    std::bind(
+                        &IAddHandle::add_by_params,
+                        handle.get(),
+                        std::placeholders::_1
+                    )
+                );
+            
+            for (auto id : ids)
+            {
+                if constexpr (boost::mp11::mp_contains<
+                        typename factory_params_t<Interface>::tag_types,
+                        generic_id_parameter::factory_param_tags::id
+                    >::value)
+                {
+                    std::apply(
+                        dispatcher,
+                        std::tuple_cat(
+                            std::make_tuple( generic_id_parameter::id_ = id ),
+                            params.toArgTuple()
+                        )
+                    );
+                }
+                else
+                {
+                    std::apply(
+                        dispatcher,
+                        params.toArgTuple()
+                    );
+                }
+            }
+            
+            return handle->submit();
+        }
+        
+        IRepositoryBaseCanAddByFactoryParams<Interface>& repo;
+        stored_parameters<Args...> params;
+    };
+    
+public:
+    virtual ~IRepositoryBaseCanAddByFactoryParams() = default;
+        
     template<typename... Args>
     inline Interface& addNew(Args&&... args)
     {
-        auto&& dispatcher = make_factory_parameter_dispatcher<Interface>(
-            std::bind(
-                &irepository_base_add_by_factory_params<Interface>
-                    ::add_new_by_params_p,
-                this,
-                std::placeholders::_1
-            )
-        );
+        auto handle = this->getAddHandle_p();
+        auto dispatcher = make_factory_param_dispatcher<Interface>(
+                std::bind(
+                    &IAddHandle::add_by_params,
+                    handle.get(),
+                    std::placeholders::_1
+                )
+            );
         
-        return dispatcher(std::forward<Args>(args)...);
+        dispatcher(std::forward<Args>(args)...);
+        auto instances = handle->submit();
+        
+        assert(instances.count() == 1);
+        return *(instances[0]);
+    }
+    
+    template<typename... Args>
+    inline void bindFactoryParameters(Args&&... args)
+    {
+//         static_assert(
+//             boost::mp11::mp_all_of<
+//                 boost::mp11::mp_list<std::decay_t<Args>...>,
+//                 std::is_copy_constructible
+//             >::value,
+//             "One or more arguments is not copy constructible. Binding these "
+//             "arguments is not allowed."
+//         );
+        
+        boundAddFunction_p() = 
+            boundAddFunction_impl<Args...>(
+                *this,
+                std::forward<Args>(args)...
+            );
+    }
+    
+    inline void unbindFactoryParameters()
+    {
+        boundAddFunction_p() = {};
     }
     
 protected:
-    virtual Interface& add_new_by_params_p(const factory_params_t<Interface>&) = 0;
+    virtual std::function<QList<QSharedPointer<Interface>>(QList<IdType>)>& boundAddFunction_p() = 0;
+    virtual std::unique_ptr<IAddHandle> getAddHandle_p() = 0;
     
     friend class IRepository<Interface>;
 };
@@ -103,9 +195,9 @@ using irepository_base = mp_apply_undeferred<
         mp_virtual_inherit,
         mp_build_list<
             boost::mp11::mp_bool<repo_info<Interface>::can_populate_by_id>,
-                boost::mp11::mp_defer<irepository_base_add_by_id, Interface>,
-            boost::mp11::mp_valid<factory_params_t, Interface>, 
-                boost::mp11::mp_defer<irepository_base_add_by_factory_params, Interface>
+                boost::mp11::mp_defer<IRepositoryBaseCanTriviallyAddById, Interface>,
+            config_detail::has_factory_params<Interface>, 
+                boost::mp11::mp_defer<IRepositoryBaseCanAddByFactoryParams, Interface>
         >
     >;
 
@@ -205,24 +297,24 @@ public:
     
     inline void add(QList<IdType> ids)
     {
-        this->add_byId_<Interface>(ids);
+        this->add_byIds_<Interface>(ids);
     }
         
     inline void add(std::initializer_list<IdType> ids)
     {
-        this->add_byId_<Interface>(QList<IdType>(ids));
+        this->add_byIds_<Interface>(QList<IdType>(ids));
     }
     
     inline void add(IdType id)
     { 
-        this->add_byId_<Interface>(QList<IdType>({id})); 
+        this->add_byIds_<Interface>(QList<IdType>({id})); 
     }
     
     template<typename L>
     inline void addStaticIds()
     {
-        constexpr auto ids = const_array_from<L, IdType>();
-        this->add_byId_<Interface>(QList<IdType>( ids.begin(), ids.end() ));
+        constexpr auto ids = const_array_from_list<L, IdType>();
+        this->add_byIds_<Interface>(QList<IdType>( ids.begin(), ids.end() ));
     }
         
     virtual void remove(QList<IdType> ids) = 0;
@@ -238,10 +330,40 @@ private:
                 config_detail::repo_info<Interface_>::can_populate_by_id, 
                 void*> = nullptr
         >
-    inline void add_byId_(QList<IdType> ids)
+    inline void add_byIds_(QList<IdType> ids)
     {
-        static_cast<config_detail::irepository_base_add_by_id<Interface>*>(this)
-            ->add_byId(ids);
+        if constexpr (config_detail::has_factory_params<Interface>::value)
+        {
+            const auto& boundAddFunction = static_cast<config_detail
+                ::IRepositoryBaseCanAddByFactoryParams<Interface>*>(this)
+                    ->boundAddFunction_p();
+                
+            if (boundAddFunction)
+            {
+                boundAddFunction(ids);
+                return;
+            }
+        }
+        
+        static_cast<config_detail::IRepositoryBaseCanTriviallyAddById<Interface>*>(this)
+            ->add_byIds(ids);
+    }
+    
+    template<
+        typename Interface_, 
+        std::enable_if_t<
+            !config_detail::repo_info<Interface_>::can_populate_by_id
+            && config_detail::has_factory_params<Interface>::value, 
+            void*> = nullptr
+    >
+    inline void add_byIds_(QList<IdType> ids)
+    {
+        const auto& boundAddFunction = static_cast<config_detail
+            ::IRepositoryBaseCanAddByFactoryParams<Interface>*>(this)
+                ->boundAddFunction_p();
+                
+        assert(boundAddFunction); // TODO: exception?
+        boundAddFunction(ids);
     }
 };
 

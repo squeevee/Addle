@@ -48,12 +48,12 @@ class ADDLE_CORE_EXPORT BrushToolPresenter : public QObject, public virtual IBru
     Q_INTERFACES(Addle::IToolPresenter Addle::IBrushToolPresenter)
     IAMQOBJECT_IMPL
 public:
-    BrushToolPresenter(ToolId id);
+    BrushToolPresenter(ToolId id, IMainEditorPresenter& editor);
     virtual ~BrushToolPresenter() = default;
 
     void initialize(IMainEditorPresenter* owner, Mode mode);
 
-    IMainEditorPresenter* owner() { ASSERT_INIT(); return _mainEditor; }
+    IMainEditorPresenter* owner() { ASSERT_INIT(); return nullptr;/*_mainEditor;*/ }
     ToolId id() const;
 
     IAssetSelectionPresenter& brushSelection() { ASSERT_INIT(); return *_brushSelection; }
@@ -105,8 +105,8 @@ private:
     QMetaObject::Connection _connection_onSizeChanged;
     QMetaObject::Connection _connection_onSelectedLayerChanged;
 
-    IMainEditorPresenter* _mainEditor;
-    ICanvasPresenter* _canvas;
+    IMainEditorPresenter& _mainEditor;
+    //ICanvasPresenter* _canvas;
     IViewPortPresenter* _viewPort;
     
     QSharedPointer<IDocumentPresenter> _document;

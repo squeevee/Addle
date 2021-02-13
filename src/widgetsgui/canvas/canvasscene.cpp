@@ -33,96 +33,96 @@ const double MINIMUM_LAYER_Z = 1;
 CanvasScene::CanvasScene(ICanvasPresenter& presenter, QObject* parent)
     : QGraphicsScene(parent), _presenter(presenter)
 {
-    _presenter = presenter;
-
-    auto documentPresenter = _presenter.mainEditorPresenter().documentPresenter();
-    if (documentPresenter)
-    {
-        connect_interface(documentPresenter,
-            SIGNAL(layersChanged()),
-            this,
-            SLOT(layersUpdated())
-        );
-    }
-
-    layersUpdated();
+//     _presenter = presenter;
+// 
+//     auto documentPresenter = _presenter.mainEditorPresenter().documentPresenter();
+//     if (documentPresenter)
+//     {
+//         connect_interface(documentPresenter,
+//             SIGNAL(layersChanged()),
+//             this,
+//             SLOT(layersUpdated())
+//         );
+//     }
+// 
+//     layersUpdated();
 }
 
 void CanvasScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
 {
-    QGraphicsScene::mouseMoveEvent(mouseEvent);
-    if (mouseEvent->isAccepted())
-        return;
-
-    CanvasMouseEvent canvasMouseEvent = graphicsMouseToCanvasMouseEvent(mouseEvent);
-    mouseEvent->setAccepted(
-        sendInterfaceEvent(&_presenter, &canvasMouseEvent) && canvasMouseEvent.isAccepted()
-    );
+//     QGraphicsScene::mouseMoveEvent(mouseEvent);
+//     if (mouseEvent->isAccepted())
+//         return;
+// 
+//     CanvasMouseEvent canvasMouseEvent = graphicsMouseToCanvasMouseEvent(mouseEvent);
+//     mouseEvent->setAccepted(
+//         sendInterfaceEvent(&_presenter, &canvasMouseEvent) && canvasMouseEvent.isAccepted()
+//     );
 }
 
 void CanvasScene::mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent)
 {
-    QGraphicsScene::mouseMoveEvent(mouseEvent);
-    if (mouseEvent->isAccepted())
-        return;
-
-    CanvasMouseEvent canvasMouseEvent = graphicsMouseToCanvasMouseEvent(mouseEvent);
-    mouseEvent->setAccepted(
-        sendInterfaceEvent(&_presenter, &canvasMouseEvent) && canvasMouseEvent.isAccepted()
-    );
+//     QGraphicsScene::mouseMoveEvent(mouseEvent);
+//     if (mouseEvent->isAccepted())
+//         return;
+// 
+//     CanvasMouseEvent canvasMouseEvent = graphicsMouseToCanvasMouseEvent(mouseEvent);
+//     mouseEvent->setAccepted(
+//         sendInterfaceEvent(&_presenter, &canvasMouseEvent) && canvasMouseEvent.isAccepted()
+//     );
 }
 
 void CanvasScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* mouseEvent)
 {
-    QGraphicsScene::mouseMoveEvent(mouseEvent);
-    if (mouseEvent->isAccepted())
-        return;
-
-    CanvasMouseEvent canvasMouseEvent = graphicsMouseToCanvasMouseEvent(mouseEvent);
-    mouseEvent->setAccepted(
-        sendInterfaceEvent(&_presenter, &canvasMouseEvent) && canvasMouseEvent.isAccepted()
-    );
+//     QGraphicsScene::mouseMoveEvent(mouseEvent);
+//     if (mouseEvent->isAccepted())
+//         return;
+// 
+//     CanvasMouseEvent canvasMouseEvent = graphicsMouseToCanvasMouseEvent(mouseEvent);
+//     mouseEvent->setAccepted(
+//         sendInterfaceEvent(&_presenter, &canvasMouseEvent) && canvasMouseEvent.isAccepted()
+//     );
 }
 
 bool CanvasScene::event(QEvent* e)
 {
-    switch (e->type())
-    {
-    case QEvent::Enter:
-        _presenter.setHasMouse(true);
-        break;
-
-    case QEvent::Leave:
-        _presenter.setHasMouse(false);
-        break;
-    }
-
-    return QGraphicsScene::event(e);
+//     switch (e->type())
+//     {
+//     case QEvent::Enter:
+//         _presenter.setHasMouse(true);
+//         break;
+// 
+//     case QEvent::Leave:
+//         _presenter.setHasMouse(false);
+//         break;
+//     }
+// 
+//     return QGraphicsScene::event(e);
 }
 
 void CanvasScene::layersUpdated()
 {
-    clear();
-
-    QSharedPointer<IDocumentPresenter> document = _presenter.mainEditorPresenter().documentPresenter();
-
-    if (!document) return;
-
-    
-    DocBackgroundItem* background = new DocBackgroundItem(*_presenter.mainEditorPresenter().documentPresenter());
-
-    addItem(background);
-
-    double z = MINIMUM_LAYER_Z + document->layers().nodeCount() + 1;
-
-    for (auto& node : noDetach(document->layers()))
-    {
-        if (!node.isValue()) continue;
-        
-        LayerItem* layerItem = new LayerItem(*node.asValue());
-        layerItem->setZValue(z);
-        addItem(layerItem);
-
-        z -= 1.0;
-    }
+//     clear();
+// 
+//     QSharedPointer<IDocumentPresenter> document = _presenter.mainEditorPresenter().documentPresenter();
+// 
+//     if (!document) return;
+// 
+//     
+//     DocBackgroundItem* background = new DocBackgroundItem(*_presenter.mainEditorPresenter().documentPresenter());
+// 
+//     addItem(background);
+// 
+//     double z = MINIMUM_LAYER_Z + document->layers().nodeCount() + 1;
+// 
+//     for (auto& node : noDetach(document->layers()))
+//     {
+//         if (!node.isValue()) continue;
+//         
+//         LayerItem* layerItem = new LayerItem(*node.asValue());
+//         layerItem->setZValue(z);
+//         addItem(layerItem);
+// 
+//         z -= 1.0;
+//     }
 }
