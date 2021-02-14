@@ -13,9 +13,9 @@
 
 #include "interfaces/presenters/ipalettepresenter.hpp"
 #include "interfaces/models/ipalette.hpp"
-#include "utilities/initializehelper.hpp"
 
 #include <QObject>
+
 namespace Addle {
 
 class ADDLE_CORE_EXPORT PalettePresenter : public QObject, public IPalettePresenter
@@ -24,21 +24,17 @@ class ADDLE_CORE_EXPORT PalettePresenter : public QObject, public IPalettePresen
     Q_INTERFACES(Addle::IPalettePresenter)
     IAMQOBJECT_IMPL
 public:
+    PalettePresenter(IPalette& model);
     virtual ~PalettePresenter() = default;
 
-    void initialize(IPalette& model);
-    void initialize(PaletteId id);
-    
-    PaletteId id() const { return _model->id(); }
+    PaletteId id() const override { return _model.id(); }
 
-    IPalette& model() const { ASSERT_INIT(); return *_model; }
+    IPalette& model() const override { return _model; }
 
-    MultiArray<ColorInfo, 2> colors() const { ASSERT_INIT(); return _model->colors(); }
+    MultiArray<ColorInfo, 2> colors() const override { return _model.colors(); }
 
 private:
-    IPalette* _model;
-
-    InitializeHelper _initHelper;
+    IPalette& _model;
 };
 
 } // namespace Addle

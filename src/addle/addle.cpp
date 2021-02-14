@@ -52,6 +52,10 @@ int main(int argc, char *argv[])
     }
 
     a.setApplicationDisplayName(qtTrId(ADDLE_NAME_TRID));
+    
+    // TODO: move this into a settings/configuration service of some kind
+    QIcon::setThemeSearchPaths({":/icons"});
+    QIcon::setThemeName("dark");
 
 #ifdef ADDLE_DEBUG
     //% "Starting Addle. This is a debug build."

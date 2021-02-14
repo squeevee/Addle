@@ -8,6 +8,9 @@
 
 #pragma once
 
+#include <QtDebug>
+#include "interfaces/models/ipalette.hpp"
+#include "interfaces/presenters/ipalettepresenter.hpp"
 #include "interfaces/traits.hpp"
 
 #include <boost/di/extension/injections/extensible_injector.hpp>

@@ -30,8 +30,6 @@ public:
 
     virtual PaletteId id() const = 0;
 
-    virtual void initialize(const PaletteBuilder& builder) = 0;
-
     virtual ColorArray colors() const = 0;
 
     virtual bool contains(QColor color) const = 0;

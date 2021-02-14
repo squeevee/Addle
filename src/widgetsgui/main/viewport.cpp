@@ -69,14 +69,14 @@ ViewPort::ViewPort(IViewPortPresenter& presenter)
 #endif
     );
 
-    connect_interface(
-        _presenter.mainEditorPresenter(),
-        SIGNAL(documentPresenterChanged(QSharedPointer<Addle::IDocumentPresenter>)),
-        this,
-        SLOT(setDocument(QSharedPointer<Addle::IDocumentPresenter>))
-    );
+//     connect_interface(
+//         _presenter.mainEditorPresenter(),
+//         SIGNAL(documentPresenterChanged(QSharedPointer<Addle::IDocumentPresenter>)),
+//         this,
+//         SLOT(setDocument(QSharedPointer<Addle::IDocumentPresenter>))
+//     );
 
-    setDocument(_presenter.mainEditorPresenter()->documentPresenter());
+//     setDocument(_presenter.mainEditorPresenter()->documentPresenter());
 
     _presenter.setHasFocus(hasFocus());
 

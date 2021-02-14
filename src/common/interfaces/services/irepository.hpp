@@ -272,7 +272,11 @@ public:
         
     virtual ~IRepository() = default;
     
-    inline Interface& get(IdType id) const { return *(data_p()[id].value()); }
+    inline Interface& get(IdType id) const
+    { 
+        assert(data_p().contains(id)); 
+        return *(data_p()[id].value()); 
+    }
     inline Interface& operator[](IdType id) const { return get(id); }
     
     inline QSharedPointer<Interface> getShared(IdType id) const { return data_p()[id].value(); }

@@ -1,0 +1,10 @@
+[Icon Theme]
+Name=addle-icons-dark
+Comment=Addle icons for dark backgrounds
+Hidden=True
+
+Directories=64
+
+[64]
+Size=64
+Context=Actions

@@ -34,9 +34,9 @@
 
 #include "utilities/metaprogramming.hpp"
 
-#include "injectbundle.hpp"
-
 #include <QSharedPointer>
+
+#include "injectbundle.hpp"
 
 namespace boost::di {
 
@@ -101,10 +101,10 @@ using injector_exposed_types =
             mp_filter<Traits::is_makeable, mp_list<Interfaces...>>
         >,
         
-//         mp_transform_q<
-//             mp_compose<IRepository, std::add_const_t, std::add_lvalue_reference_t>,
-//             mp_filter<Traits::is_singleton_repo_member, mp_list<Interfaces...>>
-//         >,
+        mp_transform_q<
+            mp_compose<IRepository, std::add_const_t, std::add_lvalue_reference_t>,
+            mp_filter<Traits::is_singleton_repo_member, mp_list<Interfaces...>>
+        >,
         
         mp_transform_q<
             mp_compose<IRepository, std::add_lvalue_reference_t>,
@@ -236,8 +236,8 @@ auto get_immediate_bindings(const mp_list<Bindings...>&)
     );
 }
 
-template<typename FactoryStorage, typename... Bindings>
-auto get_immediate_factory_bindings(FactoryStorage& factoryStorage, const mp_list<Bindings...>&)
+template<typename FactoryStorage, typename Injector, typename... Bindings>
+auto get_immediate_factory_bindings(FactoryStorage& factoryStorage, Injector& injector, const mp_list<Bindings...>&)
 {
     return generate_tuple_over_list<
         mp_filter_q<
@@ -250,12 +250,12 @@ auto get_immediate_factory_bindings(FactoryStorage& factoryStorage, const mp_lis
             using Impl = typename decltype(index)::type::impl;
             
             return boost::di::bind<IFactory<Interface>>()
-                .template to([&](const auto& injector) -> const IFactory<Interface>& {
+                .template to([&]() -> const IFactory<Interface>& {
                         auto& factory = std::get< std::unique_ptr<IFactory<Interface>> >(factoryStorage);
                         if (!factory)
                         {
                             factory = std::make_unique<
-                                Factory<Interface, Impl, boost::remove_cv_ref_t<decltype(injector)>>
+                                Factory<Interface, Impl, Injector>
                             >(
                                 injector
                             );
@@ -281,7 +281,8 @@ auto get_singleton_repo_bindings(const mp_list<Interfaces...>&)
             
             return boost::di::bind<IRepository<Interface>>()
                 .template to<Repository<Interface>>()
-                [boost::di::override];
+                .template in(boost::di::singleton)
+                /*[boost::di::override]*/;
         }
     );
 }
@@ -300,6 +301,7 @@ auto get_unique_repo_bindings(const mp_list<Interfaces...>&)
             
             return boost::di::bind<IRepository<Interface>>()
                 .template to<Repository<Interface>>()
+                .template in(boost::di::unique)
                 [boost::di::override];
         }
     );
@@ -437,7 +439,7 @@ public:
                 std::tuple_cat(
                     std::make_tuple( boost::di::extension::make_extensible(coreInjector) ),
                     get_immediate_bindings(mp_list<Bindings...>{}),
-                    get_immediate_factory_bindings(_factoryStorage, mp_list<Bindings...>{})
+                    get_immediate_factory_bindings(_factoryStorage, _injector, mp_list<Bindings...>{})
                 )
             )
         )
@@ -480,7 +482,7 @@ public:
                 },
                 std::tuple_cat(
                     get_immediate_bindings(mp_list<Bindings...>{}),
-                    get_immediate_factory_bindings(_normalFactoryStorage, mp_list<Bindings...>{}),
+                    get_immediate_factory_bindings(_normalFactoryStorage, _injector, mp_list<Bindings...>{}),
                     get_singleton_repo_bindings(mp_list<Interfaces...>{}),
                     get_unique_repo_bindings(mp_list<Interfaces...>{}),
                     get_delegate_bindings(_dynamicBindingServer, mp_list<Bindings...>{}),

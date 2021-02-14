@@ -12,8 +12,6 @@
 
 #include <cmath>
 
-#include "utilities/addle_icon.hpp"
-
 #include "utilities/qobject.hpp"
 #include "utilities/presenter/propertybinding.hpp"
 #include "utilities/widgetproperties.hpp"
@@ -33,7 +31,7 @@ ZoomRotateWidget::ZoomRotateWidget(IViewPortPresenter& presenter, QWidget* paren
 
     _button_zoomIn = new QToolButton(this);
     _action_zoomIn = new QAction(this);
-    _action_zoomIn->setIcon(ADDLE_ICON("zoom_in"));
+    _action_zoomIn->setIcon(QIcon::fromTheme("zoom_in"));
     _action_zoomIn->setToolTip(qtTrId("ui.zoom_in.description"));
     _button_zoomIn->setDefaultAction(_action_zoomIn);
     connect_interface(_action_zoomIn, SIGNAL(triggered()), &_presenter, SLOT(zoomIn()));
@@ -47,7 +45,7 @@ ZoomRotateWidget::ZoomRotateWidget(IViewPortPresenter& presenter, QWidget* paren
 
     _button_zoomOut = new QToolButton(this);
     _action_zoomOut = new QAction(this);
-    _action_zoomOut->setIcon(ADDLE_ICON("zoom_out"));
+    _action_zoomOut->setIcon(QIcon::fromTheme("zoom_out"));
     _action_zoomOut->setToolTip(qtTrId("ui.zoom_out.description"));
     _button_zoomOut->setDefaultAction(_action_zoomOut);
     connect_interface(_action_zoomOut, SIGNAL(triggered()), &_presenter, SLOT(zoomOut()));
@@ -61,21 +59,21 @@ ZoomRotateWidget::ZoomRotateWidget(IViewPortPresenter& presenter, QWidget* paren
 
     _button_turntableCW = new QToolButton(this);
     _action_turntableCW = new QAction(this);
-    _action_turntableCW->setIcon(ADDLE_ICON("turntable_cw"));
+    _action_turntableCW->setIcon(QIcon::fromTheme("turntable_cw"));
     _action_turntableCW->setToolTip(qtTrId("ui.turntable_cw.description"));
     _button_turntableCW->setDefaultAction(_action_turntableCW);
     connect_interface(_action_turntableCW, SIGNAL(triggered()), &_presenter, SLOT(turntableCw()));
 
     _button_turntableCCW = new QToolButton(this);
     _action_turntableCCW = new QAction(this);
-    _action_turntableCCW->setIcon(ADDLE_ICON("turntable_ccw"));
+    _action_turntableCCW->setIcon(QIcon::fromTheme("turntable_ccw"));
     _action_turntableCCW->setToolTip(qtTrId("ui.turntable_ccw.description"));
     _button_turntableCCW->setDefaultAction(_action_turntableCCW);
     connect_interface(_action_turntableCCW, SIGNAL(triggered()), &_presenter, SLOT(turntableCcw()));
 
     _button_reset = new QToolButton(this);
     _action_reset = new QAction(this);
-    _action_reset->setIcon(ADDLE_ICON("reset_view"));
+    _action_reset->setIcon(QIcon::fromTheme("reset_view"));
     _action_reset->setToolTip(qtTrId("ui.reset_view.description"));
     _button_reset->setDefaultAction(_action_reset);
     connect_interface(_action_reset, SIGNAL(triggered()), &_presenter, SLOT(resetTransforms()));

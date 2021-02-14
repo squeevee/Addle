@@ -10,12 +10,41 @@
 #include <boost/type_traits.hpp>
 
 namespace Addle::config_detail {
+
+/** 
+ * A container that stores arguments for deferred or multiple application to a 
+ * Boost Parameter-enabled function.
+ * 
+ * L-value references are stored and handled as-is, whereas r-values are moved
+ * or copied into the container (depending on e.g., constness and available
+ * constructors). Keyword-tagged references (and other Boost Parameter argument 
+ * packs) are automatically handled with respect to their value type(s).
+ * 
+ * This gives the correct object lifetime behavior for the majority of cases, 
+ * and has syntax consistent with other Boost Parameter-enabled functions, but
+ * is different from std::bind, as references do not need to be explicitly 
+ * wrapped. Be careful not to store l-value references to temporary objects.
+```
+make_stored_parameters(r_ = QRect(0, 0, 1, 1)); 
+    // temporary object passed as r-value, safe
     
-
-// A container for arguments meant for use in a Boost Parameter-enabled function,
-// stored in a form suitable for deferred or multiple application. Serves a
-// similar purpose to std::bind for regular callables.
-
+this->_localParams = make_stored_parameters(spiff_ = *this);
+    // long-lived object passed as l-value reference, safe
+    
+QRect r(1, 1, 2, 2);
+make_stored_parameters(r_ = r);
+    // temporary object passed as l-value, not safe
+    
+make_stored_parameters(r_ = std::move(r));
+    // temporary object passed as explicit r-value, safe
+```
+ * The parameters in the container can be accessed through the toArgTuple()
+ * member function, which returns a tuple for use with e.g., std::apply.
+ * Depending on whether the && or const & overload is used will determine
+ * whether held values are exposed as mutable r-value or const l-value
+ * references respectively. L-value references are always exposed as l-value
+ * references with their original constness.
+ */
 template<typename... Args>
 class stored_parameters
 {

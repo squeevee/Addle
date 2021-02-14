@@ -13,16 +13,7 @@
 
 using namespace Addle;
 
-void PalettePresenter::initialize(IPalette& model)
+PalettePresenter::PalettePresenter(IPalette& model)
+    : _model(model)
 {
-    const Initializer init(_initHelper);
-
-    _model = &model;
-}
-
-void PalettePresenter::initialize(PaletteId id)
-{
-    const Initializer init(_initHelper);
-
-    _model = &ServiceLocator::get<IPalette>(id);
 }

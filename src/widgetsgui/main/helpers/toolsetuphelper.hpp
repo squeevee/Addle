@@ -11,7 +11,6 @@
 
 #include <QToolBar>
 
-#include "utilities/addle_icon.hpp"
 #include "utilities/optionaction.hpp"
 #include "utilities/optiongroup.hpp"
 
@@ -44,16 +43,18 @@ public:
         )
     {
 //         typedef typename ToolBarType::PresenterType PresenterType;
-//         auto presenter = _mainEditorPresenter.tools().value(tool).dynamicCast<PresenterType>();
-// 
-//         OptionAction* selectAction = new OptionAction(tool, _owner);
-//         selectAction->setText(dynamic_qtTrId({"tools", tool.key(), "name"}));
-//         selectAction->setToolTip(dynamic_qtTrId({"tools", tool.key(), "description"}));
-//         selectAction->setIcon(ADDLE_ICON(tool.key()));
-//         *selectActionptr = selectAction;
-// 
-//         _selectGroup->addOption(selectAction);
-// 
+//         auto presenter = qobject_interface_cast<PresenterType*>(
+//                 std::addressof(_mainEditorPresenter.tools()[tool])
+//             );
+
+        OptionAction* selectAction = new OptionAction(tool, _owner);
+        selectAction->setText(dynamic_qtTrId({"tools", tool.key(), "name"}));
+        selectAction->setToolTip(dynamic_qtTrId({"tools", tool.key(), "description"}));
+        selectAction->setIcon(QIcon::fromTheme(tool.key()));
+        *selectActionptr = selectAction;
+
+        _selectGroup->addOption(selectAction);
+
 //         ToolBarType* optionsToolBar = new ToolBarType(*presenter, _owner);
 //         *toolbarptr = optionsToolBar;
 // 

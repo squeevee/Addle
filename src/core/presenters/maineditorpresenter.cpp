@@ -148,9 +148,9 @@ void MainEditorPresenter::newDocument()
         else
         {
             //leak
-            setDocument(
-                ServiceLocator::makeShared<IDocumentPresenter>(IDocumentPresenter::initBlankDefaults)
-            );
+//             setDocument(
+//                 ServiceLocator::makeShared<IDocumentPresenter>(IDocumentPresenter::initBlankDefaults)
+//             );
         }
     }
     ADDLE_SLOT_CATCH

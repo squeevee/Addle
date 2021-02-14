@@ -10,19 +10,17 @@
 #include "palette.hpp"
 using namespace Addle;
 
-void Palette::initialize(const PaletteBuilder& builder)
+Palette::Palette(PaletteId id, const PaletteBuilder& builder)
+    : _id(id)
 {
-    const Initializer init(_initHelper);
-
     ADDLE_ASSERT(!builder.id() || _id == builder.id());
+    
     _colors = builder.colors();
     buildIndex();
 }
 
 void Palette::setColors(MultiArray<ColorInfo, 2> colors)
 {
-    ASSERT_INIT();
-    
     _colors = colors;
     buildIndex();
 

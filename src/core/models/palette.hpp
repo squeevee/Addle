@@ -16,8 +16,6 @@
 #include <QPair>
 #include "interfaces/models/ipalette.hpp"
 
-#include "utilities/initializehelper.hpp"
-
 #include <boost/di.hpp>
 
 namespace Addle {
@@ -26,25 +24,15 @@ class ADDLE_CORE_EXPORT Palette : public QObject, public IPalette
     Q_OBJECT
     IAMQOBJECT_IMPL
 public:
-    BOOST_DI_INJECT(
-            Palette, 
-            /*(named = aux_IPalette::id_)*/ PaletteId id, 
-            /*(named = aux_IPalette::builder_)*/ const PaletteBuilder& builder
-        )
-        : _id(id)
-    {
-        initialize(builder);
-    }
+    Palette(PaletteId id, const PaletteBuilder& builder);
     virtual ~Palette() = default;
 
-    PaletteId id() const { ASSERT_INIT(); return _id; }
+    PaletteId id() const override { return _id; }
 
-    void initialize(const PaletteBuilder& builder);
+    ColorArray colors() const override { return _colors; }
 
-    ColorArray colors() const { ASSERT_INIT(); return _colors; }
-
-    bool contains(QColor color) const { return _index.contains(color.rgb()); }
-    ColorInfo infoFor(QColor color) const { return _index[color.rgb()]; }
+    bool contains(QColor color) const override { return _index.contains(color.rgb()); }
+    ColorInfo infoFor(QColor color) const override { return _index[color.rgb()]; }
 
 public slots:
     void setColors(ColorArray colors);
@@ -59,8 +47,6 @@ private:
 
     ColorArray _colors;
     QHash<QRgb, ColorInfo> _index;
-
-    InitializeHelper _initHelper;
 };
 
 } // namespace Addle

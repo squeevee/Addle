@@ -46,6 +46,8 @@
 
 #include "utilities/config/injectorconfig.hpp"
 
+#include <QtDebug>
+
 using namespace Addle;
 
 std::unique_ptr<InjectorConfig> Addle::core_config()

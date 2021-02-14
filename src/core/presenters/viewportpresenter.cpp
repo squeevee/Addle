@@ -58,15 +58,15 @@ const PresetMap<ViewPortPresenter::ZoomPreset, double> ViewPortPresenter::_zoomP
 
 void ViewPortPresenter::initialize(IMainEditorPresenter* mainEditorPresenter)
 {
-    const Initializer init(_initHelper);
-    _mainEditorPresenter = mainEditorPresenter;
-
-    connect_interface(
-        _mainEditorPresenter,
-        SIGNAL(isEmptyChanged(bool)),
-        this,
-        SLOT(onMainEditorPresenter_isEmptyChanged())
-    );
+//     const Initializer init(_initHelper);
+//     _mainEditorPresenter = mainEditorPresenter;
+// 
+//     connect_interface(
+//         _mainEditorPresenter,
+//         SIGNAL(isEmptyChanged(bool)),
+//         this,
+//         SLOT(onMainEditorPresenter_isEmptyChanged())
+//     );
 }
 
 void ViewPortPresenter::setPosition(QPointF position)
@@ -85,18 +85,18 @@ void ViewPortPresenter::setPosition(QPointF position)
 
 ViewPortPresenter::ScrollState ViewPortPresenter::scrollState_p()
 {
-    ASSERT_INIT();
-
-    if (!canNavigate())
-    {
-        return ScrollState();
-    }
-
-    QTransform fromCanvas = fromCanvasTransform();
-
-    QRect canvasRect = fromCanvas.mapRect(QRect(QPoint(), _mainEditorPresenter->documentPresenter()->size()));
-    
-    return ScrollState(canvasRect.size(), QRect(-canvasRect.topLeft(), _size));
+//     ASSERT_INIT();
+// 
+//     if (!canNavigate())
+//     {
+//         return ScrollState();
+//     }
+// 
+//     QTransform fromCanvas = fromCanvasTransform();
+// 
+//     QRect canvasRect = fromCanvas.mapRect(QRect(QPoint(), _mainEditorPresenter->documentPresenter()->size()));
+//     
+//     return ScrollState(canvasRect.size(), QRect(-canvasRect.topLeft(), _size));
 }
 
 void ViewPortPresenter::scrollX(int x)
@@ -131,7 +131,8 @@ void ViewPortPresenter::gripPan(QPointF start, QPointF end)
 
 bool ViewPortPresenter::canNavigate_p()
 {
-    return !_mainEditorPresenter->isEmpty();
+//     return !_mainEditorPresenter->isEmpty();
+    return false;
 }
 
 void ViewPortPresenter::setHasFocus(bool value)
@@ -471,8 +472,8 @@ ViewPortPresenter::TransformPair ViewPortPresenter::transforms_p()
 
 void ViewPortPresenter::centerView()
 {
-    if (_mainEditorPresenter->isEmpty())
-        setPosition(QPointF());
-    else
-        setPosition(QRectF(QPointF(), _mainEditorPresenter->documentPresenter()->size()).center());
+//     if (_mainEditorPresenter->isEmpty())
+//         setPosition(QPointF());
+//     else
+//         setPosition(QRectF(QPointF(), _mainEditorPresenter->documentPresenter()->size()).center());
 }

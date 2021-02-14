@@ -26,9 +26,6 @@ class IPalettePresenter : public virtual IAmQObject
 {
 public: 
     virtual ~IPalettePresenter() = default;
-
-    virtual void initialize(IPalette& model) = 0;
-    virtual void initialize(PaletteId id) = 0;
     
     virtual PaletteId id() const = 0;
 

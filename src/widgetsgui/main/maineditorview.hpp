@@ -31,7 +31,6 @@
 #include "interfaces/presenters/imaineditorpresenter.hpp"
 
 #include "utils.hpp"
-#include "utilities/initializehelper.hpp"
 #include "utilities/qobject.hpp"
 #include "utilities/view/messageviewhelper.hpp"
 
@@ -59,12 +58,11 @@ public:
     MainEditorView(IMainEditorPresenter& presenter);
     virtual ~MainEditorView() = default;
 
-    //void initialize(IMainEditorPresenter& presenter) override;
-    IMainEditorPresenter& presenter() const override{ ASSERT_INIT(); /*return _presenter;*/ assert(false); }
+    IMainEditorPresenter& presenter() const override{ return _presenter; }
     
 public slots:
-    void tlv_open() override { try { ASSERT_INIT(); /*_tlvHelper.open();*/ } ADDLE_SLOT_CATCH }
-    void tlv_close() override { try { ASSERT_INIT(); /*_tlvHelper.close();*/ } ADDLE_SLOT_CATCH } 
+    void tlv_open() override { try { _tlvHelper.open(); } ADDLE_SLOT_CATCH }
+    void tlv_close() override { try { _tlvHelper.close(); } ADDLE_SLOT_CATCH } 
 
 signals:
     void tlv_opened() override;
@@ -76,10 +74,11 @@ private slots:
 
     void onMessagePosted(QSharedPointer<Addle::IMessagePresenter> message)
     {
-        try {
-            ASSERT_INIT();
+        try 
+        {
             _messageViewHelper.onMessagePosted(message);
-        } ADDLE_SLOT_CATCH
+        } 
+        ADDLE_SLOT_CATCH
     }
 
     void onUndoStateChanged();
@@ -98,7 +97,7 @@ private:
     void setupUi();
     void onUrgentMessageMade(ITopLevelView* view);
     
-//     IMainEditorPresenter& _presenter;
+    IMainEditorPresenter& _presenter;
     
     QMenuBar* _menuBar;
     QToolBar* _toolBar_documentActions;
@@ -157,13 +156,9 @@ private:
 
     FileDialogHelper* _fileDialogHelper;
     
-//     TopLevelViewHelper _tlvHelper;
+    TopLevelViewHelper _tlvHelper;
     
     MessageViewHelper _messageViewHelper;
-    
-    bool _uiIsSetup = false;
-
-    InitializeHelper _initHelper;
     
     friend class ToolSetupHelper;
 };
