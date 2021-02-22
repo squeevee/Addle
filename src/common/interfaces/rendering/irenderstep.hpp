@@ -13,7 +13,7 @@
 
 #include "interfaces/traits.hpp"
 #include "interfaces/iamqobject.hpp"
-#include "utilities/render/renderdata.hpp"
+#include "utilities/render/renderhandle.hpp"
 
 namespace Addle {
 
@@ -22,18 +22,12 @@ class IRenderStep : public virtual IAmQObject
 public:
     virtual ~IRenderStep() = default;
 
-    virtual void onPush(RenderData& data) = 0;
-    virtual void onPop(RenderData& data) = 0;
+    virtual void render(RenderHandle& handle) const = 0;
 
-    // virtual bool isVisible() const = 0;
-    // virtual void hide() = 0;
-    // virtual void unhide() = 0;
-
-    virtual QRect areaHint() = 0;
+    virtual QRect areaHint() const = 0;
 
 signals: 
     virtual void changed(QRect area) = 0;
-    // virtual void removeFromStack() = 0;
 };
 
 } // namespace Addle

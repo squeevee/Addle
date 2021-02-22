@@ -56,25 +56,33 @@ const PresetMap<ViewPortPresenter::ZoomPreset, double> ViewPortPresenter::_zoomP
             false
         );
 
-void ViewPortPresenter::initialize(IMainEditorPresenter* mainEditorPresenter)
+ViewPortPresenter::ViewPortPresenter(QSharedPointer<ICanvasPresenter> canvas)
+    : _canvas(canvas)
 {
-//     const Initializer init(_initHelper);
-//     _mainEditorPresenter = mainEditorPresenter;
-// 
-//     connect_interface(
-//         _mainEditorPresenter,
-//         SIGNAL(isEmptyChanged(bool)),
-//         this,
-//         SLOT(onMainEditorPresenter_isEmptyChanged())
-//     );
-}
+    _canNavigateCache.calculateBy(&ViewPortPresenter::canNavigate_p, this);
+    _canNavigateCache.onChange.bind(&ViewPortPresenter::canNavigateChanged, this);
+    _canNavigateCache.onChange_Recalculate(_canZoomInCache);
+    _canNavigateCache.onChange_Recalculate(_canZoomOutCache);
 
+    _canZoomInCache.calculateBy(&ViewPortPresenter::canZoomIn_p, this);
+    _canZoomInCache.onChange.bind(&ViewPortPresenter::canZoomInChanged, this);
+
+    _canZoomOutCache.calculateBy(&ViewPortPresenter::canZoomOut_p, this);
+    _canZoomOutCache.onChange.bind(&ViewPortPresenter::canZoomOutChanged, this);
+
+    _transformCache.calculateBy(&ViewPortPresenter::transforms_p, this);
+    _transformCache.onChange.bind(&ViewPortPresenter::transformsChanged, this);
+    _transformCache.onChange_Recalculate(_scrollStateCache);
+    
+    _scrollStateCache.calculateBy(&ViewPortPresenter::scrollState_p, this);
+    _scrollStateCache.onChange.bind(&ViewPortPresenter::scrollStateChanged, this);
+}
+    
 void ViewPortPresenter::setPosition(QPointF position)
 {
     try
     {
-        ASSERT_INIT();
-
+        
         _position = position;
         _transformCache.recalculate();
 
@@ -85,8 +93,7 @@ void ViewPortPresenter::setPosition(QPointF position)
 
 ViewPortPresenter::ScrollState ViewPortPresenter::scrollState_p()
 {
-//     ASSERT_INIT();
-// 
+//     // 
 //     if (!canNavigate())
 //     {
 //         return ScrollState();
@@ -137,7 +144,6 @@ bool ViewPortPresenter::canNavigate_p()
 
 void ViewPortPresenter::setHasFocus(bool value)
 {
-    ASSERT_INIT();
     if (_hasFocus != value)
     {
         _hasFocus = value;
@@ -147,8 +153,7 @@ void ViewPortPresenter::setHasFocus(bool value)
 
 void ViewPortPresenter::setZoom(double zoom)
 {
-    ASSERT_INIT();
-
+    
     ZoomPreset nearestPreset = _zoomPresetMap.nearest(zoom);
     double nearest = _zoomPresetMap.valueOf(nearestPreset);
 
@@ -166,8 +171,7 @@ void ViewPortPresenter::setZoom(double zoom)
 
 void ViewPortPresenter::setZoomPreset(ZoomPreset preset)
 {
-    ASSERT_INIT();
-
+    
     _zoomPreset = preset;
     setZoom_p(_zoomPresetMap.valueOf(preset));
 }
@@ -202,8 +206,7 @@ double ViewPortPresenter::constrainZoom(double zoom)
 
 void ViewPortPresenter::setRotation(double rotation)
 {
-    ASSERT_INIT();
-    _rotation = rotation;
+        _rotation = rotation;
     _rotatePreset = RotatePreset::nullrotation;
 
     _transformCache.recalculate();
@@ -236,7 +239,6 @@ IViewPortPresenter::ZoomPreset ViewPortPresenter::zoomIn(bool* zoomed)
 {
     try 
     {
-        ASSERT_INIT();
         bool p_zoomed = false;
 
         if (_zoomPreset != ZoomPreset::nullzoom) {
@@ -271,7 +273,6 @@ IViewPortPresenter::ZoomPreset ViewPortPresenter::zoomOut(bool* zoomed)
 {
     try
     {
-        ASSERT_INIT();
         bool p_zoomed = false;
 
         if (_zoomPreset != ZoomPreset::nullzoom) {
@@ -304,7 +305,6 @@ IViewPortPresenter::ZoomPreset ViewPortPresenter::zoomOut(bool* zoomed)
 
 IViewPortPresenter::ZoomPreset ViewPortPresenter::zoomTo(double zoom, bool snapToPreset)
 {
-    ASSERT_INIT();
     ZoomPreset newPreset = ZoomPreset::nullzoom;
     
     if (snapToPreset)
@@ -328,8 +328,7 @@ IViewPortPresenter::ZoomPreset ViewPortPresenter::zoomTo(double zoom, bool snapT
 
 void ViewPortPresenter::setRotatePreset(RotatePreset preset)
 {
-    ASSERT_INIT();
-    _rotatePreset = preset;
+        _rotatePreset = preset;
     setRotation(_rotatePresetMap.valueOf(preset));
 }
 
@@ -337,8 +336,6 @@ IViewPortPresenter::RotatePreset ViewPortPresenter::turntableCcw(bool* rotated)
 {
     try 
     {
-        ASSERT_INIT();
-
         bool p_rotated = false;
 
         if (_rotatePreset != RotatePreset::nullrotation) {
@@ -373,8 +370,6 @@ IViewPortPresenter::RotatePreset ViewPortPresenter::turntableCw(bool* rotated)
 {
     try 
     {
-        ASSERT_INIT();
-
         bool p_rotated = false;
 
         if (_rotatePreset != RotatePreset::nullrotation) {
@@ -431,7 +426,6 @@ void ViewPortPresenter::setSize(QSize size)
 {
     try 
     {
-        ASSERT_INIT();
         _size = size;
         _center = QPointF((double)(_size.width()) / 2.0, (double)(_size.height()) / 2.0);
         _transformCache.recalculate();

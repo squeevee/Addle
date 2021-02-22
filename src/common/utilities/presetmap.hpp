@@ -271,11 +271,11 @@ private:
         return target;
     }
 
+    QHash<IdType, ValueType> _values;
     bool _cyclic;
+    
     mutable ValueType _gap;
     mutable ValueType _span;
-
-    QHash<IdType, ValueType> _values;
 
     mutable QMap<ValueType, IdType> _index_byValue;
     mutable bool _stale = false;

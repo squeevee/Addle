@@ -1,5 +1,5 @@
 find_package(Qt5 REQUIRED COMPONENTS Core Gui)
-find_package(Boost REQUIRED COMPONENTS headers)
+find_package(Boost REQUIRED )
 
 set (CMAKE_AUTOMOC ON)
 set ( CMAKE_AUTORCC ON )
@@ -25,7 +25,6 @@ set (common_sources
     utilities/presenter/filerequest.cpp
     utilities/presenter/propertybinding.cpp
     utilities/presenter/propertyobserver.cpp
-    utilities/render/rendersubstack.cpp
     utilities/view/documentlayersitemmodel.cpp
 
     ../../resources/resources.qrc

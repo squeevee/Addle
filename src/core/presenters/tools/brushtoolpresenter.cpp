@@ -302,7 +302,7 @@ void BrushToolPresenter::onEngage()
             //brushSurface->setCompositionMode(QPainter::CompositionMode_Source);
         }
 
-        layer->renderStack().push(brushSurface->renderStep());
+        //layer->renderStack().push(brushSurface->renderStep());
 
         _brushStroke->moveTo(_mouseHelper.firstPosition());
         _brushStroke->paint();
@@ -341,7 +341,7 @@ void BrushToolPresenter::onDisengage()
                 && (previewRenderStep = previewBuffer->renderStep())
             )
             {
-                layer->renderStack().remove(previewRenderStep);
+                //layer->renderStack().remove(previewRenderStep);
             }
         }
         
@@ -400,7 +400,7 @@ void BrushToolPresenter::HoverPreview::update()
     {
         if (_layer && (!isVisible_cache.value() || _layer != _owner._document->topSelectedLayer()))
         {
-            _layer->renderStack().remove(_surface->renderStep());
+            //_layer->renderStack().remove(_surface->renderStep());
             if (_owner.selectedBrushPresenter()->model().eraserMode())
             {
                 _surface->unlink();
@@ -415,7 +415,7 @@ void BrushToolPresenter::HoverPreview::update()
             {
                 _surface->link(_layer->model()->rasterSurface());
             }
-            _layer->renderStack().push(_surface->renderStep());
+            //_layer->renderStack().push(_surface->renderStep());
         }   
     }
 

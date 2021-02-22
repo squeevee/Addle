@@ -14,11 +14,7 @@
 #include "utilities/qobject.hpp"
 using namespace Addle;
 
-void LayerPresenterRenderStep::onPush(RenderData& data)
-{
-}
-
-void LayerPresenterRenderStep::onPop(RenderData& data)
+void LayerPresenterRenderStep::render(RenderHandle& data) const
 {
 }
 

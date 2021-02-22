@@ -144,13 +144,12 @@ public:
     RasterSurfaceRenderStep(RasterSurface& owner) : _owner(owner) { }
     virtual ~RasterSurfaceRenderStep() = default;
 
-    virtual void onPush(RenderData& data) override;
-    virtual void onPop(RenderData& data) override;
+    virtual void render(RenderHandle& data) const override;
 
-    virtual QRect areaHint() override { return _owner._area; }
+    virtual QRect areaHint() const override { return _owner._area; }
 
 signals: 
-    void changed(QRect area);
+    void changed(QRect area) override;
 
 private:
     RasterSurface& _owner;

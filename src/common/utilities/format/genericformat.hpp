@@ -31,6 +31,7 @@
 
 #include <QSharedPointer>
 #include <QMetaType>
+#include <QIODevice>
 
 #include "idtypes/formatid.hpp"
 

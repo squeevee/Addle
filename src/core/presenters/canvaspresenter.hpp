@@ -13,6 +13,8 @@
 #include "interfaces/presenters/icanvaspresenter.hpp"
 #include "utilities/initializehelper.hpp"
 
+#include "interfaces/rendering/irenderstack.hpp"
+
 #include <QCursor>
 #include <QString>
 #include <QObject>
@@ -24,9 +26,11 @@ class ADDLE_CORE_EXPORT CanvasPresenter : public QObject, public ICanvasPresente
     Q_INTERFACES(Addle::ICanvasPresenter)
     IAMQOBJECT_IMPL
 public: 
-    CanvasPresenter();
+    CanvasPresenter(std::unique_ptr<IRenderStack>);
     virtual ~CanvasPresenter() = default;
 
+    
+    IRenderStack& renderStack() const override { return *_renderStack; }
 //     void initialize(IMainEditorPresenter& mainEditorPresenter);
 
 //     IMainEditorPresenter& mainEditorPresenter() { ASSERT_INIT(); return *_mainEditorPresenter; }
@@ -56,6 +60,9 @@ public:
 // 
 //     IMainEditorPresenter* _mainEditorPresenter;
 //     InitializeHelper _initHelper;
+
+private:
+    std::unique_ptr<IRenderStack> _renderStack;
 };
 
 } // namespace Addle

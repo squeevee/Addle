@@ -4,36 +4,16 @@
  * @copyright Copyright 2020 Eleanor Hawk
  * Modification and distribution permitted under the terms of the MIT License.
  * See "LICENSE" for full details.
- *
- * @brief Various general-purpose utilities related to collections.
- * 
- * Notable contents include:
- * 
- * - cpplinq is included by this file, and some extensions are provided:
- *   - to_QList, etc allow cpplinq ranges to be converted into Qt containers.
- *   - cast operator statically casts members of a range to a new type.
- *   - cpplinq ranges can be used as the range expression of a C++11 for-loop.
- * 
- * - `noDetach`, a wrapper that prevent implicitly shared types from detaching
- * when used on the range expression of a for loop.
- * 
- * - Various conversion functions between generic collection types. Qt has
- * deprecated their implementations of these, but I like sugar so here they are.
- * 
- * @note cpplinq acquires ranges from const l-value references to containers, so
- * no special action is needed to avoid detaching Qt containers when calling
- * cpplinq::from() on one.
- * 
- * @todo Another possible extension to cpplinq would be a container-like class
- * for use as a return type to mimic yield-return semantics.
- * - The only type parameter of this yield class would be the value type of the
- *   range it represents.
- * - This will probably require virtualization so it will not be as efficient as
- *   an inline cpplinq range -- but should be more efficient than saving off to
- *   an unneeded strong container type and immediately disposing it.
- * - The yield could be iterated STL-style or used as a range in another linq 
- *   expression. In either case, the values are only resolved when dereferenced.
  */
+
+//TODO: rename to ranges.hpp or range.hpp or something
+//TODO: use Boost Ranges (in every place where cpplinq was)
+
+// I lowkey intend to move these range utilities into their own library. I liked
+// some of the goodies that came with cpplinq (not present in Boost or STL) but
+// the implementation was pretty poor. It seems to me there's a place for an
+// assortment of compatibility and convenience utilities extending the Boost/STL
+// style API.
 
 #ifndef COLLECTIONS_HPP
 #define COLLECTIONS_HPP
@@ -41,10 +21,18 @@
 #include <initializer_list>
 #include <type_traits>
 
+#include <list>
+
 #include <QList>
 #include <QHash>
 #include <QSharedPointer>
 
+#include <boost/range.hpp>
+#include <boost/range/adaptor/transformed.hpp>
+#include <boost/iterator/iterator_adaptor.hpp>
+#include <boost/iterator/indirect_iterator.hpp>
+
+#include <boost/type_traits.hpp>
 #include <boost/type_traits/is_detected_convertible.hpp>
 
 // #define CPPLINQ_NOEXCEPT noexcept
@@ -455,6 +443,243 @@ inline QSet<T> qToSet(const QList<T>& list)
 {
     return QSet<T>(list.constBegin(), list.constEnd());
 }
+
+namespace aux_range_utils
+{
+    template<typename T, std::size_t N>
+    class lvalue_refs_range
+    {
+        using arr_t = std::array<T*, N>;
+    public:
+        using iterator = boost::indirect_iterator<typename arr_t::iterator>;
+        using const_iterator = boost::indirect_iterator<typename arr_t::const_iterator>;
+        
+        inline lvalue_refs_range(std::initializer_list<T&> init)
+            : _arr(
+                  init 
+                | boost::adaptors::transformed( [](T& v) -> T* {
+                    return std::addressof(v);
+                }) 
+            )
+        {
+        }
+        
+        inline iterator begin() { return iterator(_arr.begin()); }
+        inline const_iterator begin() const { return iterator(_arr.begin()); }
+        
+        inline iterator end() { return iterator(_arr.end()); }
+        inline const_iterator end() const { return iterator(_arr.end()); }
+        
+    private:
+         arr_t _arr;
+    };
+    
+    template<class Base>
+    class indirect_and_move_iterator 
+        : boost::iterator_adaptor<
+                indirect_and_move_iterator<Base>,
+                Base
+            >
+    {
+        friend class boost::iterator_core_access;
+    public:
+        indirect_and_move_iterator() = default;
+        indirect_and_move_iterator(const indirect_and_move_iterator&) = default;
+        indirect_and_move_iterator& operator=(const indirect_and_move_iterator&) = default;
+        
+        explicit indirect_and_move_iterator(Base& base)
+            : boost::iterator_adaptor<indirect_and_move_iterator<Base>, Base>(base)
+        {
+        }
+        
+    protected:
+        auto&& dereference() const { return std::move(**this->base_reference()); }
+    };
+    
+    // TODO: make into a forwarding ref range?
+    template<typename T, std::size_t N>
+    class rvalue_refs_range
+    {
+        using arr_t = std::array<T*, N>;
+    public:
+        using iterator = indirect_and_move_iterator<typename arr_t::iterator>;
+        using const_iterator = indirect_and_move_iterator<typename arr_t::const_iterator>;
+        
+        inline rvalue_refs_range(std::initializer_list<T&&> init)
+            : _arr(
+                  init 
+                | boost::adaptors::transformed( [](T& v) -> T* {
+                    return std::addressof(v);
+                }) 
+            )
+        {
+        }
+        
+        inline iterator begin() { return iterator(_arr.begin()); }
+        inline const_iterator begin() const { return iterator(_arr.begin()); }
+        
+        inline iterator end() { return iterator(_arr.end()); }
+        inline const_iterator end() const { return iterator(_arr.end()); }
+        
+    private:
+         arr_t _arr;
+    };
+}
+
+template<typename... T>
+auto make_ref_range(T&... args)
+{
+    return aux_range_utils::lvalue_refs_range<std::common_type_t<T...>, sizeof...(args)>({ args... });
+}
+
+template<typename... T>
+auto make_range(T&&... args)
+{
+    // reference wrappers?
+    return std::array<std::common_type_t<T...>, sizeof...(args)>({ std::forward<T>(args)... });
+}
+
+template<typename Range>
+auto&& only_value(Range&& r)
+{
+    assert (boost::size(std::forward<Range>(r)) == 1); // exception?
+    return *boost::begin(std::forward<Range>(r));
+}
+
+namespace aux_range_utils
+{
+    template<typename Range>
+    struct getting_size_is_cheap : std::is_convertible<
+            typename boost::range_category<Range>::type,
+            std::random_access_iterator_tag
+        > {};
+        
+    // Specializations for container types that don't have random access
+    // iterators
+    
+    template<typename T, typename A>
+    struct getting_size_is_cheap<std::list<T, A>> : std::true_type {};
+    
+    // std::forward_list, std::set, std::map, std::multiset, std::multimap 
+        
+    template<typename T>
+    struct getting_size_is_cheap<QSet<T>> : std::true_type {};
+    
+    template<typename K, typename V>
+    struct getting_size_is_cheap<QHash<K, V>> : std::true_type {};
+    
+    template<typename K, typename V>
+    struct getting_size_is_cheap<QMultiHash<K, V>> : std::true_type {};
+    
+    template<typename K, typename V>
+    struct getting_size_is_cheap<QMap<K, V>> : std::true_type {};
+    
+    template<typename K, typename V>
+    struct getting_size_is_cheap<QMultiMap<K, V>> : std::true_type {};
+    
+}
+
+// Given a container object `t` and a range `s`, this function will reserve
+// enough additional space in `t` for its current contents and as many elements
+// as are in `s` *iff* acquiring the size of `s` is "cheap" [i.e., determined at
+// compile time to support amortized faster than O(log N) where N is the size of 
+// `s`].
+// 
+// The motivating case for this function is if the contents of `s` will be
+// iterated linearly and (worst case) for each element in `s` one corresponding 
+// element will be pushed/inserted into `t`. Without reserving, most array-based 
+// containers will require O(log(N)) reallocations where N is the size of `s`. 
+// If the size of `s` can be determined cheaper than that (e.g., is constant or 
+// amortized constant), it is likely worth the trouble.
+//
+// Most containers support amortized constant size lookup. Additionally any
+// array, and any range built from random access iterators will allow cheap size
+// querying.
+//
+// Assumes that TargetContainer *has* a `reserve` member function that is used
+// the same way as std::vector::reserve, and takes for granted that `t.size()`
+// is cheap. 
+// 
+// In particular the following container types are compatible with this function 
+// and stand to benefit from its use:
+// - std::vector
+// - std::unordered_set (and unordered_multiset)
+// - std::unordered_map (and unordered_multimap)
+// - std::string (and relatives)
+// - QList (and QVector)
+// - QSet
+// - QHash (and QMultiHash)
+// - QByteArray and QString
+// - QVarLengthArray
+//
+// And notably, the following container types do not provide a `reserve` member
+// function:
+// - std::deque
+// - QBitArray
+
+template<class TargetContainer, typename SourceRange>
+inline void reserve_for_size_if_cheap(TargetContainer& t, const SourceRange& s)
+{
+    if constexpr (
+            aux_range_utils::getting_size_is_cheap<SourceRange>::value
+       )
+    {
+        t.reserve(
+                boost::size(s) + t.size()
+            );
+    }
+}
+
+template<class Range>
+inline QList<
+        typename boost::range_value<boost::remove_cv_ref_t<Range>>::type
+    > toQList(Range&& range)
+{
+    return QList<
+        typename boost::range_value<boost::remove_cv_ref_t<Range>>::type
+    >( 
+        boost::begin(std::forward<Range>(range)), 
+        boost::end(std::forward<Range>(range)) 
+    );
+}
+
+namespace aux_range_utils {
+
+template<typename Range>
+struct has_contiguous_storage : std::false_type {};
+
+template<typename T, std::size_t N>
+struct has_contiguous_storage<T[N]> : std::true_type {};
+
+template<typename T>
+struct has_contiguous_storage<T*> : std::true_type {};
+
+template<typename T, std::size_t N>
+struct has_contiguous_storage<std::array<T, N>> : std::true_type {};
+
+template<typename T, typename A>
+struct has_contiguous_storage<std::vector<T, A>> : std::true_type {};
+
+template<typename T>
+struct has_contiguous_storage<QVector<T>> : std::true_type {};
+
+template<typename T, std::size_t N>
+struct has_contiguous_storage<QVarLengthArray<T, N>> : std::true_type {};
+
+template<typename Range, std::enable_if_t<std::is_class<boost::remove_cv_ref_t<Range>>::value, void*> = nullptr>
+inline typename boost::range_pointer<boost::remove_cv_ref_t<Range>>::type 
+    get_contiguous_storage(Range&& range)
+{
+    return range.data();
+}
+
+template<typename T>
+inline T* get_contiguous_storage(T* ptr) 
+{
+    return ptr;
+}
+
+} // namespace aux_range_utils
 
 } // namespace Addle
 

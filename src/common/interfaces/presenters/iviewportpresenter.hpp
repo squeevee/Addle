@@ -18,8 +18,8 @@
 
 namespace Addle {
 
-class IMainEditorPresenter;
-class IScrollState;
+class ICanvasPresenter;
+class IScrollState; // TODO: member interface?
 
 /**
  * @class IViewPortPresenter
@@ -99,10 +99,8 @@ public:
     };
 
     virtual ~IViewPortPresenter() = default;
-
-    virtual void initialize(IMainEditorPresenter* mainEditorPresenter) = 0;
     
-    virtual IMainEditorPresenter* mainEditorPresenter() = 0;
+    virtual QSharedPointer<ICanvasPresenter> canvas() const = 0;
 
 public:
     virtual bool canNavigate() const = 0;
@@ -153,12 +151,16 @@ public slots:
 
 signals:
     virtual void zoomChanged(double) = 0;
+    virtual void canZoomInChanged(bool canZoomIn) = 0;
+    virtual void canZoomOutChanged(bool canZoomOut) = 0;
 
     // # Rotation
 public:
     virtual double rotation() const = 0;
     virtual void setRotation(double) = 0;
-
+    
+    virtual RotatePreset rotatePreset() const = 0;
+    virtual void setRotatePreset(RotatePreset preset) = 0;
 
 public slots:
     virtual RotatePreset turntableCcw(bool* rotated = nullptr) = 0;
@@ -189,6 +191,8 @@ public slots:
 
 signals:
     virtual void transformsChanged() = 0;
+    virtual void ontoCanvasTransformChanged(QTransform) = 0;
+    virtual void fromCanvasTransformChanged(QTransform) = 0;
 };
 
 DECL_INTERFACE_META_PROPERTIES(

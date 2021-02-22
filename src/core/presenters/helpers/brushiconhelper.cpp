@@ -17,7 +17,6 @@
 #include "servicelocator.hpp"
 
 #include "interfaces/models/ibrush.hpp"
-#include "interfaces/services/iappearanceservice.hpp"
 
 #include "utilities/editing/brushstroke.hpp"
 #include "utilities/render/renderutils.hpp"
@@ -40,11 +39,11 @@ BrushIconHelper::BrushIconHelper(QObject* parent)
         })
     );
 
-    if (_pattern8.isNull())
-        _pattern8.load(ServiceLocator::get<IAppearanceService>().selector().select(":/misc/pattern8.png"));
-
-    if (_pattern64.isNull())
-        _pattern64.load(ServiceLocator::get<IAppearanceService>().selector().select(":/misc/pattern64.png"));
+//     if (_pattern8.isNull())
+//         _pattern8.load(ServiceLocator::get<IAppearanceService>().selector().select(":/misc/pattern8.png"));
+// 
+//     if (_pattern64.isNull())
+//         _pattern64.load(ServiceLocator::get<IAppearanceService>().selector().select(":/misc/pattern64.png"));
 }
 
 QIcon BrushIconHelper::icon() const
@@ -272,7 +271,7 @@ void BrushIconHelper::BrushIconEngine::paint_p(QSize iconSize)
         painter.scale(scale, scale);
     }
 
-    _helper->_renderStack->render(RenderData(iconRect, &painter));
+    _helper->_renderStack->render(RenderHandle(iconRect, &painter));
     //render(_helper->_brushSurface->renderStep(), coarseBoundRect(canonicalRect), &painter);
 }
 

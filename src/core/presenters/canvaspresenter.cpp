@@ -18,9 +18,9 @@
 
 using namespace Addle;
 
-CanvasPresenter::CanvasPresenter()
+CanvasPresenter::CanvasPresenter(std::unique_ptr<IRenderStack> renderStack)
+    : _renderStack(std::move(renderStack))
 {
-    
 }
 
 // void CanvasPresenter::initialize(IMainEditorPresenter& mainEditorPresenter)

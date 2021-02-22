@@ -198,26 +198,26 @@ void RasterSurface::onBitWriterDestroyed(const RasterBitWriter& writer)
     }
 }
 
-void RasterSurfaceRenderStep::onPush(RenderData& data)
-{
-    // if _owner's composition mode is CompositionMode_Source, then add a mask
-    // to RenderData covering _owner._area
+// void RasterSurfaceRenderStep::onPush(RenderHandle& data)
+// {
+//     if _owner's composition mode is CompositionMode_Source, then add a mask
+//     to RenderHandle covering _owner._area
+// 
+//     if (!_owner._area.isValid()) return;
+// 
+//     if (_owner._replaceMode)
+//     {
+//         QPainterPath p1;
+//         p1.addRect(data.area());
+// 
+//         QPainterPath p2;
+//         p2.addRect(_owner._area);
+// 
+//         data.painter()->setClipPath(p1.subtracted(p2), Qt::IntersectClip);
+//     }
+// }
 
-    if (!_owner._area.isValid()) return;
-
-    if (_owner._replaceMode)
-    {
-        QPainterPath p1;
-        p1.addRect(data.area());
-
-        QPainterPath p2;
-        p2.addRect(_owner._area);
-
-        data.painter()->setClipPath(p1.subtracted(p2), Qt::IntersectClip);
-    }
-}
-
-void RasterSurfaceRenderStep::onPop(RenderData& data)
+void RasterSurfaceRenderStep::render(RenderHandle& data) const
 {
     const QReadLocker lock(&_owner._lock);
 

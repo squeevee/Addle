@@ -34,7 +34,6 @@
 
 #include "rendering/renderstack.hpp"
 
-#include "services/appearanceservice.hpp"
 #include "services/applicationservice.hpp"
 #include "services/errorservice.hpp"
 #include "services/formatservice.hpp"
@@ -75,11 +74,8 @@ std::unique_ptr<InjectorConfig> Addle::core_config()
             filter_by_id(CoreTools::Navigate)
         ),
         
+        bind<IRenderStack, RenderStack>(),
         
-        //,
-                                                   
-//         bind<IViewRepository<IMainEditorView>, ViewRepository<IMainEditorView>>()/*,
-//                                                                                                   
         defer_binding<IMainEditorView>()
     );
     

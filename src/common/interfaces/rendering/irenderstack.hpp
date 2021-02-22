@@ -10,6 +10,7 @@
 #define IRENDERSTACK_HPP
 
 #include <QWeakPointer>
+#include <QList>
 
 #include "interfaces/traits.hpp"
 #include "interfaces/iamqobject.hpp"
@@ -18,25 +19,38 @@
 #include "irenderstep.hpp"
 namespace Addle {
 
+class RenderStackBuilder;
 class IRenderStack : public virtual IAmQObject
 {
-public:
+public:    
     virtual ~IRenderStack() = default;
 
-    virtual void initialize(QWeakPointer<IRenderStep> step = QWeakPointer<IRenderStep>()) = 0;
-    virtual void initialize(QList<QWeakPointer<IRenderStep>> steps) = 0;
+    //TODO
+    //virtual QList<QWeakPointer<IRenderStep>> steps() const = 0;
+    
+    virtual void removeSteps(QList<QWeakPointer<IRenderStep>> steps) = 0;
+    inline void removeStep(QWeakPointer<IRenderStep> step)
+    {
+        removeSteps( QList<QWeakPointer<IRenderStep>>({ step }) );
+    }
 
-    virtual QList<QWeakPointer<IRenderStep>> steps() const = 0;
-
-    virtual void push(QWeakPointer<IRenderStep> step) = 0;
-    virtual void remove(QWeakPointer<IRenderStep> step) = 0;
-    // virtual void remove(const char* className) = 0;
-
-    virtual void render(RenderData data, int maxDepth = -1) = 0;
-    // may support more selective partial rendering
-
+    virtual void render(RenderHandle data) const = 0;
+    
+    
+    virtual void clear() = 0;
+    
+public slots:
+    virtual void rebuild() = 0;
+    
 signals: 
     virtual void changed(QRect area) = 0;
+    
+    // Emitted after `rebuild` has been called. Subscribers are allowed to 
+    // contribute to the structure of the render stack using the provided build 
+    // handle.
+    // Subscribers must handle this event synchronously on the main thread. 
+    // (Otherwise the given pointer will be null or throw an error)
+    virtual void needsRebuild(QWeakPointer<RenderStackBuilder>) = 0;
 };
 
 ADDLE_DECL_MAKEABLE(IRenderStack);

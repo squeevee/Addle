@@ -18,7 +18,7 @@
 
 #include "icansavepresenter.hpp"
 
-#include "utilities/heirarchylist.hpp"
+#include "utilities/datatree.hpp"
 
 namespace Addle {
 
@@ -28,9 +28,9 @@ class ILayerPresenter;
 class IDocumentPresenter : public ICanSavePresenter, public virtual IAmQObject
 {
 public:
-    typedef HeirarchyList<QSharedPointer<ILayerPresenter>> LayerList;
-    typedef HeirarchyList<QSharedPointer<ILayerPresenter>>::Node LayerNode;
-    typedef HeirarchyList<QSharedPointer<ILayerPresenter>>::NodeRemoved LayerNodeRemoved;
+//     typedef DataTree<QSharedPointer<ILayerPresenter>> LayerList;
+//     typedef DataTree<QSharedPointer<ILayerPresenter>>::Node LayerNode;
+//     typedef DataTree<QSharedPointer<ILayerPresenter>>::NodeRemoved LayerNodeRemoved;
     enum EmptyInitOptions
     {
         initNoModel,
@@ -50,12 +50,12 @@ public:
     virtual QRect rect() = 0;
     virtual QColor backgroundColor() = 0;
 
-    virtual const LayerList& layers() const = 0;
+//     virtual const LayerList& layers() const = 0;
 
-    virtual QSet<LayerNode*> layerSelection() const = 0;
-    virtual void setLayerSelection(QSet<LayerNode*> layer) = 0;
-    virtual void addLayerSelection(QSet<LayerNode*> layer) = 0;
-    virtual void removeLayerSelection(QSet<LayerNode*> layer) = 0;
+//     virtual QSet<LayerNode*> layerSelection() const = 0;
+//     virtual void setLayerSelection(QSet<LayerNode*> layer) = 0;
+//     virtual void addLayerSelection(QSet<LayerNode*> layer) = 0;
+//     virtual void removeLayerSelection(QSet<LayerNode*> layer) = 0;
 
     virtual QSharedPointer<ILayerPresenter> topSelectedLayer() const = 0;
 
@@ -70,13 +70,13 @@ public slots:
     virtual void mergeSelectedLayers() = 0;
 
 signals:
-    virtual void layersAdded(QList<IDocumentPresenter::LayerNode*> added) = 0;
-    virtual void layersRemoved(QList<IDocumentPresenter::LayerNodeRemoved> removed) = 0;
-    virtual void layersMoved(QList<IDocumentPresenter::LayerNode*> moved) = 0;
+//     virtual void layersAdded(QList<IDocumentPresenter::LayerNode*> added) = 0;
+//     virtual void layersRemoved(QList<IDocumentPresenter::LayerNodeRemoved> removed) = 0;
+//     virtual void layersMoved(QList<IDocumentPresenter::LayerNode*> moved) = 0;
 
     virtual void layersChanged() = 0;
     virtual void topSelectedLayerChanged(QSharedPointer<ILayerPresenter>) = 0;
-    virtual void layerSelectionChanged(QSet<IDocumentPresenter::LayerNode*> selection) = 0;
+//     virtual void layerSelectionChanged(QSet<IDocumentPresenter::LayerNode*> selection) = 0;
 
 };
 
@@ -84,6 +84,6 @@ ADDLE_DECL_MAKEABLE(IDocumentPresenter);
 } // namespace Addle
 
 Q_DECLARE_INTERFACE(Addle::IDocumentPresenter, "org.addle.IDocumentPresenter")
-Q_DECLARE_METATYPE(Addle::IDocumentPresenter::LayerNodeRemoved);
+// Q_DECLARE_METATYPE(Addle::IDocumentPresenter::LayerNodeRemoved);
 
 #endif // IDOCUMENTPRESENTER_HPP

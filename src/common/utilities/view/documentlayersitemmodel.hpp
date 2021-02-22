@@ -15,16 +15,16 @@
 #include "interfaces/presenters/idocumentpresenter.hpp"
 namespace Addle {
 
-template<typename NodeType>
-class NodeModelHelper;
+// template<typename NodeType>
+// class NodeModelHelper;
 
 class ADDLE_COMMON_EXPORT DocumentLayersItemModel : public QAbstractItemModel
 {
     Q_OBJECT
 
-    typedef IDocumentPresenter::LayerList LayerList;
-    typedef IDocumentPresenter::LayerNode LayerNode;
-    typedef IDocumentPresenter::LayerNodeRemoved LayerNodeRemoved;
+//     typedef IDocumentPresenter::LayerList LayerList;
+//     typedef IDocumentPresenter::LayerNode LayerNode;
+//     typedef IDocumentPresenter::LayerNodeRemoved LayerNodeRemoved;
 public:
     DocumentLayersItemModel(QObject* parent = nullptr);
     virtual ~DocumentLayersItemModel() = default;
@@ -38,20 +38,20 @@ public:
     
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
 
-    QModelIndex indexOf(const LayerNode* node) const;
+//     QModelIndex indexOf(const LayerNode* node) const;
 
-    static LayerNode* nodeAt(const QModelIndex& index);
-    static const LayerNode* constNodeAt(const QModelIndex& index);
+//     static LayerNode* nodeAt(const QModelIndex& index);
+//     static const LayerNode* constNodeAt(const QModelIndex& index);
 
 public slots:
-    void onPresenterLayersAdded(QList<IDocumentPresenter::LayerNode*> added);
-    void onPresenterLayersRemoved(QList<IDocumentPresenter::LayerNodeRemoved> removed);
-    void onPresenterLayersMoved(QList<IDocumentPresenter::LayerNode*> added);
+//     void onPresenterLayersAdded(QList<IDocumentPresenter::LayerNode*> added);
+//     void onPresenterLayersRemoved(QList<IDocumentPresenter::LayerNodeRemoved> removed);
+//     void onPresenterLayersMoved(QList<IDocumentPresenter::LayerNode*> added);
 
 private:
-    QModelIndex createIndex(const LayerNode* node, int row) const;
+//     QModelIndex createIndex(const LayerNode* node, int row) const;
 
-    NodeModelHelper<LayerNode> _nodeHelper;
+//     NodeModelHelper<LayerNode> _nodeHelper;
     PresenterAssignment<IDocumentPresenter> _presenter;
 };
 

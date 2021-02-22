@@ -42,7 +42,6 @@ set (
     presenters/tools/sizeselectionpresenter.cpp
     presenters/tools/brushtoolpresenter.cpp
     rendering/renderstack.cpp
-    services/appearanceservice.cpp
     services/applicationservice.cpp
     services/errorservice.cpp
     services/formatservice.cpp

@@ -17,7 +17,7 @@
 #include "utils.hpp"
 
 #include "interfaces/presenters/ilayerpresenter.hpp"
-#include "utilities/heirarchylist.hpp"
+#include "utilities/datatree.hpp"
 
 #include "utilities/model/layergroupinfo.hpp"
 #include "utilities/lazyvalue.hpp"

@@ -33,7 +33,7 @@ include_directories(
 )
 
 find_package( Qt5   5.15    REQUIRED COMPONENTS Core Gui)
-find_package( Boost 1.75    REQUIRED COMPONENTS headers)
+find_package( Boost 1.75    REQUIRED )
 
 add_subdirectory( src )
 

@@ -43,7 +43,7 @@ void LayerItem::paint(QPainter* painter, const QStyleOptionGraphicsItem *option,
 {
     //assert painter
     
-    RenderData data(coarseBoundRect(option->exposedRect), painter);
+    RenderHandle data(coarseBoundRect(option->exposedRect), painter);
     _presenter.renderStack().render(data);
 }
 

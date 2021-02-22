@@ -67,13 +67,12 @@ public:
     LayerPresenterRenderStep(LayerPresenter& owner) : _owner(owner) { }
     virtual ~LayerPresenterRenderStep() = default;
 
-    void onPush(RenderData& data);
-    void onPop(RenderData& data);
+    void render(RenderHandle& data) const override;
 
-    QRect areaHint() { return QRect(); }
+    QRect areaHint() const override { return QRect(); }
 
 signals: 
-    void changed(QRect area);
+    void changed(QRect area) override;
 
 private:
     LayerPresenter& _owner;

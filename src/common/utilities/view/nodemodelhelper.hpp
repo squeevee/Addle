@@ -7,7 +7,7 @@
 
 #include "utilities/errors.hpp"
 
-#include "utilities/heirarchylist.hpp"
+#include "utilities/datatree.hpp"
 #include <boost/variant.hpp>
 
 // Qt's item model framework, while fairly feature-rich and adaptable on the View
@@ -40,7 +40,7 @@
 // * Only information about the locations and relationships of relevant nodes is
 // actually emulated. This should not impose much cost, particularly not long-term.
 
-// (As is, this class requires the data to be stored as HeirarchyList<T>::Node,
+// (As is, this class requires the data to be stored as DataTree<T>::Node,
 // but with a little work, it could be made to work with any tree-like structure
 // of smiilar capability.)
 namespace Addle {

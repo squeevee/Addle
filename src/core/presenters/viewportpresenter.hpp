@@ -14,9 +14,9 @@
 #include <QRect>
 
 #include "interfaces/presenters/iviewportpresenter.hpp"
+#include "interfaces/presenters/icanvaspresenter.hpp"
 
 #include "utils.hpp"
-#include "utilities/initializehelper.hpp"
 #include "utilities/presetmap.hpp"
 #include "utilities/lazyvalue.hpp"
 
@@ -115,86 +115,65 @@ class ADDLE_CORE_EXPORT ViewPortPresenter : public QObject, public IViewPortPres
     };
 
 public:
-    ViewPortPresenter()
-    {
-        _canNavigateCache.calculateBy(&ViewPortPresenter::canNavigate_p, this);
-        _canNavigateCache.onChange.bind(&ViewPortPresenter::canNavigateChanged, this);
-        _canNavigateCache.onChange_Recalculate(_canZoomInCache);
-        _canNavigateCache.onChange_Recalculate(_canZoomOutCache);
-
-        _canZoomInCache.calculateBy(&ViewPortPresenter::canZoomIn_p, this);
-        _canZoomInCache.onChange.bind(&ViewPortPresenter::canZoomInChanged, this);
-
-        _canZoomOutCache.calculateBy(&ViewPortPresenter::canZoomOut_p, this);
-        _canZoomOutCache.onChange.bind(&ViewPortPresenter::canZoomOutChanged, this);
-
-        _transformCache.calculateBy(&ViewPortPresenter::transforms_p, this);
-        _transformCache.onChange.bind(&ViewPortPresenter::transformsChanged, this);
-        _transformCache.onChange_Recalculate(_scrollStateCache);
-        
-        _scrollStateCache.calculateBy(&ViewPortPresenter::scrollState_p, this);
-        _scrollStateCache.onChange.bind(&ViewPortPresenter::scrollStateChanged, this);
-    }
+    ViewPortPresenter(QSharedPointer<ICanvasPresenter> canvas);
     virtual ~ViewPortPresenter() = default;
 
-    void initialize(IMainEditorPresenter* mainEditorPresenter);
+    QSharedPointer<ICanvasPresenter> canvas() const override { return _canvas; }
 
-    IMainEditorPresenter* mainEditorPresenter() { ASSERT_INIT(); return _mainEditorPresenter; }
+    bool canNavigate() const override { return _canNavigateCache.value(); }
 
-    bool canNavigate() const { ASSERT_INIT(); return _canNavigateCache.value(); }
-
-    bool hasFocus() const { ASSERT_INIT(); return _hasFocus; }
-    void setHasFocus(bool value);
+    bool hasFocus() const override { return _hasFocus; }
+    void setHasFocus(bool value) override;
 
 signals:
-    void canNavigateChanged(bool);
-    void focusChanged(bool focus);
+    void canNavigateChanged(bool) override;
+    void focusChanged(bool focus) override;
 
 private:
     bool canNavigate_p();
 
     // # Scrolling / positioning
 public:
-    QPointF position() const { ASSERT_INIT(); return _position; }
-    const IScrollState& scrollState() const { ASSERT_INIT(); return _scrollStateCache.value(); }
+    QPointF position() const override { return _position; }
+    const IScrollState& scrollState() const override { return _scrollStateCache.value(); }
 
 public slots:
-    void setPosition(QPointF center);
-    void scrollX(int x);
-    void scrollY(int y);
+    void setPosition(QPointF center) override;
+    void scrollX(int x) override;
+    void scrollY(int y) override;
 
-    void gripPan(QPointF start, QPointF end);
+    void gripPan(QPointF start, QPointF end) override;
 
 signals:
-    void positionChanged(QPointF position);
-    void scrollStateChanged();
+    void positionChanged(QPointF position) override;
+    void scrollStateChanged() override;
 
 private:
     ScrollState scrollState_p();
 
 public:
-    bool canZoomIn() const { ASSERT_INIT(); return _canZoomInCache.value(); }
-    bool canZoomOut() const { ASSERT_INIT(); return _canZoomOutCache.value(); }
+    bool canZoomIn() const override { return _canZoomInCache.value(); }
+    bool canZoomOut() const override { return _canZoomOutCache.value(); }
 
-    double zoom() const { ASSERT_INIT(); return _zoom; }
-    void setZoom(double zoom);
+    double zoom() const override { return _zoom; }
+    void setZoom(double zoom) override;
     //void gripZoom(QPoint gripStart, QPoint gripEnd);
     
-    ZoomPreset zoomPreset() const { ASSERT_INIT(); return _zoomPreset; }
-    void setZoomPreset(ZoomPreset preset);
-    double maxZoomPresetValue() const { ASSERT_INIT(); return _zoomPresetMap.valueOf(MAX_ZOOM_PRESET); }
-    double minZoomPresetValue() const { ASSERT_INIT(); return _zoomPresetMap.valueOf(MIN_ZOOM_PRESET); }
+    ZoomPreset zoomPreset() const override { return _zoomPreset; }
+    void setZoomPreset(ZoomPreset preset) override;
+    double maxZoomPresetValue() const override { return _zoomPresetMap.valueOf(MAX_ZOOM_PRESET); }
+    double minZoomPresetValue() const override { return _zoomPresetMap.valueOf(MIN_ZOOM_PRESET); }
 
-    ZoomPreset zoomTo(double zoom, bool snapToPreset = true);
+    ZoomPreset zoomTo(double zoom, bool snapToPreset = true) override;
 
 public slots:
-    ZoomPreset zoomIn(bool* zoomed = nullptr);
-    ZoomPreset zoomOut(bool* zoomed = nullptr);
+    ZoomPreset zoomIn(bool* zoomed = nullptr) override;
+    ZoomPreset zoomOut(bool* zoomed = nullptr) override;
 
 signals:
-    void zoomChanged(double zoom);
-    void canZoomInChanged(bool canZoomIn);
-    void canZoomOutChanged(bool canZoomOut);
+    void zoomChanged(double zoom) override;
+    void canZoomInChanged(bool canZoomIn) override;
+    void canZoomOutChanged(bool canZoomOut) override;
 
 private:
     double constrainZoom(double zoom);
@@ -206,49 +185,49 @@ private:
     void propagateCanNavigate();
 
 public:
-    double rotation() const { ASSERT_INIT(); return _rotation; }
-    void setRotation(double rotation);
-    RotatePreset rotatePreset() const { ASSERT_INIT(); return _rotatePreset; }
-    void setRotatePreset(RotatePreset preset);
+    double rotation() const override { return _rotation; }
+    void setRotation(double rotation) override;
+    RotatePreset rotatePreset() const override { return _rotatePreset; }
+    void setRotatePreset(RotatePreset preset) override;
 
 public slots:
-    RotatePreset turntableCcw(bool* rotated = nullptr);
-    RotatePreset turntableCw(bool* rotated = nullptr);
+    RotatePreset turntableCcw(bool* rotated = nullptr) override;
+    RotatePreset turntableCw(bool* rotated = nullptr) override;
 
 signals:
-    void rotationChanged(double rotation);
+    void rotationChanged(double rotation) override;
 
 public:
 
-    QSize size() const { ASSERT_INIT(); return _size; }
+    QSize size() const override { return _size; }
 
-    void gripPivot(QPointF gripStart, QPointF gripEnd);
+    void gripPivot(QPointF gripStart, QPointF gripEnd) override;
 
-    QTransform ontoCanvasTransform() const { ASSERT_INIT(); return _transformCache.value().ontoCanvas; }
-    QTransform fromCanvasTransform() const { ASSERT_INIT(); return _transformCache.value().fromCanvas; }
+    QTransform ontoCanvasTransform() const override { return _transformCache.value().ontoCanvas; }
+    QTransform fromCanvasTransform() const override { return _transformCache.value().fromCanvas; }
 
-    QPoint globalOffset() const { ASSERT_INIT(); return _globalOffset; }
-    virtual QPointF center() const { ASSERT_INIT(); return _center; }
+    QPoint globalOffset() const override { return _globalOffset; }
+    virtual QPointF center() const override { return _center; }
 
 public slots:
-    void resetTransforms();
-    void fitWidth();
-    void fitCanvas();
+    void resetTransforms() override;
+    void fitWidth() override;
+    void fitCanvas() override;
 
-    void setSize(QSize size);
+    void setSize(QSize size) override;
 
-    void setGlobalOffset(QPoint offset) { try { ASSERT_INIT(); _globalOffset = offset; } ADDLE_SLOT_CATCH }
+    void setGlobalOffset(QPoint offset) override { try { _globalOffset = offset; } ADDLE_SLOT_CATCH }
 
 signals:
-    void transformsChanged();
-    void ontoCanvasTransformChanged(QTransform);
-    void fromCanvasTransformChanged(QTransform);
+    void transformsChanged() override;
+    void ontoCanvasTransformChanged(QTransform) override;
+    void fromCanvasTransformChanged(QTransform) override;
 
 private slots:
     void onMainEditorPresenter_isEmptyChanged();
     
 private:
-    IMainEditorPresenter* _mainEditorPresenter;
+    QSharedPointer<ICanvasPresenter> _canvas;
 
     //The actual size of the viewport on the screen.
     QSize _size;
@@ -286,8 +265,6 @@ private:
     void centerView();
     const double ZOOM_SNAP_THRESHOLD = 0.10;
     const int VIEW_MARGIN = 10;
-
-    InitializeHelper _initHelper;
     
     static const PresetMap<RotatePreset, double> _rotatePresetMap;
     static const PresetMap<ZoomPreset, double> _zoomPresetMap;
