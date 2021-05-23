@@ -80,13 +80,14 @@ class ADDLE_CORE_EXPORT MainEditorPresenter : public QObject, public virtual IMa
 public:
         
     MainEditorPresenter(
-        Mode mode,
-        std::unique_ptr<IColorSelectionPresenter> colorSelection,
-        std::unique_ptr<IViewPortPresenter> viewPortPresenter,
-        std::unique_ptr<IMessageContext> messageContext,
-        std::unique_ptr<IRepository<IPalettePresenter>> palettes,
-        std::unique_ptr<IRepository<IToolPresenter>> tools
-    );
+            Mode mode,
+            std::unique_ptr<IColorSelectionPresenter> colorSelection,
+            std::unique_ptr<IViewPortPresenter> viewPortPresenter,
+            std::unique_ptr<IMessageContext> messageContext,
+            std::unique_ptr<IRepository<IPalettePresenter>> palettes,
+            std::unique_ptr<IRepository<IToolPresenter>> tools,
+            const IFactory<IDocumentPresenter>& documentFactory
+        );
     virtual ~MainEditorPresenter() = default;
 
     IViewPortPresenter& viewPortPresenter() const override {  return *_viewPortPresenter; }
@@ -97,7 +98,7 @@ public:
     Mode mode() const override { return _mode; }
 
     QSharedPointer<IDocumentPresenter> documentPresenter() const override {  return _document; }
-    bool isEmpty() const override { return _isEmptyCache.value(); }
+    bool isEmpty() const override { return _isEmptyCache.value(); } // TODO: rename "hasDocument"?
 
     QSharedPointer<ILayerPresenter> topSelectedLayer() const override;
     
@@ -172,6 +173,8 @@ private:
     QMetaObject::Connection _connection_onSaveDocumentComplete;
 
     QSharedPointer<FileRequest> _pendingDocumentFileRequest;
+    
+    const IFactory<IDocumentPresenter>& _documentFactory;
     
     LoadHelper<IDocument, IDocumentPresenter> _loadDocumentHelper;
 };

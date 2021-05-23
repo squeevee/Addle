@@ -9,6 +9,8 @@
 #include <boost/mp11.hpp>
 #include <boost/type_traits.hpp>
 
+#include "interfaces/services/ifactory.hpp"
+
 namespace Addle::config_detail {
 
 /** 
@@ -252,6 +254,28 @@ public:
     {
         return generate_tuple_over_list<pair_types>(
                 arg_tuple_functor<storage_t, true>(_data)
+            );
+    }
+    
+    template<typename Interface>
+    inline Interface* applyToMake(const IFactory<Interface>& factory) const &
+    {
+        return std::apply(
+                [&] (auto&&... args) {
+                    return factory.make(std::forward<decltype(args)>(args)...);
+                },
+                toArgTuple()
+            );
+    }
+    
+    template<typename Interface>
+    inline Interface* applyToMake(const IFactory<Interface>& factory) &&
+    {
+        return std::apply(
+                [&] (auto&&... args) {
+                    return factory.make(std::forward<decltype(args)>(args)...);
+                },
+                toArgTuple()
             );
     }
     

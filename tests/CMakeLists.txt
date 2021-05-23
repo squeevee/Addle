@@ -35,6 +35,7 @@ endmacro()
 
 addle_common_test( datatree_utest )
 addle_common_test( presetmap_utest )
+addle_common_test( renderroutine_utest )
 
 add_custom_target( all_tests DEPENDS ${ALL_TESTS_TARGET} )
 add_custom_target( common_tests DEPENDS ${COMMON_TESTS_TARGET} )

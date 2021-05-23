@@ -46,14 +46,14 @@ void RasterSurface::initialize(
     _area = QRect(offset, image.size());
 }
 
-QSharedPointer<IRenderStep> RasterSurface::renderStep()
+QSharedPointer<IRenderable> RasterSurface::renderable()
 {
     const QReadLocker lock(&_lock);
-    if (!_renderStep)
+    if (!_renderable)
     {
-        _renderStep = QSharedPointer<IRenderStep>(new RasterSurfaceRenderStep(*this));
+        _renderable = QSharedPointer<IRenderable>(new RasterSurfaceRenderable(*this));
     }
-    return _renderStep;
+    return _renderable;
 }
 
 void RasterSurface::clear()
@@ -67,9 +67,9 @@ void RasterSurface::clear()
     }
 
     emit changed(oldArea);
-    if (_renderStep)
+    if (_renderable)
     {
-        emit _renderStep->changed(oldArea);
+        emit _renderable->changed(oldArea);
     }
 }
 
@@ -160,7 +160,7 @@ void RasterSurface::copyLinked()
     QPainter painter(&_buffer);
 
     painter.translate(-_bufferOffset);
-    render(_linked->renderStep(), QRect(_bufferOffset, _buffer.size()), &painter);
+    render(_linked->renderable(), QRect(_bufferOffset, _buffer.size()), &painter);
 }
 
 void RasterSurface::onPaintHandleDestroyed(const RasterPaintHandle& handle)
@@ -171,9 +171,9 @@ void RasterSurface::onPaintHandleDestroyed(const RasterPaintHandle& handle)
         const QReadLocker lock(&_lock);
 
         emit changed(handle.area());
-        if (_renderStep)
+        if (_renderable)
         {
-            emit _renderStep->changed(handle.area());
+            emit _renderable->changed(handle.area());
         }
     }
 }
@@ -191,14 +191,14 @@ void RasterSurface::onBitWriterDestroyed(const RasterBitWriter& writer)
         const QReadLocker lock(&_lock);
 
         emit changed(writer.area());
-        if (_renderStep)
+        if (_renderable)
         {
-            emit _renderStep->changed(writer.area());
+            emit _renderable->changed(writer.area());
         }
     }
 }
 
-// void RasterSurfaceRenderStep::onPush(RenderHandle& data)
+// void RasterSurfaceRenderable::onPush(RenderHandle& data)
 // {
 //     if _owner's composition mode is CompositionMode_Source, then add a mask
 //     to RenderHandle covering _owner._area
@@ -217,7 +217,7 @@ void RasterSurface::onBitWriterDestroyed(const RasterBitWriter& writer)
 //     }
 // }
 
-void RasterSurfaceRenderStep::render(RenderHandle& data) const
+void RasterSurfaceRenderable::render(RenderHandle& data) const
 {
     const QReadLocker lock(&_owner._lock);
 

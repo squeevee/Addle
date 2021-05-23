@@ -1,7 +1,8 @@
 #include "documentlayersitemmodel.hpp"
 
 #include "interfaces/presenters/ilayerpresenter.hpp"
-#include "utilities/model/layergroupinfo.hpp"
+#include "interfaces/presenters/ilayergrouppresenter.hpp"
+#include "interfaces/presenters/ilayernodepresenter.hpp"
 
 #include <QtDebug>
 
@@ -14,117 +15,71 @@ DocumentLayersItemModel::DocumentLayersItemModel(QObject* parent)
 
 void DocumentLayersItemModel::setPresenter(PresenterAssignment<IDocumentPresenter> presenter)
 {
-//     beginResetModel();
-// 
-//     _nodeHelper.clear();
-// 
-//     _presenter = presenter;
-//     if (_presenter)
-//     {
-//         _presenter.connect( 
-//                 SIGNAL(layersAdded(QList<IDocumentPresenter::LayerNode*>)),
-//             this, SLOT(onPresenterLayersAdded(QList<IDocumentPresenter::LayerNode*>))
-//         );
-//         _presenter.connect( 
-//                 SIGNAL(layersRemoved(QList<IDocumentPresenter::LayerNodeRemoved>)),
-//             this, SLOT(onPresenterLayersRemoved(QList<IDocumentPresenter::LayerNodeRemoved>))
-//         );
-//     }
-//     
-//     endResetModel();
+    _presenter = presenter;
+    if (_presenter)
+    {
+        NostalgicHelperBase::setTree(_presenter->layers());
+        
+        _presenter.connect( 
+                SIGNAL(layerNodesAdded(IDocumentPresenter::LayerNodesAddedEvent)),
+            this, SLOT(onPresenterLayerNodesAdded(IDocumentPresenter::LayerNodesAddedEvent))
+        );
+        _presenter.connect( 
+                SIGNAL(layerNodesRemoved(IDocumentPresenter::LayerNodesRemovedEvent)),
+            this, SLOT(onPresenterLayerNodesRemoved(IDocumentPresenter::LayerNodesRemovedEvent))
+        );
+    }
+    else
+    {
+        NostalgicHelperBase::unsetTree();
+    }
 }
 
 QModelIndex DocumentLayersItemModel::index(int row, int column, const QModelIndex& parent) const
 {
-//     if (!_presenter)
-//         return QModelIndex();
-// 
-//     const LayerNode* parentNode;
-//     if (parent.isValid())
-//         parentNode = nodeAt(parent);
-//     else
-//         parentNode = &_presenter->layers().const_root();
-// 
-//     if (_nodeHelper.isNostalgic())    
-//     {
-//         return createIndex(_nodeHelper.nodeAt(parentNode, row), row);
-//     }
-//     else
-//     {
-//         const LayerNode* node = &parentNode->at(row);
-//         return createIndex(node, node->index());
-//     }
+    Q_UNUSED(column);
+    return NostalgicHelperBase::index_impl(row, parent);
 }
 
 QModelIndex DocumentLayersItemModel::parent(const QModelIndex& index) const
 {
-//     if (!_presenter)
-//         return QModelIndex();
-// 
-//     if (_nodeHelper.isNostalgic())
-//     {
-//         const LayerNode* parent = nodeAt(index)->parent();
-//         return createIndex(parent, _nodeHelper.indexOf(parent));
-//     }
-//     else 
-//     {
-//         return indexOf(nodeAt(index)->parent());
-//     }
+    return NostalgicHelperBase::parent_impl(index);
 }
 
 int DocumentLayersItemModel::rowCount(const QModelIndex& parent) const
 {
-//     if (!_presenter)
-//         return 0;
-// 
-//     const LayerNode* parentNode;
-//     if (parent.isValid())
-//         parentNode = nodeAt(parent);
-//     else
-//         parentNode = &_presenter->layers().const_root();
-// 
-//     if (_nodeHelper.isNostalgic())
-//     {
-//         return _nodeHelper.sizeOf(parentNode);
-//     }
-//     else 
-//     {
-//         return parentNode->size();
-//     }
+    return NostalgicHelperBase::rowCount_impl(parent);
 }
 
 int DocumentLayersItemModel::columnCount(const QModelIndex& parent) const
 {
-//     Q_UNUSED(parent);
-//     return 1;
+    Q_UNUSED(parent);
+    return 1;
 }
 
 QVariant DocumentLayersItemModel::data(const QModelIndex& index, int role) const
 {
-//     if (!_presenter)
-//         return QVariant();
-// 
-//     const LayerNode* node = nodeAt(index);
-// 
-//     switch(role)
-//     {
-//     case Qt::DisplayRole:
-//         {
-//             if (node->isGroup())
-//             {
-//                 assert can convert
-//                 LayerGroupInfo info = node->metaData().value<LayerGroupInfo>();
-// 
-//                 return info.name();
-//             }
-//             else
-//             {
-//                 return node->asValue()->name();
-//             }
-//         }
-//     default:
-//         return QVariant();
-//     }
+    const LayerNode* node = NostalgicHelperBase::getNode(index);
+    if (!node || !node->parent()) // no data on root node
+        return QVariant();
+    
+    QSharedPointer<ILayerNodePresenter> nodePresenter = node->value();
+    
+    switch(role)
+    {
+    case Qt::DisplayRole:
+        return nodePresenter->name();
+    default:
+        return QVariant();
+    }
+}
+
+void DocumentLayersItemModel::onPresenterLayerNodesAdded(IDocumentPresenter::LayerNodesAddedEvent added)
+{
+}
+
+void DocumentLayersItemModel::onPresenterLayerNodesRemoved(IDocumentPresenter::LayerNodesRemovedEvent removed)
+{
 }
 
 // void DocumentLayersItemModel::onPresenterLayersAdded(QList<IDocumentPresenter::LayerNode*> added)

@@ -24,7 +24,7 @@
 #include "brushtoolpresenter.hpp"
 #include "servicelocator.hpp"
 
-#include "interfaces/rendering/irenderstack.hpp"
+#include "interfaces/rendering/irenderer.hpp"
 #include "utilities/canvas/canvasmouseevent.hpp"
 
 #include "utilities/editing/brushstroke.hpp"
@@ -302,7 +302,7 @@ void BrushToolPresenter::onEngage()
             //brushSurface->setCompositionMode(QPainter::CompositionMode_Source);
         }
 
-        //layer->renderStack().push(brushSurface->renderStep());
+        //layer->renderer().push(brushSurface->renderable());
 
         _brushStroke->moveTo(_mouseHelper.firstPosition());
         _brushStroke->paint();
@@ -336,12 +336,12 @@ void BrushToolPresenter::onDisengage()
 
         {
             QSharedPointer<IRasterSurface> previewBuffer;
-            QSharedPointer<IRenderStep> previewRenderStep;
+            QSharedPointer<IRenderable> previewRenderable;
             if ((previewBuffer = _brushStroke->buffer())
-                && (previewRenderStep = previewBuffer->renderStep())
+                && (previewRenderable = previewBuffer->renderable())
             )
             {
-                //layer->renderStack().remove(previewRenderStep);
+                //layer->renderer().remove(previewRenderable);
             }
         }
         
@@ -400,7 +400,7 @@ void BrushToolPresenter::HoverPreview::update()
     {
         if (_layer && (!isVisible_cache.value() || _layer != _owner._document->topSelectedLayer()))
         {
-            //_layer->renderStack().remove(_surface->renderStep());
+            //_layer->renderer().remove(_surface->renderable());
             if (_owner.selectedBrushPresenter()->model().eraserMode())
             {
                 _surface->unlink();
@@ -415,7 +415,7 @@ void BrushToolPresenter::HoverPreview::update()
             {
                 _surface->link(_layer->model()->rasterSurface());
             }
-            //_layer->renderStack().push(_surface->renderStep());
+            //_layer->renderer().push(_surface->renderable());
         }   
     }
 

@@ -115,10 +115,10 @@ void LayersManager::setPresenter(PresenterAssignment<IDocumentPresenter> present
             _action_removeLayers, SIGNAL(triggered()),
                                     SLOT(removeSelectedLayers())
         );
-        _presenter.connect(
-                SIGNAL(layerSelectionChanged(QSet<IDocumentPresenter::LayerNode*>)),
-            this, SLOT(presenterSelectionChanged())
-        );
+//         _presenter.connect(
+//                 SIGNAL(layerSelectionChanged(QSet<IDocumentPresenter::LayerNode*>)),
+//             this, SLOT(presenterSelectionChanged())
+//         );
     }
 
     presenterSelectionChanged();
@@ -129,38 +129,38 @@ void LayersManager::setPresenter(PresenterAssignment<IDocumentPresenter> present
 
 void LayersManager::viewSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected)
 {
-    if(!_presenter) return;
-
-    QSet<IDocumentPresenter::LayerNode*> newSelection;
-
-    for (QModelIndex index : selected.indexes())
-    {
-        newSelection.insert(DocumentLayersItemModel::nodeAt(index));
-    }
-
-    _presenter->setLayerSelection(newSelection);
+//     if(!_presenter) return;
+// 
+//     QSet<IDocumentPresenter::LayerNode*> newSelection;
+// 
+//     for (QModelIndex index : selected.indexes())
+//     {
+//         newSelection.insert(DocumentLayersItemModel::nodeAt(index));
+//     }
+// 
+//     _presenter->setLayerSelection(newSelection);
 }
 
 void LayersManager::presenterSelectionChanged()
 {
-    QItemSelectionModel* selectionModel = _view->selectionModel();
-    if (!_presenter)
-    {
-        selectionModel->clear();
-        return;
-    }
-
-    QItemSelection selection;
-    
-    // inefficient
-    for (IDocumentPresenter::LayerNode* node : _presenter->layerSelection())
-    {
-        QModelIndex index = _itemModel->indexOf(node);
-        selection.select(index, index);
-    }
-
-    {
-        const QSignalBlocker block(selectionModel);
-        selectionModel->select(selection, QItemSelectionModel::ClearAndSelect);
-    }
+//     QItemSelectionModel* selectionModel = _view->selectionModel();
+//     if (!_presenter)
+//     {
+//         selectionModel->clear();
+//         return;
+//     }
+// 
+//     QItemSelection selection;
+//     
+//     // inefficient
+//     for (IDocumentPresenter::LayerNode* node : _presenter->layerSelection())
+//     {
+//         QModelIndex index = _itemModel->indexOf(node);
+//         selection.select(index, index);
+//     }
+// 
+//     {
+//         const QSignalBlocker block(selectionModel);
+//         selectionModel->select(selection, QItemSelectionModel::ClearAndSelect);
+//     }
 }

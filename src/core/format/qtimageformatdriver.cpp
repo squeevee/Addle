@@ -38,15 +38,15 @@ IDocument* QtImageFormatDriver::importModel(QIODevice& device, const ImportExpor
     // if (status)
     //     status->setProgress(1.00);
 
-    return ServiceLocator::make<IDocument>(
-        DocumentBuilder()
-            .setUrl(QUrl::fromLocalFile(info.filename()))
-            .addLayer(
-                LayerBuilder()
-                    .setImage(image)
-                    .setBoundary(image.rect())
-            )
-    );
+//     return ServiceLocator::make<IDocument>(
+//         DocumentBuilder()
+//             .setUrl(QUrl::fromLocalFile(info.filename()))
+//             .addLayer(
+//                 LayerNodeBuilder()
+//                     .setImage(image)
+//                     .setBoundary(image.rect())
+//             )
+//     );
 }
 
 

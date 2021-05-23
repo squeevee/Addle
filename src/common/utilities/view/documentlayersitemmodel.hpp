@@ -10,21 +10,26 @@
 #include "compat.hpp"
 
 #include "../presenter/presenterassignment.hpp"
-#include "nodemodelhelper.hpp"
 
 #include "interfaces/presenters/idocumentpresenter.hpp"
+
+#include "utilities/datatree/observers.hpp"
+
+#include "./nostalgicitemmodelhelperbase.hpp"
+
 namespace Addle {
 
 // template<typename NodeType>
 // class NodeModelHelper;
 
-class ADDLE_COMMON_EXPORT DocumentLayersItemModel : public QAbstractItemModel
+class ADDLE_COMMON_EXPORT DocumentLayersItemModel 
+    : public QAbstractItemModel,
+    private NostalgicItemModelHelperBase<DocumentLayersItemModel, IDocumentPresenter::LayersTree>
 {
     Q_OBJECT
-
-//     typedef IDocumentPresenter::LayerList LayerList;
-//     typedef IDocumentPresenter::LayerNode LayerNode;
-//     typedef IDocumentPresenter::LayerNodeRemoved LayerNodeRemoved;
+    
+    using NostalgicHelperBase = NostalgicItemModelHelperBase<DocumentLayersItemModel, IDocumentPresenter::LayersTree>; 
+    using LayerNode = IDocumentPresenter::LayersTree::Node;
 public:
     DocumentLayersItemModel(QObject* parent = nullptr);
     virtual ~DocumentLayersItemModel() = default;
@@ -43,16 +48,15 @@ public:
 //     static LayerNode* nodeAt(const QModelIndex& index);
 //     static const LayerNode* constNodeAt(const QModelIndex& index);
 
-public slots:
-//     void onPresenterLayersAdded(QList<IDocumentPresenter::LayerNode*> added);
-//     void onPresenterLayersRemoved(QList<IDocumentPresenter::LayerNodeRemoved> removed);
+private slots:
+    void onPresenterLayerNodesAdded(IDocumentPresenter::LayerNodesAddedEvent added);
+    void onPresenterLayerNodesRemoved(IDocumentPresenter::LayerNodesRemovedEvent removed);
 //     void onPresenterLayersMoved(QList<IDocumentPresenter::LayerNode*> added);
 
 private:
-//     QModelIndex createIndex(const LayerNode* node, int row) const;
-
-//     NodeModelHelper<LayerNode> _nodeHelper;
     PresenterAssignment<IDocumentPresenter> _presenter;
+    
+    friend class NostalgicItemModelHelperBase<DocumentLayersItemModel, IDocumentPresenter::LayersTree>;
 };
 
 } // namespace Addle

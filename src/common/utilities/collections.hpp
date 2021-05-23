@@ -20,6 +20,7 @@
 
 #include <initializer_list>
 #include <type_traits>
+#include <tuple>
 
 #include <list>
 
@@ -446,97 +447,167 @@ inline QSet<T> qToSet(const QList<T>& list)
 
 namespace aux_range_utils
 {
-    template<typename T, std::size_t N>
-    class lvalue_refs_range
-    {
-        using arr_t = std::array<T*, N>;
-    public:
-        using iterator = boost::indirect_iterator<typename arr_t::iterator>;
-        using const_iterator = boost::indirect_iterator<typename arr_t::const_iterator>;
-        
-        inline lvalue_refs_range(std::initializer_list<T&> init)
-            : _arr(
-                  init 
-                | boost::adaptors::transformed( [](T& v) -> T* {
-                    return std::addressof(v);
-                }) 
-            )
-        {
-        }
-        
-        inline iterator begin() { return iterator(_arr.begin()); }
-        inline const_iterator begin() const { return iterator(_arr.begin()); }
-        
-        inline iterator end() { return iterator(_arr.end()); }
-        inline const_iterator end() const { return iterator(_arr.end()); }
-        
-    private:
-         arr_t _arr;
-    };
-    
-    template<class Base>
-    class indirect_and_move_iterator 
-        : boost::iterator_adaptor<
-                indirect_and_move_iterator<Base>,
-                Base
+//     template<typename T, std::size_t N>
+//     class lvalue_refs_range
+//     {
+//         using arr_t = std::array<T*, N>;
+//     public:
+//         using iterator = boost::indirect_iterator<typename arr_t::iterator>;
+//         using const_iterator = boost::indirect_iterator<typename arr_t::const_iterator>;
+//         
+//         inline lvalue_refs_range(std::initializer_list<T&> init)
+//             : _arr(
+//                   init 
+//                 | boost::adaptors::transformed( [](T& v) -> T* {
+//                     return std::addressof(v);
+//                 }) 
+//             )
+//         {
+//         }
+//         
+//         inline iterator begin() { return iterator(_arr.begin()); }
+//         inline const_iterator begin() const { return iterator(_arr.begin()); }
+//         
+//         inline iterator end() { return iterator(_arr.end()); }
+//         inline const_iterator end() const { return iterator(_arr.end()); }
+//         
+//     private:
+//          arr_t _arr;
+//     };
+
+    template<typename T, class BaseIterator>
+    class forwarding_indirect_iterator 
+        : public boost::iterator_adaptor<
+                forwarding_indirect_iterator<T, BaseIterator>,
+                BaseIterator,
+                std::remove_reference_t<T>,
+                boost::use_default,
+                T&&
             >
     {
         friend class boost::iterator_core_access;
+        using adaptor_t = boost::iterator_adaptor<
+                forwarding_indirect_iterator<T, BaseIterator>,
+                BaseIterator,
+                std::remove_reference_t<T>,
+                boost::use_default,
+                T&&
+            >;
     public:
-        indirect_and_move_iterator() = default;
-        indirect_and_move_iterator(const indirect_and_move_iterator&) = default;
-        indirect_and_move_iterator& operator=(const indirect_and_move_iterator&) = default;
+        forwarding_indirect_iterator() = default;
+        forwarding_indirect_iterator(const forwarding_indirect_iterator&) = default;
         
-        explicit indirect_and_move_iterator(Base& base)
-            : boost::iterator_adaptor<indirect_and_move_iterator<Base>, Base>(base)
+        forwarding_indirect_iterator& operator=(const forwarding_indirect_iterator&) = default;
+        
+        explicit inline forwarding_indirect_iterator(const BaseIterator& base)
+            : adaptor_t(base)
         {
         }
         
     protected:
-        auto&& dereference() const { return std::move(**this->base_reference()); }
+        inline T&& dereference() const { return static_cast<T&&>(**this->base()); }
     };
     
-    // TODO: make into a forwarding ref range?
     template<typename T, std::size_t N>
-    class rvalue_refs_range
+    class forwarding_ref_range
     {
-        using arr_t = std::array<T*, N>;
-    public:
-        using iterator = indirect_and_move_iterator<typename arr_t::iterator>;
-        using const_iterator = indirect_and_move_iterator<typename arr_t::const_iterator>;
+        using arr_t = std::array<std::decay_t<T>*, N>; 
         
-        inline rvalue_refs_range(std::initializer_list<T&&> init)
-            : _arr(
-                  init 
-                | boost::adaptors::transformed( [](T& v) -> T* {
-                    return std::addressof(v);
-                }) 
-            )
+    public:
+        using iterator = forwarding_indirect_iterator<T, typename arr_t::iterator>;
+        using const_iterator = forwarding_indirect_iterator<T, typename arr_t::const_iterator>;
+        
+        forwarding_ref_range(const forwarding_ref_range&) = default;
+        forwarding_ref_range(forwarding_ref_range&&) = default;
+        
+        template<typename... U>
+        inline forwarding_ref_range(U&&... v)
+            : _arr({ static_cast<std::decay_t<T>*>(std::addressof(v))... })
         {
         }
         
         inline iterator begin() { return iterator(_arr.begin()); }
-        inline const_iterator begin() const { return iterator(_arr.begin()); }
+        inline const_iterator begin() const { return const_iterator(_arr.begin()); }
         
         inline iterator end() { return iterator(_arr.end()); }
-        inline const_iterator end() const { return iterator(_arr.end()); }
+        inline const_iterator end() const { return const_iterator(_arr.end()); }
         
     private:
          arr_t _arr;
     };
+    
+    
+    class mixed_category_error_tag {};
+    
+    
+    template<typename T, typename... U>
+    using _copy_max_underlying_const = boost::mp11::mp_if<
+            boost::mp11::mp_any< std::is_const<std::remove_reference_t<U>>... >,
+            const std::remove_const_t<T>,
+            std::remove_const_t<T>
+        >;
+    
+    template<typename T, typename... U>
+    using _copy_max_underlying_volatile = boost::mp11::mp_if<
+            boost::mp11::mp_any< std::is_volatile<std::remove_reference_t<U>>... >,
+            volatile std::remove_volatile_t<T>,
+            std::remove_volatile_t<T>
+        >;
+    
+    template<typename T, typename... U>
+    using _copy_max_underlying_cv = _copy_max_underlying_const< 
+            _copy_max_underlying_volatile< T, U... >,
+            U...
+        >;
+    
+    template<typename... T>
+    using _gentler_common_t = boost::mp11::mp_if<
+            boost::mp11::mp_same<T...>,
+            boost::mp11::mp_first<boost::mp11::mp_list<T...>>,
+            std::common_type_t<T...>
+        >;
+    
+    template<typename... T>
+    using common_forward_t = boost::mp11::mp_cond<
+            boost::mp11::mp_all<std::is_lvalue_reference<T>...>,
+                _copy_max_underlying_cv<_gentler_common_t<T...>, T...>&,
+                
+            boost::mp11::mp_all<std::is_rvalue_reference<T>...>,
+                _copy_max_underlying_cv<_gentler_common_t<T...>, T...>&&,
+                
+            boost::mp11::mp_true,
+                mixed_category_error_tag
+        >;
 }
 
-template<typename... T>
-auto make_ref_range(T&... args)
-{
-    return aux_range_utils::lvalue_refs_range<std::common_type_t<T...>, sizeof...(args)>({ args... });
-}
+// An inline range is a construct meant to enable iteration and other range-
+// based tools on one or more existing values. An inline range can be
+// constructed and accessed with very little overhead (they are essentially
+// wrappers for fixed-size arrays allocated on the stack). 
 
+// Makes an inline range of values of the given arguments. Arguments passed as
+// l-value will be copied and arguments passed as r-value will be moved.
 template<typename... T>
-auto make_range(T&&... args)
+auto make_inline_range(T&&... args)
 {
-    // reference wrappers?
+    // how to handle reference wrappers?
     return std::array<std::common_type_t<T...>, sizeof...(args)>({ std::forward<T>(args)... });
+}
+
+// Makes an inline range of forwarding references to the given arguments.
+// CAUTION as with many situations involving references, be mindful not to
+// access the range after the referent objects have been destroyed.
+template<typename... T>
+auto make_inline_ref_range(T&&... args)
+{
+    using common_forward_t = aux_range_utils::common_forward_t<T&&...>;
+    static_assert(
+        !std::is_same<common_forward_t, aux_range_utils::mixed_category_error_tag>::value,
+        "An inline reference range cannot be made from a mix of l-value and "
+        "r-value references."
+    );
+    
+    return aux_range_utils::forwarding_ref_range<common_forward_t, sizeof...(T)>( std::forward<T>(args)... );
 }
 
 template<typename Range>

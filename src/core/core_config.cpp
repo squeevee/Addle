@@ -10,6 +10,7 @@
 #include "editing/rastersurface.hpp"
 
 #include "models/layer.hpp"
+#include "models/layergroup.hpp"
 #include "models/document.hpp"
 #include "models/brush.hpp"
 #include "models/palette.hpp"
@@ -19,6 +20,7 @@
 #include "presenters/canvaspresenter.hpp"
 #include "presenters/viewportpresenter.hpp"
 #include "presenters/layerpresenter.hpp"
+#include "presenters/layergrouppresenter.hpp"
 #include "presenters/colorselectionpresenter.hpp"
 #include "presenters/palettepresenter.hpp"
 #include "presenters/messagecontext.hpp"
@@ -32,7 +34,7 @@
 #include "presenters/messages/notificationpresenter.hpp"
 #include "presenters/messages/fileissuepresenter.hpp"
 
-#include "rendering/renderstack.hpp"
+#include "rendering/renderer.hpp"
 
 #include "services/applicationservice.hpp"
 #include "services/errorservice.hpp"
@@ -61,7 +63,14 @@ std::unique_ptr<InjectorConfig> Addle::core_config()
         bind<IMessageContext, MessageContext>(),
         bind<IPalettePresenter, PalettePresenter>(),
                                                    
+        bind<IDocumentPresenter, DocumentPresenter>(),
+        bind<ILayerPresenter, LayerPresenter>(),
+        bind<ILayerGroupPresenter, LayerGroupPresenter>(),
+                                                   
         bind<IPalette, Palette>(),
+        bind<IDocument, Document>(),
+        bind<ILayer, Layer>(),
+        bind<ILayerGroup, LayerGroup>(),
                                                    
         defer_conditional_bind<IToolPresenter>(),
         fill_conditional_bind<IToolPresenter, BrushToolPresenter>(
@@ -74,7 +83,7 @@ std::unique_ptr<InjectorConfig> Addle::core_config()
             filter_by_id(CoreTools::Navigate)
         ),
         
-        bind<IRenderStack, RenderStack>(),
+        bind<IRenderer, Renderer>(),
         
         defer_binding<IMainEditorView>()
     );
@@ -313,7 +322,7 @@ std::unique_ptr<InjectorConfig> Addle::core_config()
 //     config->addAutoFactory<ISizeSelectionPresenter, SizeSelectionPresenter>();
 // 
 //     # Rendering
-//     config->addAutoFactory<IRenderStack, RenderStack>();
+//     config->addAutoFactory<IRenderer, Renderer>();
 // 
 //     # Services
 //     config->addAutoFactory<IAppearanceService, AppearanceService>();

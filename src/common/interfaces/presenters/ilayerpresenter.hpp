@@ -12,7 +12,9 @@
 #include "interfaces/traits.hpp"
 #include "interfaces/iamqobject.hpp"
 
-#include "idocumentpresenter.hpp"
+#include "./ilayernodepresenter.hpp"
+
+#include "utilities/model/layernodebuilder.hpp"
 
 #include "interfaces/models/ilayer.hpp"
 
@@ -22,30 +24,38 @@
 
 namespace Addle {
 
-class IRenderStack;
-class ILayerPresenter: public virtual IAmQObject
+class IRenderable;
+class IDocumentPresenter;
+class ILayerPresenter : public ILayerNodePresenter, public virtual IAmQObject
 {
-public:
+public:    
     virtual ~ILayerPresenter() = default;
     
-    virtual void initialize(IDocumentPresenter* documentPresenter, QSharedPointer<ILayer> layer = nullptr) = 0;
-    virtual IDocumentPresenter* documentPresenter() = 0;
-
     virtual QSharedPointer<ILayer> model() = 0;
+    virtual QSharedPointer<const ILayer> model() const = 0;
 
-    virtual QString name() const = 0;
-    virtual void setName(QString name) = 0;
-
-    virtual IRenderStack& renderStack() = 0;
-
-signals: 
-    virtual void nameChanged(QString name) = 0;
-
-    virtual void updated(QRect area) = 0;
+    virtual QSharedPointer<IRenderable> renderable() const = 0;
 };
 
-ADDLE_DECL_MAKEABLE(ILayerPresenter)
+namespace aux_ILayerPresenter {
+    ADDLE_FACTORY_PARAMETER_NAME( document )
+    ADDLE_FACTORY_PARAMETER_NAME( layerNode )
+    ADDLE_FACTORY_PARAMETER_NAME( model )
+    ADDLE_FACTORY_PARAMETER_NAME( modelBuilder )
+}
 
+ADDLE_DECL_MAKEABLE(ILayerPresenter)
+ADDLE_DECL_FACTORY_PARAMETERS(
+    ILayerPresenter,
+    (required
+        (document,  (IDocumentPresenter&))
+        (layerNode, (ILayerNodePresenter::LayerNode&))
+    )
+    (optional
+        (model,     (QSharedPointer<ILayer>),   nullptr)
+        (modelBuilder,  (const LayerNodeBuilder&),  LayerNodeBuilder())
+    )
+)
 
 } // namespace Addle
 

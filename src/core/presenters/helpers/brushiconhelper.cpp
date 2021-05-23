@@ -32,10 +32,10 @@ BrushIconHelper::BrushIconHelper(QObject* parent)
 {
     _underSurface = ServiceLocator::makeShared<IRasterSurface>();
     _brushSurface = ServiceLocator::makeShared<IRasterSurface>();
-    _renderStack = ServiceLocator::makeShared<IRenderStack>(
-        QList<QWeakPointer<IRenderStep>>({ 
-            _underSurface->renderStep().toWeakRef(),
-            _brushSurface->renderStep().toWeakRef()
+    _renderer = ServiceLocator::makeShared<IRenderer>(
+        QList<QWeakPointer<IRenderable>>({ 
+            _underSurface->renderable().toWeakRef(),
+            _brushSurface->renderable().toWeakRef()
         })
     );
 
@@ -271,8 +271,8 @@ void BrushIconHelper::BrushIconEngine::paint_p(QSize iconSize)
         painter.scale(scale, scale);
     }
 
-    _helper->_renderStack->render(RenderHandle(iconRect, &painter));
-    //render(_helper->_brushSurface->renderStep(), coarseBoundRect(canonicalRect), &painter);
+    _helper->_renderer->render(RenderHandle(iconRect, &painter));
+    //render(_helper->_brushSurface->renderable(), coarseBoundRect(canonicalRect), &painter);
 }
 
 QIcon BrushIconHelper::SizeIconProvider::icon(double size) const

@@ -13,6 +13,8 @@
 #include <type_traits>
 #include <QVector>
 
+#include <optional>
+
 #include "helpercallback.hpp"
 namespace Addle {
 

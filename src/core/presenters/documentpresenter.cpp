@@ -12,54 +12,89 @@
 #include "utilities/model/documentbuilder.hpp"
 
 #include "utils.hpp"
+
 #include "interfaces/presenters/ilayerpresenter.hpp"
+#include "interfaces/presenters/ilayergrouppresenter.hpp"
+
 using namespace Addle;
 
-void DocumentPresenter::initialize(EmptyInitOptions option)
-{
-    const Initializer init(_initHelper);
 
-    switch(option)
+DocumentPresenter::DocumentPresenter(
+        QSharedPointer<IDocument> model,
+        LazyInjection<IDocument> defaultModel,
+        const DocumentBuilder& modelBuilder,
+        const IFactory<ILayerPresenter>& layerFactory,
+        const IFactory<ILayerGroupPresenter>& layerGroupFactory
+    )
+    : _model(model),
+    _layerFactory(layerFactory),
+    _layerGroupFactory(layerGroupFactory)
+{
+    _topSelectedLayer.calculateBy(&DocumentPresenter::topSelectedLayer_p, this);
+    _topSelectedLayer.onChange.bind(&DocumentPresenter::topSelectedLayerChanged, this);
+    
+    if (_model)
     {
-    case initNoModel:
-        break;
-
-    case initEmptyModel:
-        initialize(ServiceLocator::makeShared<IDocument>());
-        break;
-
-    case initBlankDefaults:
-        initialize(QSize(800, 600), Qt::white); // TODO: not this
-        break;
+        defaultModel.clear();
     }
+    else
+    {
+        _model = std::move(defaultModel.bind(modelBuilder)).asShared();
+    }
+    
+//     datatree_echo(
+//             _model->layers(),
+//             _layers,
+//             aux_datatree::echo_default_make_leaf_tag {},
+//             aux_datatree::echo_default_make_branch_tag {},
+//             [&] (LayersTree::Node* layerNode, const IDocument::LayersTree::Node* layerModelNode) {
+//                 layerNode->setLeafValue(
+//                         _layerFactory.makeShared(
+//                             *this,
+//                             *layerNode,
+//                             layerModelNode->leafValue()
+//                         )
+//                     );
+//             },
+//             [&] (LayersTree::Node* layerNode, const IDocument::LayersTree::Node* layerModelNode) {
+//                 layerNode->setBranchValue(
+//                         _layerGroupFactory.makeShared(
+//                             *this,
+//                             *layerNode,
+//                             layerModelNode->branchValue()
+//                         )
+//                     );
+//             }
+//         );
 }
-
-void DocumentPresenter::initialize(QSize size, QColor backgroundColor)
-{
-    const Initializer init(_initHelper);
-
-    initialize(ServiceLocator::makeShared<IDocument>(
-        DocumentBuilder()
-            .setBackgroundColor(backgroundColor)
-            .addLayer(
-                LayerBuilder()
-                    .setBoundary(QRect(QPoint(), size))
-            )
-    ));
-}
-
-void DocumentPresenter::initialize(QSharedPointer<IDocument> model)
-{
-    const Initializer init(_initHelper);
-
-    //assert model
-    _model = model;
-
-    _layersHelper.initialize(_model->layers());
-    _initHelper.setCheckpoint(InitCheckpoints::Layers);
-}
-
-
+    
 void DocumentPresenter::save(QSharedPointer<FileRequest> request)
 {
+}
+
+void DocumentPresenter::addLayer()
+{
+}
+
+void DocumentPresenter::addLayerGroup()
+{
+}
+
+void DocumentPresenter::removeSelectedLayers()
+{
+}
+
+QSharedPointer<ILayerPresenter> DocumentPresenter::topSelectedLayer_p() const
+{
+    auto i = _layerSelection.begin();
+//     for (const auto& layer : _layers.leaves())
+//     {
+//         while (i != _layerSelection.end() && *i < layer.address())
+//         {
+//             if (*i == layer.address() || (*i).isAncestorOf(layer.address()))
+//                 return layer.leafValue();
+//             ++i;
+//         }
+//     }
+    return nullptr;
 }

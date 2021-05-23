@@ -15,37 +15,45 @@
 #include <QPoint>
 #include <QImage>
 
-#include "utilities/model/layerbuilder.hpp"
+#include "utilities/model/layernodebuilder.hpp"
 
 #include "interfaces/traits.hpp"
 #include "interfaces/iamqobject.hpp"
 
+#include "./ilayernodemodel.hpp"
+
 namespace Addle {
 
 class IRasterSurface;
-class IDocument;
-class ILayer : public virtual IAmQObject
+class IRenderable;
+
+class ILayer : public ILayerNodeModel, public virtual IAmQObject
 {
 public:
-    virtual ~ILayer() {}
-
-    virtual void initialize() = 0;
-    virtual void initialize(const LayerBuilder& builder) = 0;
-
-    virtual bool isEmpty() const = 0;
-    
-    virtual QRect boundary() const = 0;
-    virtual QPoint topLeft() const = 0;
+    virtual ~ILayer() = default;
 
     virtual QSharedPointer<IRasterSurface> rasterSurface() = 0;
-
-public slots:
-    virtual void setTopLeft(QPoint) = 0;
-
+    virtual QSharedPointer<const IRasterSurface> rasterSurface() const = 0;
+    
+    virtual QSharedPointer<IRenderable> renderable() = 0;
+    virtual QSharedPointer<const IRenderable> renderable() const = 0;
 };
 
-ADDLE_DECL_MAKEABLE(ILayer)
+namespace aux_ILayer {
+    ADDLE_FACTORY_PARAMETER_NAME( document )
+    ADDLE_FACTORY_PARAMETER_NAME( layerNode )
+    ADDLE_FACTORY_PARAMETER_NAME( builder )
+}
 
+ADDLE_DECL_MAKEABLE(ILayer)
+ADDLE_DECL_FACTORY_PARAMETERS(
+    ILayer,
+    (required 
+        (document,  (IDocument&))
+        (layerNode, (ILayer::LayerNode&))
+    )
+    (optional (builder, (const LayerNodeBuilder&), LayerNodeBuilder {}))
+)
 
 } // namespace Addle
 

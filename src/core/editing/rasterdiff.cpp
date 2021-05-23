@@ -10,7 +10,7 @@
 #include <cstring>
 
 #include "interfaces/editing/irastersurface.hpp"
-#include "interfaces/rendering/irenderstack.hpp"
+#include "interfaces/rendering/irenderer.hpp"
 
 #include "utilities/render/renderutils.hpp"
 
@@ -39,7 +39,7 @@ void RasterDiff::initialize(
         );
         QPainter painter(&mergedBuffer);
         painter.translate(-_area.topLeft());
-        render({ s_destination->renderStep(), source.renderStep() }, _area, &painter);
+        render({ s_destination->renderable(), source.renderable() }, _area, &painter);
     }
 
     {

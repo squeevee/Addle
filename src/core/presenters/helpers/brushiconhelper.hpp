@@ -25,7 +25,7 @@
 #include "interfaces/presenters/assets/ibrushpresenter.hpp"
 #include "interfaces/presenters/tools/isizeselectionpresenter.hpp"
 #include "interfaces/editing/irastersurface.hpp"
-#include "interfaces/rendering/irenderstack.hpp"
+#include "interfaces/rendering/irenderer.hpp"
 
 #include "utilities/render/checkerboard.hpp"
 namespace Addle {
@@ -99,7 +99,7 @@ private:
 
     QSharedPointer<IRasterSurface> _underSurface;
     QSharedPointer<IRasterSurface> _brushSurface; // make static
-    QSharedPointer<IRenderStack> _renderStack;
+    QSharedPointer<IRenderer> _renderer;
     static CheckerBoard _checkerBoard;
 
     void paint(QPainter* painter, const QRect& rect, BrushId brush);

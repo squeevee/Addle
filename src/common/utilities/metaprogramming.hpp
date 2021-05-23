@@ -255,5 +255,9 @@ using mp_apply_undeferred = boost::mp11::mp_apply<
             L
         >
     >;
+    
+// Similar to mp_defer but takes a quoted metafunction
+template<class Q, typename... T>
+using mp_defer_q = boost::mp11::mp_defer<Q::template fn, T...>;
 
 } // namespace Addle

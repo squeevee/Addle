@@ -17,7 +17,7 @@
 #include "interfaces/presenters/operations/ibrushoperationpresenter.hpp"
 #include "interfaces/presenters/assets/ibrushpresenter.hpp"
 
-#include "interfaces/rendering/irenderstep.hpp"
+#include "interfaces/rendering/irenderable.hpp"
 #include "interfaces/editing/ibrushengine.hpp"
 #include "interfaces/presenters/tools/iassetselectionpresenter.hpp"
 

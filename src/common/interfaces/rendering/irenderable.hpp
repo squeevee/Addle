@@ -17,10 +17,10 @@
 
 namespace Addle {
 
-class IRenderStep : public virtual IAmQObject
+class IRenderable : public virtual IAmQObject
 {
 public:
-    virtual ~IRenderStep() = default;
+    virtual ~IRenderable() = default;
 
     virtual void render(RenderHandle& handle) const = 0;
 
@@ -32,6 +32,6 @@ signals:
 
 } // namespace Addle
 
-Q_DECLARE_INTERFACE(Addle::IRenderStep, "org.addle.IRenderStep")
+Q_DECLARE_INTERFACE(Addle::IRenderable, "org.addle.IRenderable")
 
 #endif // IRENDERSTEP_HPP

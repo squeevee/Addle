@@ -14,13 +14,13 @@
 
 namespace Addle {
 
-class IRenderStack;
+class IRenderer;
 class ICanvasPresenter : public virtual IAmQObject
 {
 public:
     virtual ~ICanvasPresenter() = default; 
 
-    virtual IRenderStack& renderStack() const = 0;
+    virtual IRenderer& renderer() const = 0;
 //     virtual void initialize(IMainEditorPresenter& mainEditorPresenter) = 0;
 // 
 //     virtual IMainEditorPresenter& mainEditorPresenter() = 0;

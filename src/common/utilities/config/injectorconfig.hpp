@@ -38,6 +38,15 @@
 
 #include "injectbundle.hpp"
 
+// TODO I am altogether not content with the way injector config fits together. 
+// It should conceivably be possible to define the essential functionality I 
+// want in terms of Boost-ext.DI extensions, rather than this system of wrappers 
+// and proxies. That could possibly allow us to make use of more of the low-
+// level DI features like custom scopes, eliminate the need for "interfaces.hpp"
+// (which is practically the poster child for redundant information), and --
+// even if the current setup is not subject to scaling problems -- will make me 
+// feel more comfortable about scaling.
+
 namespace boost::di {
 
 // hackish, but it works

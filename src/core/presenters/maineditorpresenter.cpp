@@ -65,14 +65,16 @@ MainEditorPresenter::MainEditorPresenter(
         std::unique_ptr<IViewPortPresenter> viewPortPresenter,
         std::unique_ptr<IMessageContext> messageContext,
         std::unique_ptr<IRepository<IPalettePresenter>> palettes,
-        std::unique_ptr<IRepository<IToolPresenter>> tools
+        std::unique_ptr<IRepository<IToolPresenter>> tools,
+        const IFactory<IDocumentPresenter>& documentFactory
     )
     : _mode(mode),
     _colorSelection(std::move(colorSelection)),
     _viewPortPresenter(std::move(viewPortPresenter)),
     _messageContext(std::move(messageContext)),
     _palettes(std::move(palettes)),
-    _tools(std::move(tools))
+    _tools(std::move(tools)),
+    _documentFactory(documentFactory)
 {
     _undoStackHelper.undoStateChanged.bind(&MainEditorPresenter::undoStateChanged, this);
 
@@ -139,18 +141,26 @@ void MainEditorPresenter::newDocument()
 {
     try
     {
-        if (_mode == Editor && !isEmpty())
+//         if (_mode == Editor && !isEmpty())
+//         {
+// //             IMainEditorPresenter* newPresenter = ServiceLocator::make<IMainEditorPresenter>(_mode);
+// //             newPresenter->newDocument();
+// //             newPresenter->view().open();
+//         }
+//         else
         {
-//             IMainEditorPresenter* newPresenter = ServiceLocator::make<IMainEditorPresenter>(_mode);
-//             newPresenter->newDocument();
-//             newPresenter->view().open();
-        }
-        else
-        {
-            //leak
-//             setDocument(
-//                 ServiceLocator::makeShared<IDocumentPresenter>(IDocumentPresenter::initBlankDefaults)
-//             );
+            setDocument(
+                    _documentFactory.makeShared(
+                        aux_IDocumentPresenter::modelBuilder_ 
+                            = DocumentBuilder()
+                                .setBackgroundColor(Qt::white)
+                                .setLayerNodes({
+                                    LayerNodeBuilder() 
+                                        .setName("Layer 1")
+                                            // TODO i18n
+                                })
+                    )
+                );
         }
     }
     ADDLE_SLOT_CATCH

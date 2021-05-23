@@ -79,21 +79,20 @@ class IFactory
 {
     static_assert(boost::is_complete<Interface>::value);
     static_assert(Traits::is_makeable<Interface>::value);
+public:
+    virtual ~IFactory() = default;
     
     template<typename... ArgTypes>
-    inline QSharedPointer<Interface> makeShared(ArgTypes... args) const
+    inline QSharedPointer<Interface> makeShared(ArgTypes&&... args) const
     {
         return QSharedPointer<Interface>(this->make(std::forward<ArgTypes>(args)...));
     }
     
     template<typename... ArgTypes>
-    inline std::unique_ptr<Interface> makeUnique(ArgTypes... args) const
+    inline std::unique_ptr<Interface> makeUnique(ArgTypes&&... args) const
     {
         return std::unique_ptr<Interface>(this->make(std::forward<ArgTypes>(args)...));
     }
-    
-public:
-    virtual ~IFactory() = default;
 };
 
 namespace Traits {

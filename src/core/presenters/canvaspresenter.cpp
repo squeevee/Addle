@@ -18,8 +18,8 @@
 
 using namespace Addle;
 
-CanvasPresenter::CanvasPresenter(std::unique_ptr<IRenderStack> renderStack)
-    : _renderStack(std::move(renderStack))
+CanvasPresenter::CanvasPresenter(std::unique_ptr<IRenderer> renderer)
+    : _renderer(std::move(renderer))
 {
 }
 

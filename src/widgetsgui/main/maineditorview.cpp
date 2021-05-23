@@ -60,8 +60,8 @@ MainEditorView::MainEditorView(IMainEditorPresenter& presenter)
 //     connect_interface(&_presenter, SIGNAL(undoStateChanged()),
 //                               this, SLOT(onUndoStateChanged()));
 // 
-//     connect_interface(&_presenter, SIGNAL(documentPresenterChanged(QSharedPointer<Addle::IDocumentPresenter>)),
-//                               this, SLOT(onDocumentChanged(QSharedPointer<Addle::IDocumentPresenter>)));   
+    connect_interface(&_presenter, SIGNAL(documentPresenterChanged(QSharedPointer<Addle::IDocumentPresenter>)),
+                              this, SLOT(onDocumentChanged(QSharedPointer<Addle::IDocumentPresenter>)));   
 }
 
 void MainEditorView::setupUi()

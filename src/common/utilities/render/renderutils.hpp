@@ -11,28 +11,28 @@
 
 #include <QList>
 #include <QWeakPointer>
-#include "interfaces/rendering/irenderstep.hpp"
-#include "interfaces/rendering/irenderstack.hpp"
+#include "interfaces/rendering/irenderable.hpp"
+#include "interfaces/rendering/irenderer.hpp"
 #include "servicelocator.hpp"
 namespace Addle {
 
-inline void render(QList<QWeakPointer<IRenderStep>> steps, RenderHandle data)
+inline void render(QList<QWeakPointer<IRenderable>> steps, RenderHandle data)
 {
-    auto stack = ServiceLocator::makeUnique<IRenderStack>(steps);
+    auto stack = ServiceLocator::makeUnique<IRenderer>(steps);
     stack->render(data);
 }
 
-inline void render(QList<QWeakPointer<IRenderStep>> steps, QRect area, QPainter* painter)
+inline void render(QList<QWeakPointer<IRenderable>> steps, QRect area, QPainter* painter)
 {
     RenderHandle data(area, painter);
     render(steps, data);
 }
 
-inline void render(QWeakPointer<IRenderStep> step, QRect area, QPainter* painter)
+inline void render(QWeakPointer<IRenderable> step, QRect area, QPainter* painter)
 {
-    render(QList<QWeakPointer<IRenderStep>> { step }, area, painter);
+    render(QList<QWeakPointer<IRenderable>> { step }, area, painter);
 }
-// void isolatedRender(IRenderStep& step, RenderHandle data)
+// void isolatedRender(IRenderable& step, RenderHandle data)
 // {
 //     data.painter()->save();
 
@@ -42,7 +42,7 @@ inline void render(QWeakPointer<IRenderStep> step, QRect area, QPainter* painter
 //     data.painter()->restore();
 // }
 
-// void isolatedRender(IRenderStep& step, QRect area, QPainter* painter)
+// void isolatedRender(IRenderable& step, QRect area, QPainter* painter)
 // {
 //     isolatedRender(step, RenderHandle(area, painter));
 // }

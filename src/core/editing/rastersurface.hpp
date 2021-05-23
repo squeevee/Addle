@@ -10,14 +10,14 @@
 #define RASTERSURFACE_HPP
 
 #include "compat.hpp"
-#include "interfaces/rendering/irenderstep.hpp"
+#include "interfaces/rendering/irenderable.hpp"
 #include "interfaces/editing/irastersurface.hpp"
 #include "utilities/initializehelper.hpp"
 #include <QObject>
 #include <QReadWriteLock>
 namespace Addle {
 
-class RasterSurfaceRenderStep;
+class RasterSurfaceRenderable;
 class ADDLE_CORE_EXPORT RasterSurface : public QObject, public IRasterSurface
 {
     Q_OBJECT
@@ -77,7 +77,7 @@ public:
     int alpha() const { ASSERT_INIT(); return _alpha; }
     void setAlpha(int alpha) { ASSERT_INIT(); _alpha = alpha; emit changed(_area); }
 
-    QSharedPointer<IRenderStep> renderStep() override;
+    QSharedPointer<IRenderable> renderable() override;
 
     RasterPaintHandle paintHandle(QRect handleArea) override
     {
@@ -120,7 +120,7 @@ private:
     mutable QReadWriteLock _lock;
     
     QSharedPointer<IRasterSurface> _linked;
-    QSharedPointer<IRenderStep> _renderStep;
+    QSharedPointer<IRenderable> _renderable;
 
     QPainter::CompositionMode _compositionMode = (QPainter::CompositionMode)NULL;
     int _alpha = 0xFF;
@@ -133,16 +133,16 @@ private:
 
     InitializeHelper _initHelper;
 
-    friend class RasterSurfaceRenderStep;
+    friend class RasterSurfaceRenderable;
 };
 
-class RasterSurfaceRenderStep : public QObject, public IRenderStep
+class RasterSurfaceRenderable : public QObject, public IRenderable
 {
     Q_OBJECT
     IAMQOBJECT_IMPL
 public: 
-    RasterSurfaceRenderStep(RasterSurface& owner) : _owner(owner) { }
-    virtual ~RasterSurfaceRenderStep() = default;
+    RasterSurfaceRenderable(RasterSurface& owner) : _owner(owner) { }
+    virtual ~RasterSurfaceRenderable() = default;
 
     virtual void render(RenderHandle& data) const override;
 

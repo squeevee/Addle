@@ -6,8 +6,7 @@
  * MIT License. See "LICENSE" for full details.
  */
 
-#ifndef IDOCUMENT_HPP
-#define IDOCUMENT_HPP
+#pragma once
 
 #include <QSize>
 #include <QColor>
@@ -18,42 +17,62 @@
 #include "interfaces/traits.hpp"
 #include "interfaces/iamqobject.hpp"
 
+#include "utilities/datatree/basicdatatree.hpp"
+#include "utilities/datatree/views.hpp"
+#include "utilities/datatree/observers.hpp"
+
 #include "utilities/model/documentbuilder.hpp"
+
+#include "./ilayernodemodel.hpp"
 
 namespace Addle {
 
 class ILayer;
+class ILayerGroup;
 class IDocument : public virtual IAmQObject
 {
 public:
-    static const QColor DEFAULT_BACKGROUND_COLOR; // ?
+    using LayersTree                = ILayerNodeModel::LayersTree;
+    using ConstLayersTree           = ILayerNodeModel::ConstLayersTree;
+    
+    using LayerNodesAddedEvent      = DataTreeNodesAddedEvent<LayersTree>;
+    using LayerNodesRemovedEvent    = DataTreeNodesRemovedEvent<LayersTree>;
+    
+    virtual ~IDocument() = default;
 
-    virtual ~IDocument() {}
-
-    virtual void initialize() = 0;
-    virtual void initialize(const DocumentBuilder& builder) = 0;
-
-    virtual void render(QRect area, QPaintDevice* device) const = 0;
-
-    virtual bool isEmpty() const = 0;
     virtual QSize size() const = 0;
+    
     virtual QColor backgroundColor() const = 0;
+    virtual void setBackgroundColor(QColor color) = 0;
 
     virtual QUrl url() const = 0;
     virtual void setUrl(QUrl url) = 0;
     
-    virtual QList<QSharedPointer<ILayer>> layers() const = 0;
+    virtual const LayersTree& layers() = 0;
+    virtual ConstLayersTree layers() const = 0;
 
 signals:
-    void boundaryChanged(QRect newBoundary);
-
+    virtual void backgroundColorChanged(QColor color) = 0;
+    virtual void urlChanged(QUrl url) = 0;
+    
+    virtual void layerNodesAdded(IDocument::LayerNodesAddedEvent added) = 0;
+    virtual void layerNodesRemoved(IDocument::LayerNodesRemovedEvent removed) = 0;
+    
+//     virtual void boundaryChanged(QRect newBoundary) = 0;
 };
 
-ADDLE_DECL_MAKEABLE(IDocument)
+namespace aux_IDocument {
+    ADDLE_FACTORY_PARAMETER_NAME( builder )
+}
 
+ADDLE_DECL_MAKEABLE(IDocument)
+ADDLE_DECL_FACTORY_PARAMETERS(
+    IDocument,
+    (optional (builder, (const DocumentBuilder&), DocumentBuilder {}))
+)
 
 } // namespace Addle
 
 Q_DECLARE_INTERFACE(Addle::IDocument, "org.addle.IDocument")
-
-#endif // IDOCUMENT_HPP
+Q_DECLARE_METATYPE(Addle::IDocument::LayerNodesAddedEvent)
+Q_DECLARE_METATYPE(Addle::IDocument::LayerNodesRemovedEvent)

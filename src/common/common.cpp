@@ -46,7 +46,7 @@
 #include "utilities/editing/rasterengineparams.hpp"
 #include "utilities/model/documentbuilder.hpp"
 #include "utilities/format/importexportinfo.hpp"
-#include "utilities/model/layerbuilder.hpp"
+#include "utilities/model/layernodebuilder.hpp"
 #include "utilities/genericeventfilter.hpp"
 
 #include "utilities/presenter/filerequest.hpp"

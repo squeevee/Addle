@@ -22,7 +22,7 @@
 namespace Addle {
 
 //class IRasterPreview;
-class IRenderStep;
+class IRenderable;
 
 class IRasterDiff;
 
@@ -78,7 +78,7 @@ public:
     virtual int alpha() const = 0;
     virtual void setAlpha(int alpha) = 0;
 
-    virtual QSharedPointer<IRenderStep> renderStep() = 0;
+    virtual QSharedPointer<IRenderable> renderable() = 0;
 
     virtual RasterPaintHandle paintHandle(QRect area) = 0;
 

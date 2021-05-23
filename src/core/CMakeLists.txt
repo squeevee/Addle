@@ -21,10 +21,12 @@ set (
     models/brush.cpp
     models/document.cpp
     models/layer.cpp
+    models/layergroup.cpp
     models/palette.cpp
     presenters/canvaspresenter.cpp
     presenters/documentpresenter.cpp
     presenters/layerpresenter.cpp
+    presenters/layergrouppresenter.cpp
     presenters/maineditorpresenter.cpp
     presenters/messagecontext.cpp
     presenters/viewportpresenter.cpp
@@ -41,7 +43,7 @@ set (
     presenters/tools/navigatetoolpresenter.cpp
     presenters/tools/sizeselectionpresenter.cpp
     presenters/tools/brushtoolpresenter.cpp
-    rendering/renderstack.cpp
+    rendering/renderer.cpp
     services/applicationservice.cpp
     services/errorservice.cpp
     services/formatservice.cpp

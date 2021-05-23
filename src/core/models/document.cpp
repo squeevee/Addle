@@ -11,74 +11,84 @@
 #include "document.hpp"
 #include <QImage>
 #include <QPainter>
+#include <QStack>
+
 using namespace Addle;
 
-void Document::initialize(const DocumentBuilder& builder)
+Document::Document(
+        const DocumentBuilder& builder, 
+        const IFactory<ILayer>& layerFactory,
+        const IFactory<ILayerGroup>& layerGroupFactory
+    )
+    : _backgroundColor(builder.backgroundColor()),
+    _url(builder.url()),
+    _layerFactory(layerFactory), 
+    _layerGroupFactory(layerGroupFactory)
 {
-    const Initializer init(_initHelper);
-
-    _url = builder.url();
-    _backgroundColor = builder.backgroundColor();
-
-    for (LayerBuilder& layerBuilder : builder.layers())
+    using LayerNode = LayersTree::Node;
+    
+    for (const LayerNodeBuilder& layerNodeBuilder : builder.layerNodes())
     {
-        ILayer* layer = ServiceLocator::make<ILayer>(layerBuilder);
-        _layers.append(QSharedPointer<ILayer>(layer));
-    }
-
-    _size = unitedBoundary().size();
-}
-
-void Document::initialize()
-{
-    _initHelper.initializeBegin(); //blank
-    _initHelper.initializeEnd();
-}
-
-void Document::render(QRect area, QPaintDevice* device) const
-{
-    ASSERT_INIT();
-
-}
-
-void Document::layersChanged(QList<ILayer*> layers)
-{
-    QRect changed = unitedBoundary();
-    if (!changed.isNull())
-    {
-        //emit renderChanged(changed);
-    }
-}
-
-QRect Document::unitedBoundary()
-{
-    QRect result;
-
-    for (QSharedPointer<ILayer> layer : _layers)
-    {
-        QRect bound = layer->boundary();
-        if (!bound.isNull())
+        if (layerNodeBuilder.isLayer())
         {
-            if (result.isNull())
-            {
-                result = bound;
-            }
-            else
-            {
-                result = result.united(bound);
-            }
+            LayerNode& node = _layers.root().addLeaf();
+            auto layer = _layerFactory.makeShared(*this, node, layerNodeBuilder);
+            node.setLeafValue(layer);
+        }
+        else
+        {
+            LayerNode& node = _layers.root().addBranch();
+            auto layerGroup = _layerGroupFactory.makeShared(*this, node, layerNodeBuilder);
+            node.setBranchValue(layerGroup);
         }
     }
-
-    return result;
-}
-
-QImage Document::exportImage()
-{
-    ASSERT_INIT();
-    QImage result(size(), QImage::Format::Format_ARGB32);
     
-    render(QRect(QPoint(), size()), &result);
-
-    return result;
+// 
+//     _size = unitedBoundary().size();
 }
+
+// void Document::render(QRect area, QPaintDevice* device) const
+// {
+// }
+
+// void Document::layersChanged(QList<ILayer*> layers)
+// {
+//     QRect changed = unitedBoundary();
+//     if (!changed.isNull())
+//     {
+//         //emit renderChanged(changed);
+//     }
+// }
+// 
+// QRect Document::unitedBoundary()
+// {
+//     QRect result;
+// 
+//     for (QSharedPointer<ILayer> layer : _layers)
+//     {
+//         QRect bound = layer->boundary();
+//         if (!bound.isNull())
+//         {
+//             if (result.isNull())
+//             {
+//                 result = bound;
+//             }
+//             else
+//             {
+//                 result = result.united(bound);
+//             }
+//         }
+//     }
+// 
+//     return result;
+// }
+
+// QImage Document::exportImage()
+// {
+//     ASSERT_INIT();
+//     QImage result(size(), QImage::Format::Format_ARGB32);
+//     
+//     render(QRect(QPoint(), size()), &result);
+// 
+//     return result;
+// }

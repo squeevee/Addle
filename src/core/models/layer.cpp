@@ -16,19 +16,18 @@
 #include <QPainter>
 using namespace Addle;
 
-void Layer::initialize()
-{
-    const Initializer init(_initHelper);
-    LayerBuilder builder;
-    initialize(builder);
-}
-
-void Layer::initialize(const LayerBuilder& builder)
-{
-    const Initializer init(_initHelper);
-
-    _boundary = builder.boundary();
-    _empty = true;
-    
-    _rasterSurface = ServiceLocator::makeShared<IRasterSurface>(builder.image());
+Layer::Layer(
+        IDocument& document,  
+        LayerNode& layerNode,
+        const LayerNodeBuilder& builder
+    )
+    : _document(document),
+    _layerNode(layerNode),
+    _boundary(builder.boundary()),
+    _name(builder.name()),
+    _skirtColor(builder.skirtColor()),
+    _compositionMode(builder.compositionMode()),
+    _opacity(builder.opacity())
+{   
+    // TODO: validate naive builder values
 }
