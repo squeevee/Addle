@@ -91,10 +91,11 @@ public:
         
         inline aux_datatree::NodeAddress address() const
         {
-            if (_treeData && _cacheVersion == _treeData->cacheVersion)
-                return _address;
-            else
-                return _address = ::Addle::aux_datatree::NodeAddress::calculate(this); 
+            // TODO: efficient address cache
+//             if (_treeData && _cacheVersion == _treeData->cacheVersion)
+//                 return _address;
+//             else
+            return _address = ::Addle::aux_datatree::calculate_node_address(this); 
         }
         
         inline Node& root() { return _treeData->root; }
@@ -137,11 +138,12 @@ public:
         { 
             return child_range(_children.begin(), _children.end());
         }
+        
         inline const_child_range children() const 
         { 
             return const_child_range(_children.begin(), _children.end());
         }
-        
+                
         inline Node& operator[](std::size_t index)
         {
             Node* child = _children[index];
@@ -299,7 +301,7 @@ public:
                 );
         }
 
-        child_iterator removeChildren(const_child_range children)
+        child_iterator removeChildren(child_range children)
         {
             return removeChildren_impl(children);
         }
@@ -319,13 +321,13 @@ public:
         }
     
     protected:
-        explicit inline Node(T&& value = {}, child_container_t&& children = {})
-            : _value(std::move(value)), _children(std::move(children))
+        explicit inline Node(T&& value = {})
+            : _value(std::move(value))
         {
         }
         
-        explicit inline Node(const T& value, const child_container_t& children)
-            : _value(value), _children(children)
+        explicit inline Node(const T& value)
+            : _value(value)
         {
         }
         
@@ -399,7 +401,7 @@ public:
                 Node** i = _children.data() + startIndex;
                 for (auto&& v : childValues)
                 {
-                    *i = new Node(std::move(v));
+                    *i = new Node(std::forward<decltype(v)>(v));
                     ++i;
                 }
                 
@@ -643,18 +645,19 @@ public:
             )
         {
             if (Q_LIKELY(parent))
-                return &parent->insertChildren(pos, std::forward<Range>(childValues));
+                return parent->insertChildren(pos, std::forward<Range>(childValues));
             else
                 return child_range {};
         }
         
         friend void datatree_node_remove_children(
                 Node* parent, 
-                child_range range
+                child_iterator begin,
+                child_iterator end 
             )
         {
             if (Q_LIKELY(parent))
-                parent->removeChildren(range);
+                parent->removeChildren(child_range(begin, end));
         }
     };
     
@@ -733,7 +736,7 @@ private:
         }
         
         inline Data(T&& v)
-            : root(std::move(v), typename Node::child_container_t {})
+            : root(std::move(v))
         {
             root._treeData = this;
         }

@@ -4,7 +4,7 @@
 #include <QPainter>
 
 #include "utilities/datatree/basicdatatree.hpp"
-#include "utilities/datatree/observers.hpp"
+// #include "utilities/datatree/observers.hpp"
 #include "utilities/datatree/views.hpp"
 
 #include "interfaces/iamqobject.hpp"

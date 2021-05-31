@@ -13,7 +13,7 @@
 
 #include "interfaces/presenters/idocumentpresenter.hpp"
 
-#include "utilities/datatree/observers.hpp"
+// #include "utilities/datatree/observers.hpp"
 
 #include "./nostalgicitemmodelhelperbase.hpp"
 
@@ -48,9 +48,9 @@ public:
 //     static LayerNode* nodeAt(const QModelIndex& index);
 //     static const LayerNode* constNodeAt(const QModelIndex& index);
 
-private slots:
-    void onPresenterLayerNodesAdded(IDocumentPresenter::LayerNodesAddedEvent added);
-    void onPresenterLayerNodesRemoved(IDocumentPresenter::LayerNodesRemovedEvent removed);
+// private slots:
+//     void onPresenterLayerNodesAdded(IDocumentPresenter::LayerNodesAddedEvent added);
+//     void onPresenterLayerNodesRemoved(IDocumentPresenter::LayerNodesRemovedEvent removed);
 //     void onPresenterLayersMoved(QList<IDocumentPresenter::LayerNode*> added);
 
 private:

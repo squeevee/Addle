@@ -511,7 +511,8 @@ namespace aux_range_utils
     template<typename T, std::size_t N>
     class forwarding_ref_range
     {
-        using arr_t = std::array<std::decay_t<T>*, N>; 
+        using ptr_t = boost::copy_cv_t<std::decay_t<T>, std::remove_reference_t<T>>*;
+        using arr_t = std::array<ptr_t, N>; 
         
     public:
         using iterator = forwarding_indirect_iterator<T, typename arr_t::iterator>;
@@ -522,7 +523,7 @@ namespace aux_range_utils
         
         template<typename... U>
         inline forwarding_ref_range(U&&... v)
-            : _arr({ static_cast<std::decay_t<T>*>(std::addressof(v))... })
+            : _arr({ static_cast<ptr_t>(std::addressof(v))... })
         {
         }
         
@@ -698,6 +699,26 @@ inline void reserve_for_size_if_cheap(TargetContainer& t, const SourceRange& s)
         t.reserve(
                 boost::size(s) + t.size()
             );
+    }
+}
+
+// TODO: it's come to my attention that for basically all applications where 
+// `reserve()` is being called, we can assume that we will iterate over every
+// element of SourceRange. So "cheap" actually includes all forward ranges and
+// only really excludes single-pass ranges. This *radically* simplifies the
+// requirements for this whole chunk of code.
+
+template<class TargetContainer, typename SourceRange>
+inline void reserve_for_size_if_forward_range(TargetContainer& t, const SourceRange& s)
+{
+    if constexpr (
+            std::is_convertible_v<
+                typename boost::range_category<SourceRange>::type, 
+                std::forward_iterator_tag
+            >
+        )
+    {
+        t.reserve(boost::size(s) + t.size());
     }
 }
 

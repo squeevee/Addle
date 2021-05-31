@@ -12,7 +12,8 @@
 #include <QSharedPointer>
 
 #include "interfaces/rendering/irenderable.hpp"
-#include "utilities/datatree/observers.hpp"
+#include "utilities/datatree/aux.hpp"
+// #include "utilities/datatree/observers.hpp"
 #include "utilities/qobject.hpp"
 
 namespace Addle {
@@ -631,20 +632,22 @@ private:
     
     friend DataTreeNodeAddress datatree_node_address(const RenderRoutineNodeHandle& node)
     {
-        if (!node._address)
-        {
-            node.lazyInit();
-            if (!node._routine || node._ancestors.isEmpty())
-            {
-                node._address = DataTreeNodeAddress();
-            }
-            else
-            {
-                node._address = datatree_node_address(node._ancestors.last()) << node._index;
-            }
-        }
+        Q_UNUSED(node);
+        Q_UNREACHABLE();
+//         if (!node._address)
+//         {
+//             node.lazyInit();
+//             if (!node._routine || node._ancestors.isEmpty())
+//             {
+//                 node._address = DataTreeNodeAddress();
+//             }
+//             else
+//             {
+//                 node._address = datatree_node_address(node._ancestors.last()) << node._index;
+//             }
+//         }
         
-        return *node._address;
+//         return *node._address;
     }
     
     friend RenderRoutineNodeHandle datatree_node_root(const RenderRoutineNodeHandle& node)

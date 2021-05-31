@@ -19,7 +19,7 @@
 #include "utilities/collections.hpp"
 #include "utilities/metaprogramming.hpp"
 
-#include <QtDebug>
+#include "./nodeaddress.hpp"
 
 namespace Addle {
 namespace aux_datatree {
@@ -68,6 +68,18 @@ using child_node_handle_t = std::decay_t<decltype( ::Addle::aux_datatree::node_c
 
 template<typename NodeHandle>
 inline auto node_children_end( NodeHandle&& node ) { return datatree_node_children_end( std::forward<NodeHandle>(node) ); }
+
+template<typename NodeHandle>
+using _node_children_begin_t = decltype( datatree_node_children_begin( std::declval<NodeHandle>()) );
+
+template<typename NodeHandle>
+using _node_children_end_t = decltype( datatree_node_children_end( std::declval<NodeHandle>()) );
+
+template<typename NodeHandle>
+using is_node_handle = boost::mp11::mp_and<
+        boost::mp11::mp_valid<_node_children_begin_t, NodeHandle>,
+        boost::mp11::mp_valid<_node_children_end_t, NodeHandle>
+    >;
 
 template<typename NodeHandle>
 using _node_sibling_next_t = decltype( datatree_node_sibling_next(std::declval<NodeHandle>()) );
@@ -563,522 +575,26 @@ inline std::pair<ChildHandle, ChildHandle> node_insert_children( NodeHandle&& pa
     return std::make_pair(begin, end);
 }
 
-
-// Generically represents the location of a node in a tree as a sequence of
-// 0-based integer indices.
-//
-// TODO: potential additional optimization would be to have the fast address not 
-// only serve as a comparator proxy, but also *encode* the address instead of
-// the QList where applicable. This could be a bit tricky to implement, but
-// would mean the vast majority of practical NodeAddress instances would never
-// need to allocate dynamic memory, which could make a lot of operations faster 
-// and cheaper.
-//
-// A fairly simple approach would use a `std::variant` holding either a QList or
-// a 7x8-bit array + 8-bit size hint. The total size would be ~9 bytes and there
-// would be fairly tidy semantics for the various array vs. list case juggling.
-// This would not have the guaranteed near-instant comparison speeds enjoyed by
-// the uint64 fastaddress, but trusting modern compilers/processors to support
-// vectorizing small integer operations, it will surely be good enough for us.
-// 
-// But the *real* white whale is getting the whole thing down to 8 bytes. While
-// it's fun to imagine some kind of steganography reversibly hiding an extra bit
-// of information on top of QList, an 8-byte NodeAddress is probably not
-// possible without either meddling with Qt's private API or fully
-// reimplementing an implicitly shared list container ourselves.
-// 
-// Ultimately an 8-byte NodeAddress is not terribly important, especially in
-// Qt 6
-
-class NodeAddress
+template<typename NodeHandle>
+inline NodeAddress calculate_node_address(const NodeHandle& node)
 {
-    static constexpr std::uint64_t INVALID_FASTADDRESS = UINT64_MAX;
+    if (!node) return NodeAddress();
     
-    using list_t = QList<std::size_t>;
-public:        
-    using value_type        = std::size_t;
-    using const_reference   = const std::size_t&;
-    using reference         = const_reference;
-    using const_iterator    = typename list_t::const_iterator;
-    using iterator          = const_iterator;
-    using difference_type   = std::ptrdiff_t;
-    using size_type         = std::size_t;
+    QVarLengthArray<std::size_t, 16> indices;
+    indices.reserve(::Addle::aux_datatree::node_depth(node));
     
+    NodeHandle cursor(node);
     
-    NodeAddress() = default;
-    NodeAddress(const NodeAddress&) = default;
-    NodeAddress(NodeAddress&&) = default;
-    
-    inline NodeAddress(const list_t& address)
-        : _address(address)
+    do
     {
-        updateFastAddress();
-    }
+        indices.append(::Addle::aux_datatree::node_index(cursor));
+        cursor = ::Addle::aux_datatree::node_parent(cursor);
+    } while (cursor);
     
-    inline NodeAddress(list_t&& address)
-        : _address(std::move(address))
-    {
-        updateFastAddress();
-    }
+    std::reverse(indices.begin(), indices.end());
     
-    inline NodeAddress(const std::initializer_list<std::size_t>& init)
-        : _address(init)
-    {
-        updateFastAddress();
-    }
-    
-    NodeAddress& operator=(const NodeAddress&) = default;
-    NodeAddress& operator=(NodeAddress&&) = default;
-    
-    NodeAddress& operator=(const list_t& address)
-    {
-        _address = address;
-        updateFastAddress();
-        return *this;
-    }
-    
-    NodeAddress& operator=(list_t&& address)
-    {
-        _address = std::move(address);
-        updateFastAddress();
-        return *this;
-    }
-    
-    inline bool operator==(const NodeAddress& other) const
-    {
-        if (Q_LIKELY(
-            _fastAddress != INVALID_FASTADDRESS 
-            && other._fastAddress != INVALID_FASTADDRESS
-        ))
-            return _fastAddress == other._fastAddress;
-        else
-            return _address == other._address;
-    }
-    
-    inline bool operator!=(const NodeAddress& other) const
-    {
-        return !(*this == other);
-    }
-    
-    inline bool operator<(const NodeAddress& other) const
-    {
-        if (Q_LIKELY(
-            _fastAddress != INVALID_FASTADDRESS 
-            && other._fastAddress != INVALID_FASTADDRESS
-        ))
-            return _fastAddress < other._fastAddress;
-        else
-            return std::lexicographical_compare(
-                    _address.begin(),           _address.end(),
-                    other._address.begin(),     other._address.end()
-                );
-    }
-    
-    inline bool operator<=(const NodeAddress& other) const
-    {
-        return !(*this > other);
-    }
-    
-    inline bool operator>(const NodeAddress& other) const
-    {
-        if (Q_LIKELY(
-            _fastAddress != INVALID_FASTADDRESS 
-            && other._fastAddress != INVALID_FASTADDRESS
-        ))
-            return _fastAddress > other._fastAddress;
-        else
-            return std::lexicographical_compare(
-                    other._address.begin(),     other._address.end(),
-                    _address.begin(),           _address.end()
-                );
-    }
-    
-    inline bool operator>=(const NodeAddress& other) const
-    {
-        return !(*this < other);
-    }
-    
-    inline list_t values() const    { return _address; }
-    inline operator list_t() const  { return _address; }
-    inline std::size_t operator[](std::size_t depth) const { return _address[depth]; }
-    
-    inline std::size_t firstIndex() const { assert(!_address.isEmpty()); return _address.first(); }
-    inline std::size_t lastIndex() const { assert(!_address.isEmpty()); return _address.last(); }
-    
-    inline std::size_t size() const     { return _address.size(); }
-    inline const_iterator begin() const { return _address.begin(); }
-    inline const_iterator end() const   { return _address.end(); }
-    
-    inline bool isRoot() const { return _address.isEmpty(); }
-    
-    inline bool isAncestorOf(const NodeAddress& other) const
-    {
-        if (isRoot() && !other.isRoot())
-            return true;
-        else if (other.isRoot())
-            return false;
-        
-        if (other.size() <= size())
-            return false;
-        
-        for (std::size_t i = 0; i < size(); ++i)
-        {
-            if (other[i] != (*this)[i])
-                return false;
-        }
-        
-        return true;
-    }
-    
-    inline bool isDescendantOf(const NodeAddress& other) const
-    {
-        return other.isAncestorOf(*this);
-    }
-    
-    inline bool isParentOf(const NodeAddress& other) const
-    { 
-        return other.size() == size() + 1 && isAncestorOf(other);
-    }
-    
-    inline bool isChildOf(const NodeAddress& other) const
-    {
-        return other.isParentOf(*this);
-    }
-    
-    inline bool isSiblingOf(const NodeAddress& other) const
-    {
-        if (isRoot() && other.isRoot())
-            return true;
-        else if (isRoot() || other.isRoot())
-            return false;
-        
-        if (other.size() != size())
-            return false;
-        
-        for (std::size_t i = 0; i < size() - 1; ++i)
-        {
-            if (other[i] != (*this)[i])
-                return false;
-        }
-        
-        return true;
-    }
-    
-    // useful for some dfs-based operations
-    inline bool exceedsDescendantsOf(const NodeAddress& other) const
-    {
-        
-        if (isRoot() || other.isRoot())
-            return false;
-        
-        auto i = begin();
-        auto end_ = end();
-        
-        auto j = other.begin();
-        auto otherEnd = other.end();
-        
-        // find first index that differs between the addresses
-        while (i != end_ && j != otherEnd)
-        {
-            if ((*i) != (*j)) break;
-            ++i;
-            ++j;
-        }
-        
-        if (i == end_ || j == otherEnd) return false;
-        
-        return (*i) > (*j);
-    }
-    
-    inline NodeAddress parent() const &
-    {
-        if (isRoot())
-            return NodeAddress();
-        else
-            return NodeAddress( list_t(
-                    _address.begin(),
-                    _address.begin() + (_address.size() - 1)
-                ));
-    }
-    
-    inline NodeAddress parent() &&
-    {
-        if (isRoot())
-        {
-            return NodeAddress();
-        }
-        else
-        {
-            _address.removeLast();
-            _fastAddress = 0;
-            return NodeAddress(std::move(_address));
-        }
-    }
-    
-    inline NodeAddress nextSibling() const &
-    {
-        if (isRoot())
-        {
-            return NodeAddress();
-        }
-        else
-        {
-            list_t newAddress(_address);
-            ++(newAddress.last());
-            return NodeAddress(std::move(newAddress));
-        }
-    }
-    
-    inline NodeAddress nextSibling() &&
-    {
-        if (isRoot())
-        {
-            return NodeAddress();
-        }
-        else
-        {
-            ++(_address.last());
-            _fastAddress = 0;
-            return NodeAddress(std::move(_address));
-        }
-    }
-    
-    inline NodeAddress deltaSibling(int d) const &
-    {
-        if (isRoot())
-        {
-            return NodeAddress();
-        }
-        else
-        {
-            list_t newAddress(_address);
-            (newAddress.last()) += d;
-            return NodeAddress(std::move(newAddress));
-        }
-    }
-    
-    inline NodeAddress deltaSibling(int d) &&
-    {
-        if (isRoot())
-        {
-            return NodeAddress();
-        }
-        else
-        {
-            (_address.last()) += d;
-            _fastAddress = 0;
-            return NodeAddress(std::move(_address));
-        }
-    }
-    
-    inline NodeAddress prev() const &
-    {
-        if (isRoot())
-        {
-            return NodeAddress();
-        }
-        else
-        {
-            if (_address.last() == 0)
-            {
-                return parent();
-            }
-            else
-            {
-                list_t newAddress(_address);
-                --(newAddress.last());
-                return NodeAddress(std::move(newAddress));
-            }
-        }
-    }
-    
-    inline NodeAddress prev() &&
-    {
-        if (isRoot())
-        {
-            return NodeAddress();
-        }
-        else
-        {
-            if (noDetach(_address).last() == 0)
-            {
-                return parent();
-            }
-            else
-            {
-                --(_address.last());
-                _fastAddress = 0;
-                return NodeAddress(std::move(_address));
-            }
-        }
-    }
-    
-    inline NodeAddress operator<<(std::size_t index) const &
-    {
-        list_t newAddress(_address);
-        newAddress.append(index);
-        return NodeAddress(newAddress);
-    }
-            
-    inline NodeAddress operator<<(const NodeAddress& other) const &
-    {
-        return NodeAddress(_address + other._address);
-    }
-            
-    inline NodeAddress operator<<(const list_t& other) const &
-    {
-        return NodeAddress(_address + other);
-    }
-    
-    inline NodeAddress operator<<(std::size_t index) &&
-    {
-        _fastAddress = 0;
-        return NodeAddress(std::move(_address << index));
-    }
-
-    inline NodeAddress operator<<(const NodeAddress& other) &&
-    {
-        _fastAddress = 0;
-        return NodeAddress(std::move(_address << other._address));
-    }
-    
-    inline NodeAddress operator<<(const list_t& other) &&
-    {
-        _fastAddress = 0;
-        return NodeAddress(std::move(_address << other));
-    }
-    
-    inline void swap(NodeAddress& other)
-    {
-        _address.swap(other._address);
-        std::swap(_fastAddress, other._fastAddress);
-    }
-    
-    template<typename NodeHandle>
-    static inline NodeAddress calculate(const NodeHandle& node)
-    {
-        NodeHandle cursor = node;
-        NodeHandle parent = ::Addle::aux_datatree::node_parent(cursor);
-        
-        QList<std::size_t> address;
-        address.reserve(::Addle::aux_datatree::node_depth(node));
-            // TODO does this actually help if we're prepending everything?
-            // It's just as easy to us to build the list forward then
-            // reverse it.
-        
-        while (parent)
-        {
-            address.push_front(::Addle::aux_datatree::node_index(cursor));
-            cursor = parent;
-            parent = ::Addle::aux_datatree::node_parent(cursor);
-        }
-        
-        return NodeAddress(std::move(address));
-    }
-    
-private:
-    inline void updateFastAddress()
-    {
-        // First, portion a 64-bit uint into an "array" of 8 x 8-bit uints 
-        // composed from the address indices with the first index filling
-        // the most significant bits, and the 8th filling the least
-        // significant bits. Add 1 to each index before inserting in order
-        // to distinguish between a 0 and an empty cell.
-        //
-        // NOTE: This scheme has imperfect packing. Theoretically the
-        // MAX_CELL_VALUE could be raised to UINT8_MAX by taking advantage 
-        // of adder overflow. This is not a great concern.
-        
-        constexpr unsigned CELL_COUNT = 8;
-        constexpr unsigned CELL_WIDTH = 8;
-        constexpr unsigned MAX_CELL_VALUE = UINT8_MAX - 1;
-
-        const std::size_t size = _address.size();
-        
-        if (size > CELL_COUNT)
-        {
-            _fastAddress = INVALID_FASTADDRESS;
-            return;
-        }
-        
-        _fastAddress = 0;
-        for (std::size_t v : _address)
-        {
-            if (v > MAX_CELL_VALUE)
-            {
-                _fastAddress = INVALID_FASTADDRESS;
-                return;
-            }
-            
-            _fastAddress = _fastAddress << CELL_WIDTH | v + 1;
-        }
-        _fastAddress <<= qMax(CELL_COUNT - size, (std::size_t) 0) * CELL_WIDTH;
-    }
-    
-    list_t _address;
-    
-    // While the total address space of a data tree is arbitrarily large and 
-    // requires dynamic memory and iteration to represent fully, we can 
-    // encode a reasonable portion of the address space (covering a majority 
-    // of typical cases) into a 64-bit integer such that arithmetic
-    // comparison of _fastAddress is equivalent to lexicographical 
-    // comparison of _address (provided that both _fastAddress are valid)
-    //
-    // That "reasonable portion" is currently tuned to approximately max
-    // index of 255 and max depth of 8. This can be adjusted if desired.
-    std::uint64_t _fastAddress = 0;
-    
-    friend uint qHash(const NodeAddress& address, uint seed = 0)
-    {
-        if (Q_LIKELY(address._fastAddress != INVALID_FASTADDRESS))
-            return ::qHash(address._fastAddress, seed);
-        else
-            return ::qHashRange(
-                    address._address.begin(),
-                    address._address.end(),
-                    seed
-                );
-    }
-    
-    friend void swap(NodeAddress& a1, NodeAddress& a2)
-    {
-        a1.swap(a2);
-    }
-    
-#ifdef ADDLE_DEBUG
-    friend QDebug operator<<(QDebug debug, const NodeAddress& nodeAddress)
-    {
-        using namespace boost::adaptors;
-        
-        if (nodeAddress.size() == 0)
-        {
-            debug << "{}";
-        }
-        else
-        {
-            debug 
-                << "{"
-                << qUtf8Printable(QStringList(
-                    toQList(
-                        nodeAddress | transformed([] (std::size_t i) { return QString::number(i); })
-                    )
-                ).join(", "))
-                << "}";
-        }
-        
-//         if (nodeAddress._fastAddress != INVALID_FASTADDRESS)
-//         {
-//             debug
-//                 << "_fastAddress:"
-//                 << qUtf8Printable(
-//                     QString::asprintf("%0.16lx", nodeAddress._fastAddress)
-//                 );
-//         }
-        
-        return debug;
-    }
-#endif
-};
+    return NodeAddressBuilder(indices);
+}
 
 template<typename NodeHandle>
 using _node_address_t = decltype( datatree_node_address(std::declval<NodeHandle>()) );
@@ -1089,7 +605,7 @@ inline NodeAddress node_address( NodeHandle&& node ) { return datatree_node_addr
 template<typename NodeHandle, std::enable_if_t<!boost::mp11::mp_valid<_node_address_t, NodeHandle>::value, void*> = nullptr>
 inline NodeAddress node_address( const NodeHandle& node )
 {
-    return NodeAddress::calculate(node);
+    return ::Addle::aux_datatree::calculate_node_address(node);
 }
 
 template<typename NodeHandle>
@@ -1213,7 +729,7 @@ class _unindexed_dfs_extended_node_base {};
  * For nodes that don't implement `datatree_node_parent`, e.g., nodes that may 
  * be shared between different parents in different trees, every depth-first
  * search is relative (or, at least, the global search cannot be determined),
- * and conducting such a search requires some state. 
+ * and conducting such a search requires a degree of statefulness. 
  * 
  * DFSExtendedNode stores the state of a depth-first search relative to an
  * initial root node. This effectively builds parent linkage metadata on the
@@ -1316,14 +832,9 @@ public:
     
     NodeAddress address() const
     {
-        // It's necessary to calculate the address internally
-        // - to avoid the implicit deep copy involved in making a parent cursor
-        //   of type DFSExtendedNode, as NodeAddress::calculate would do
-        // - for indexed DFSExtendedNode, to avoid the circular dependency of
-        //   looking up a parent in the index and getting a node's parent to
-        //   build its address.
+        // cache until modified maybe?
         
-        QList<std::size_t> result;
+        NodeAddressBuilder result;
         result.reserve(_descendants.size());
         
         NodeHandle parentCursor = _root;
@@ -1357,7 +868,7 @@ public:
             parentCursor = static_cast<NodeHandle>(descendant);
         }
         
-        return result;
+        return std::move(result);
     }
     
 private:
@@ -2433,13 +1944,116 @@ template<typename NodeHandle>
 using ConstBranchRange = boost::iterator_range<ConstBranchIterator<NodeHandle>>;
 
 
+template<class Tree, class Range>
+class NodeHandleRangeAdapter
+{
+public:
+    using handle_t = typename boost::range_value<Range>::type;
+    static_assert(
+        boost::mp11::mp_or<
+            std::is_same<handle_t, node_handle_t<Tree>>,
+            std::is_same<handle_t, const_node_handle_t<Tree>>,
+            std::is_same<handle_t, child_node_handle_t<node_handle_t<Tree>>>,
+            std::is_same<handle_t, child_node_handle_t<const_node_handle_t<Tree>>>
+        >::value
+    );
+    
+    using const_handle_t = boost::mp11::mp_cond<
+            std::is_same<handle_t, child_node_handle_t<node_handle_t<Tree>>>,
+                child_node_handle_t<const_node_handle_t<Tree>>,
+            std::is_same<handle_t, node_handle_t<Tree>>,
+                const_node_handle_t<Tree>,
+            boost::mp11::mp_true, // handle_t is already const
+                handle_t
+        >;
+        
+    using value_type = std::decay_t<_dereferenced_t<handle_t>>;
+    using reference = _dereferenced_t<handle_t>;
+    using const_reference = _dereferenced_t<const_handle_t>;
+    
+    template<bool Const>
+    class iterator_impl 
+        : public boost::iterator_adaptor<
+            iterator_impl<Const>,
+            typename boost::range_iterator<
+                boost::mp11::mp_if_c<Const, const Range, Range>
+            >::type,
+            value_type,
+            typename boost::range_category<Range>::type,
+            boost::mp11::mp_if_c<Const, const_reference, reference>
+        >
+    {
+        using _base_t = boost::iterator_adaptor<
+                iterator_impl<Const>,
+                typename boost::range_iterator<
+                    boost::mp11::mp_if_c<Const, const Range, Range>
+                >::type,
+                value_type,
+                typename boost::range_category<Range>::type,
+                boost::mp11::mp_if_c<Const, const_reference, reference>
+            >;
+        using _inner_t = typename boost::range_iterator<
+                boost::mp11::mp_if_c<Const, const Range, Range>
+            >::type;
+            
+    public:
+        iterator_impl();
+        iterator_impl(const iterator_impl&) = default;
+        iterator_impl(iterator_impl&&) = default;
+        
+        template<
+            typename MutableIterator,
+            typename std::enable_if_t<
+                Const && std::is_same_v<MutableIterator, iterator_impl<false>>,
+            void*> = nullptr
+        >
+        iterator_impl(MutableIterator other)
+            : _base_t(other.base())
+        {
+        }
+        
+        iterator_impl& operator=(const iterator_impl&) = default;
+        iterator_impl& operator=(iterator_impl&&) = default;
+        
+        operator handle_t () const { return *(this->base()); }
+        
+    private:
+        iterator_impl(_inner_t inner)
+            : _base_t(inner)
+        {
+        }
+        
+        boost::mp11::mp_if_c<Const, const_reference, reference> dereference() const
+        {
+            return **(this->base());
+        }
+        
+        friend class boost::iterator_core_access;
+        friend class NodeHandleRangeAdapter<Tree, Range>;
+    };
+    
+    using iterator          = iterator_impl<false>;
+    using const_iterator    = iterator_impl<true>;
+    
+    using size_type         = std::size_t;
+    using difference_type   = std::ptrdiff_t;
+    
+    iterator begin() { return iterator(boost::begin(_range)); }
+    const_iterator begin() const { return const_iterator(boost::begin(_range)); }
+    
+    iterator end() { return iterator(boost::end(_range)); }
+    const_iterator end() const { return const_iterator(boost::end(_range)); }
+    
+    const Range& base() const { return _range; }
+    
+private:
+    const Range& _range;
+};
+
 } // namespace aux_datatree 
 
-using DataTreeNodeAddress = aux_datatree::NodeAddress;
-
 template<class Tree>
-inline aux_datatree::node_handle_t<Tree> 
-    data_tree_contains_address(Tree&& tree, const DataTreeNodeAddress& address)
+inline bool data_tree_contains_address(Tree&& tree, const DataTreeNodeAddress& address)
 {
     return aux_datatree::node_contains_address(datatree_root(tree), address);
 }

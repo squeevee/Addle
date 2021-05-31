@@ -74,13 +74,13 @@ QVariant DocumentLayersItemModel::data(const QModelIndex& index, int role) const
     }
 }
 
-void DocumentLayersItemModel::onPresenterLayerNodesAdded(IDocumentPresenter::LayerNodesAddedEvent added)
-{
-}
-
-void DocumentLayersItemModel::onPresenterLayerNodesRemoved(IDocumentPresenter::LayerNodesRemovedEvent removed)
-{
-}
+// void DocumentLayersItemModel::onPresenterLayerNodesAdded(IDocumentPresenter::LayerNodesAddedEvent added)
+// {
+// }
+// 
+// void DocumentLayersItemModel::onPresenterLayerNodesRemoved(IDocumentPresenter::LayerNodesRemovedEvent removed)
+// {
+// }
 
 // void DocumentLayersItemModel::onPresenterLayersAdded(QList<IDocumentPresenter::LayerNode*> added)
 // {

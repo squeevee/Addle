@@ -19,7 +19,7 @@
 
 #include "utilities/datatree/basicdatatree.hpp"
 #include "utilities/datatree/views.hpp"
-#include "utilities/datatree/observers.hpp"
+// #include "utilities/datatree/observers.hpp"
 
 #include "utilities/model/documentbuilder.hpp"
 
@@ -35,8 +35,8 @@ public:
     using LayersTree                = ILayerNodeModel::LayersTree;
     using ConstLayersTree           = ILayerNodeModel::ConstLayersTree;
     
-    using LayerNodesAddedEvent      = DataTreeNodesAddedEvent<LayersTree>;
-    using LayerNodesRemovedEvent    = DataTreeNodesRemovedEvent<LayersTree>;
+//     using LayerNodesAddedEvent      = DataTreeNodesAddedEvent<LayersTree>;
+//     using LayerNodesRemovedEvent    = DataTreeNodesRemovedEvent<LayersTree>;
     
     virtual ~IDocument() = default;
 
@@ -55,8 +55,8 @@ signals:
     virtual void backgroundColorChanged(QColor color) = 0;
     virtual void urlChanged(QUrl url) = 0;
     
-    virtual void layerNodesAdded(IDocument::LayerNodesAddedEvent added) = 0;
-    virtual void layerNodesRemoved(IDocument::LayerNodesRemovedEvent removed) = 0;
+//     virtual void layerNodesAdded(IDocument::LayerNodesAddedEvent added) = 0;
+//     virtual void layerNodesRemoved(IDocument::LayerNodesRemovedEvent removed) = 0;
     
 //     virtual void boundaryChanged(QRect newBoundary) = 0;
 };
@@ -74,5 +74,5 @@ ADDLE_DECL_FACTORY_PARAMETERS(
 } // namespace Addle
 
 Q_DECLARE_INTERFACE(Addle::IDocument, "org.addle.IDocument")
-Q_DECLARE_METATYPE(Addle::IDocument::LayerNodesAddedEvent)
-Q_DECLARE_METATYPE(Addle::IDocument::LayerNodesRemovedEvent)
+// Q_DECLARE_METATYPE(Addle::IDocument::LayerNodesAddedEvent)
+// Q_DECLARE_METATYPE(Addle::IDocument::LayerNodesRemovedEvent)

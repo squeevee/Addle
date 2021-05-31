@@ -1,1034 +1,2537 @@
 #pragma once
 
-#include <QSharedData>
-
+#include <algorithm>
 #include <any>
+#include <exception>
 #include <deque>
-#include <variant>
+#include <optional>
+#include <memory>
 #include <map>
-#include <QMap>
-#include "./aux.hpp"
+#include <vector>
+
+#include <stdint.h> // SIZE_MAX
+
+#include <QSharedData>
+#include <QReadWriteLock>
+#include <QMutex>
 
 #include <boost/range/adaptor/reversed.hpp>
-#include <boost/mp11.hpp>
-#include <boost/type_traits.hpp>
+#include <boost/range/adaptor/sliced.hpp>
+#include <boost/range/adaptor/transformed.hpp>
+
+#include "./aux.hpp"
+
+#ifdef ADDLE_TEST
+class DataTree_UTest;
+#endif
 
 namespace Addle {
 namespace aux_datatree {
+    
+template<typename Tree>
+class TreeObserver;
 
-struct NodeUnit
+class TreeObserverData;
+class NostalgicNodeEventHelper;
+
+template<bool additive>
+inline NodeAddress mapSingle_impl(
+        const NodeAddress& from,
+        const NodeChunk& rel,
+        bool* terminal = nullptr)
 {
-    NodeAddress address;
-    std::size_t length;
-    
-    friend bool operator<(const NodeUnit& lhs, const NodeUnit& rhs)
+    if (from.isRoot()
+            || rel.address.isRoot()
+            || rel.address > from 
+            || rel.address.size() > from.size()
+            || !rel.length
+        )
     {
-        return lhs.address < rhs.address; 
+        return from;
     }
     
-    friend bool operator<(const NodeAddress& lhs, const NodeUnit& rhs)
+    if (terminal) 
+        *terminal = false;
+    
+    NodeAddressBuilder result;
+    
+    auto i = from.begin();
+    
+    auto j = rel.address.begin();
+    auto relEnd = rel.address.end();
+    
+    while (true)
     {
-        return lhs < rhs.address; 
+        std::size_t index = *i;
+        std::size_t relIndex = *j;
+        
+        ++i;
+        ++j;
+        
+        if (j == relEnd)
+        {
+            if (index >= relIndex)
+            {
+                if constexpr (additive)
+                {
+                    result.append(index + rel.length);
+                }
+                else // !additive
+                {
+                    if (index > rel.length)
+                    {
+                        result.append(index - rel.length);
+                    }
+                    else
+                    {
+                        if (terminal) 
+                            *terminal = true;
+                        
+                        return NodeAddress();
+                    }
+                }
+            }
+            
+            break;
+        }
+        else
+        {
+            result.append(index);
+        }
     }
     
-    friend bool operator<(const NodeUnit& lhs, const NodeAddress& rhs)
+    if (result.size() < from.size())
     {
-        return lhs.address < rhs; 
+        auto fromEnd = from.end();
+        for (auto k = from.begin() + result.size(); k != fromEnd; ++k)
+            result.append(*k);
     }
     
-#ifdef ADDLE_DEBUG
-    friend QDebug operator<<(QDebug debug, const NodeUnit& unit)
+    return std::move(result);
+}
+
+/**
+ * Describes a change in the node structure of a data tree. Nodes may be added,
+ * removed, or moved; and the event may describe multiple such operations
+ * performed in sequence. 
+ * 
+ * The NodeEvent is agnostic of the implementation of the tree and does not rely
+ * on references to any internal data structure of any tree, making it safe to 
+ * use to process structural changes after they have already happened.
+ * 
+ * NodeEvent can be created automatically by performing operations on a tree 
+ * through TreeObserver. Events created this way are "coordinated" with each 
+ * other and the observer that created them. This can allow for greater async
+ * safety, such as read/write locking the tree and fully safe access to the
+ * underlying tree data.
+ * 
+ * NodeEvent can also be created with NodeEventBuilder, in which case they are
+ * not coordinated.
+ */
+class NodeEvent
+{
+    class Step;
+
+    // sorted set
+    using chunk_list_t = std::vector<NodeChunk>;
+    // collection of multiple sorted sets of sibling nodes, arranged by parent
+    using chunk_map_t = std::map<NodeAddress, chunk_list_t>;
+    
+public:    
+    enum NodeOperation 
     {
-        return debug << unit.address
-            << unit.length;
+        Add,
+        Remove,
+        Move
+    };
+    
+    NodeEvent() = default;
+    
+    template<
+        typename NodeHandle, 
+        typename std::enable_if_t<
+            aux_datatree::is_node_handle<NodeHandle>::value,
+        void*> = nullptr>
+    NodeEvent(NodeHandle root)
+        : _data(new Data (root))
+    {
     }
+    
+    NodeEvent(const NodeEvent&) = default;
+    NodeEvent& operator=(const NodeEvent&) = default;
+    
+    NodeEvent(NodeEvent&&) = default;
+    NodeEvent& operator=(NodeEvent&&) = default;
+    
+    inline NodeAddress mapForward(
+            NodeAddress from, 
+            std::size_t progress = SIZE_MAX,
+            bool* wasDeleted = nullptr) const
+    {
+        if (wasDeleted)
+            *wasDeleted = false;
+        
+        if (!_data || from.isRoot() || !progress) 
+            return from;
+    
+        progress = std::min(_data->totalChunkCount, progress);
+        
+        NodeAddress result(from);
+        
+        for (const Step& step : _data->steps)
+        {
+            result = step.mapForward(result, progress, wasDeleted);
+            
+            if (progress <= step.chunkCount())
+                break;
+            else
+                progress -= step.chunkCount();
+        }
+        
+        return result;
+    }
+
+    inline NodeAddress mapBackward(
+            NodeAddress from, 
+            std::size_t progress = SIZE_MAX,
+            bool* wasAdded = nullptr) const
+    {
+        using namespace boost::adaptors;
+        
+        if (wasAdded)
+            *wasAdded = false;
+        
+        if (!_data || from.isRoot()) 
+            return from;
+        
+        progress = std::min(_data->totalChunkCount, progress);
+        std::size_t progressCount = 0;
+        
+        NodeAddress result(from);
+        
+        {
+            auto i = _data->steps.begin();
+            auto end = _data->steps.end();
+            
+            for (; i != end; ++i)
+            {
+                if (progressCount + (*i).chunkCount() > progress)
+                    break;
+                else
+                    progressCount += (*i).chunkCount();
+            }
+                
+            auto j =    std::make_reverse_iterator(i);
+            auto rend = std::make_reverse_iterator(_data->steps.begin());
+            for(; j != rend; ++j)
+            {
+                result = (*j).mapBackward(result, progress, wasAdded);
+                progress -= (*j).chunkCount();
+            }
+        }
+        
+        return result;
+    }
+    
+    inline bool wasAdded(NodeAddress address, 
+            std::size_t progress = SIZE_MAX) const
+    {
+        bool result;
+        mapBackward(address, progress, &result);
+        
+        return result;
+    }
+    
+    inline bool isDeleted(NodeAddress address, 
+            std::size_t progress = SIZE_MAX) const
+    {
+        bool result;
+        mapForward(address, progress, &result);
+        
+        return result;
+    }
+    
+    inline std::size_t childCount(
+            NodeAddress parent, 
+            std::size_t progress = SIZE_MAX) const
+    {
+        if (!_data) return 0;
+        
+        std::ptrdiff_t result = _data->initialChildCounts[parent];
+        
+        for (const Step& step : _data->steps)
+        {
+            std::ptrdiff_t offset = step.childCountOffset(parent, progress);
+            
+            result += offset;
+            
+            if (progress > step.chunkCount())
+                progress -= step.chunkCount();
+            else
+                break;
+        }
+        
+        return std::max(result, (std::ptrdiff_t)0);
+    }
+    
+    std::any root() const { return _data ? _data->root : std::any(); }
+    
+    bool isCoordinated() const { return _data && _data->observerData; }
+    
+private:
+    class Step
+    {
+    public:
+        Step(NodeOperation operation)
+            : _operation(operation)
+        {
+        }
+        
+        inline NodeOperation operation() const { return _operation; }
+        
+        inline std::size_t chunkCount() const { return _chunkCount; }
+        
+        const chunk_map_t& primaryChunks() const { return _primaryChunks; }
+        const chunk_list_t& secondaryChunks() const { return _secondaryChunks; }
+        
+        inline NodeAddress mapForward(
+                const NodeAddress& from, 
+                std::size_t progress = SIZE_MAX,
+                bool* wasDeleted = nullptr) const
+        {
+            if (from.isRoot()) return NodeAddress();
+                        
+            switch(_operation)
+            {
+                case NodeOperation::Add:
+                    return primaryMap_impl<true>(from, progress);
+                case NodeOperation::Remove:
+                    return primaryMap_impl<false, true>(from, progress, wasDeleted);
+                
+//                 case NodeOperation::Move: // TODO
+                    
+                default:
+                    Q_UNREACHABLE();
+            }
+        }
+        
+        inline NodeAddress mapBackward(
+                const NodeAddress& from, 
+                std::size_t progress = SIZE_MAX,
+                bool* wasAdded = nullptr) const
+        {
+            if (_primaryChunks.empty())
+                return from;
+            
+            switch(_operation)
+            {
+                case NodeOperation::Add:
+                    return primaryMap_impl<false>(from, progress, wasAdded);
+                case NodeOperation::Remove:
+                    return primaryMap_impl<true, true>(from, progress);
+                
+//                 case NodeOperation::Move: // TODO
+                    
+                default:
+                    Q_UNREACHABLE();
+            }
+        }
+        
+        inline std::ptrdiff_t childCountOffset(
+                NodeAddress parent, 
+                std::size_t progress = SIZE_MAX) const
+        {
+            using namespace boost::adaptors;
+            
+            if (_primaryChunks.empty() || !progress)
+                return 0;
+            
+            progress = std::min(progress, _chunkCount);
+            
+            switch(_operation)
+            {
+                case NodeOperation::Add:
+                {
+                    if (progress < _chunkCount)
+                    {                        
+                        auto lowerBound = _primaryChunks.lower_bound(parent);
+                        auto lowerIter = _primaryChunks.begin();
+                        
+                        for (; lowerIter != lowerBound; ++lowerIter)
+                        {
+                            if (progress > (*lowerIter).second.size())
+                                progress -= (*lowerIter).second.size();
+                            else
+                                return 0;
+                        }
+                    }
+                    
+                    std::ptrdiff_t result = 0;
+                    
+                    auto childrenFind = _primaryChunks.find(parent);
+                    if (childrenFind != _primaryChunks.end())
+                    {
+                        auto childIter = (*childrenFind).second.begin();
+                        auto childrenEnd = (*childrenFind).second.end();
+                        
+                        for (; childIter != childrenEnd; ++childIter)
+                        {
+                            if (!progress) break;
+                            
+                            result += (*childIter).length;
+                            --progress;
+                        }
+                    }
+                    
+                    return result;
+                }
+                    
+                case NodeOperation::Remove:
+                {
+                    if (progress < _chunkCount)
+                    {
+                        auto bound = std::make_reverse_iterator(
+                                _primaryChunks.upper_bound(parent)
+                            );
+                        auto upperIter = std::make_reverse_iterator(
+                                _primaryChunks.end()
+                            );
+                        
+                        for (; upperIter != bound; ++upperIter)
+                        {
+                            if (progress > (*upperIter).second.size())
+                                progress -= (*upperIter).second.size();
+                            else
+                                return 0;
+                        }
+                    }
+                    
+                    std::ptrdiff_t result = 0;
+                    
+                    auto childrenFind = _primaryChunks.find(parent);
+                    if (childrenFind != _primaryChunks.end())
+                    {
+                        auto childIter = (*childrenFind).second.rbegin();
+                        auto childrenEnd = (*childrenFind).second.rend();
+                        
+                        for (; childIter != childrenEnd; ++childIter)
+                        {
+                            if (!progress) break;
+                            
+                            result -= (*childIter).length;
+                            --progress;
+                        }
+                    }
+                    
+                    return result;
+                }
+                
+//                 case NodeOperation::Move: // TODO
+                    
+                default:
+                    Q_UNREACHABLE();
+            }
+        }
+        
+        // Adjusts relevant addresses in this Add step as if `rel` had been 
+        // inserted first. (this is occasionally necessary if merging `rel` 
+        // would require an address with a negative index.)
+        inline void rebase(const NodeChunk& rel)
+        {
+            assert(_operation == NodeOperation::Add);
+            
+            {
+                auto i = _primaryChunks.lower_bound(rel.address);
+                while (i != _primaryChunks.end())
+                {
+                    for (NodeChunk& chunk : (*i).second)
+                        chunk.address = mapSingle_impl<true>(chunk.address, rel);
+                    
+                    NodeAddress parentAddress = (*i).first;
+                    NodeAddress mappedParentAddress = 
+                        mapSingle_impl<true>(parentAddress, rel);
+                        
+                    if (parentAddress != mappedParentAddress)
+                    {
+                        auto nh = _primaryChunks.extract(i);
+                        nh.key() = mappedParentAddress;
+                        auto ins = _primaryChunks.insert(std::move(nh));
+                        
+                        assert(ins.inserted);
+                        i = ins.position;
+                    }
+                }
+            }
+            
+            {
+                auto j = _primaryChunks.find(rel.address.parent());
+                if (j == _primaryChunks.end())
+                    return;
+                    
+                auto chunksEnd = (*j).second.end();
+                auto k = std::lower_bound(
+                        (*j).second.begin(),
+                        chunksEnd,
+                        rel.address
+                    );
+                
+                for (; k != chunksEnd; ++k)
+                    (*k).address = mapSingle_impl<true>((*k).address, rel);
+            }
+        }
+        
+        // Adds a chunk to this step, eliding or merging it with existing chunks
+        // as necessary.
+        inline void addPrimaryChunk(NodeChunk&& chunk);
+        
+    private:
+                
+        template<bool additive, bool progressReversed = false>
+        inline NodeAddress primaryMap_impl(
+                const NodeAddress& from, 
+                std::size_t progress = SIZE_MAX, 
+                bool* terminal = nullptr
+            ) const;
+        NodeOperation _operation;
+        
+        std::size_t _chunkCount = 0;
+        
+        chunk_map_t _primaryChunks;
+        chunk_list_t _secondaryChunks;
+        
+        NodeChunk _moveSource;
+        NodeAddress _moveDest;
+    };
+    
+    class StepBuilder
+    {
+    public:
+        StepBuilder(Step& step, std::size_t& totalChunkCount, bool isNew = false)
+            : _step(step), _totalChunkCount(totalChunkCount), _isNew(isNew)
+        {
+        }
+        
+        inline void addPrimaryChunk(NodeChunk chunk)
+        {
+            if (!_isNew)
+            {
+                bool terminal = false;
+                NodeAddress newAddress;
+                
+                switch(_step.operation())
+                {
+                    case NodeOperation::Add:
+                        newAddress = _step.mapBackward(
+                                chunk.address, 
+                                SIZE_MAX, 
+                                &terminal
+                            );
+                        break;
+                        
+                    case NodeOperation::Remove:
+                        newAddress = _step.mapForward(
+                                chunk.address, 
+                                SIZE_MAX, 
+                                &terminal
+                            );
+                        break;
+                        
+                    default:
+                        break;
+                }
+                
+                if (terminal)
+                {
+                    _step.rebase(chunk);
+                }
+                else
+                {
+                    chunk.address = std::move(newAddress);
+                }
+            }
+            
+            std::size_t countBefore = _step.chunkCount();
+            _step.addPrimaryChunk(std::move(chunk));
+            std::size_t countAfter = _step.chunkCount();
+            
+            if (countAfter > countBefore)
+                _totalChunkCount += (countAfter - countBefore);
+            else if (countAfter < countBefore)
+                _totalChunkCount -= (countBefore - countAfter);
+        }
+        
+    private:
+        Step& _step;
+        std::size_t& _totalChunkCount;
+        bool _isNew;
+    };
+    
+    struct Data : QSharedData
+    {
+        Data()
+            : id(reinterpret_cast<quintptr>(this))
+        {
+        }
+        
+        
+        Data(std::any root_) 
+            : id(reinterpret_cast<quintptr>(this)),
+             root(root_)
+        {
+        }
+        
+        Data(Data&&) = delete;
+        
+        inline Data(const Data& other);     // defined after TreeObserverData
+        inline ~Data();                     // defined after TreeObserverData
+        
+        quintptr id;
+        
+        std::any root;
+        QList<Step> steps;
+        std::size_t totalChunkCount = 0;
+        QHash<NodeAddress, std::size_t> initialChildCounts;
+        
+        QSharedPointer<TreeObserverData> observerData;
+        unsigned* observerRefCount = nullptr;
+    };
+    
+    void initData()
+    {
+        if (!_data)
+            _data = new Data;
+        else
+            _data.detach();
+    }
+    
+    StepBuilder addStep(NodeOperation type)
+    {
+        initData();
+        
+        // Not allowed to add steps to a detached copy of an observer event
+        assert(
+            !_data->observerData
+            || _data->id == reinterpret_cast<quintptr>(qAsConst(_data).data())
+        );
+        
+        bool isNew = false;
+        
+        if (_data->steps.isEmpty() || _data->steps.last().operation() != type)
+        {
+            _data->steps.append( Step(type) );
+            isNew = true;
+        }
+        
+        Step& step = _data->steps.last();
+        return StepBuilder(step, _data->totalChunkCount, isNew);
+    }
+    
+    
+    inline void addChunk_impl(NodeAddress address, std::size_t length)
+    {
+        auto handle = addStep(NodeOperation::Add);
+        handle.addPrimaryChunk({ std::move(address), length });
+    }
+    
+    template<typename Range>
+    inline void addChunks_impl(Range&& range)
+    {
+        static_assert(
+            std::is_convertible_v<
+                typename boost::range_reference<
+                    boost::remove_cv_ref_t<Range>
+                >::type,
+                NodeChunk
+            >,
+            "This method may only be used for ranges of NodeChunk"
+        );
+        
+        if (!boost::empty(range))
+        {
+            auto handle = addStep(NodeOperation::Add);
+            
+            QVarLengthArray<NodeChunk, 64> buffer(
+                    boost::begin(range), 
+                    boost::end(range)
+                );
+            std::sort(buffer.begin(), buffer.end());
+            // sorting beforehand is by no means required, but it guarantees a
+            // best-case performance for addPrimaryChunk
+            
+            for (NodeChunk& entry : buffer)
+                handle.addPrimaryChunk(std::move(entry));
+        }
+    }
+    
+    inline void removeChunk_impl(NodeAddress address, std::size_t length)
+    {
+        auto handle = addStep(NodeOperation::Remove);
+        handle.addPrimaryChunk({ std::move(address), length });
+    }
+    
+    template<typename Range>
+    inline void removeChunks_impl(Range&& range)
+    {
+        static_assert(
+            std::is_convertible_v<
+                typename boost::range_reference<
+                    boost::remove_cv_ref_t<Range>
+                >::type,
+                NodeChunk
+            >,
+            "This method may only be used for ranges of NodeChunk"
+        );
+        
+        if (!boost::empty(range))
+        {
+            auto handle = addStep(NodeOperation::Remove);
+            
+            QVarLengthArray<NodeChunk, 64> buffer(
+                    boost::begin(range), 
+                    boost::end(range)
+                );
+            std::sort(buffer.begin(), buffer.end());
+            
+            for (NodeChunk& entry : buffer)
+                handle.addPrimaryChunk(std::move(entry));
+        }
+    }
+    
+    void setInitialChildCount_impl(
+            NodeAddress address, 
+            std::size_t size, 
+            bool ignoreIfSet = true)
+    {
+        initData();
+        
+        if (!ignoreIfSet || !_data->initialChildCounts.contains(address))
+            _data->initialChildCounts[address] = size;
+    }
+    
+    QSharedDataPointer<Data> _data;
+    
+    template<typename> friend class TreeObserver;
+    template<class> friend class NodeEventTreeHelper;
+    friend class TreeObserverData;
+    friend class NostalgicNodeEventHelper;
+    friend class NodeEventBuilder;
+    
+#ifdef ADDLE_TEST
+    friend class ::DataTree_UTest;
 #endif
 };
 
-template<class Tree>
-class ExtensibleNodeEventBase
+inline void NodeEvent::Step::addPrimaryChunk(NodeChunk&& chunk)
 {
-    using handle_t = node_handle_t<Tree>; 
-    using unit_list_t = QList<NodeUnit>;
-    static constexpr std::size_t MAX_OBSERVER_CACHE_SIZE = 256;
-public:
-    ExtensibleNodeEventBase() = default;
-    ExtensibleNodeEventBase(const ExtensibleNodeEventBase&) = default;
-    ExtensibleNodeEventBase(ExtensibleNodeEventBase&&) = default;
+    if (chunk.length == 0 || chunk.address.isRoot())
+        return;
     
-    ExtensibleNodeEventBase& operator=(const ExtensibleNodeEventBase&) = default;
-    ExtensibleNodeEventBase& operator=(ExtensibleNodeEventBase&&) = default;
-    
-protected:
-    inline unit_list_t primaryUnits() const
+    if (_operation == NodeOperation::Remove)
     {
-        if (!_data) return unit_list_t();
+        auto i = _primaryChunks.begin();
+        auto mid = _primaryChunks.lower_bound(chunk.address); 
         
-        if (_data->primaryUnitsCache.isEmpty())
+        // if the step contains an ancestor of `chunk`, do nothing.
+        for (; i != mid; ++i)
         {
-            _data->primaryUnitsCache.reserve(_data->primaryUnitsCount);
-            for (const auto& unitList : _data->primaryUnitsByParent)
+            const NodeAddress& key = (*i).first;
+            const chunk_list_t& chunks = (*i).second;
+            
+            if (key.isAncestorOf(chunk.address))
             {
-                for (NodeUnit u : unitList)
+                auto chunkListEnd = chunks.end();
+                auto j = std::lower_bound(
+                        chunks.begin(), 
+                        chunkListEnd, 
+                        chunk.address
+                    );
+                for (; j != chunkListEnd; ++j)
                 {
-                    _data->primaryUnitsCache.append(u);
-                }
-            }
-        }
-        
-        return _data->primaryUnitsCache;
-    }
-    
-    inline NodeAddress mapSubtractive(const NodeAddress& address) const
-    {
-        if (!_data) return address;
-        if (address.isRoot()) return NodeAddress();
-        
-        if (_data->subtractiveMappingCache.contains(address))
-        {
-            return noDetach(_data->subtractiveMappingCache)[address];
-        }
-        
-        NodeAddress ancestor;
-        NodeAddress result;
-        while (ancestor.size() < address.size())
-        {
-            std::size_t index = address[result.size()];
-            if (_data->primaryUnitsByParent.contains(ancestor))
-            {
-                for (const auto& removal : _data->primaryUnitsByParent[ancestor])
-                {
-                    if (removal.address > address)
-                        break;
+                    if ((*j).coversAddress(chunk.address))
+                        return;
                     
-                    index -= removal.length;
+                    if ((*j).address > chunk.address)
+                        break; // chunk list loop
                 }
             }
+        }
+        
+        // if the step contains descendants of `chunk`, remove them.
+        while (i != _primaryChunks.end())
+        {
+            const NodeAddress& key = (*i).first;
             
-            result = std::move(result) << index;
-            ancestor = std::move(ancestor) << address[ancestor.size()];
-        }
-        
-        if (_data->subtractiveMappingCache.size() >= MAX_OBSERVER_CACHE_SIZE)
-            _data->subtractiveMappingCache.clear();
-        
-        _data->subtractiveMappingCache[address] = result;
-        
-        return result;
-    }
-    
-    inline NodeAddress mapAdditive(const NodeAddress& address) const
-    {
-        if (!_data) return address;
-        if (address.isRoot()) return NodeAddress();
-        
-        if (_data->additiveMappingCache.contains(address))
-        {
-            return noDetach(_data->additiveMappingCache)[address];
-        }
-        
-        NodeAddress result;
-        while (result.size() < address.size())
-        {
-            std::size_t index = address[result.size()];
-            if (_data->primaryUnitsByParent.contains(result))
+            if (chunk.coversAddress(key))
             {
-                for (const auto& removal : _data->primaryUnitsByParent[result])
-                {
-                    NodeAddress test = result << index;
-                    if (removal.address > test)
-                        break;
-                    
-                    index += removal.length;
-                }
-            }
-            
-            result = std::move(result) << index;
-        }
-        
-        if (_data->additiveMappingCache.size() >= MAX_OBSERVER_CACHE_SIZE)
-            _data->additiveMappingCache.clear();
-        
-        _data->additiveMappingCache[address] = result;
-        
-        return result;
-    }
-    
-    inline bool isAffected(const NodeAddress& address) const
-    {
-        if (!_data) return false;
-        
-        NodeAddress ancestor;
-        while (ancestor.size() < address.size())
-        {
-            if (_data->primaryUnitsByParent.contains(ancestor))
-            {
-                auto& peers = _data->primaryUnitsByParent[ancestor];
-            
-                auto upperBound = std::upper_bound(peers.begin(), peers.end(), address);
-                if (upperBound == peers.begin())
-                    continue;
-                
-                auto lowerIndex = (upperBound - 1)->address.lastIndex();
-                auto lowerLength = (upperBound - 1)->length;
-                
-                if (lowerIndex + lowerLength > address[ancestor.size()])
-                    return true;
-            }
-            ancestor = std::move(ancestor) << address[ancestor.size()];
-        }
-        
-        return false;
-    }
-    
-    template<bool forward>
-    inline std::size_t childCount_impl(NodeAddress address, std::size_t progress) const
-    {
-        if (!_data || !_data->childCountByParent.contains(address)) 
-            return 0;
-        
-        if (progress >= _data->primaryUnitsCount)
-            return _data->childCountByParent[address];
-        
-        if (_data->childCountCache.contains(qMakePair(progress, address)))
-            return _data->childCountCache[qMakePair(progress, address)];
-        
-        std::size_t result;
-        if constexpr (forward)
-            result = 0;
-        else
-            result = _data->childCountByParent[address];
-        
-        unit_list_t primaryUnits = this->primaryUnits();
-        
-        for (const auto& unit : _data->primaryUnitsByParent[address])
-        {
-            std::size_t index = std::distance(
-                    primaryUnits.begin(),
-                    std::lower_bound(
-                        primaryUnits.begin(),
-                        primaryUnits.end(),
-                        unit
-                    )
-                );
-            
-            if constexpr (forward)
-            {
-                if (index < progress)
-                    result += unit.length;
+                _chunkCount -= (*i).second.size();
+                i = _primaryChunks.erase(i);
             }
             else
             {
-                if ((_data->primaryUnitsCount - index) < progress)
-                    result -= unit.length;
+                ++i;
+            }
+            
+//             auto commonAncestor = key.lastCommonAncestor(chunk.address);
+//             if (commonAncestor != key.end() 
+//                 && *commonAncestor)
+//                 break;
+        }
+    }
+    
+    auto parentAddress = chunk.address.parent();
+    
+    auto k = _primaryChunks.find(parentAddress);
+    if (k == _primaryChunks.end())
+    {
+        _primaryChunks[parentAddress] = { std::move(chunk) };
+        ++_chunkCount;
+        return;
+    }
+    
+    chunk_list_t& siblings = (*k).second;
+    bool mergeWithUpper = false;
+    
+    auto upperBound = std::upper_bound(
+            siblings.begin(), 
+            siblings.end(), 
+            chunk
+        );
+    
+    if (upperBound != siblings.end())
+    {
+        // Test if `chunk` is an abutting or overlapping lower-sibling of 
+        // another chunk in this step, and note this for later.
+        mergeWithUpper = chunk.address.lastIndex() + chunk.length 
+            >= (*upperBound).address.lastIndex();
+    }
+    
+    if (upperBound != siblings.begin())
+    {
+        auto lowerBound = upperBound - 1;
+        
+        if (
+            Q_UNLIKELY(
+                (*lowerBound).address.lastIndex() + (*lowerBound).length
+                >= chunk.address.lastIndex()
+            )
+        )
+        {
+            // `chunk` is an abutting or overlapping upper-sibling
+            // of another chunk in this step.
+            
+            std::size_t overhang = (*lowerBound).address.lastIndex() 
+                + (*lowerBound).length 
+                - chunk.address.lastIndex();
+            
+            if (overhang >= chunk.length)
+                // `chunk` is fully overlapped by a chunk already in
+                // this step. This includes `chunk` being identical
+                // to a chunk already in this step.
+                return;
+            
+            if (Q_UNLIKELY(mergeWithUpper))
+            {
+                // `chunk` abutts and/or overlaps both its
+                // neighboring siblings. Set the length of the lower
+                // sibling to encompass all three, then remove the
+                // upper sibling.
+                
+                (*lowerBound).length = (*upperBound).address.lastIndex()
+                    + (*upperBound).length
+                    - (*lowerBound).address.lastIndex();
+                    
+                siblings.erase(upperBound);
+                --_chunkCount;
+            }
+            else
+            {
+                // Set the length of the lower sibling to encompass
+                // itself and `chunk`
+                (*lowerBound).length += chunk.length - overhang;
+            }
+            
+            return;
+        }
+    }
+    
+    if (Q_UNLIKELY(mergeWithUpper))
+    {
+        // `chunk` abutts and/or overlaps its upper sibling, but not its lower 
+        // sibling. Set the address of the upper sibling to that of `chunk`, and 
+        // set its length to encompass them both.
+        
+        (*upperBound).length = (*upperBound).address.lastIndex()
+            + (*upperBound).length
+            - chunk.address.lastIndex();
+        
+        (*upperBound).address = std::move(chunk.address);
+        return;
+    }
+    
+    // No merge
+    siblings.insert(upperBound, std::move(chunk));
+    ++_chunkCount;
+}
+
+template<
+    // Determines the direction that the mapping adjusts an address, i.e., up 
+    // (true) or down (false). Additive mapping implements forward map for Add 
+    // steps and backward map for Remove steps, subtractive mapping implements 
+    // the reverse.
+    bool additive,
+        
+    // Determines the order in which chunks are counted when mapping against a 
+    // step "in progress", i.e., from low to high (false, the default), or high 
+    // to low (true).
+    //
+    // (The calculation itself always iterates chunks in order from low to high.
+    // This simply determines, if progress is less than the size of the step,
+    // whether to skip the chunks at the beginning or the end.)
+    bool progressReversed
+>
+inline NodeAddress NodeEvent::Step::primaryMap_impl(
+        // The input address
+        const NodeAddress& from,
+        
+        // Used to map against a step "in progress", i.e., only a portion (the
+        // given number) of the chunks in the step are considered.
+        std::size_t progress,
+        
+        // If not null, the value pointed-to by `terminal` is set to true if:
+        // - This call implements the forward mapping of a Remove step that 
+        // removed the given node.
+        // - This call implements the backward mapping of an Add step that added 
+        // the given node.
+        // 
+        // The value is set to false otherwise. `progress` is taken into account
+        // where applicable.
+        bool* terminal) const
+{
+    using namespace boost::adaptors;
+    
+    if (Q_UNLIKELY(!progress)) return from;
+    // other fixed-point cases should be handled upstream
+    
+    NodeAddressBuilder result;
+    
+    progress = std::min(progress, _chunkCount);
+    
+    // Counts chunks as they are encountered from low to high. If
+    // `!progressReversed`, then the mapping algorithm stops when this reaches
+    // `progress`. If `progressReversed`, then the mapping algorithm starts 
+    // after it reaches `_size - progress`.
+    std::size_t progressCount = 0;
+    
+    auto lowerBound = _primaryChunks.lower_bound(from);
+    for (auto i = _primaryChunks.begin(); i != lowerBound; ++i)
+    {
+        const NodeAddress& key = (*i).first;
+        const chunk_list_t& chunks = (*i).second;
+        
+        if constexpr (progressReversed)
+        {
+            if (progressCount + chunks.size() < _chunkCount - progress)
+            {
+                progressCount += chunks.size();
+                continue;
             }
         }
         
-        if (_data->childCountCache.size() >= MAX_OBSERVER_CACHE_SIZE)
-            _data->childCountCache.clear();
+        if constexpr (additive)
+        {
+            if (!key.isAncestorOf(from))
+            {
+                progressCount += chunks.size();
+                continue;
+            }
+        }
+        else // !additive
+        {
+            if (key > result) break;
+            if (!key.isAncestorOf(result) && key != result) 
+            {
+                progressCount += chunks.size();
+                continue;
+            }
+        }
         
-        _data->childCountCache[qMakePair(progress, address)] = result;
+        if (result.size() < key.size())
+        {
+            // This address is deeper in the tree than previous ones. Copy the 
+            // missing indices from `key` into `result`
+            auto keyEnd = key.end();
+            for (auto j = key.begin() + result.size(); j != keyEnd; ++j)
+                result.append(*j);
+        }
+        
+        // Find the "active" index that would be affected by the chunks
+        // under `ancestor`
+        
+        const std::size_t sourceIndex = from[key.size()];
+        std::size_t index = sourceIndex;
+        auto chunksEnd = chunks.end();
+        auto j = chunks.begin();
+        
+        if constexpr (progressReversed)
+        {
+            j += _chunkCount - progress - progressCount;
+            progressCount = _chunkCount - progress;
+        }
+        
+        for (; j != chunksEnd; ++j)
+        {
+            if constexpr (!progressReversed)
+            {
+                if (progressCount >= progress)
+                    goto limitReached; // break from _primaryChunks loop
+            }
+            
+            bool relevant = false;
+            if constexpr (additive)
+            {
+                if ((*j).address.lastIndex() <= index)
+                {
+                    index += (*j).length;
+                    relevant = true;
+                }
+            }
+            else // !additive
+            {
+                if ((*j).address.lastIndex() <= sourceIndex)
+                {
+                    if (index < (*j).length)
+                    {
+                        if (terminal) *terminal = true;
+                        return NodeAddress();
+                    }
+                    else
+                    {
+                        index -= (*j).length;
+                        relevant = true;
+                    }
+                }
+            }
+            
+            if (!relevant)
+            {
+                // `*j` will have no bearing on `from`, nor will any
+                // of its subsequent siblings.
+                
+                progressCount += std::distance(j, chunksEnd);
+                break; // chunk list loop
+            }
+            
+            ++progressCount;
+        }
+        
+        result.append(index);
+    }
+    
+limitReached:
+    
+    if (result.size() < from.size())
+    {
+        // `from` is deeper into the tree than any chunks in this step. Copy the 
+        // missing indices from `from` into `result`
+        
+        auto fromEnd = from.end();
+        for (auto k = from.begin() + result.size(); k != fromEnd; ++k)
+            result.append(*k);
+    }
+    
+    return std::move(result);
+}
+
+
+// Modifies a tree and records those modifications in an event.
+template<class Tree>
+class NodeEventTreeHelper
+{
+public:
+    using handle_t = aux_datatree::node_handle_t<Tree>;
+    using child_handle_t = aux_datatree::child_node_handle_t<handle_t>;
+    
+    NodeEventTreeHelper(handle_t root, NodeEvent& event)
+        : _root(root),
+        _event(event)
+    {
+        assert(_root);
+    }
+    
+    NodeEventTreeHelper(const NodeEventTreeHelper&) = delete;
+    NodeEventTreeHelper(NodeEventTreeHelper&&) = delete;
+    NodeEventTreeHelper& operator=(const NodeEventTreeHelper&) = delete;
+    NodeEventTreeHelper& operator=(NodeEventTreeHelper&&) = delete;
+    
+    // Because tree operations have the potential to throw exceptions, we must
+    // avoid actually modifying the state of the event until *after* performing
+    // all tree operations.
+    
+    template<typename Range, 
+        typename std::enable_if_t<std::is_convertible_v<
+            typename boost::range_category<boost::remove_cv_ref_t<Range>>::type,
+            std::forward_iterator_tag
+            >,
+        void*> = nullptr>
+    auto insertNodes(
+            handle_t parent, 
+            child_handle_t before, 
+            Range&& nodeValues
+        )
+    {
+        std::size_t valuesCount = boost::size(nodeValues);
+        std::size_t initialChildCount = aux_datatree::node_child_count(parent);
+        std::size_t startIndex =
+            (before == aux_datatree::node_children_end(parent)) ?
+                aux_datatree::node_child_count(parent) :
+                aux_datatree::node_index(static_cast<handle_t>(before));
+                
+        NodeAddress parentAddress = aux_datatree::node_address(parent);
+        
+        auto result = aux_datatree::node_insert_children(
+                parent,
+                before,
+                std::forward<Range>(nodeValues)
+            );
+        
+        _event.setInitialChildCount_impl(
+                _event.mapBackward(parentAddress), initialChildCount
+            );
+        _event.addChunk_impl( 
+                NodeAddressBuilder(parentAddress) << startIndex,
+                valuesCount 
+            );  
         
         return result;
     }
     
-    void initializeData(handle_t root)
+    template<typename Range, 
+        typename std::enable_if_t<!std::is_convertible_v<
+            typename boost::range_category<boost::remove_cv_ref_t<Range>>::type,
+            std::forward_iterator_tag
+        >,
+        void*> = nullptr>
+    auto insertNodes(
+            handle_t parent, 
+            child_handle_t before, 
+            Range&& nodeValues
+        )
     {
-        if (!_data)
-            _data = new Data(root);
-        else
-            validateRoot(root);
+        using buffer_t = QVarLengthArray<
+                typename boost::range_value<boost::remove_cv_ref_t<Range>>::type, 
+                64
+            >;
+        using forward_range_t = boost::iterator_range<
+                std::move_iterator<typename buffer_t::iterator>
+            >;
+        
+        buffer_t buffer(boost::begin(nodeValues), boost::end(nodeValues));
+        
+        return insertNodes<forward_range_t>(
+                parent,
+                before,
+                forward_range_t(buffer.begin(), buffer.end())
+            );
     }
     
-    void validateRoot(handle_t root, handle_t default_ = {}) const
+    void removeNodes(aux_datatree::ChildNodeRange<Tree> nodes)
     {
-        // TODO: exception
-        if (default_)
-            assert(_data ? root == _data->root : root == default_);
-        else
-            assert(!_data || root == _data->root);
+        if (Q_UNLIKELY(boost::empty(nodes))) return;
+        
+        handle_t parent = aux_datatree::node_parent(
+                static_cast<handle_t>(nodes.begin())
+            );
+        std::size_t startIndex = aux_datatree::node_index(
+                static_cast<handle_t>(nodes.begin())
+            );
+        
+        removeNodes_impl(parent, startIndex, nodes.size(), 
+                         nodes.begin(), nodes.end());
     }
     
-    void extendPrimaryUnits(NodeUnit&& unit)
+    void removeNodes(handle_t parent, std::size_t startIndex, std::size_t count = 1)
     {
-        _data->additiveMappingCache.clear();
-        _data->subtractiveMappingCache.clear();
-        _data->childCountCache.clear();
-        _data->primaryUnitsCache.clear();
+        if (Q_UNLIKELY(!count)) return;
         
-        std::size_t index = unit.address.lastIndex();
+        assert( count <= aux_datatree::node_child_count(parent) );
         
+        if constexpr (
+            aux_datatree::_handle_is_random_access_iterator<
+                aux_datatree::child_node_handle_t<handle_t>
+            >::value
+        )
         {
-            // erase any previously recorded primary removals that are 
-            // descendants of this removal. presumably they have consequently
-            // been discovered as secondary removals so we don't need to worry
-            // about that.
+            child_handle_t begin = aux_datatree::node_children_begin(parent);
+            removeNodes_impl(
+                    parent, 
+                    startIndex, 
+                    count, 
+                    begin + startIndex,
+                    begin + startIndex + count
+                );
+        }
+        else // child_node_handle_t is not a random access iterator
+        {
+            child_handle_t begin = aux_datatree::node_children_begin(parent);
             
-            auto i = _data->primaryUnitsByParent.lowerBound(unit.address);
-            while ( i != _data->primaryUnitsByParent.end()
-                && (unit.address == i.key() || unit.address.isAncestorOf(i.key())) )
-            {
-                _data->primaryUnitsCount -= i->size();
-                _data->childCountByParent.remove(i.key());
-                
-                i = _data->primaryUnitsByParent.erase(i);
-            }
+            for (std::size_t i = 0; i < startIndex; ++i)
+                aux_datatree::node_sibling_increment(begin);
+            
+            child_handle_t end = begin;
+            for (std::size_t i = 0; i < count; ++i)
+                aux_datatree::node_sibling_increment(end);
+            
+            removeNodes_impl(parent, startIndex, count, begin, end);
+        }
+    }
+    
+private:
+    void removeNodes_impl(
+            handle_t parent, 
+            std::size_t startIndex,
+            std::size_t count,
+            child_handle_t begin,
+            child_handle_t end
+        )
+    {
+        NodeAddress parentAddress = aux_datatree::node_address(parent);
+        std::size_t initialChildCount = aux_datatree::node_child_count(parent);
+        
+        // TODO: secondary nodes
+        
+        aux_datatree::node_remove_children(
+                parent,
+                begin,
+                end
+            );
+        
+        _event.setInitialChildCount_impl(
+                _event.mapBackward(parentAddress), initialChildCount
+            );
+        _event.removeChunk_impl(
+                NodeAddressBuilder(parentAddress) << startIndex, 
+                count
+            );
+    }
+    
+    handle_t _root;
+    NodeEvent& _event;
+};
+
+class TreeObserverData
+{
+    
+    struct EventEntry
+    {
+        NodeEvent event;
+        quintptr id;
+        
+        // TODO: serialize ref counting with atomic int instead of mutex. The 
+        // main challenge of this is that this is not a true ref count -- the 
+        // observer data always keeps a single implicit semiweak reference.
+        // Therefore a refCount of zero does not guarantee there will be no 
+        // subsequent access from another thread as it might with other shared 
+        // data.
+        // 
+        // This can likely be worked around by using a reference-counted object
+        // to store the reference count itself (gives observer data maximum 
+        // freedom to manage itself while avoiding memory access races) as well 
+        // as some (atomic?) flags to allow event data and observer data to 
+        // coordinate to resolve ordering issues.
+        unsigned refCount;
+    };
+    using node_event_list = std::list<EventEntry>;
+    
+public:
+    class EventCollectionIterator 
+        : public boost::iterator_adaptor<
+            EventCollectionIterator,
+            node_event_list::const_iterator,
+            NodeEvent,
+            boost::use_default, // Category 
+            const NodeEvent&
+        >
+    {
+        using base_t = node_event_list::const_iterator;
+        using adaptor_t = boost::iterator_adaptor<
+                EventCollectionIterator,
+                node_event_list::const_iterator,
+                NodeEvent,
+                boost::use_default,
+                const NodeEvent&
+            >;
+        
+    public:
+        EventCollectionIterator() = default;
+        EventCollectionIterator(const EventCollectionIterator&) = default;
+        
+    private:
+        EventCollectionIterator(base_t base)
+            : adaptor_t(base)
+        {
         }
         
-        auto parentAddress = unit.address.parent();
+        const NodeEvent& dereference() { return (*base()).event; }
         
-        if (_data->primaryUnitsByParent.contains(parentAddress))
+        friend class boost::iterator_core_access;
+        friend class TreeObserverData;
+    };
+    
+    using EventCollection = boost::iterator_range<EventCollectionIterator>;
+    
+    TreeObserverData(const TreeObserverData&) = delete;
+    TreeObserverData(TreeObserverData&&) = delete;
+    
+    ~TreeObserverData()
+    { 
+        const QMutexLocker eventRefLocker(&_eventRefMutex);
+        const QWriteLocker locker(&_lock);
+        
+        assert(
+                _isDeleted 
+                && (
+                    _events.empty()
+                )
+            );
+    }
+    
+    void startRecording()
+    {
+        const QWriteLocker locker(&_lock);
+        
+        assert(!_isRecording);
+        
+        _isRecording = true;
+        _recording = NodeEvent();
+    }
+    
+    const NodeEvent& finishRecording()
+    {
+        _eventRefMutex.lock();
+        const QWriteLocker locker(&_lock);
+        _eventRefMutex.unlock();
+        
+        assert(_isRecording);
+        
+        _isRecording = false;
+        
+        _recording.initData();
+        auto id = _recording._data->id;
+        
+        assert(!_eventIndex.contains(id));
+        
+        auto i = _events.insert(
+                _events.end(),
+                { std::move(_recording), id, 0 }
+            );
+        _eventIndex[id] = i;
+        
+        return _events.back().event;
+    }
+    
+    void releaseNodeEvent(quintptr id)
+    {
+        // Expected to be called from inside NodeEvent::Data::~Data where it is
+        // wrapped in a lock of _eventRefMutex, i.e., no ref counts will change.
+        
+        assert(!_eventRefMutex.tryLock());
+        
+        // Ensure that no events are added
+        const QWriteLocker locker(&_lock);
+        
+        assert(id && _eventIndex.contains(id));
+        
+        auto i = noDetach(_eventIndex)[id];
+        if (i == _events.begin())
         {
-            // there are other removals in this record with the same parent.
-            // check to see if this is adjacent to any of them and possibly
-            // merge them together
-            
-            auto& peers = _data->primaryUnitsByParent[parentAddress];
-            auto upperBound = std::upper_bound(peers.begin(), peers.end(), unit.address);
-            
-            bool mergeWithUpper = false;
-            
-            if (upperBound != peers.end())
-                mergeWithUpper = (index + unit.length == (*upperBound).address.lastIndex());
-            
-            if (upperBound != peers.begin())
+            auto end = _events.end();
+            for (; i != end; ++i)
             {
-                auto lowerBound = upperBound - 1;
-                
-                if ((*lowerBound).address.lastIndex() + (*lowerBound).length == index)   
-                {
-                    // current removal is adjacent to the one prior, 
-                    // merge with it.
-                    (*lowerBound).length += unit.length;
-                    
-                    if (mergeWithUpper)
-                    {
-                        // and to the one after, merge that with the one prior
-                        // as well then erase it. (last operation performed with 
-                        // iterator so it will be fine to invalidate it)
-                        (*lowerBound).length += (*upperBound).length;
-                        peers.erase(upperBound);
-                        --(_data->primaryUnitsCount);
-                    }
-                    return;
-                }
+                if ((*i).refCount) 
+                    break;
+                else
+                    _eventIndex.remove((*i).id);
             }
-            
-            if (mergeWithUpper)
-            {
-                // the current removal is adjacent to only the one after, 
-                // merge with it
-                (*upperBound).address = unit.address;
-                (*upperBound).length += unit.length;
-                return;
-            }
-            
-            // the current removal is isolated, don't merge with anything.
-            peers.insert(upperBound, std::move(unit));
-            ++(_data->primaryUnitsCount);
+            _events.erase(_events.begin(), i);
+        }
+    }
+    
+    void onTreeDeleted()
+    {
+        const QWriteLocker locker(&_lock);
+        
+        assert(!_isDeleted);
+        _isDeleted = true;
+    }
+    
+    EventCollection events() const
+    {
+        return EventCollection(
+                EventCollectionIterator(_events.begin()), 
+                EventCollectionIterator(_events.end())
+            );
+    }
+    
+    EventCollectionIterator eventsEnd() const { return EventCollectionIterator(_events.end()); }
+    
+    EventCollectionIterator findEvent(const NodeEvent& event) const
+    {
+        if (!event._data || !_eventIndex.contains(event._data->id))
+            return EventCollectionIterator(_events.end());
+        else
+            return EventCollectionIterator(_eventIndex[event._data->id]);
+    }
+    
+    std::unique_ptr<QReadLocker> lockForRead() const
+    {
+        return std::make_unique<QReadLocker>(&_lock);
+    }
+    
+    std::unique_ptr<QWriteLocker> lockForWrite()
+    {
+        return std::make_unique<QWriteLocker>(&_lock);
+    }
+    
+    std::unique_ptr<QMutexLocker> lockEventRefCount() const
+    {
+        return std::make_unique<QMutexLocker>(&_eventRefMutex);
+    }
+    
+private:
+    TreeObserverData(std::any root)
+        : _root(root)
+    {
+    }
+    
+    std::any _root;
+    
+    node_event_list _events;
+    QHash<quintptr, node_event_list::iterator> _eventIndex;
+    
+    bool _isDeleted = false;
+    bool _isRecording = false;
+    
+    NodeEvent _recording;
+    
+    mutable QMutex _eventRefMutex;
+    mutable QReadWriteLock _lock = QReadWriteLock(QReadWriteLock::Recursive);
+    
+    template<typename> friend class TreeObserver;
+    
+#ifdef ADDLE_TEST
+    friend class ::DataTree_UTest;
+#endif
+};
+
+inline NodeEvent::Data::Data(const Data& other)
+    : id(other.id),
+    root(other.root),
+    steps(other.steps),
+    initialChildCounts(other.initialChildCounts),
+    observerData(other.observerData),
+    observerRefCount(other.observerRefCount)
+{
+    if (observerData)
+    {
+        const auto lock = observerData->lockEventRefCount();
+        
+        assert(observerRefCount);
+        ++(*observerRefCount);
+    }
+}
+        
+inline NodeEvent::Data::~Data()
+{
+    if (observerData)
+    {
+        const auto lock = observerData->lockEventRefCount();
+        
+        assert(observerRefCount);
+        if (!--(*observerRefCount))
+            observerData->releaseNodeEvent(id);
+    }
+}
+
+template<typename Tree>
+class TreeObserver
+{
+public:
+    using handle_t = aux_datatree::node_handle_t<Tree>;
+    using child_handle_t = aux_datatree::child_node_handle_t<handle_t>;
+    
+    TreeObserver(Tree& tree)
+        : _root(::Addle::aux_datatree::tree_root(tree)),
+        _data(new TreeObserverData(_root))
+    {
+    }
+    
+    TreeObserver(const TreeObserver&) = delete;
+    TreeObserver(TreeObserver&&) = delete;
+    TreeObserver& operator=(const TreeObserver&) = delete;
+    TreeObserver& operator=(TreeObserver&&) = delete;
+    
+    ~TreeObserver()
+    {
+        _data->onTreeDeleted(); 
+    }
+    
+    void startRecording()
+    {
+        _data->startRecording();
+    }
+    
+    NodeEvent finishRecording()
+    {
+        return exposeEvent(_data->finishRecording());
+    }
+    
+    NodeEvent lastNodeEvent() const
+    {
+        const auto lock = _data->lockForRead();
+        
+        if (_data->_events.empty())
+        {
+            return NodeEvent();
         }
         else
         {
-            // the record has no other removals with the same parent,
-            // so just record this and move on.
-            _data->primaryUnitsByParent[parentAddress] = { std::move(unit) };
-            ++(_data->primaryUnitsCount);
+            return exposeEvent(_data->_events.back().event);
         }
     }
     
     template<typename Range>
-    inline void extendSecondaryUnits(Range&& range)
+    auto insertNodes(
+            handle_t parent, 
+            child_handle_t before, 
+            Range&& nodeValues
+         )
     {
-        std::size_t oldSecondariesSize = _data->secondaryUnits.size();
+        assert(_data->_isRecording);
         
-        reserve_for_size_if_cheap(_data->secondaryUnits, range);
-                
-        for (auto&& unit : range)
+        return NodeEventTreeHelper<Tree>(
+                _root, 
+                _data->_recording
+            ).template insertNodes<Range>(
+                    parent, 
+                    before, 
+                    std::forward<Range>(nodeValues)
+                );
+    }
+    
+    auto insertNodes(
+            handle_t parent, 
+            child_handle_t before, 
+            const std::initializer_list<aux_datatree::node_value_t<Tree>>& values
+         )
+    {
+        return insertNodes<
+                const std::initializer_list<aux_datatree::node_value_t<Tree>>&
+            >(
+                parent, 
+                before, 
+                values
+            );
+    }
+    
+    template<typename Range>
+    auto prependNodes(
+            handle_t parent, 
+            Range&& nodeValues
+         )
+    {
+        return insertNodes(
+                parent, 
+                aux_datatree::node_children_begin(parent),
+                std::forward<Range>(nodeValues)
+            );
+    }
+    
+    auto prependNodes(
+            handle_t parent, 
+            const std::initializer_list<aux_datatree::node_value_t<Tree>>& values
+         )
+    {
+        return prependNodes<
+                const std::initializer_list<aux_datatree::node_value_t<Tree>>&
+            >(
+                parent, 
+                values
+            );
+    }
+    
+    template<typename Range>
+    auto appendNodes(
+            handle_t parent, 
+            Range&& nodeValues
+         )
+    {
+        return insertNodes(
+                parent, 
+                aux_datatree::node_children_end(parent),
+                std::forward<Range>(nodeValues)
+            );
+    }
+    
+    auto appendNodes(
+            handle_t parent, 
+            const std::initializer_list<aux_datatree::node_value_t<Tree>>& values
+         )
+    {
+        return appendNodes<
+                const std::initializer_list<aux_datatree::node_value_t<Tree>>&
+            >(
+                parent, 
+                values
+            );
+    }
+    
+    void removeNodes(
+            handle_t parent,
+            std::size_t startIndex,
+            std::size_t count = 1
+        )
+    {
+        assert(_data->_isRecording);
+        NodeEventTreeHelper<Tree>(
+                _root, 
+                _data->_recording
+            ).removeNodes(
+                parent, 
+                startIndex, 
+                count
+            );
+    }
+    
+    template<typename Range>
+    void removeNodes(Range&& range)
+    {
+        assert(_data->_isRecording);
+        NodeEventTreeHelper<Tree>(
+                _root, 
+                _data->_recording
+            ).removeNodes(
+                std::forward<Range>(range)
+            );
+    }
+    
+private:
+    // Gives an altered copy of `event` that is suitable for use outside of the 
+    // observer.
+    NodeEvent exposeEvent(const NodeEvent& event) const
+    {
+        const auto locker = _data->lockEventRefCount();
+        auto id = event._data->id;
+        
+        assert(!event._data->observerData && _data->_eventIndex.contains(id));
+        unsigned& refCount = (*_data->_eventIndex[id]).refCount;
+        
+        NodeEvent result(event);
+        result._data.detach(); 
+        // This will not automatically increment the ref count because result's 
+        // observerData pointer is not set.
+        
+        ++refCount;
+        
+        result._data->observerRefCount = &refCount;
+        result._data->observerData = _data;
+        
+        return result;
+    }
+    
+    ::Addle::aux_datatree::node_handle_t<Tree> _root = {};
+    QSharedPointer<TreeObserverData> _data;
+    
+#ifdef ADDLE_TEST
+    friend class ::DataTree_UTest;
+#endif
+};
+
+class NodeEventBuilder
+{
+public:
+    NodeEventBuilder() = default;
+    
+    template< typename Tree_>
+    NodeEventBuilder(Tree_& tree)
+        : _event(::Addle::aux_datatree::tree_root(tree))
+    {
+    }
+    
+    NodeEventBuilder(NodeEventBuilder&&) = default;
+    NodeEventBuilder& operator=(NodeEventBuilder&&) = default;
+    
+    NodeEvent event() const { return _event; }
+    
+    operator const NodeEvent& () const & { return _event; }
+    operator NodeEvent () && { return std::move(_event); }
+    
+    inline NodeEventBuilder& addAddress(DataTreeNodeAddress address)
+    {
+        _event.addChunk_impl(std::move(address), 1);
+        return *this;
+    }
+    
+    template<typename Range>
+    inline NodeEventBuilder& addAddresses(Range&& range)
+    {
+        static_assert(
+            std::is_convertible_v<
+                typename boost::range_reference<
+                    boost::remove_cv_ref_t<Range>
+                >::type,
+                DataTreeNodeAddress
+            >,
+            "This method may only be used for ranges of NodeAddress"
+        );
+        
+        if (!boost::empty(range))
         {
-            _data->secondaryUnits.append(std::move(unit));
+            using namespace boost::adaptors;
+            _event.addChunks_impl(
+                    range 
+                    | transformed([] (auto&& address) { 
+                        return aux_datatree::NodeChunk {
+                                std::forward<decltype(address)>(address), 
+                                1 
+                            };
+                    })
+                );
         }
         
-        std::inplace_merge(
-                _data->secondaryUnits.begin(),
-                _data->secondaryUnits.begin() + oldSecondariesSize,
-                _data->secondaryUnits.end()
-            );
+        return *this;
     }
     
-    inline void extendSecondaryUnits(NodeUnit&& unit)
+    inline NodeEventBuilder& addAddresses(
+            const std::initializer_list<DataTreeNodeAddress>& addresses
+        )
     {
-        auto i = std::upper_bound(
-                _data->secondaryUnits.begin(),
-                _data->secondaryUnits.end(),
-                unit
-            );
-        _data->secondaryUnits.insert(i, std::move(unit));
+        return addAddresses<
+            const std::initializer_list<DataTreeNodeAddress>&
+            >(addresses);
     }
     
-    struct Data : QSharedData
+    inline NodeEventBuilder& addChunk(
+            DataTreeNodeAddress address,
+            std::size_t length
+        )
     {
-        inline Data(handle_t root_ = {}) : root(root_) {}
-        Data(const Data&) = default;
+        _event.addChunk_impl(std::move(address), length);
+        return *this;
+    }
+    
+    template<typename Range>
+    inline NodeEventBuilder& addChunks(Range&& range)
+    {
+        _event.addChunks_impl(std::forward<Range>(range));
+        return *this;
+    }
+    
+    inline NodeEventBuilder& addChunks(
+            const std::initializer_list<aux_datatree::NodeChunk>& chunks
+        )
+    {
+        return addChunks<
+                const std::initializer_list<aux_datatree::NodeChunk>&
+            >(chunks);
+    }
+    
+    inline NodeEventBuilder& removeAddress(DataTreeNodeAddress address)
+    {
+        _event.removeChunk_impl(std::move(address), 1);
+        return *this;
+    }
+    
+    template<typename Range>
+    inline NodeEventBuilder& removeAddresses(Range&& range)
+    {
+        static_assert(
+            std::is_convertible_v<
+                typename boost::range_reference<
+                    boost::remove_cv_ref_t<Range>
+                >::type,
+                DataTreeNodeAddress
+            >,
+            "This method may only be used for ranges of NodeAddress"
+        );
         
-        handle_t root;
+        if (!boost::empty(range))
+        {
+            using namespace boost::adaptors;
+            _event.removeChunks_impl(
+                    range 
+                    | transformed([] (auto&& address) { 
+                        return aux_datatree::NodeChunk {
+                                std::forward<decltype(address)>(address), 
+                                1 
+                            };
+                    })
+                );
+        }
         
-        QHash<NodeAddress, std::size_t> childCountByParent;
-        QMap<NodeAddress, unit_list_t> primaryUnitsByParent;
-        std::size_t primaryUnitsCount = 0;
-        
-        unit_list_t secondaryUnits;
-        
-        mutable unit_list_t primaryUnitsCache;
-        mutable QHash<NodeAddress, NodeAddress> additiveMappingCache;
-        mutable QHash<NodeAddress, NodeAddress> subtractiveMappingCache;
-        mutable QHash<QPair<std::size_t, NodeAddress>, std::size_t> childCountCache;
+        return *this;
+    }
+    
+    inline NodeEventBuilder& removeAddresses(
+            const std::initializer_list<DataTreeNodeAddress>& addresses
+        )
+    {
+        return removeAddresses<
+                const std::initializer_list<DataTreeNodeAddress>&
+            >(addresses);
+    }
+    
+    inline NodeEventBuilder& removeChunk(
+            DataTreeNodeAddress address, 
+            std::size_t length
+        )
+    {
+        _event.removeChunk_impl(std::move(address), length);
+        return *this;
+    }
+    
+    template<typename Range>
+    inline NodeEventBuilder& removeChunks(Range&& range)
+    {
+        _event.removeChunks_impl(std::forward<Range>(range));
+        return *this;
+    }
+    
+    inline NodeEventBuilder& removeChunks(
+            const std::initializer_list<aux_datatree::NodeChunk>& chunks
+        )
+    {
+        return removeChunks<
+                const std::initializer_list<aux_datatree::NodeChunk>&
+            >(chunks);
+    }
+    
+private:
+   NodeEvent _event;
+};
+
+/**
+ * Utility for synchronizing the structures of multiple data trees across a node 
+ * event.
+ *
+ * NostalgicNodeEventHelper emulates a sequence of simple incremental
+ * transitions in the data tree structure, e.g., so the same structural changes
+ * can be echoed in another tree. At any point, NostalgicNodeEventHelper may be 
+ * queried for address mappings, node children counts, and safe access to 
+ * underlying data.
+ * 
+ * The helper will also indicate an operation and an operating chunk. Calling 
+ * `next()` on the helper emulates applying that operation to that chunk on the 
+ * underlying tree.
+ * 
+ * A newly-initialized NostalgicNodeEventHelper is "fully nostalgic", and will
+ * emulate the tree as if the event had never occurred. As the helper is 
+ * progressed, it gradually "applies" changes until it reaches the end state of 
+ * the event and is no longer nostalgic.
+ * 
+ * Note that the transitional states given by NostalgicNodeEventHelper may never
+ * have existed on the underlying tree, only the end-state of the helper and the 
+ * event are strictly equivalent. Chunks given by the helper are in an optimized
+ * order and simplified, with redundancies omitted.
+ * 
+ * NostalgicNodeEventHelper is not thread-safe.
+ */
+class NostalgicNodeEventHelper
+{
+public:
+    class UnexpectedEventException : public std::exception
+    {
+    public:
+        UnexpectedEventException() = default;
+        UnexpectedEventException(const UnexpectedEventException&) = default;
+        virtual ~UnexpectedEventException() = default;
     };
     
-    QSharedDataPointer<Data> _data;
-    template<class, class> friend class NostalgicVisitorBase;
-};
-
-template<class Tree>
-class NostalgicNodeEventVisitor;
-
-template<class Tree>
-class AddNodesObserver;
-
-template<class Tree>
-class NodesAddedEvent : public ExtensibleNodeEventBase<Tree>
-{
-public:
-    using handle_t = node_handle_t<Tree>;
+    using NodeOperation = NodeEvent::NodeOperation;
     
-    NodesAddedEvent() = default;
-    NodesAddedEvent(const NodesAddedEvent&) = default;
-    NodesAddedEvent(NodesAddedEvent&&) = default;
+    NostalgicNodeEventHelper() = default;
+    NostalgicNodeEventHelper(NostalgicNodeEventHelper&&) = default;
+    NostalgicNodeEventHelper& operator=(NostalgicNodeEventHelper&&) = default;
     
-    NodesAddedEvent& operator=(const NodesAddedEvent&) = default;
-    NodesAddedEvent& operator=(NodesAddedEvent&&) = default;
+    NostalgicNodeEventHelper(const NostalgicNodeEventHelper& other)
+        : _events(other._events),
+        _progress(other._progress),
+        _step(other._step),
+        _stepEnd(other._stepEnd),
+        _cChunk(other._cChunk),
+        _fChunk(other._fChunk),
+        _rCChunk(other._rCChunk),
+        _rFChunk(other._rFChunk),
+        _maxCacheSize(other._maxCacheSize),
+        _observerData(other._observerData),
+        _eventPosition(other._eventPosition)
+    {
+    }
+    
+    NostalgicNodeEventHelper& operator=(const NostalgicNodeEventHelper& other)
+    {
+        _events = other._events;
+        _progress = other._progress;
+        _step = other._step;
+        _stepEnd = other._stepEnd;
+        _cChunk = other._cChunk;
+        _fChunk = other._fChunk;
+        _rCChunk = other._rCChunk;
+        _rFChunk = other._rFChunk;
+        _maxCacheSize = other._maxCacheSize;
+        _observerData = other._observerData;
+        _eventPosition = other._eventPosition;
         
-    inline NodeAddress mapForward(NodeAddress address) const
-    {
-        return this->mapAdditive(address);
-    }
-    
-    inline NodeAddress mapBackward(NodeAddress address) const
-    {
-        return this->mapSubtractive(address);
-    }
-    
-    inline std::size_t childCount(NodeAddress address, std::size_t progress) const
-    {
-        return this->template childCount_impl<true>(address, progress);
-    }
-    
-    friend class AddNodesObserver<Tree>;
-    friend class NostalgicNodeEventVisitor<Tree>;
-};
-
-template<class Tree>
-class AddNodesObserver
-{
-public:
-    using handle_t = node_handle_t<Tree>;
-    
-    AddNodesObserver() = default;
-    
-    AddNodesObserver(const AddNodesObserver&) = delete;
-    AddNodesObserver(AddNodesObserver&&) = delete;
-    AddNodesObserver& operator=(const AddNodesObserver&) = delete;
-    AddNodesObserver& operator=(AddNodesObserver&&) = delete;
-    
-    inline const NodesAddedEvent<Tree>& event() const & { return _event; }
-    inline NodesAddedEvent<Tree>&& event() && { return std::move(_event); }
-    
-    inline operator const NodesAddedEvent<Tree>& () const & { return _event; }
-    inline operator NodesAddedEvent<Tree>&& () && { return std::move(_event); }
-    
-//     /**
-//      * addNode and addNodeRange add an existing node or range of existing nodes 
-//      * to the observer. This allows the tree's native API to be used to do the 
-//      * actual node creation and insertion.
-//      * 
-//      * If addNodeRange is given a range that is forward iterable, i.e., that it
-//      * can be repeat iterated without side-effects, the range is returned again
-//      * as a convenience. (It is returned by copy if given as an r-value and by 
-//      * l-value reference if given by l-value). If the range is not forward
-//      * iterable then nothing is returned.
-//      */
-//     
-//     template<typename Range,
-//         std::enable_if_t<
-//             std::is_convertible_v<
-//                 typename boost::range_category<boost::remove_cv_ref_t<Range>>::type, 
-//                 std::forward_iterator_tag
-//             >,
-//             void*> = nullptr
-//         >
-//     inline Range addNodeRange(Range&& range)
-//     {
-//         static_assert(
-//             std::is_convertible_v<
-//                 typename boost::range_iterator<boost::remove_cv_ref_t<Range>>::type,
-//                 const_node_handle_t<Tree>
-//             >,
-//             "The given range is not recognized as a datatree node range."
-//         );
-//         
-//         addNodeRange_impl(std::forward<Range>(range));
-//         return range;
-//     }
-//     
-//     template<typename Range,
-//         std::enable_if_t<
-//             !std::is_convertible_v<
-//                 typename boost::range_category<boost::remove_cv_ref_t<Range>>::type, 
-//                 std::forward_iterator_tag
-//             >,
-//             void*> = nullptr
-//         >
-//     inline void addNodeRange(Range&& range)
-//     {
-//         static_assert(
-//             std::is_convertible_v<
-//                 typename boost::range_iterator<boost::remove_cv_ref_t<Range>>::type,
-//                 const_node_handle_t<Tree>
-//             >,
-//             "The given range is not recognized as a datatree node range."
-//         );
-//         
-//         addNodeRange_impl(std::forward<Range>(range));
-//     }
-//     
-//     inline handle_t addNode(handle_t node)
-//     {
-//         NodeAddress address = datatree_node_address(node);
-//         std::size_t siblingSize = datatree_node_child_count(datatree_node_parent(node));
-//         handle_t root = datatree_node_root(node);
-//         
-//         // no modification of observer state before this point. no calls to 
-//         // (potentially throwing) datatree_* functions after this point.
-//         
-//         _event.initializeData(root);
-//         
-//         _event._data->childCountByParent[address.parent()] = siblingSize;
-//         _event.extendPrimaryUnits({ std::move(address), 1 });
-//         
-//         return node;
-//     }
-//     
-    template<typename ChildHandle, typename Range>
-    inline auto addValueRange(handle_t parent, ChildHandle&& pos, Range&& values)
-    {
-    }
-    
-    template<typename ChildHandle, typename T>
-    inline auto addValue(handle_t parent, ChildHandle&& pos, T&& value)
-    {
-    }
-    
-private:
-//     template<typename Range>
-//     void addNodeRange_impl(Range&& range)
-//     {
-//         if (boost::empty(range)) return;
-//         
-//         auto&& begin = boost::begin(range);
-//         auto&& end = boost::end(range);
-//         
-//         handle_t root = {};
-//         
-//         QVarLengthArray<NodeUnit, 64> primaryUnitsBuffer;
-//         QVarLengthArray<NodeUnit, 64> secondaryUnitsBuffer;
-//         QVarLengthArray<std::size_t, 64> childCountBuffer;
-//         
-// 
-//         {
-//             handle_t lastParent = {};
-//             std::size_t lastIndex = 0;
-//             
-//             for (auto i = begin; i != end; ::Addle::aux_datatree::node_sibling_increment(i) )
-//             {
-//                 handle_t node(i);
-//                 handle_t currentRoot = ::Addle::aux_datatree::node_root(node);
-//             
-//                 handle_t parent = ::Addle::aux_datatree::node_parent(node);
-//                 std::size_t index = ::Addle::aux_datatree::node_index(node);
-//                 
-//                 if (primaryUnitsBuffer.isEmpty()
-//                         || parent != lastParent
-//                         || index != lastIndex + 1
-//                     )
-//                 {
-//                     primaryUnitsBuffer.append({ ::Addle::aux_datatree::node_address(node), 1 });
-//                     childCountBuffer.append( ::Addle::aux_datatree::node_child_count(parent));
-//                     root = currentRoot;
-//                 }
-//                 else
-//                 {
-//                     ++(primaryUnitsBuffer.last().length);
-//                     _event.validateRoot(currentRoot, root);
-//                 }
-//                 
-//                 lastParent = parent;
-//                 lastIndex = index;
-//             }
-//             
-// //         for (std::size_t i = 0; i < count; ++i)
-// //         {
-// //             if (i + index > childCount)
-// //                 break; 
-// //                 // this probably indicates an error case, but we'll let 
-// //                 // datatree_node_remove decide what to do about it.
-// //             
-// //             handle_t child = datatree_node_child_at(parent, i + index);
-// //             
-// //             auto&& begin = datatree_node_dfs_begin(child);
-// //             auto&& end = datatree_node_dfs_end(child);
-// //             
-// //             for (auto j = begin; j != end; ++j)
-// //             {
-// //                 handle_t descendant = j.cursor();
-// //                 
-// //                 std::size_t descendantChildCount = datatree_node_child_count(descendant);
-// //                 if (descendantChildCount > 0)
-// //                 {
-// //                     secondaryUnitsBuffer.append({
-// //                             mapBackward(datatree_node_address(descendant) << 0),
-// //                             descendantChildCount
-// //                         });
-// //                 }
-// //             }
-// //         }
-//             
-//         }
-// 
-//         // no modification of observer state before this point. no calls to 
-//         // (potentially throwing) datatree_* functions after this point.
-//         
-//         _event.initializeData(root);
-//         
-//         {
-//             std::size_t i = 0;
-//             for (NodeUnit& unit : primaryUnitsBuffer)
-//             {
-//                 _event.extendPrimaryUnits(std::move(unit));
-//                 _event._data->childCountByParent[unit.address.parent()] = childCountBuffer[i];
-//                 ++i;
-//             }
-//         }
-//         //this->extendSecondaryUnits(secondaryUnitsBuffer);
-//     }
-    
-    NodesAddedEvent<Tree> _event;
-};
-
-template<typename Tree>
-class RemoveNodesObserver;
-
-template<class Tree>
-class NodesRemovedEvent : public ExtensibleNodeEventBase<Tree>
-{
-public:
-    using handle_t = node_handle_t<Tree>;
-    
-    //using nostalgia_t = NostalgicVisitorImpl<RemoveNodesObserver<Tree>, false>;
-    
-    NodesRemovedEvent() = default;
-    
-//     inline NodesRemovedEvent(handle_t root)
-//         : _data(new ExtensibleNodeEventBase<Tree>::Data(root))
-//     {
-//     }
-    
-    NodesRemovedEvent(const NodesRemovedEvent&) = default;
-    NodesRemovedEvent(NodesRemovedEvent&&) = default;
-    
-    NodesRemovedEvent& operator=(const NodesRemovedEvent&) = default;
-    NodesRemovedEvent& operator=(NodesRemovedEvent&&) = default;
-    
-    inline NodeAddress mapForward(NodeAddress address) const
-    {
-        return this->mapSubtractive(address);
-    }
-    
-    inline NodeAddress mapBackward(NodeAddress address) const
-    {
-        return this->mapAdditive(address);
-    }
-    
-    inline std::size_t childCount(NodeAddress address, std::size_t progress) const
-    {
-        return this->template childCount_impl<false>(address, progress);
-    }
-    
-    friend class RemoveNodesObserver<Tree>;
-    friend class NostalgicNodeEventVisitor<Tree>;
-};
-
-template<typename Tree>
-class RemoveNodesObserver
-{
-public:
-    using handle_t = node_handle_t<Tree>;
-    
-    RemoveNodesObserver() = default;
-//     inline RemoveNodesObserver(handle_t root)
-//         : _event(root)
-//     {
-//     }
-    
-    RemoveNodesObserver(const RemoveNodesObserver&) = delete;
-    RemoveNodesObserver(RemoveNodesObserver&&) = delete;
-    RemoveNodesObserver& operator=(const RemoveNodesObserver&) = delete;
-    RemoveNodesObserver& operator=(RemoveNodesObserver&&) = delete;
-    
-    inline const NodesRemovedEvent<Tree>& event() const & { return _event; }
-    inline NodesRemovedEvent<Tree>&& event() && { return std::move(_event); }
-    
-    inline operator const NodesRemovedEvent<Tree>& () const & { return _event; }
-    inline operator NodesRemovedEvent<Tree>&& () && { return std::move(_event); }
+        invalidateCaches();
         
-    void remove(handle_t parent, std::size_t index, std::size_t count = 1)
-    {
-        assert(parent);
-        if (count == 0)
-            return;
-        
-        std::size_t childCount = aux_datatree::node_child_count(parent);
-        
-//         ChildNodeRange<Tree> children(
-//                 aux_datatree::node_child_at(parent, index),
-//                 (index + count >= childCount) ?
-//                     aux_datatree::node_child_at(parent, inde 
-//             );
-        
-//         remove_impl(parent, children, index, count);
+        return *this;
     }
     
-    void remove(ChildNodeRange<Tree> children)
+    NostalgicNodeEventHelper(const NodeEvent& event)
     {
-        if (children.empty())
-            return;
+        if (!event._data || event._data->steps.empty()) return;
         
-        handle_t parent = aux_datatree::node_parent(children.begin());
-        std::size_t index = aux_datatree::node_index(children.begin());
-        std::size_t count = boost::size(children);
+        _events = { event };
         
-        auto&& begin = children.begin();
-        auto&& end = children.end();
-        for (auto i = begin; i != end; ++i)
+        _step       = _events.front()._data->steps.begin();
+        _stepEnd    = _events.front()._data->steps.end();
+        
+        initChunkIterators();
+        
+        _observerData = _events.front()._data->observerData;
+        if (_observerData)
         {
-            assert(aux_datatree::node_parent(i) == parent);
+            auto lock = _observerData->lockForRead();
+            _eventPosition = _observerData->findEvent(_events.front());
         }
-        
-        remove_impl(parent, children, index, count);
     }
     
-private:
-    // TODO: adapt to work with any node range?
-    void remove_impl(handle_t parent, ChildNodeRange<Tree> children, std::size_t index, std::size_t count)
+    NostalgicNodeEventHelper(NodeEvent&& event)
     {
-        handle_t root = aux_datatree::node_root(parent);
+        if (!event._data || event._data->steps.empty()) return;
         
-        QVarLengthArray<NodeUnit, 64> secondaryUnitsBuffer;
+        _events = { std::move(event) };
         
-        auto&& begin = children.begin();
-        auto&& end = children.end();
+        _step       = _events.front()._data->steps.begin();
+        _stepEnd    = _events.front()._data->steps.end();
         
-        // record secondary removals
-        for (handle_t child = begin; child != end; aux_datatree::node_sibling_increment(child))
+        initChunkIterators();
+        
+        _observerData = _events.front()._data->observerData;
+        if (_observerData)
         {
-            auto&& desc_begin = aux_datatree::node_dfs_begin(child);
-            auto&& desc_end = aux_datatree::node_dfs_end(child);
+            auto lock = _observerData->lockForRead();
+            _eventPosition = _observerData->findEvent(_events.front());
+        }
+    }
+    
+    NostalgicNodeEventHelper& operator=(const NodeEvent& event)
+    {
+        if (event._data && !event._data->steps.empty()) 
+        {
+            _events = { event };
             
-            for (
-                auto descendant = desc_begin; 
-                descendant != desc_end; 
-                aux_datatree::node_dfs_increment(descendant)
-            )
+            _progress = 0;
+            _step       = _events.front()._data->steps.begin();
+            _stepEnd    = _events.front()._data->steps.end();
+            
+            _observerData = _events.front()._data->observerData;
+            if (_observerData)
             {
-                std::size_t descendantChildCount = aux_datatree::node_child_count(descendant);
-                if (descendantChildCount > 0)
-                {
-                    secondaryUnitsBuffer.append({
-                            _event.mapBackward(aux_datatree::node_address(descendant) << 0),
-                            descendantChildCount
-                        });
-                }
+                auto lock = _observerData->lockForRead();
+                _eventPosition = _observerData->findEvent(_events.front());
+            }
+        }
+        else
+        {
+            clear();
+        }
+
+        initChunkIterators();        
+        invalidateCaches();
+        
+        return *this;
+    }
+    
+    NostalgicNodeEventHelper& operator=(NodeEvent&& event)
+    {
+        if (event._data && !event._data->steps.empty())
+        {
+            _events = { std::move(event) };
+            
+            _progress = 0;
+            _step       = _events.front()._data->steps.begin();
+            _stepEnd    = _events.front()._data->steps.end();
+            
+            _observerData = _events.front()._data->observerData;
+            if (_observerData)
+            {
+                auto lock = _observerData->lockForRead();
+                _eventPosition = _observerData->findEvent(_events.front());
+            }
+        }
+        else
+        {
+            clear();
+        }
+
+        initChunkIterators();        
+        invalidateCaches();
+        
+        return *this;
+    }
+    
+    template<typename Range,
+        typename std::enable_if_t<
+            std::is_convertible_v<
+                typename boost::range_reference<boost::remove_cv_ref_t<Range>>::type,
+                NodeEvent
+            >,
+        void*> = nullptr>
+    NostalgicNodeEventHelper& operator=(Range&& events)
+    {
+        if (boost::empty(events))
+        {
+            clear();
+        }
+        else
+        {
+            _events = std::deque<NodeEvent>(
+                    boost::begin(events), 
+                    boost::end(events)
+                );
+            
+            _progress = 0;
+            
+            while (true)
+            {
+                _step       = _events.front()._data->steps.begin();
+                _stepEnd    = _events.front()._data->steps.end();
+                
+                if (Q_LIKELY(_step != _stepEnd) || _events.empty()) break;
+                
+                _events.pop_front();
+            }
+        
+            _observerData = _events.front()._data->observerData;
+            if (_observerData)
+            {
+                auto lock = _observerData->lockForRead();
+                _eventPosition = _observerData->findEvent(_events.front());
+            }
+        }
+
+        initChunkIterators();        
+        invalidateCaches();
+        
+        return *this;
+    }
+    
+    NostalgicNodeEventHelper& operator=(const std::initializer_list<NodeEvent>& events)
+    {
+        return this->operator=<const std::initializer_list<NodeEvent>&>(events);
+    }
+    
+    void clear() 
+    {
+        _events.clear();
+        _progress = 0;
+        _step = {};
+        _stepEnd = {};
+        
+        initChunkIterators();
+        invalidateCaches();
+        
+        _observerData = nullptr;
+        _eventPosition = {};
+    }
+    
+    NodeEvent event() const
+    {
+        return (!_events.empty()) ? _events.front() : NodeEvent();
+    }
+    
+    template<typename Range,
+        typename std::enable_if_t<
+            std::is_convertible_v<
+                typename boost::range_reference<boost::remove_cv_ref_t<Range>>::type,
+                NodeEvent
+            >,
+        void*> = nullptr>
+    void pushEvents(Range&& events)
+    {
+        if (boost::empty(events))
+            return;
+        
+        bool wasEmpty = _events.empty();
+        
+        _events.insert(
+                _events.end(), 
+                boost::begin(events), 
+                boost::end(events)
+            );
+        
+        if (wasEmpty)
+        {
+            _progress = 0;
+            
+            _step       = _events.front()._data->steps.begin();
+            _stepEnd    = _events.front()._data->steps.end();
+            
+            if (!_observerData && _events.front()._data->observerData)
+                _observerData = _events.front()._data->observerData;
+            
+            if (_observerData)
+            {
+                auto lock = _observerData->lockForRead();
+                _eventPosition = _observerData->findEvent(_events.front());
+            }
+            
+            initChunkIterators();
+            invalidateCaches();
+        }
+    }
+    
+    void pushEvents(const std::initializer_list<NodeEvent>& events)
+    {
+        pushEvents<const std::initializer_list<NodeEvent>&>(events);
+    }
+    
+    void pushEvent(const NodeEvent& event)
+    {
+        if (!event._data) return;
+        pushEvents(make_inline_ref_range(event));
+    }
+    
+    void pushEvent(NodeEvent&& event)
+    {
+        if (!event._data) return;
+        pushEvents(make_inline_ref_range(std::move(event)));
+    }
+    
+    bool eventIsCompatible(const NodeEvent& event) const
+    {
+        return (!_observerData && _events.empty())
+            || (event._data->observerData == _observerData);
+    }
+    
+    bool isUpToDate() const
+    {
+        if (!_observerData) return !hasNext();
+        
+        auto locker = _observerData->lockForRead();
+        return _eventPosition == _observerData->eventsEnd();
+    }
+        
+    NodeOperation operation() const 
+    { 
+        return _step != _stepEnd ?
+            (*_step).operation() :
+            (NodeOperation)(NULL); 
+    }
+    
+    NodeChunk operatingChunk() const
+    {
+        if (!_events.empty())
+        {
+            assert(_step != _stepEnd);
+            switch ((*_step).operation())
+            {
+                case NodeOperation::Add:
+                    if (Q_LIKELY(_fChunk != (*_cChunk).second.end()))
+                        return *_fChunk;
+                    break;
+                    
+                case NodeOperation::Remove:
+                    if (Q_LIKELY( _rFChunk != std::make_reverse_iterator(
+                            (*_rCChunk).second.begin()
+                        ) ))
+                        return *_rFChunk;
+                    break;
+                    
+                default:
+                    Q_UNREACHABLE();
             }
         }
         
-        std::size_t originalChildCount = aux_datatree::node_child_count(parent);
-        
-        ::Addle::aux_datatree::node_remove_children(parent, begin, end);
-        
-        NodeAddress parentAddress = datatree_node_address(parent);
-
-        // no modification of observer state before this point. no calls to 
-        // (potentially throwing) datatree_* functions after this point.
-        
-        _event.initializeData(root);
-        
-        _event._data->childCountByParent[parentAddress] = originalChildCount;
-        _event.extendPrimaryUnits({ std::move(parentAddress) << index, count });
-        _event.extendSecondaryUnits(secondaryUnitsBuffer);
+        return NodeChunk { NodeAddress(), 0 };
     }
     
-    NodesRemovedEvent<Tree> _event;
-};
-
-// A utility for processing node events, e.g., to synchronize the structure of
-// two data trees. When given a node event, the visitor becomes "nostalgic" and 
-// reverse-constructs structural information about the tree as it was before the
-// change(s). The visitor exposes a `unit` describing the starting location (in 
-// terms of its present nostalgic state) and length of a block of nodes that
-// have been added or removed from the tree. The `advance` function will "step
-// forward", now emulating the state of the tree as if the previous unit has
-// just been added or removed, and exposing the next unit. This will walk
-// through a sequence of contiguous changes to reproduce the complex change as
-// described in the node event until the visitor is no longer nostalgic.
-//
-// WARNING Don't give this multiple events yet
-template<class Tree>
-class NostalgicNodeEventVisitor
-{
-    using added_event_t = NodesAddedEvent<Tree>;
-    using removed_event_t = NodesRemovedEvent<Tree>;
-    using event_variant_t = std::variant<added_event_t, removed_event_t>;
+    bool hasNext() const { return !_events.empty(); }
     
-    using handle_t = node_handle_t<Tree>;
-        
-public:
-    NostalgicNodeEventVisitor() = default;
-        
-    inline void clear() 
+    bool next()
     {
-        _events.clear(); 
-        _currentEventProgress = 0; 
-    }
-    
-    template<typename Event>
-    inline void pushEvent(Event&& e)
-    { 
-        _events.push_back(std::forward<Event>(e));
-    }
-    
-    inline bool isNostalgic() const 
-    { 
-        return !_events.empty();
-    }
-    
-    inline NodeUnit unit() const
-    {
-        if (_events.empty())
-            return NodeUnit();
+        if (_events.empty()) return false;
         
-        return std::visit( 
-                eventVisitor_unit { _currentEventProgress }, 
-                _events.front() 
-            );
-    }
-    
-    inline NodeAddress unitAddress() const { return unit().address; }
-    inline std::size_t unitLength() const { return unit().length; }
-    
-    inline std::size_t eventsCount() const { return _events.count(); }
-    
-    inline bool currentIsAddedEvent() const
-    { 
-        return !_events.empty() && std::holds_alternative<added_event_t>(_events.front());
-    }
-    inline added_event_t currentAddedEvent() const
-    {
-        if (_events.empty())
-            return added_event_t();
-        else
-            return std::get<added_event_t>(_events.front());
-    }
-    
-    inline bool currentIsRemovedEvent() const
-    { 
-        return !_events.empty() && std::holds_alternative<removed_event_t>(_events.front());
-    }
-    inline removed_event_t currentRemovedEvent() const
-    {
-        if (_events.empty())
-            return removed_event_t();
-        else
-            return std::get<removed_event_t>(_events.front());
-    }
-    
-    inline std::size_t eventProgress() const { return _currentEventProgress; }
-    
-    inline NodeAddress mapForward(NodeAddress address) const
-    { 
-        if (_events.empty())
-            return address;
+        assert(_step != _stepEnd);
         
-        auto v = eventVisitor_mapForward { address };
-        
-        for (auto& var : _events)
-            std::visit(v, var);
-        
-        return v.address;
-    }
-    
-    inline NodeAddress mapBackward(NodeAddress address) const 
-    { 
-        if (_events.empty())
-            return address;
-        
-        auto v = eventVisitor_mapForward { address };
-        
-        for (auto& var : _events | boost::adaptors::reversed)
-            std::visit(v, var);
-        
-        return v.address;
-    }
-    
-    inline std::size_t childCount(NodeAddress address) const 
-    { 
-        if (_events.empty())
+        switch ((*_step).operation())
         {
-            return 0;
+            case NodeOperation::Add:
+                ++_fChunk;
+                
+                if (_fChunk != (*_cChunk).second.end())
+                    break;
+                
+                ++_cChunk;
+                
+                if (_cChunk != (*_step).primaryChunks().end())
+                {
+                    _fChunk = (*_cChunk).second.begin();
+                    break;
+                }
+                
+                ++_step;
+                initChunkIterators();
+                break;
+                
+            case NodeOperation::Remove:
+                ++_rFChunk;
+                
+                if (_rFChunk != std::make_reverse_iterator(
+                        (*_rCChunk).second.begin()
+                    ))
+                    break;
+                
+                ++_rCChunk;
+                
+                if (_rCChunk != std::make_reverse_iterator(
+                        (*_step).primaryChunks().begin()
+                    ))
+                {
+                    _rFChunk = std::make_reverse_iterator((*_rCChunk).second.end());
+                    break;
+                }
+                
+                ++_step;
+                initChunkIterators();
+                break;
+                
+            default:
+                Q_UNREACHABLE();
         }
-        else
+        
+        ++_progress;
+        
+        if (_step != _stepEnd)
+            return true;
+        
+        invalidateCaches();
+        
+        if (_observerData)
         {
-            return std::visit( 
-                    eventVisitor_childCount { address,  _currentEventProgress }, 
-                    _events.front() 
-                );
+            auto lock = _observerData->lockForRead();
+            ++_eventPosition;
         }
-    }
-    
-    inline void advance()
-    { 
-        if (_events.empty())
-            return;
         
-        ++_currentEventProgress;
-        
-        if (_currentEventProgress >= std::visit( eventVisitor_unitCount {}, _events.front() ))
+        _events.pop_front();
+                
+        while(!_events.empty())
         {
-            _currentEventProgress = 0;
+            _progress = 0;
+            if(_events.front()._data)
+            {
+                if (Q_UNLIKELY(_events.front()._data->observerData != _observerData))
+                {
+                    // TODO: i18n
+                    qWarning("Unexpected node event observer data");
+                    clear();
+                    throw UnexpectedEventException();
+                }
+                
+                if (_observerData)
+                {
+                    auto lock = _observerData->lockForRead();
+                    
+                    if (Q_UNLIKELY(
+                            _eventPosition == _observerData->eventsEnd()
+                            || _eventPosition != _observerData->findEvent(_events.front())
+                        ))
+                    {
+                        // TODO: i18n
+                        qWarning("Unexpected node event id");
+                        clear();
+                        throw UnexpectedEventException();
+                    }
+                }
+            
+                _step = _events.front()._data->steps.begin();
+                _stepEnd = _events.front()._data->steps.end();
+                
+                initChunkIterators();
+                
+                if (_step != _stepEnd) 
+                    return true;
+                    
+                if (_observerData)
+                {
+                    auto lock = _observerData->lockForRead();
+                    ++_eventPosition;
+                }
+            }
+            
             _events.pop_front();
         }
+        
+        _step = {};
+        _stepEnd = {};
+        
+        initChunkIterators();
+        
+        return false;
     }
-//     inline void regress() 
-//     { 
-//         if (isNostalgic() && _progress > 0) --_progress; 
-//         
-//     }
+    
+    NodeAddress mapForward(NodeAddress from) const
+    {
+        if (_events.empty()) 
+            return from;
+        
+        auto cacheIndex = qMakePair(from, _progress);
+        
+        if (_forwardMapCache.contains(cacheIndex))
+        {
+            auto i = noDetach(_forwardMapCache)[cacheIndex];
+            
+            // Prioritize this entry against being pruned in the future.
+            _mapCacheQueue.splice(_mapCacheQueue.begin(), _mapCacheQueue, i);
+            
+            return (*i).toAddress;
+        }
+        
+        NodeAddress result = _events.front().mapForward(from, _progress);
+        
+        {
+            auto i = _mapCacheQueue.insert(
+                    _mapCacheQueue.begin(), 
+                    { result, from, _progress }
+                );
+    
+            _forwardMapCache[cacheIndex] = i;
+            _backwardMapCache[qMakePair(result, _progress)] = i;
+            
+            pruneCaches();
+        }
+        
+        return result;
+    }
+    
+    NodeAddress mapBackward(NodeAddress from) const
+    {
+        if (_events.empty())
+            return from;
+        
+        auto cacheIndex = qMakePair(from, _progress);
+        
+        if (_backwardMapCache.contains(cacheIndex))
+        {
+            auto i = noDetach(_backwardMapCache)[cacheIndex];
+            
+            // Prioritize this entry against being pruned in the future.
+            _mapCacheQueue.splice(_mapCacheQueue.begin(), _mapCacheQueue, i);
+            
+            return (*i).toAddress;
+        }
+        
+        NodeAddress result = _events.front().mapBackward(from, _progress);
+        
+        {
+            auto i = _mapCacheQueue.insert(
+                    _mapCacheQueue.begin(), 
+                    { result, from, _progress }
+                );
+    
+            _backwardMapCache[cacheIndex] = i;
+            _forwardMapCache[qMakePair(result, _progress)] = i;
+            
+            pruneCaches();
+        }
+        
+        return result;
+    }
+    
+    std::size_t childCount(NodeAddress parent) const
+    {
+        if (_events.empty())
+            return 0;
+        
+        auto cacheIndex = qMakePair(parent, _progress);
+        
+        if (_childCountCache.contains(cacheIndex))
+        {
+            auto i = noDetach(_childCountCache)[cacheIndex];
+            
+            _childCountCacheQueue.splice(_childCountCacheQueue.begin(), _childCountCacheQueue, i);
+            
+            return (*i).count;
+        }
+        
+        std::size_t result = _events.front().childCount(parent, _progress);
+        
+        {
+            auto i = _childCountCacheQueue.insert(
+                    _childCountCacheQueue.begin(), 
+                    { result, parent, _progress }
+                );
+    
+            _childCountCache[cacheIndex] = i;
+            
+            pruneCaches();
+        }
+        
+        return result;
+    }
+    
+    bool isCoordinated() const { return _observerData; }
+    
+    std::size_t maxCacheSize() const { return _maxCacheSize; }
+    void setMaxCacheSize(std::size_t size)
+    {
+        _maxCacheSize = size;
+        
+        if (size == 0)
+            invalidateCaches();
+        else
+            pruneCaches();
+    }
     
 private:
-    struct eventVisitor_unit
+    using step_iterator = QList<NodeEvent::Step>::const_iterator;
+    
+    using coarse_chunk_iterator = NodeEvent::chunk_map_t::const_iterator;
+    using fine_chunk_iterator = NodeEvent::chunk_list_t::const_iterator;
+    
+    using r_coarse_chunk_iterator = std::reverse_iterator<coarse_chunk_iterator>;
+    using r_fine_chunk_iterator = std::reverse_iterator<fine_chunk_iterator>;
+    
+    void initChunkIterators()
     {
-        std::size_t progress;
-        
-        inline NodeUnit operator() (const added_event_t& added) const
+        if (_events.empty() || _step == _stepEnd)
         {
-            return added.primaryUnits()[progress];
+            _cChunk     = {};
+            _fChunk     = {};
+            _rCChunk    = {};
+            _rFChunk    = {};
+            
+            return;
         }
         
-        inline NodeUnit operator() (const removed_event_t& added) const
+        switch((*_step).operation())
         {
-            return added.primaryUnits()[
-                    added._data->primaryUnitsCount - progress - 1
-                ];
+            case NodeOperation::Add:
+                _rCChunk    = {};
+                _rFChunk    = {};
+                
+                _cChunk     = (*_step).primaryChunks().begin();
+                _fChunk     = (*_cChunk).second.begin();
+                
+                break;
+                
+            case NodeOperation::Remove:
+                _cChunk     = {};
+                _fChunk     = {};
+                
+                _rCChunk    = std::make_reverse_iterator(
+                                    (*_step).primaryChunks().end()
+                                );
+                _rFChunk    = std::make_reverse_iterator((*_rCChunk).second.end());
+                
+                break;
+                
+            default:
+                Q_UNREACHABLE();
         }
-    };
+    }
+    
+    void invalidateCaches()
+    {
+        _mapCacheQueue.clear();
+        _forwardMapCache.clear();
+        _backwardMapCache.clear();
+        
+        _childCountCacheQueue.clear();
+        _childCountCache.clear();
+    }
+    
+    void pruneCaches() const
+    {
+        while (_mapCacheQueue.size() > _maxCacheSize)
+        {
+            const auto& entry = _mapCacheQueue.back();
+            
+            _forwardMapCache.remove(qMakePair(entry.fromAddress, entry.progress));
+            _backwardMapCache.remove(qMakePair(entry.toAddress, entry.progress));
+            
+            _mapCacheQueue.pop_back();
+        }
+        
+        while (_childCountCacheQueue.size() > _maxCacheSize)
+        {
+            const auto& entry = _childCountCacheQueue.back();
+            
+            _childCountCache.remove(qMakePair(entry.address, entry.progress));
+            _childCountCacheQueue.pop_back();
+        }
+    }
 
-    struct eventVisitor_mapForward
-    {
-        NodeAddress address;
-        
-        template<class Event>
-        inline void operator() (const Event& e)
-        {
-            address = e.mapForward(address);
-        }
-    };
+    std::deque<NodeEvent> _events;
+    std::size_t _progress = 0;
     
-    struct eventVisitor_mapBackward
-    {
-        NodeAddress address;
-        
-        template<class Event>
-        inline void operator() (const Event& e)
-        {
-            address = e.mapBackward(address);
-        }
-    };
+    step_iterator _step = {};
+    step_iterator _stepEnd = {};
     
-    struct eventVisitor_childCount
+    coarse_chunk_iterator   _cChunk = {};
+    fine_chunk_iterator     _fChunk = {};
+    r_coarse_chunk_iterator _rCChunk = {};
+    r_fine_chunk_iterator   _rFChunk = {};
+    
+    std::size_t _maxCacheSize = 1024;
+    
+    QSharedPointer<TreeObserverData> _observerData;
+    TreeObserverData::EventCollectionIterator _eventPosition = {};
+            
+    struct CacheQueueEntry
     {
+        NodeAddress fromAddress;
+        NodeAddress toAddress;
+        std::size_t progress;
+    };
+    using map_cache_queue_t = std::list<CacheQueueEntry>;
+    
+    // A collection of cached node address mappings, in order of recent access.
+    // If the size exceeds _maxCacheSize, then the oldest entries are deleted
+    // first.
+    mutable map_cache_queue_t _mapCacheQueue;
+    
+    // Fast lookup indices for node address mappings. 
+    // TODO std::unordered_map is probably better (we don't need or want
+    // implicit sharing)
+    mutable QHash<QPair<NodeAddress, std::size_t>, 
+            map_cache_queue_t::const_iterator> _forwardMapCache;
+    mutable QHash<QPair<NodeAddress, std::size_t>, 
+            map_cache_queue_t::const_iterator> _backwardMapCache;
+    
+    struct ChildCountQueueEntry
+    {
+        std::size_t count;
         NodeAddress address;
         std::size_t progress;
+    };
+    using child_count_cache_queue_t = std::list<ChildCountQueueEntry>;
         
-        template<class Event>
-        inline std::size_t operator() (const Event& e) const
-        {
-            return e.childCount(address, progress);
-        }
-    };
+    mutable child_count_cache_queue_t _childCountCacheQueue;
     
-    struct eventVisitor_unitCount
-    {
-        template<class Event>
-        inline std::size_t operator() (const Event& e) const
-        {
-            return e._data->primaryUnitsCount;
-        }
-    };
-    
-    std::deque<event_variant_t> _events;
-    std::size_t _currentEventProgress = 0;
+    mutable QHash<
+            QPair<NodeAddress, std::size_t>,
+            child_count_cache_queue_t::const_iterator
+        > _childCountCache;
+        
+#ifdef ADDLE_TEST
+    friend class ::DataTree_UTest;
+#endif
 };
 
-// TODO: Some work is needed before this truly supports asynchronous usage.
-//
-// I think this design will allow multiple observers to be written on the same 
-// data tree, then visited in the same order and the behavior is equivalent to 
-// if one observer had been used. 
-//
-// However, there is currently no mechanism to verify that a tree's current
-// state is equivalent to the end state of any observer. Nor (relatedly) is 
-// there a mechanism to verify that observers are received in the correct order.
-// 
-// It is conceivable that there is a way to represent incremental versions of 
-// the structure of a data tree with an efficient hash scheme. Such a hash could 
-// be used as a signature of the start and end states of observers, and of a 
-// whole data tree (e.g., DataTree would implicitly keep such a hash, other data
-// tree classes could be wrapped in a manager object [which would likely need to
-// perform other synchronization functions as well]). Such a hash scheme should 
-// be cautious to focus on the structure as-is and not on the changes since many 
-// different combinations of changes can result in equivalent trees.
-// 
-// In the event that observers are recieved in the wrong order, and assuming 
-// the order cannot be corrected, it may still not be desirable to "throw away 
-// everything and rebuild", since that can destroy some implicit non-trivial 
-// state (e.g., the scroll position in a QItemView). In such a case, it may be 
-// possible to construct an observer via a "diff" algorithm (i.e., longest 
-// common subsequence) to emulate the sequence of changes required to produce 
-// the new state from the old state while preserving intermediate identities. It 
-// should however be noted that doing this is *not strictly cheap*.
+}
 
-} // namespace aux_datatree
+using DataTreeNodeEvent = aux_datatree::NodeEvent;
+using DataTreeNodeEventBuilder = aux_datatree::NodeEventBuilder;
 
-template<typename Tree>
-using DataTreeNodesAddedEvent = aux_datatree::NodesAddedEvent<Tree>;
-
-template<typename Tree>
-using DataTreeAddNodesObserver = aux_datatree::AddNodesObserver<Tree>;
-
-template<typename Tree>
-using DataTreeNodesRemovedEvent = aux_datatree::NodesRemovedEvent<Tree>;
-
-template<typename Tree>
-using DataTreeRemoveNodesObserver = aux_datatree::RemoveNodesObserver<Tree>;
-
-template<typename Tree>
-using DataTreeNostalgicNodeEventVisitor = aux_datatree::NostalgicNodeEventVisitor<Tree>;
-
-} // namespace Addle
+}

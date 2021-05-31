@@ -49,5 +49,6 @@ add_subdirectory( thirdparty/boost-ext-di )
 
 include( CTest )
 if(BUILD_TESTING)
+    add_definitions( -DADDLE_TEST )
     add_subdirectory( tests )
 endif()

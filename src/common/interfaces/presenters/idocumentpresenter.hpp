@@ -32,8 +32,8 @@ class IDocumentPresenter : public ICanSavePresenter, public virtual IAmQObject
 public:
     using LayersTree                = ILayerNodePresenter::LayersTree;
     using ConstLayersTree           = ILayerNodePresenter::ConstLayersTree;
-    using LayerNodesAddedEvent      = DataTreeNodesAddedEvent<LayersTree>;
-    using LayerNodesRemovedEvent    = DataTreeNodesRemovedEvent<LayersTree>;
+//     using LayerNodesAddedEvent      = DataTreeNodesAddedEvent<LayersTree>;
+//     using LayerNodesRemovedEvent    = DataTreeNodesRemovedEvent<LayersTree>;
     
     enum EmptyInitOptions
     {
@@ -71,8 +71,8 @@ public slots:
     virtual void mergeSelectedLayers() = 0;
 
 signals:
-    virtual void layerNodesAdded(IDocumentPresenter::LayerNodesAddedEvent added) = 0;
-    virtual void layerNodesRemoved(IDocumentPresenter::LayerNodesRemovedEvent removed) = 0;
+//     virtual void layerNodesAdded(IDocumentPresenter::LayerNodesAddedEvent added) = 0;
+//     virtual void layerNodesRemoved(IDocumentPresenter::LayerNodesRemovedEvent removed) = 0;
     //virtual void layersMoved(QList<IDocumentPresenter::LayerNode*> moved) = 0;
 
     virtual void layersChanged() = 0;
@@ -99,7 +99,7 @@ ADDLE_DECL_FACTORY_PARAMETERS(
 } // namespace Addle
 
 Q_DECLARE_INTERFACE(Addle::IDocumentPresenter, "org.addle.IDocumentPresenter")
-Q_DECLARE_METATYPE(Addle::IDocumentPresenter::LayerNodesAddedEvent)
-Q_DECLARE_METATYPE(Addle::IDocumentPresenter::LayerNodesRemovedEvent)
+// Q_DECLARE_METATYPE(Addle::IDocumentPresenter::LayerNodesAddedEvent)
+// Q_DECLARE_METATYPE(Addle::IDocumentPresenter::LayerNodesRemovedEvent)
 
 #endif // IDOCUMENTPRESENTER_HPP

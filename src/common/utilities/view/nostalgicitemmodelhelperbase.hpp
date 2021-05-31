@@ -7,7 +7,7 @@
 #include <QModelIndex>
 #include <QAbstractItemModel>
 
-#include "utilities/datatree/observers.hpp"
+// #include "utilities/datatree/observers.hpp"
 
 namespace Addle {
     
@@ -25,14 +25,14 @@ namespace Addle {
 template<class ItemModel, class Tree>
 class NostalgicItemModelHelperBase
 {
-    using NodesAddedEvent = DataTreeNodesAddedEvent<Tree>;
-    using NodesRemovedEvent = DataTreeNodesRemovedEvent<Tree>;
+//     using NodesAddedEvent = DataTreeNodesAddedEvent<Tree>;
+//     using NodesRemovedEvent = DataTreeNodesRemovedEvent<Tree>;
     using handle_t = aux_datatree::const_node_handle_t<Tree>;
 
 protected:
     NostalgicItemModelHelperBase() = default;
     
-    inline bool isNostalgic() const { return _visitor.isNostalgic(); }
+    inline bool isNostalgic() const { return false; /*_visitor.isNostalgic();*/ }
     
     void setTree(const Tree& tree)
     {
@@ -43,7 +43,7 @@ protected:
         _indices.clear();
         _addresses.clear();
         
-        _visitor.clear();
+//         _visitor.clear();
         
         static_cast<ItemModel*>(this)->endResetModel();
     }
@@ -57,7 +57,7 @@ protected:
         _indices.clear();
         _addresses.clear();
         
-        _visitor.clear();
+//         _visitor.clear();
         
         static_cast<ItemModel*>(this)->endResetModel();
     }
@@ -65,46 +65,50 @@ protected:
     
     QModelIndex index_impl(int row, const QModelIndex& parent) const
     {
-        if (isNostalgic())
-        {
-            if (!parent.isValid())
-                return static_cast<const ItemModel*>(this)->createIndex(row, 0, (quintptr)0);
-            
-            DataTreeNodeAddress target = noDetach(_addresses)[parent.internalId()] << row;
-            
-            if (_indices.contains(target))
-                return static_cast<const ItemModel*>(this)->createIndex(row, 0, noDetach(_indices)[target]);
-            
-            std::size_t index = _addresses.size();
-            _addresses.push_back(target);
-            _indices[target] = index;
-            return static_cast<const ItemModel*>(this)->createIndex(row, 0, index);
-        }
-        else
-        {
-            // TODO figure out a way to do this for handle_t not convertible to
-            // a raw pointer. The accessor to the tree can be assumed so as long
-            // as nodes have some kind of unique id that fits in quintptr we
-            // should be fine.
-            
-            if (!parent.isValid())
-            {
-                return static_cast<const ItemModel*>(this)
-                    ->createIndex(row, 0, const_cast<void*>(
-                        static_cast<const void*>(
-                            datatree_node_child_at(_root, row)
-                        )
-                    ));
-            }
-            
-            handle_t parentNode = static_cast<handle_t>(parent.internalPointer());
-            return static_cast<const ItemModel*>(this)
-                ->createIndex(row, 0, const_cast<void*>(
-                    static_cast<const void*>(
-                        datatree_node_child_at(parentNode, row)
-                    )
-                ));
-        }
+        // ###
+        Q_UNUSED(row);
+        Q_UNUSED(parent);
+        Q_UNREACHABLE();
+//         if (isNostalgic())
+//         {
+//             if (!parent.isValid())
+//                 return static_cast<const ItemModel*>(this)->createIndex(row, 0, (quintptr)0);
+//             
+//             DataTreeNodeAddress target = noDetach(_addresses)[parent.internalId()] << row;
+//             
+//             if (_indices.contains(target))
+//                 return static_cast<const ItemModel*>(this)->createIndex(row, 0, noDetach(_indices)[target]);
+//             
+//             std::size_t index = _addresses.size();
+//             _addresses.push_back(target);
+//             _indices[target] = index;
+//             return static_cast<const ItemModel*>(this)->createIndex(row, 0, index);
+//         }
+//         else
+//         {
+//             // TODO figure out a way to do this for handle_t not convertible to
+//             // a raw pointer. The accessor to the tree can be assumed so as long
+//             // as nodes have some kind of unique id that fits in quintptr we
+//             // should be fine.
+//             
+//             if (!parent.isValid())
+//             {
+//                 return static_cast<const ItemModel*>(this)
+//                     ->createIndex(row, 0, const_cast<void*>(
+//                         static_cast<const void*>(
+//                             datatree_node_child_at(_root, row)
+//                         )
+//                     ));
+//             }
+//             
+//             handle_t parentNode = static_cast<handle_t>(parent.internalPointer());
+//             return static_cast<const ItemModel*>(this)
+//                 ->createIndex(row, 0, const_cast<void*>(
+//                     static_cast<const void*>(
+//                         datatree_node_child_at(parentNode, row)
+//                     )
+//                 ));
+//         }
     }
     
     QModelIndex parent_impl(const QModelIndex& index) const
@@ -169,22 +173,22 @@ protected:
         }
     }
     
-    void onNodesAdded_impl(NodesAddedEvent added)
-    {
-        // assert !_visitor.isNostalgic()
-        
-        _visitor.pushEvent(added);
-        
-//         while (_visitor.isNostalgic())
-//         {
-//             
-//         }
-    }
+//     void onNodesAdded_impl(NodesAddedEvent added)
+//     {
+//         // assert !_visitor.isNostalgic()
+//         
+//         _visitor.pushEvent(added);
+//         
+// //         while (_visitor.isNostalgic())
+// //         {
+// //             
+// //         }
+//     }
     
-    void onNodesRemoved_impl(NodesRemovedEvent removed)
-    {
-        
-    }
+//     void onNodesRemoved_impl(NodesRemovedEvent removed)
+//     {
+//         
+//     }
     
 private:
     
@@ -193,7 +197,7 @@ private:
     mutable QList<DataTreeNodeAddress> _addresses;
     mutable QHash<DataTreeNodeAddress, quintptr> _indices;
     
-    DataTreeNostalgicNodeEventVisitor<Tree> _visitor;
+//     DataTreeNostalgicNodeEventVisitor<Tree> _visitor;
 };
 
 } // namespace Addle

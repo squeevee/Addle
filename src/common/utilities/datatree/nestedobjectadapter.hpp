@@ -19,6 +19,10 @@
  * or other implicitly shared data.
  */
 
+#ifdef ADDLE_TEST
+class DataTree_UTest;
+#endif
+
 namespace Addle {
 namespace aux_datatree {
     
@@ -157,6 +161,10 @@ private:
     }
     
     friend class NestedObjectHandleImpl<NodeObject, GetChildNodes>;
+
+#ifdef ADDLE_TEST
+    friend class ::DataTree_UTest;
+#endif
 };
 
 template<
@@ -247,6 +255,10 @@ private:
     {
         return Q_LIKELY(node) ? node.childrenEnd() : child_node_iterator_t {};
     }
+    
+#ifdef ADDLE_TEST
+    friend class ::DataTree_UTest;
+#endif
 };
 
 template<
@@ -345,7 +357,7 @@ private:
     friend class boost::iterator_core_access;
 };
 
-}
+} // namespace aux_datatree
 
 template<
     class NodeObject,
@@ -365,4 +377,4 @@ auto make_nested_object_adapter(
         );
 }
 
-}
+} // namespace Addle

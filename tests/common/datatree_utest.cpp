@@ -13,7 +13,7 @@
 #include "utilities/datatree/nestedobjectadapter.hpp"
 #include "utilities/datatree/basicdatatree.hpp"
 //#include "utilities/datatree/observers.hpp"
-#include "utilities/datatree/observers2.hpp"
+#include "utilities/datatree/observers.hpp"
 #include "utilities/datatree/views.hpp"
 
 using namespace Addle;
@@ -27,197 +27,196 @@ class DataTree_UTest : public QObject
 {
     Q_OBJECT
 private slots:
-    void dev_basicDataTree1()
-    {
-        BasicDataTree<QString> tree("spiff");
-        
-        auto& branch1 = tree.root().addChild();
-        tree.root().addChild("freem");
-        
-        auto i = branch1.children().end();
-        i = branch1.insertChild(i, "zorg");
-        
-        auto& branch2 = branch1.addChild("garg");
-        branch2.addChildren({ "1", "2", "3", "4", "5", "6" });
-        
-        branch2.removeChildren(0, 3);
-        
-        for (QString s : tree)
-        {
-            //qDebug() << s;
-        }
-    }
-    
-    void dev_eventBuilder1()
-    {
+//     void dev_basicDataTree1()
+//     {
 //         BasicDataTree<QString> tree("spiff");
-//         aux_datatree2::NodeEventBuilder<BasicDataTree<QString>> eventBuilder(tree);
-        
-    }
+//         
+//         auto& branch1 = tree.root().addChild();
+//         tree.root().addChild("freem");
+//         
+//         auto i = branch1.children().end();
+//         i = branch1.insertChild(i, "zorg");
+//         
+//         auto& branch2 = branch1.addChild("garg");
+//         branch2.addChildren({ "1", "2", "3", "4", "5", "6" });
+//         
+//         branch2.removeChildren(0, 3);
+//         
+//         for (QString s : tree)
+//         {
+//             //qDebug() << s;
+//         }
+//     }
+    
+//     void dev_eventBuilder1()
+//     {
+//         DataTreeNodeEventBuilder builder;
+//         builder.addChunk({ 0 }, 1);
+//         builder.removeChunk({ 999 }, 1);
+//         builder.addChunk({ 0 }, 1);
+//         builder.removeChunk({ 999 }, 1);
+//         builder.addChunk({ 0 }, 1);
+//         builder.removeChunk({ 999 }, 1);
+//         builder.addChunk({ 0 }, 1);
+//         
+//         qDebug() << builder.event().mapForward({ 0 });
+//         qDebug() << builder.event().mapBackward({ 4 });
+//     }
     
     void nodeEvent_mapping1()
     {
-        {
-            DataTreeNodeEventBuilder builder;
-            builder.addChunk({ 1 }, 1);
-            
-            QVERIFY(builder.event().mapForward({ 0 }) == DataTreeNodeAddress({ 0 }));
-            QVERIFY(builder.event().mapForward({ 1 }) == DataTreeNodeAddress({ 2 }));
-            QVERIFY(builder.event().mapForward({ 2 }) == DataTreeNodeAddress({ 3 }));
-            QVERIFY(builder.event().mapForward({ 0, 0 }) == DataTreeNodeAddress({ 0, 0 }));
-            QVERIFY(builder.event().mapForward({ 1, 0 }) == DataTreeNodeAddress({ 2, 0 }));
-            QVERIFY(builder.event().mapForward({ 2, 0 }) == DataTreeNodeAddress({ 3, 0 }));
-        }
-        {
-            DataTreeNodeEventBuilder builder;
-            builder.addChunk({ 1 }, 1);
-            
-            QVERIFY(builder.event().mapBackward({ 0 }) == DataTreeNodeAddress({ 0 }));
-            QVERIFY(builder.event().mapBackward({ 2 }) == DataTreeNodeAddress({ 1 }));
-            QVERIFY(builder.event().mapBackward({ 3 }) == DataTreeNodeAddress({ 2 }));
-            QVERIFY(builder.event().mapBackward({ 0, 0 }) == DataTreeNodeAddress({ 0, 0 }));
-            QVERIFY(builder.event().mapBackward({ 2, 0 }) == DataTreeNodeAddress({ 1, 0 }));
-            QVERIFY(builder.event().mapBackward({ 3, 0 }) == DataTreeNodeAddress({ 2, 0 }));
-        }
+        DataTreeNodeEventBuilder builder;
+        builder.addChunk({ 1 }, 1);
+        
+        QCOMPARE(builder.event().mapForward({ 0 }), DataTreeNodeAddress({ 0 }));
+        QCOMPARE(builder.event().mapBackward({ 0 }), DataTreeNodeAddress({ 0 }));
+        
+        QCOMPARE(builder.event().mapForward({ 1 }), DataTreeNodeAddress({ 2 }));
+        QCOMPARE(builder.event().mapBackward({ 2 }), DataTreeNodeAddress({ 1 }));
+        
+        QCOMPARE(builder.event().mapForward({ 2 }), DataTreeNodeAddress({ 3 }));
+        QCOMPARE(builder.event().mapBackward({ 3 }), DataTreeNodeAddress({ 2 }));
+        
+        QCOMPARE(builder.event().mapForward({ 0, 0 }), DataTreeNodeAddress({ 0, 0 }));
+        QCOMPARE(builder.event().mapBackward({ 0, 0 }), DataTreeNodeAddress({ 0, 0 }));
+        
+        QCOMPARE(builder.event().mapForward({ 1, 0 }), DataTreeNodeAddress({ 2, 0 }));
+        QCOMPARE(builder.event().mapBackward({ 2, 0 }), DataTreeNodeAddress({ 1, 0 }));
+        
+        QCOMPARE(builder.event().mapForward({ 2, 0 }), DataTreeNodeAddress({ 3, 0 }));
+        QCOMPARE(builder.event().mapBackward({ 3, 0 }), DataTreeNodeAddress({ 2, 0 }));
     }
     
     void nodeEvent_mapping2()
     {
-        {
-            DataTreeNodeEventBuilder builder;
-            builder.addChunk({ 0 }, 4);
-            
-            QVERIFY(builder.event().mapForward({ 0 }) == DataTreeNodeAddress({ 4 }));
-        }
-        {
-            DataTreeNodeEventBuilder builder;
-            builder.addChunk({ 0 }, 4);
-            
-            QVERIFY(builder.event().mapBackward({ 4 }) == DataTreeNodeAddress({ 0 }));
-        }
+        DataTreeNodeEventBuilder builder;
+        builder.addChunk({ 0 }, 4);
+        
+        QCOMPARE(builder.event().mapForward({ 0 }), DataTreeNodeAddress({ 4 }));
+        QCOMPARE(builder.event().mapBackward({ 4 }), DataTreeNodeAddress({ 0 }));
     }
     
     void nodeEvent_mapping3()
     {
-        {
-            DataTreeNodeEventBuilder builder;
-            builder.addChunks({ {{ 0 }, 1 }, {{ 0, 0 }, 1 }});
-
-            QVERIFY(builder.event().mapForward({ 0, 0 }) == DataTreeNodeAddress({ 1, 1 }));
-            QVERIFY(builder.event().mapForward({ 1, 0 }) == DataTreeNodeAddress({ 2, 0 }));
-            QVERIFY(builder.event().mapForward({ 2, 0 }) == DataTreeNodeAddress({ 3, 0 }));
-        }
-        {
-            DataTreeNodeEventBuilder builder;
-            builder.addChunks({ {{ 0 }, 1 }, {{ 0, 0 }, 1 }});
-
-            QVERIFY(builder.event().mapBackward({ 1, 1 }) == DataTreeNodeAddress({ 0, 0 }));
-            QVERIFY(builder.event().mapBackward({ 2, 0 }) == DataTreeNodeAddress({ 1, 0 }));
-            QVERIFY(builder.event().mapBackward({ 3, 0 }) == DataTreeNodeAddress({ 2, 0 }));
-        }
-    }
-    
-    void dev_nostalgicHelper()
-    {
         DataTreeNodeEventBuilder builder;
+        builder.addChunks({ {{ 0 }, 1 }, {{ 0, 0 }, 1 }});
+
+        QCOMPARE(builder.event().mapForward({ 0, 0 }), DataTreeNodeAddress({ 1, 1 }));
+        QCOMPARE(builder.event().mapBackward({ 1, 1 }), DataTreeNodeAddress({ 0, 0 }));
         
-        //builder.passiveAddChunks({ {{ 0 }, 1 }, {{ 0, 0 }, 1} });
-        builder.addChunks({ {{ 12 }, 1 }, {{ 10 }, 1 }, {{ 8 }, 1 }, {{ 6 }, 1 }, {{ 4 }, 1 }, {{ 2 }, 1 }, {{ 0 }, 1 } });
+        QCOMPARE(builder.event().mapForward({ 1, 0 }), DataTreeNodeAddress({ 2, 0 }));
+        QCOMPARE(builder.event().mapBackward({ 2, 0 }), DataTreeNodeAddress({ 1, 0 }));
         
-        aux_datatree2::NostalgicNodeEventHelper nostalgia(std::move(builder).event());
-        
-        do
-        {
-            qDebug() << nostalgia.operatingChunk();
-        } while (nostalgia.next());
-    }
+        QCOMPARE(builder.event().mapForward({ 2, 0 }), DataTreeNodeAddress({ 3, 0 }));
+        QCOMPARE(builder.event().mapBackward({ 3, 0 }), DataTreeNodeAddress({ 2, 0 }));
+}
     
-    void dev_nestedObjectAdapter()
-    {
-        struct TestObject
-        {
-            int v = 0;
-            QList<TestObject> children;
-            
-            //QList<TestObject> children() const { return _children; }
-        };
-        
-        TestObject t = {0,{{1,{{2,{}},{3,{}}}},{4,{{5,{}}}}}};
-        /**
-         * 0
-         * |--\ 
-         * 1   4
-         * |\  |
-         * 2 3 5
-         */
-        
-//         auto f = [](const TestObject&) { return QList<TestObject>(); };
-        
-//         qDebug() << sizeof(make_nested_object_adapter(t, &TestObject::children));
-//         qDebug() << sizeof(make_nested_object_adapter(t, f));
-        
-//         auto a = make_nested_object_adapter(
-//                 t, 
-//                 &TestObject::children,
-//                 [] (
-//                     TestObject& parent,
-//                     QList<TestObject>::iterator pos,
-//                     const TestObject& child
-//                 ) {
-//                     parent._children.insert(pos, child);
-//                 }
-//             );
-        
-        {
-            auto adapter = make_nested_object_adapter(t, &TestObject::children);
-            auto root = datatree_root(adapter);
-            
-            auto i = ::Addle::aux_datatree::node_dfs_begin(root);
-            auto end = ::Addle::aux_datatree::node_dfs_end(root);
-            
-            for (; i != end; ::Addle::aux_datatree::node_dfs_increment(i))
-            {
-                qDebug() << (*i).v;
-//                 qDebug() 
-//                     << ::Addle::aux_datatree::node_index(i)
-//                     << ::Addle::aux_datatree::node_depth(i);
-            }
-        }
-        
-//         for (auto&& o : make_nested_object_adapter(t, &TestObject::children))
+//     void dev_nostalgicHelper()
+//     {
+//         DataTreeNodeEventBuilder builder;
+//         
+//         //builder.passiveAddChunks({ {{ 0 }, 1 }, {{ 0, 0 }, 1} });
+//         builder.addChunks({ 
+//                 {{ 12 }, 2 }, 
+//                 {{ 10 }, 2 }, 
+//                 {{ 8 }, 2 }, 
+//                 {{ 6 }, 2 }, 
+//                 {{ 4 }, 2 }, 
+//                 {{ 2 }, 2 }, 
+//                 {{ 0 }, 2 } 
+//             });
+//         
+//         aux_datatree::NostalgicNodeEventHelper nostalgia(std::move(builder).event());
+//         
+//         do
 //         {
-// //             qDebug() << o.v;/
+//             qDebug() << nostalgia.operatingChunk();
+//         } while (nostalgia.next());
+//     }
+    
+//     void dev_nestedObjectAdapter()
+//     {
+//         struct TestObject
+//         {
+//             int v = 0;
+//             QList<TestObject> children;
+//             
+//             //QList<TestObject> children() const { return _children; }
+//         };
+//         
+//         TestObject t = {0,{{1,{{2,{}},{3,{}}}},{4,{{5,{}}}}}};
+//         /**
+//          * 0
+//          * |--\ `
+//          * 1   4
+//          * |\  |
+//          * 2 3 5
+//          */
+//         
+// //         auto f = [](const TestObject&) { return QList<TestObject>(); };
+//         
+// //         qDebug() << sizeof(make_nested_object_adapter(t, &TestObject::children));
+// //         qDebug() << sizeof(make_nested_object_adapter(t, f));
+//         
+// //         auto a = make_nested_object_adapter(
+// //                 t, 
+// //                 &TestObject::children,
+// //                 [] (
+// //                     TestObject& parent,
+// //                     QList<TestObject>::iterator pos,
+// //                     const TestObject& child
+// //                 ) {
+// //                     parent._children.insert(pos, child);
+// //                 }
+// //             );
+//         
+//         {
+//             auto adapter = make_nested_object_adapter(t, &TestObject::children);
+//             auto root = datatree_root(adapter);
+//             
+//             auto i = ::Addle::aux_datatree::node_dfs_begin(root);
+//             auto end = ::Addle::aux_datatree::node_dfs_end(root);
+//             
+//             for (; i != end; ::Addle::aux_datatree::node_dfs_increment(i))
+//             {
+//                 qDebug() << (*i).v;
+// //                 qDebug() 
+// //                     << ::Addle::aux_datatree::node_index(i)
+// //                     << ::Addle::aux_datatree::node_depth(i);
+//             }
 //         }
-    }
+//         
+// //         for (auto&& o : make_nested_object_adapter(t, &TestObject::children))
+// //         {
+// // //             qDebug() << o.v;/
+// //         }
+//     }
     
-    void dev_nestedObjectExtNode()
-    {
-        struct TestObject
-        {
-            int v = 0;
-            QList<TestObject> children;
-        };
-        
-        TestObject t = {0,{{1,{{2,{}},{3,{}}}},{4,{{5,{}}}}}};
-        
-        auto adapter = make_nested_object_adapter(t, &TestObject::children);
-        
-        using ExtNode = aux_datatree::DFSExtendedNode<aux_datatree::node_handle_t<decltype(adapter)>, true, true>;
-        
-        ExtNode root(datatree_root(adapter));
-        
-        auto nodeLookedUp = aux_datatree::node_lookup_address(root, aux_datatree::NodeAddress({0, 1}));
-        
-        qDebug() << (*nodeLookedUp).v;
-    }
+//     void dev_nestedObjectExtNode()
+//     {
+//         struct TestObject
+//         {
+//             int v = 0;
+//             QList<TestObject> children;
+//         };
+//         
+//         TestObject t = {0,{{1,{{2,{}},{3,{}}}},{4,{{5,{}}}}}};
+//         
+//         auto adapter = make_nested_object_adapter(t, &TestObject::children);
+//         
+//         using ExtNode = aux_datatree::DFSExtendedNode<aux_datatree::node_handle_t<decltype(adapter)>, true, true>;
+//         
+//         ExtNode root(datatree_root(adapter));
+//         
+//         auto nodeLookedUp = aux_datatree::node_lookup_address(root, aux_datatree::NodeAddress({0, 1}));
+//         
+//         qDebug() << (*nodeLookedUp).v;
+//     }
     
-    void dev_observer1()
-    {
-        BasicDataTree<QString> tree("spiff");
-        aux_datatree2::TreeObserver<BasicDataTree<QString>> observer(tree);
-        
-        
-    }
+//     void dev_observer1()
+//     {
+// 
+//     }
     
     /* === FAST ADDRESS VERIFICATION TESTS === */
     
@@ -251,11 +250,11 @@ private slots:
         {
             for (std::size_t v1 : FASTADDRESS_VALUES )
             {
-                aux_datatree::NodeAddress a1;
+                aux_datatree::NodeAddressBuilder a1_;
                 for (std::size_t i = 0; i < n; ++i)
-                {
-                    a1 = std::move(a1) << v1;
-                }
+                    a1_.append(v1);
+                
+                auto a1 = a1_.address();
                 
                 //qDebug() << a1;
                 
@@ -287,13 +286,16 @@ private slots:
                     if (v1 == v2)
                         continue;
                     
-                    aux_datatree::NodeAddress a1;
-                    aux_datatree::NodeAddress a2;
+                    aux_datatree::NodeAddressBuilder a1_;
+                    aux_datatree::NodeAddressBuilder a2_;
                     for (std::size_t i = 0; i < n; ++i)
                     {
-                        a1 = std::move(a1) << v1;
-                        a2 = std::move(a2) << v2;
+                        a1_.append(v1);
+                        a2_.append(v2);
                     }
+                    
+                    auto a1 = a1_.address();
+                    auto a2 = a2_.address();
                     
                     //qDebug() << a1 << a2;
                     
@@ -320,13 +322,16 @@ private slots:
                     if ( v1 >= v2 )
                         continue;
                     
-                    aux_datatree::NodeAddress a1;
-                    aux_datatree::NodeAddress a2;
+                    aux_datatree::NodeAddressBuilder a1_;
+                    aux_datatree::NodeAddressBuilder a2_;
                     for (std::size_t i = 0; i < n; ++i)
                     {
-                        a1 = std::move(a1) << v1;
-                        a2 = std::move(a2) << v2;
+                        a1_.append(v1);
+                        a2_.append(v2);
                     }
+                    
+                    auto a1 = a1_.address();
+                    auto a2 = a2_.address();
                     
                     //qDebug() << a1 << a2;
                     
@@ -353,13 +358,16 @@ private slots:
                         if ( v1 >= v2 )
                             continue;
                         
-                        aux_datatree::NodeAddress a1({ v1 });
-                        aux_datatree::NodeAddress a2({ v2 });
+                        aux_datatree::NodeAddressBuilder a1_({ v1 });
+                        aux_datatree::NodeAddressBuilder a2_({ v2 });
                         for (std::size_t i = 1; i < n; ++i)
                         {
-                            a1 = std::move(a1) << v3;
-                            a2 = std::move(a2) << v3;
+                            a1_.append(v3);
+                            a2_.append(v3);
                         }
+                        
+                        auto a1 = a1_.address();
+                        auto a2 = a2_.address();
                         
                         //qDebug() << a1 << a2;
                         
@@ -387,16 +395,19 @@ private slots:
                         if ( v1 >= v2 )
                             continue;
                         
-                        aux_datatree::NodeAddress a1;
-                        aux_datatree::NodeAddress a2;
+                        aux_datatree::NodeAddressBuilder a1_;
+                        aux_datatree::NodeAddressBuilder a2_;
                         for (std::size_t i = 1; i < n; ++i)
                         {
-                            a1 = std::move(a1) << v3;
-                            a2 = std::move(a2) << v3;
+                            a1_.append(v3);
+                            a2_.append(v3);
                         }
                         
-                        a1 = std::move(a1) << v1;
-                        a2 = std::move(a2) << v2;
+                        a1_.append(v1);
+                        a2_.append(v2);
+                        
+                        auto a1 = a1_.address();
+                        auto a2 = a2_.address();
                         
                         //qDebug() << a1 << a2;
                         
@@ -425,19 +436,22 @@ private slots:
                         if ( v1 >= v2 )
                             continue;
                         
-                        aux_datatree::NodeAddress a1;
-                        aux_datatree::NodeAddress a2;
+                        aux_datatree::NodeAddressBuilder a1_;
+                        aux_datatree::NodeAddressBuilder a2_;
                         for (std::size_t i = 2; i < n; ++i)
                         {
-                            a1 = std::move(a1) << v3;
-                            a2 = std::move(a2) << v3;
+                            a1_.append(v3);
+                            a2_.append(v3);
                         }
                         
-                        a1 = std::move(a1) << v1;
-                        a1 = std::move(a1) << v3;
+                        a1_.append(v1);
+                        a1_.append(v3);
                         
-                        a2 = std::move(a2) << v2;
-                        a2 = std::move(a2) << v3;
+                        a2_.append(v2);
+                        a2_.append(v3);
+                        
+                        auto a1 = a1_.address();
+                        auto a2 = a2_.address();
                         
                         //qDebug() << a1 << a2;
                         
@@ -462,12 +476,14 @@ private slots:
             {
                 for (std::size_t v1 : FASTADDRESS_VALUES )
                 {
-                    aux_datatree::NodeAddress a2({ v1 });
+                    aux_datatree::NodeAddressBuilder a2_({ v1 });
                     for (std::size_t i = 1; i < n; ++i)
                     {
-                        a2 = std::move(a2) << 0;
+                        a2_.append(0);
                     }
                     
+                    auto a2 = a2_.address();
+                        
                     //qDebug() << a1 << a2;
                     
                     QVERIFY( a1 != a2 );
@@ -488,14 +504,16 @@ private slots:
             {
                 for (std::size_t v1 : FASTADDRESS_VALUES )
                 {
-                    aux_datatree::NodeAddress a2;
+                    aux_datatree::NodeAddressBuilder a2_;
                     for (std::size_t i = 1; i < n; ++i)
                     {
-                        a2 = std::move(a2) << 0;
+                        a2_.append(0);
                     }
                     
-                    a2 = std::move(a2) << v1;
+                    a2_.append(v1);
                     
+                    auto a2 = a2_.address();
+                        
                     //qDebug() << a1 << a2;
                     
                     QVERIFY( a1 != a2 );
@@ -515,18 +533,19 @@ private slots:
         {
             for (std::size_t v1 : FASTADDRESS_VALUES )
             {
-                aux_datatree::NodeAddress a1;
+                aux_datatree::NodeAddressBuilder a1_;
                 for (std::size_t i = 0; i < n; ++i)
                 {
-                    a1 = std::move(a1) << v1;
+                    a1_.append(v1);
                 }
                 
+                auto a1 = a1_.address();
+                
                 for (std::size_t v2 : FASTADDRESS_VALUES )
-                {
-                    aux_datatree::NodeAddress a2(a1);
-                    
-                    a2 = std::move(a2) << v2;
-                    
+                {                    
+                    aux_datatree::NodeAddress a2 
+                        = aux_datatree::NodeAddressBuilder(a1) << v2;
+                                            
                     //qDebug() << a1 << a2;
                     
                     QVERIFY( a1 != a2 );
@@ -554,13 +573,15 @@ private slots:
                     
                     for (std::size_t v3 : FASTADDRESS_VALUES )
                     {
-                        aux_datatree::NodeAddress a1({ v1 });
-                        aux_datatree::NodeAddress a2({ v2 });
-                        
+                        aux_datatree::NodeAddressBuilder a1_({ v1 });
+                        aux_datatree::NodeAddressBuilder a2_({ v2 });
                         for (std::size_t i = 1; i < n; ++i)
                         {
-                            a1 = std::move(a1) << v3;
+                            a1_.append(v3);
                         }
+                        
+                        auto a1 = a1_.address();
+                        auto a2 = a2_.address();
                         
                         //qDebug() << a1 << a2;
                     
@@ -588,15 +609,17 @@ private slots:
                     
                     for (std::size_t v3 : FASTADDRESS_VALUES )
                     {
-                        aux_datatree::NodeAddress a1({ v1 });
-                        aux_datatree::NodeAddress a2({ v2 });
-                        
+                        aux_datatree::NodeAddressBuilder a1_({ v1 });
+                        aux_datatree::NodeAddressBuilder a2_({ v2 });
                         for (std::size_t i = 1; i < n - 1; ++i)
                         {
-                            a1 = std::move(a1) << v3;
-                            a2 = std::move(a2) << v3;
+                            a1_.append(v3);
+                            a2_.append(v3);
                         }
-                        a1 = std::move(a1) << v3;
+                        a1_.append(v3);
+                        
+                        auto a1 = a1_.address();
+                        auto a2 = a2_.address();
                         
                         //qDebug() << a1 << a2;
                     
@@ -624,19 +647,22 @@ private slots:
                     
                     for (std::size_t v3 : FASTADDRESS_VALUES )
                     {
-                        aux_datatree::NodeAddress a1;
-                        aux_datatree::NodeAddress a2;
+                        aux_datatree::NodeAddressBuilder a1_;
+                        aux_datatree::NodeAddressBuilder a2_;
                         
                         for (std::size_t i = 1; i < n - 2; ++i)
                         {
-                            a1 = std::move(a1) << v3;
-                            a2 = std::move(a2) << v3;
+                            a1_.append(v3);
+                            a2_.append(v3);
                         }
-                        a1 = std::move(a1) << v1;
-                        a1 = std::move(a1) << v3;
+                        a1_.append(v1);
+                        a1_.append(v3);
                         
-                        a2 = std::move(a2) << v2;
+                        a2_.append(v2);
                           
+                        auto a1 = a1_.address();
+                        auto a2 = a2_.address();
+                        
                         //qDebug() << a1 << a2;
                     
                         QVERIFY( a1 != a2 );
