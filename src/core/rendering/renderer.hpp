@@ -12,7 +12,7 @@
 #include "compat.hpp"
 #include "interfaces/rendering/irenderer.hpp"
 
-#include "utilities/datatree/basicdatatree.hpp"
+#include "utilities/datatree/addledatatree.hpp"
 
 namespace Addle {
 class ADDLE_CORE_EXPORT Renderer : public QObject, public IRenderer

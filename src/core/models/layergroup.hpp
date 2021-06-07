@@ -78,12 +78,26 @@ public:
         }
     }
     
+    QRect boundary() const override
+    {
+    }
+
+    QColor skirtColor() const override
+    {
+    }
+    
+    void setSkirtColor(QColor skirtColor)
+    {
+    }
+    
 signals:
     void nameChanged(QString name) override;
     void opacityChanged(double opacity) override;
     void passThroughModeChanged(bool mode) override;
     void compositionModeChanged(QPainter::CompositionMode mode) override;
     
+    void boundaryChanged(QRect boundary) override;
+    void skirtColorChanged(QColor skirtColor) override;
 private:
     IDocument& _document;
     LayerNode& _layerNode;

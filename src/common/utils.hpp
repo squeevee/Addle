@@ -18,7 +18,7 @@
 
 #include "servicelocator.hpp"
 
-#include "utilities/collections.hpp"
+#include "utilities/ranges.hpp"
 #include "utilities/math.hpp"
 #include "utilities/strings.hpp"
 #include "utilities/qobject.hpp"

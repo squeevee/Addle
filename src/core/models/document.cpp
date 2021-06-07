@@ -26,22 +26,23 @@ Document::Document(
     _layerGroupFactory(layerGroupFactory)
 {
     using LayerNode = LayersTree::Node;
-    
-    for (const LayerNodeBuilder& layerNodeBuilder : builder.layerNodes())
-    {
-        if (layerNodeBuilder.isLayer())
-        {
-            LayerNode& node = _layers.root().addLeaf();
-            auto layer = _layerFactory.makeShared(*this, node, layerNodeBuilder);
-            node.setLeafValue(layer);
-        }
-        else
-        {
-            LayerNode& node = _layers.root().addBranch();
-            auto layerGroup = _layerGroupFactory.makeShared(*this, node, layerNodeBuilder);
-            node.setBranchValue(layerGroup);
-        }
-    }
+   
+    // TODO DataTree echo
+//     for (const LayerNodeBuilder& layerNodeBuilder : builder.layerNodes())
+//     {
+//         if (layerNodeBuilder.isLayer())
+//         {
+//             LayerNode& node = _layers.root().addLeaf();
+//             auto layer = _layerFactory.makeShared(*this, node, layerNodeBuilder);
+//             node.setLeafValue(layer);
+//         }
+//         else
+//         {
+//             LayerNode& node = _layers.root().addBranch();
+//             auto layerGroup = _layerGroupFactory.makeShared(*this, node, layerNodeBuilder);
+//             node.setBranchValue(layerGroup);
+//         }
+//     }
     
 // 
 //     _size = unitedBoundary().size();

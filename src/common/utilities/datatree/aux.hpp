@@ -16,7 +16,7 @@
 #include <boost/type_traits/is_detected_exact.hpp>
 #include <boost/type_traits/is_detected_convertible.hpp>
 
-#include "utilities/collections.hpp"
+#include "utilities/ranges.hpp"
 #include "utilities/metaprogramming.hpp"
 
 #include "./nodeaddress.hpp"
@@ -34,14 +34,20 @@ struct datatree_traits
 };
 
 template<typename Tree>
-using node_handle_t = boost::mp11::mp_if<
-        std::is_const<Tree>,
-        typename datatree_traits<std::remove_const_t<Tree>>::const_node_handle,
-        typename datatree_traits<Tree>::node_handle
-    >;
+using _const_handle_t = typename datatree_traits<Tree>::const_node_handle;
 
 template<typename Tree>
-using const_node_handle_t = typename datatree_traits<Tree>::const_node_handle;
+using _node_handle_t = typename datatree_traits<Tree>::node_handle;
+
+template<typename Tree>
+using node_handle_t = typename boost::mp11::mp_if<
+        std::is_const<Tree>,
+        boost::mp11::mp_defer<_const_handle_t, std::remove_const_t<Tree>>,
+        boost::mp11::mp_defer<_node_handle_t, Tree>
+    >::type;
+
+template<typename Tree>
+using const_node_handle_t = _const_handle_t<Tree>;
 
 template<typename Tree>
 using node_value_t = typename datatree_traits<Tree>::node_value_type;
@@ -128,25 +134,29 @@ using _iterator_category_t = typename std::iterator_traits<
         boost::remove_cv_ref_t<NodeHandle>
     >::iterator_category;
         
-template<typename NodeHandle>
-using _handle_is_random_access_iterator = std::is_convertible<
+template<typename NodeHandle, class Category>
+using _handle_is_iterator_with_category = std::is_convertible<
         boost::mp11::mp_eval_or_q<
             void,
             boost::mp11::mp_bind<_iterator_category_t, boost::mp11::_1>,
             NodeHandle
         >,
-        boost::random_access_traversal_tag
+        Category
     >;
 
 template<typename NodeHandle>
-inline std::size_t node_child_count_impl( const NodeHandle& node ) 
+std::size_t node_child_count_impl( const NodeHandle& node ) 
 {
     if (!node) return 0;
     
     auto cursor = ::Addle::aux_datatree::node_children_begin(node);
     auto&& end = ::Addle::aux_datatree::node_children_end(node);
     
-    if constexpr (_handle_is_random_access_iterator<decltype(cursor)>::value)
+    if constexpr (
+        _handle_is_iterator_with_category<
+            decltype(cursor), 
+            std::random_access_iterator_tag      
+        >::value)
     {
         return std::distance(cursor, end);
     }
@@ -173,7 +183,7 @@ inline std::size_t node_child_count( const NodeHandle& node )
 }
 
 template<typename NodeHandle>
-inline NodeHandle node_child_at_impl( const NodeHandle& node, std::size_t index ) 
+NodeHandle node_child_at_impl( const NodeHandle& node, std::size_t index ) 
 {
     auto cursor = ::Addle::aux_datatree::node_children_begin(node);
     auto&& end = ::Addle::aux_datatree::node_children_end(node);
@@ -191,14 +201,33 @@ template<typename NodeHandle>
 using _node_child_at_t = decltype( datatree_node_child_at(std::declval<NodeHandle>(), std::declval<std::size_t>()) );
 
 template<typename NodeHandle, std::enable_if_t<boost::is_detected<_node_child_at_t, NodeHandle>::value, void*> = nullptr>
-inline std::decay_t<NodeHandle> node_child_at( NodeHandle&& node, std::size_t index ) { return datatree_node_child_at( std::forward<NodeHandle>(node), index ); }
+inline auto node_child_at( NodeHandle&& node, std::size_t index ) { return datatree_node_child_at( std::forward<NodeHandle>(node), index ); }
 
 template<typename NodeHandle, std::enable_if_t<!boost::is_detected<_node_child_at_t, NodeHandle>::value, void*> = nullptr>
 inline NodeHandle node_child_at( const NodeHandle& node, std::size_t index ) { return ::Addle::aux_datatree::node_child_at_impl(node, index); }
 
+template<typename NodeHandle>
+using _node_last_child_t = decltype( datatree_node_last_child( std::declval<NodeHandle>() ) );
+
+template<typename NodeHandle, std::enable_if_t<boost::is_detected<_node_last_child_t, NodeHandle>::value, void*> = nullptr>
+inline auto node_last_child( NodeHandle&& node ) { return datatree_node_last_child( std::forward<NodeHandle>(node)); }
+
+template<typename NodeHandle,
+    std::enable_if_t<
+        boost::mp11::mp_and<
+            boost::mp11::mp_not<boost::is_detected<_node_last_child_t, NodeHandle>>,
+            _handle_is_iterator_with_category<
+                decltype( ::Addle::aux_datatree::node_children_end(std::declval<NodeHandle>()) ),
+                std::bidirectional_iterator_tag
+            >
+        >::value,
+    void*> = nullptr>
+inline child_node_handle_t<boost::remove_cv_ref_t<NodeHandle>> node_last_child( const NodeHandle& node)
+{
+}
 
 template<typename NodeHandle>
-inline std::size_t node_index_impl( const NodeHandle& node ) 
+std::size_t node_index_impl( const NodeHandle& node ) 
 { 
     if (!node) return 0;
     
@@ -232,7 +261,7 @@ inline std::size_t node_index( const NodeHandle& node ) { return ::Addle::aux_da
 
 
 template<typename NodeHandle>
-inline std::size_t node_depth_impl( const NodeHandle& node )
+std::size_t node_depth_impl( const NodeHandle& node )
 { 
     if (!node) return 0;
     
@@ -316,7 +345,7 @@ template<
     typename NodeHandle,
     std::enable_if_t<!std::is_convertible_v<child_node_handle_t<NodeHandle>, NodeHandle&&>, void*> = nullptr
 >
-inline child_node_handle_t<NodeHandle> _node_handle_to_child_handle( const NodeHandle& node )
+child_node_handle_t<NodeHandle> _node_handle_to_child_handle( const NodeHandle& node )
 {
     if (!node) return {};
     
@@ -327,7 +356,10 @@ inline child_node_handle_t<NodeHandle> _node_handle_to_child_handle( const NodeH
     auto cursor = ::Addle::aux_datatree::node_children_begin(parent);
     
     if constexpr (
-            _handle_is_random_access_iterator<child_node_handle_t<NodeHandle>>::value
+            _handle_is_iterator_with_category<
+                child_node_handle_t<NodeHandle>,
+                std::random_access_iterator_tag
+            >::value
             && boost::is_detected<_node_index_t, NodeHandle>::value
         )
     {
@@ -397,7 +429,7 @@ template<
         !boost::is_detected<_node_dfs_next_t, NodeHandle>::value
         && !boost::is_detected<_node_dfs_increment_t, NodeHandle>::value, 
     void*> = nullptr>
-inline std::decay_t<NodeHandle> node_dfs_next( const NodeHandle& node )
+std::decay_t<NodeHandle> node_dfs_next( const NodeHandle& node )
 { 
     if (!node) return {};
     
@@ -438,41 +470,46 @@ template<typename NodeHandle>
 using handle_is_dfs_incrementable = boost::is_detected<_node_dfs_increment_t_, NodeHandle>;
 
 
+// template<typename NodeHandle>
+// using _node_is_leaf_t = decltype( datatree_node_is_leaf(std::declval<NodeHandle>()) );
+// 
+// template<typename NodeHandle, std::enable_if_t<boost::is_detected<_node_is_leaf_t, NodeHandle>::value, void*> = nullptr>
+// inline bool node_is_leaf( NodeHandle&& node ) { return datatree_node_is_leaf(std::forward<NodeHandle>(node)); }
+// 
+// template<typename NodeHandle, std::enable_if_t<!boost::is_detected<_node_is_leaf_t, NodeHandle>::value, void*> = nullptr>
+// inline bool node_is_leaf( const NodeHandle& node )
+// { 
+//     return ::Addle::aux_datatree::node_children_begin(node) == ::Addle::aux_datatree::node_children_end(node);
+// }
+// 
+// 
+// template<typename NodeHandle>
+// using _node_is_branch_t = decltype( datatree_node_is_branch(std::declval<NodeHandle>()) );
+// 
+// template<typename NodeHandle, std::enable_if_t<boost::is_detected<_node_is_branch_t, NodeHandle>::value, void*> = nullptr>
+// inline bool node_is_branch( NodeHandle&& node ) { return datatree_node_is_branch(std::forward<NodeHandle>(node)); }
+// 
+// template<typename NodeHandle, std::enable_if_t<!boost::is_detected<_node_is_branch_t, NodeHandle>::value, void*> = nullptr>
+// inline bool node_is_branch( const NodeHandle& node )
+// { 
+//     return ::Addle::aux_datatree::node_children_begin(node) != ::Addle::aux_datatree::node_children_end(node);
+// }
+
+
 template<typename NodeHandle>
-using _node_is_leaf_t = decltype( datatree_node_is_leaf(std::declval<NodeHandle>()) );
-
-template<typename NodeHandle, std::enable_if_t<boost::is_detected<_node_is_leaf_t, NodeHandle>::value, void*> = nullptr>
-inline bool node_is_leaf( NodeHandle&& node ) { return datatree_node_is_leaf(std::forward<NodeHandle>(node)); }
-
-template<typename NodeHandle, std::enable_if_t<!boost::is_detected<_node_is_leaf_t, NodeHandle>::value, void*> = nullptr>
-inline bool node_is_leaf( const NodeHandle& node )
-{ 
-    return ::Addle::aux_datatree::node_children_begin(node) == ::Addle::aux_datatree::node_children_end(node);
-}
-
-
-template<typename NodeHandle>
-using _node_is_branch_t = decltype( datatree_node_is_branch(std::declval<NodeHandle>()) );
-
-template<typename NodeHandle, std::enable_if_t<boost::is_detected<_node_is_branch_t, NodeHandle>::value, void*> = nullptr>
-inline bool node_is_branch( NodeHandle&& node ) { return datatree_node_is_branch(std::forward<NodeHandle>(node)); }
-
-template<typename NodeHandle, std::enable_if_t<!boost::is_detected<_node_is_branch_t, NodeHandle>::value, void*> = nullptr>
-inline bool node_is_branch( const NodeHandle& node )
-{ 
-    return ::Addle::aux_datatree::node_children_begin(node) != ::Addle::aux_datatree::node_children_end(node);
-}
-
-
-template<typename NodeHandle>
-inline auto node_value( NodeHandle&& node ) { return datatree_node_value(std::forward<NodeHandle>(node)); }
+inline decltype(auto) node_value( NodeHandle&& node ) { return datatree_node_value(std::forward<NodeHandle>(node)); }
 
 template<typename NodeHandle, typename T>
 inline void node_set_value( NodeHandle&& node, T&& v) { return datatree_node_set_value(std::forward<NodeHandle>(node), std::forward<T>(v)); }
 
 template<typename NodeHandle>
-inline auto&& node_value_ref( NodeHandle&& node ) { return datatree_node_value_ref(std::forward<NodeHandle>(node)); }
+using _node_has_value_t = decltype( datatree_node_has_value(std::declval<NodeHandle>()) );
 
+template<typename NodeHandle, std::enable_if_t<boost::is_detected<_node_has_value_t, NodeHandle>::value, void*> = nullptr>
+inline auto node_has_value( NodeHandle&& node ) { return datatree_node_has_value( std::forward<NodeHandle>(node) ); }
+
+template<typename NodeHandle, std::enable_if_t<!boost::is_detected<_node_has_value_t, NodeHandle>::value, void*> = nullptr>
+inline bool node_has_value( const NodeHandle& node ) { return static_cast<bool>(node); }
 
 template<
     typename NodeHandle,
@@ -513,15 +550,13 @@ template<
     typename T, 
     std::enable_if_t<!boost::is_detected<_datatree_node_insert_child_t, NodeHandle, ChildHandle, T>::value, void*> = nullptr
 >
-inline std::decay_t<ChildHandle> node_insert_child( NodeHandle&& parent, ChildHandle&& pos, T&& childValue )
+inline auto node_insert_child( NodeHandle&& parent, ChildHandle&& pos, T&& childValue )
 {
-    auto&& range = datatree_node_insert_children(
+    return datatree_node_insert_children(
             std::forward<NodeHandle>(parent), 
             std::forward<ChildHandle>(pos), 
             make_inline_ref_range(std::forward<T>(childValue))
         );
-    
-    return boost::begin(range);
 }
 
 template<
@@ -545,51 +580,38 @@ template<
     typename ChildHandle,
     std::enable_if_t<!boost::is_detected<_datatree_node_insert_children_t, NodeHandle, ChildHandle, Range>::value, void*> = nullptr
 >
-inline std::pair<ChildHandle, ChildHandle> node_insert_children( NodeHandle&& parent, ChildHandle pos, const Range& childValues )
+std::decay<ChildHandle> node_insert_children( NodeHandle&& parent, ChildHandle&& pos, const Range& childValues )
 {
-    ChildHandle begin = {};
-    ChildHandle end = {};
-    
-    bool isFirst = true;
+    std::decay<ChildHandle> next;
     
     for (auto&& v : childValues)
     {
-        pos = datatree_node_insert_child(
+        next = datatree_node_insert_child(
                 std::forward<NodeHandle>(parent), 
                 pos, 
                 std::forward<decltype(v)>(v)
             );
-        
-        if (isFirst)
-        {
-            begin = pos;
-            isFirst = false;
-        }
-        
-        end = pos;
     }
     
-    if (end) 
-        ::Addle::aux_datatree::node_sibling_increment(end);
-    
-    return std::make_pair(begin, end);
+    return next;
 }
 
 template<typename NodeHandle>
-inline NodeAddress calculate_node_address(const NodeHandle& node)
+NodeAddress calculate_node_address(NodeHandle node)
 {
     if (!node) return NodeAddress();
     
     QVarLengthArray<std::size_t, 16> indices;
     indices.reserve(::Addle::aux_datatree::node_depth(node));
     
-    NodeHandle cursor(node);
-    
-    do
+    while (true)
     {
-        indices.append(::Addle::aux_datatree::node_index(cursor));
-        cursor = ::Addle::aux_datatree::node_parent(cursor);
-    } while (cursor);
+        std::size_t index = ::Addle::aux_datatree::node_index(node);
+        
+        if ( !(node = ::Addle::aux_datatree::node_parent(node)) ) break;
+        
+        indices.append(index);
+    }
     
     std::reverse(indices.begin(), indices.end());
     
@@ -609,7 +631,7 @@ inline NodeAddress node_address( const NodeHandle& node )
 }
 
 template<typename NodeHandle>
-inline bool node_contains_address_impl(const NodeHandle& root, const NodeAddress& address)
+bool node_contains_address_impl(const NodeHandle& root, const NodeAddress& address)
 {
     NodeHandle cursor = root;
     for (std::size_t index : address)
@@ -636,7 +658,7 @@ inline bool node_contains_address( const NodeHandle& node, const NodeAddress& ad
 }
 
 template<typename NodeHandle>
-inline std::decay_t<NodeHandle> node_lookup_address_impl(const NodeHandle& root, const NodeAddress& address)
+std::decay_t<NodeHandle> node_lookup_address_impl(const NodeHandle& root, const NodeAddress& address)
 {
     std::decay_t<NodeHandle> cursor(root);
     for (std::size_t index : address)
@@ -828,7 +850,7 @@ public:
     
     bool operator!=(const DFSExtendedNode& other) const { return !(*this == other); }
     
-    auto&& operator*() const { return *currentNode(); }
+    decltype(auto) operator*() const { return *currentNode(); }
     
     NodeAddress address() const
     {
@@ -845,7 +867,10 @@ public:
             descendant_handle_t firstSibling = 
                 ::Addle::aux_datatree::node_children_begin(parentCursor);
             
-            if constexpr (_handle_is_random_access_iterator<descendant_handle_t>::value)
+            if constexpr (_handle_is_iterator_with_category<
+                    descendant_handle_t,
+                    std::random_access_iterator_tag
+                >::value)
             {
                 index = std::distance(
                         firstSibling, 
@@ -870,6 +895,13 @@ public:
         
         return std::move(result);
     }
+    
+    // result type of `node_dfs_end`, == and != comparable to a DFSExtendedNode
+    // `node` gives whether `node` is in its end state. A default-constructed
+    // DFSExtendedNode would give the same behavior, but this is preferable for 
+    // non-portable DFSExtendedNode as it avoids allocating array space that
+    // will never be used.
+    struct EndSentinel {};
     
 private:
     NodeHandle _root = {};
@@ -1198,7 +1230,12 @@ private:
                 
             const descendant_handle_t& currentChildHandle = node._descendants.last();
                 
-            if constexpr (_handle_is_random_access_iterator<descendant_handle_t>::value)
+            if constexpr (
+                    _handle_is_iterator_with_category<
+                        descendant_handle_t,
+                        std::random_access_iterator_tag
+                    >::value
+                )
             {
                 return std::distance(
                         firstSibling, 
@@ -1285,6 +1322,27 @@ private:
         return node.address();
     }
     
+    
+    friend bool operator==(const DFSExtendedNode& node, const EndSentinel&) 
+    { 
+        return !(node); 
+    }
+    
+    friend bool operator==(const EndSentinel&, const DFSExtendedNode& node) 
+    { 
+        return !(node); 
+    }
+    
+    friend bool operator!=(const DFSExtendedNode& node, const EndSentinel&) 
+    { 
+        return static_cast<bool>(node); 
+    }
+        
+    friend bool operator!=(const EndSentinel&, const DFSExtendedNode& node) 
+    { 
+        return static_cast<bool>(node); 
+    }
+    
     friend class DFSExtendedNode<NodeHandle, !Portable>;
     friend class _indexed_dfs_extended_node_base<DFSExtendedNode<NodeHandle, Portable, Indexed>>;
 };
@@ -1311,10 +1369,10 @@ template<
         && !boost::is_detected<_node_parent_t_, NodeHandle>::value,
         void*
     > = nullptr>
-inline DFSExtendedNode<boost::remove_cv_ref_t<NodeHandle>> 
+inline typename DFSExtendedNode<boost::remove_cv_ref_t<NodeHandle>>::EndSentinel 
     node_dfs_end( NodeHandle&& ) 
 {
-    return DFSExtendedNode<boost::remove_cv_ref_t<NodeHandle>>(); 
+    return typename DFSExtendedNode<boost::remove_cv_ref_t<NodeHandle>>::EndSentinel {}; 
 }
 
 
@@ -1338,119 +1396,6 @@ inline void node_remove_children( NodeHandle node, ChildHandle begin, ChildHandl
             std::forward<ChildHandle>(end)
         );
 }
-
-// TODO: possibly move echo into its own header? or have an algorithms header?
-
-struct echo_default_make_node_tag {};
-struct echo_default_after_make_node_tag {};
-
-// Generic one-stop implementation for algorithms that involve traversing one
-// tree and modifying another accordingly. Behavior is extended by providing
-// callables for various events and conditionals.
-// 
-template<
-        class SourceTree,
-        class DestTree,
-        typename MakeNode,
-        typename AfterMakeNode
-    >
-class echo_impl
-{
-public:
-    const_node_handle_t<SourceTree> sourceRoot;
-    node_handle_t<DestTree> destRoot;
-    
-    MakeNode&& makeNode;
-    AfterMakeNode&& afterMakeNode;
-    
-    
-    void operator()() const
-    {
-        try
-        {
-            populateBranch_impl(sourceRoot, destRoot);
-        }
-        catch(...)
-        {
-            // TODO this algorithm should be able to work on trees with existing
-            // nodes
-            ::Addle::aux_datatree::node_remove_children(
-                    destRoot, 
-                    ::Addle::aux_datatree::node_children_begin(destRoot),
-                    ::Addle::aux_datatree::node_children_end(destRoot)
-                );  
-            throw;
-        }
-    }
-    
-private:
-    template<typename F, typename... Args>
-    using _f_t = decltype( std::declval<F>()( std::declval<Args>()... ) );
-    
-    void make_node_impl(
-            const_node_handle_t<SourceTree> sourceNode, 
-            node_handle_t<DestTree> destParent,
-            std::size_t pos
-        ) const
-    {
-        node_handle_t<DestTree> destNode;
-        
-        if constexpr (std::is_same<boost::remove_cv_ref_t<MakeNode>, echo_default_make_node_tag>::value)
-        {
-            destNode = ::Addle::aux_datatree::node_insert_child(
-                    destParent,
-                    pos,
-                    node_value_t<DestTree> {}
-                );
-        }
-        else
-        {
-            destNode = ::Addle::aux_datatree::node_insert_child(
-                    destParent,
-                    pos,
-                    this->makeNode( ::Addle::aux_datatree::node_value(sourceNode) )
-                );
-        }
-        
-        if (::Addle::aux_datatree::node_is_branch(sourceNode))
-            populateBranch_impl(sourceNode, destNode);
-        
-        if constexpr (!std::is_same<boost::remove_cv_ref_t<AfterMakeNode>, echo_default_after_make_node_tag>::value)
-        {
-            if constexpr (boost::is_detected<
-                    _f_t, AfterMakeNode, node_handle_t<DestTree>, const_node_handle_t<SourceTree>
-                >::value)
-            {
-                this->afterMakeNode(destNode, sourceNode);
-            }
-            else
-            {
-                this->afterMakeNode(destNode);
-            }
-        }
-    }
-    
-    void populateBranch_impl(
-            const_node_handle_t<SourceTree> sourceBranch, 
-            node_handle_t<DestTree> destBranch
-        ) const
-    {
-        std::size_t pos = 0;
-        
-        auto&& sourceEnd = ::Addle::aux_datatree::node_children_end(sourceBranch);
-        for (
-                auto sourceChild = ::Addle::aux_datatree::node_children_begin(sourceBranch);
-                sourceChild != sourceEnd; 
-                ::Addle::aux_datatree::node_sibling_increment(sourceChild)
-            )
-        {
-            this->make_node_impl(sourceChild, destBranch, pos);
-            ++pos;
-        }
-    }
-};
-
-
 
 template<typename T>
 using _dereferenced_t = decltype( *std::declval<T>() );
@@ -1901,47 +1846,47 @@ private:
     friend class boost::iterator_core_access;
 };
 
-struct predicate_nodeIsLeaf
-{
-    template<typename NodeHandle>
-    inline bool operator()(NodeHandle node)
-    {
-        return datatree_node_is_leaf(node);
-    }
-};
-
-template<typename NodeHandle>
-using LeafIterator = NodeFilterIterator<predicate_nodeIsLeaf, NodeHandle>;
-
-template<typename NodeHandle>
-using ConstLeafIterator = NodeFilterIterator<predicate_nodeIsLeaf, NodeHandle, true>;
-
-template<typename NodeHandle>
-using LeafRange = boost::iterator_range<LeafIterator<NodeHandle>>;
-
-template<typename NodeHandle>
-using ConstLeafRange = boost::iterator_range<ConstLeafIterator<NodeHandle>>;
-
-struct predicate_nodeIsBranch
-{
-    template<typename NodeHandle>
-    inline bool operator()(NodeHandle node)
-    {
-        return datatree_node_is_branch(node);
-    }
-};
-
-template<typename NodeHandle>
-using BranchIterator = NodeFilterIterator<predicate_nodeIsBranch, NodeHandle>;
-
-template<typename NodeHandle>
-using ConstBranchIterator = NodeFilterIterator<predicate_nodeIsBranch, NodeHandle, true>;
-
-template<typename NodeHandle>
-using BranchRange = boost::iterator_range<BranchIterator<NodeHandle>>;
-
-template<typename NodeHandle>
-using ConstBranchRange = boost::iterator_range<ConstBranchIterator<NodeHandle>>;
+// struct predicate_nodeIsLeaf
+// {
+//     template<typename NodeHandle>
+//     inline bool operator()(NodeHandle node)
+//     {
+//         return datatree_node_is_leaf(node);
+//     }
+// };
+// 
+// template<typename NodeHandle>
+// using LeafIterator = NodeFilterIterator<predicate_nodeIsLeaf, NodeHandle>;
+// 
+// template<typename NodeHandle>
+// using ConstLeafIterator = NodeFilterIterator<predicate_nodeIsLeaf, NodeHandle, true>;
+// 
+// template<typename NodeHandle>
+// using LeafRange = boost::iterator_range<LeafIterator<NodeHandle>>;
+// 
+// template<typename NodeHandle>
+// using ConstLeafRange = boost::iterator_range<ConstLeafIterator<NodeHandle>>;
+// 
+// struct predicate_nodeIsBranch
+// {
+//     template<typename NodeHandle>
+//     inline bool operator()(NodeHandle node)
+//     {
+//         return datatree_node_is_branch(node);
+//     }
+// };
+// 
+// template<typename NodeHandle>
+// using BranchIterator = NodeFilterIterator<predicate_nodeIsBranch, NodeHandle>;
+// 
+// template<typename NodeHandle>
+// using ConstBranchIterator = NodeFilterIterator<predicate_nodeIsBranch, NodeHandle, true>;
+// 
+// template<typename NodeHandle>
+// using BranchRange = boost::iterator_range<BranchIterator<NodeHandle>>;
+// 
+// template<typename NodeHandle>
+// using ConstBranchRange = boost::iterator_range<ConstBranchIterator<NodeHandle>>;
 
 
 template<class Tree, class Range>
@@ -2050,45 +1995,55 @@ private:
     const Range& _range;
 };
 
+template<typename T, typename Discrim>
+struct _storage_util_basic
+{
+    using discriminator = Discrim;
+    std::decay_t<T> accessor;
+    
+    inline T& get() { return static_cast<T&>(accessor); }
+    inline const T& get() const { return static_cast<const T&>(accessor); }
+};
+
+template<typename T, typename Discrim>
+struct _storage_util_ebo : T
+{
+    using discriminator = Discrim;
+    
+    inline T& get() { return *static_cast<T*>(this); }
+    inline const T& get() const { return *static_cast<const T*>(this); }
+};
+
+struct _nil_storage_util_discrim {};
+
+// Utility base class type for storing user-supplied objects (especially 
+// callables) that might benefit from empty base optimization.
+template<typename T, typename Discrim = _nil_storage_util_discrim>
+using storage_util = typename boost::mp11::mp_if<
+        boost::mp11::mp_and<
+            std::is_class<T>,
+#ifdef __cpp_lib_is_final
+            boost::mp11::mp_not< std::is_final<T> >,
+#endif
+            std::is_empty<T>
+        >,
+        boost::mp11::mp_defer<_storage_util_ebo, T, Discrim>,
+        boost::mp11::mp_defer<_storage_util_basic, T, Discrim>
+    >::type;
+
 } // namespace aux_datatree 
 
 template<class Tree>
 inline bool data_tree_contains_address(Tree&& tree, const DataTreeNodeAddress& address)
 {
-    return aux_datatree::node_contains_address(datatree_root(tree), address);
+    return aux_datatree::node_contains_address(::Addle::aux_datatree::tree_root(tree), address);
 }
 
 template<class Tree>
 inline aux_datatree::node_handle_t<Tree> 
     data_tree_lookup_address(Tree&& tree, const DataTreeNodeAddress& address)
 {
-    return aux_datatree::node_lookup_address(datatree_root(tree), address);
-}
-
-template<
-        class SourceTree,
-        class DestTree,
-        typename MakeNode = aux_datatree::echo_default_make_node_tag,
-        typename AfterMakeNode = aux_datatree::echo_default_after_make_node_tag
-    >
-inline void datatree_echo(
-        SourceTree&& sourceTree,
-        DestTree&& destTree,
-        MakeNode&& makeNode = {},
-        AfterMakeNode&& afterMakeNode = {}
-    )
-{
-    aux_datatree::echo_impl<
-            boost::remove_cv_ref_t<SourceTree>,
-            boost::remove_cv_ref_t<DestTree>,
-            MakeNode&&,
-            AfterMakeNode&&
-        > {
-            datatree_root(sourceTree),
-            datatree_root(destTree),
-            std::forward<MakeNode>(makeNode),
-            std::forward<AfterMakeNode>(afterMakeNode)
-        } ();
+    return aux_datatree::node_lookup_address(::Addle::aux_datatree::tree_root(tree), address);
 }
 
 } // namespace Addle

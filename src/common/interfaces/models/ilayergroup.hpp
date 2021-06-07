@@ -4,6 +4,8 @@
 #include <QPainter>
 #include "interfaces/iamqobject.hpp"
 
+#include "utilities/model/layernodebuilder.hpp"
+
 #include "./ilayernodemodel.hpp"
 
 namespace Addle {

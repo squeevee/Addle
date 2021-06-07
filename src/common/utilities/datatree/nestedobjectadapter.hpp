@@ -1,8 +1,13 @@
 #pragma once
 
-#include "./aux.hpp"
 #include <functional>
 #include <iterator>
+#include <variant>
+#include <optional>
+
+#include <boost/type_traits.hpp>
+
+#include "./aux.hpp"
 
 // NOTE this header outlines a concept whose name uses the word "adapter",
 // spelled with an 'e'. Other places use the word "adaptor" spelled with an 'o',
@@ -26,73 +31,84 @@ class DataTree_UTest;
 namespace Addle {
 namespace aux_datatree {
     
-template<class, typename>
+template<class, typename, typename>
 class NestedObjectAdapterImpl;
 
-template<class, typename>
+template<class, typename, typename>
 class NestedObjectHandleImpl;
+
+template<class>
+struct nestedobject_rootHandleData {};
 
 template<
     class NodeObject,
-    typename GetChildNodes
+    typename GetChildNodes,
+    typename RootRange //= void
 >
 struct nestedobject_adapter_traits
 {
-    using handle_t = NestedObjectHandleImpl<NodeObject, GetChildNodes>;
-    using child_objects_range = boost::remove_cv_ref_t<std::invoke_result_t<GetChildNodes, const NodeObject&>>;
-    using child_objects_iterator = typename boost::range_iterator<const child_objects_range>::type;
-    using child_node_iterator = ConstChildNodeIterator<NestedObjectAdapterImpl<NodeObject, GetChildNodes>>;
-};
-
-template<typename T>
-struct _nestedobject_basic_accessor_storage
-{
-    std::decay_t<T> accessor;
+    using adapter_t = NestedObjectAdapterImpl<NodeObject, GetChildNodes, RootRange>;
+    using handle_t = NestedObjectHandleImpl<NodeObject, GetChildNodes, RootRange>;
+        
+    using child_objects_range = std::invoke_result_t<GetChildNodes, const NodeObject&>;
+    using child_objects_iterator = typename boost::range_iterator<const std::remove_reference_t<child_objects_range>>::type;
     
-    inline T& get() { return static_cast<T&>(accessor); }
-    inline const T& get() const { return static_cast<const T&>(accessor); }
+    using child_node_iterator = ConstChildNodeIterator<NestedObjectAdapterImpl<std::remove_const_t<NodeObject>, GetChildNodes, RootRange>>;
+    
+    using rootHandleData_t = nestedobject_rootHandleData<handle_t>;
+    
+    using root_iterator = boost::mp11::mp_eval_if_q<
+            std::is_void<RootRange>,
+            void,
+            boost::mp11::mp_quote_trait<boost::range_iterator>,
+            const RootRange
+        >;
+        
+    using iterator_variant = boost::mp11::mp_eval_if<
+            std::is_void<RootRange>,
+            void,
+            aux_range_utils::iterator_variant,
+            child_objects_iterator,
+            root_iterator
+        >;
 };
 
-template<typename T>
-struct _nestedobject_ebo_accessor_storage : T
+template<class NodeObject, typename GetChildNodes, typename RootRange>
+struct nestedobject_rootHandleData<NestedObjectHandleImpl<NodeObject, GetChildNodes, RootRange>>
 {
-    inline T& get() { return *static_cast<T*>(this); }
-    inline const T& get() const { return *static_cast<const T*>(this); }
+    using _traits = nestedobject_adapter_traits<NodeObject, GetChildNodes, RootRange>;
+    using root_iterator_t = typename _traits::root_iterator;
+    
+    root_iterator_t rootRangeBegin;
+    root_iterator_t rootRangeEnd;
 };
 
-template<typename T>
-using nestedobject_children_accessor_storage = typename boost::mp11::mp_if<
-        boost::mp11::mp_and<
-            std::is_class<T>,
-#ifdef __cpp_lib_is_final
-            boost::mp11::mp_not< std::is_final<T> >,
-#endif
-            std::is_empty<T>
-        >,
-        boost::mp11::mp_defer<_nestedobject_ebo_accessor_storage, T>,
-        boost::mp11::mp_defer<_nestedobject_basic_accessor_storage, T>
-    >::type;
+template<class NodeObject, typename GetChildNodes>
+struct nestedobject_rootHandleData<NestedObjectHandleImpl<NodeObject, GetChildNodes, void>>
+{
+    const NodeObject* rootObject;
+};
 
 template<
     class NodeObject,
-    typename GetChildNodes
+    typename GetChildNodes,
+    typename RootRange
 >
 class NestedObjectAdapterImpl
-    : private nestedobject_children_accessor_storage<GetChildNodes>
+    : private storage_util<GetChildNodes>,
+    private nestedobject_rootHandleData<
+            typename nestedobject_adapter_traits<NodeObject, GetChildNodes, RootRange>::handle_t
+        >
 {   
 private:
-    using _traits = nestedobject_adapter_traits<NodeObject, GetChildNodes>;
+    using _traits = nestedobject_adapter_traits<NodeObject, GetChildNodes, RootRange>;
     
-    //using top_level_nodes_range = boost::remove_cv_ref_t<std::invoke_result_t<GetTopLevelNodes, RootObject&>>;
-    //using top_level_node_iterator = typename boost::range_iterator<top_level_nodes_range>::type;
-    
-    using handle_t = typename _traits::handle_t;
-    using const_handle_t = handle_t;
     using child_objects_range = typename _traits::child_objects_range;
     using child_objects_iterator = typename _traits::child_objects_iterator;
     using const_child_objects_iterator = child_objects_iterator;
     
-    //static_assert(std::is_convertible_v<typename std::iterator_traits<top_level_node_iterator>::reference_type, NodeObject&>);
+    using rootHandleData_t = typename _traits::rootHandleData_t;
+    
     static_assert(!std::is_reference_v<NodeObject>);
     static_assert(
         std::is_convertible_v<
@@ -102,10 +118,12 @@ private:
     );
     
 public:
+    using handle_t = typename _traits::handle_t;
+    
     using value_type = NodeObject;
     using reference = const NodeObject&;
     using iterator = ConstNodeIterator<
-            NestedObjectAdapterImpl<const NodeObject, GetChildNodes>
+            NestedObjectAdapterImpl<NodeObject, GetChildNodes, RootRange>
         >;
     using const_iterator = iterator;
     
@@ -113,98 +131,211 @@ public:
         typename GetChildNodes_
     >
     NestedObjectAdapterImpl(
-        NodeObject* root,
-        GetChildNodes_&& getChildNodes
+        GetChildNodes_&& getChildNodes,
+        rootHandleData_t&& rootData = {}
     )
-        : nestedobject_children_accessor_storage<GetChildNodes> {
-            std::forward<GetChildNodes_>(getChildNodes)
+        : storage_util<GetChildNodes> {
+            std::forward<GetChildNodes_>(getChildNodes) 
         },
-        _root(root)
+        rootHandleData_t(std::move(rootData))
     {
     }
     
     const_iterator begin() const
     {
-        return const_iterator(
-                ::Addle::aux_datatree::node_dfs_begin(datatree_root(*this))
+        auto result = const_iterator(
+                ::Addle::aux_datatree::DFSExtendedNode<handle_t, true>(
+                    datatree_root(*this)
+                )
             );
+        
+        if constexpr (!std::is_void_v<RootRange>)
+        {
+            // For a root range adapter, the root node is an artifact for
+            // consistency with the DataTree API, but it is meaningless (and 
+            // problematic) when treating the adapter as a range of TestObject, 
+            // and so is skipped.
+            ++result;
+        }
+        
+        return result;
     }
     
     const_iterator end() const
     {
         return const_iterator(
-                ::Addle::aux_datatree::node_dfs_end(datatree_root(*this))
+                ::Addle::aux_datatree::DFSExtendedNode<handle_t, true>()
             );
     }
     
 private:
-    const NodeObject* _root;
-    
-    friend handle_t datatree_root(NestedObjectAdapterImpl& adapter)
+    friend handle_t datatree_root(const NestedObjectAdapterImpl& adapter)
     {
-        return handle_t(
-            static_cast<
-                const nestedobject_children_accessor_storage<GetChildNodes>*
-            >(std::addressof(adapter)), 
-            adapter._root
-        );
+        return handle_t(static_cast<const rootHandleData_t*>(std::addressof(adapter)));
     }
     
-    friend const_handle_t datatree_root(const NestedObjectAdapterImpl& adapter)
-    {
-        return const_handle_t(
-            static_cast<
-                const nestedobject_children_accessor_storage<GetChildNodes>*
-            >(std::addressof(adapter)), 
-            adapter._root
-        );
-    }
-    
-    friend class NestedObjectHandleImpl<NodeObject, GetChildNodes>;
+    template<class, typename, typename>
+    friend class NestedObjectHandleImpl;//<NodeObject, GetChildNodes, RootRange>;
 
 #ifdef ADDLE_TEST
     friend class ::DataTree_UTest;
 #endif
 };
 
-template<
-    class NodeObject,
-    typename GetChildNodes
-    //, bool PreventChildObjectRangeCopy
->
+template<class NodeObject, typename GetChildNodes, typename RootRange>
 class NestedObjectHandleImpl
 {
-    using child_object_range_t = std::invoke_result_t<
-            const GetChildNodes&,
-            const NodeObject&
-        >;
-    
-    using qual_child_object_range_t = boost::mp11::mp_if<
-            boost::mp11::mp_or<
-//                 boost::mp11::mp_bool<!PreventChildObjectRangeCopy>,
-                std::is_lvalue_reference<child_object_range_t>
-            >,
-            child_object_range_t,
-            boost::copy_reference_t<
-                const std::remove_reference_t<child_object_range_t>,
-                child_object_range_t
-            >
-        >;
-    
-    using _traits = nestedobject_adapter_traits<NodeObject, GetChildNodes>;
+    using _traits = nestedobject_adapter_traits<NodeObject, GetChildNodes, RootRange>;
     
     // type of pointer to the accessor storage for this handle type
-    using accessor_storage_ptr_t = const nestedobject_children_accessor_storage<GetChildNodes>*;
-        
-    using child_node_iterator_t = typename _traits::child_node_iterator;
+    using adapter_t =               typename _traits::adapter_t;
+    using child_object_getter = storage_util<GetChildNodes>;
+    using child_object_range_t =    typename _traits::child_objects_range;
+    using child_node_iterator_t =   typename _traits::child_node_iterator;
     
 public:
     NestedObjectHandleImpl() = default;
     NestedObjectHandleImpl(const NestedObjectHandleImpl&) = default;
     NestedObjectHandleImpl& operator=(const NestedObjectHandleImpl&) = default;
     
-    NestedObjectHandleImpl(accessor_storage_ptr_t accessors, const NodeObject* nodePtr)
-        : _accessors(accessors), _nodePtr(nodePtr)
+    explicit NestedObjectHandleImpl(const typename _traits::rootHandleData_t* rootData)
+        : _adapter(static_cast<const adapter_t*>(rootData))
+    {
+    }
+    
+    NestedObjectHandleImpl(const adapter_t* adapter, const NodeObject* nodePtr)
+        : _adapter(adapter), _nodePtr(nodePtr)
+    {
+    }
+    
+    explicit operator bool() const { return _nodePtr || _adapter; }
+    bool operator!() const { return !_nodePtr && !_adapter; }
+    
+    bool operator==(const NestedObjectHandleImpl& other) const
+    {
+        return _nodePtr == other._nodePtr && _adapter == other._adapter; 
+    }
+    
+    bool operator!=(const NestedObjectHandleImpl& other) const 
+    { 
+        return _nodePtr != other._nodePtr || _adapter != other._adapter;
+    }
+    
+    bool hasValue() const { return static_cast<bool>(_nodePtr); }
+    
+    const NodeObject& operator*() const
+    { 
+        assert(_nodePtr);
+        return *_nodePtr;
+    }
+    
+private:
+    child_node_iterator_t childrenBegin() const
+    {
+        if (_nodePtr)
+        {
+            auto&& childrenRange = std::invoke(
+                    static_cast<const child_object_getter*>(_adapter)->get(),
+                    *_nodePtr
+                );
+
+            return child_node_iterator_t(
+                    _adapter,
+                    boost::begin(const_cast<const child_object_range_t&>(childrenRange))
+                );
+        }
+        else
+        {
+            assert(_adapter);
+            return child_node_iterator_t(
+                    _adapter,
+                    static_cast<const typename _traits::rootHandleData_t*>(_adapter)->rootRangeBegin
+                );
+        }
+    }
+    
+    child_node_iterator_t childrenEnd() const
+    {
+        if (_nodePtr)
+        {
+            auto&& childrenRange = std::invoke(
+                    static_cast<const child_object_getter*>(_adapter)->get(),
+                    *_nodePtr
+                );
+
+            return child_node_iterator_t(
+                    _adapter,
+                    boost::end(const_cast<const child_object_range_t&>(childrenRange))
+                );
+        }
+        else
+        {
+            assert(_adapter);
+            return child_node_iterator_t(
+                    _adapter,
+                    static_cast<const typename _traits::rootHandleData_t*>(_adapter)->rootRangeEnd
+                );
+        }
+    }
+    
+    const adapter_t* _adapter = nullptr;
+    const NodeObject* _nodePtr = nullptr;
+    
+    friend child_node_iterator_t datatree_node_children_begin(const NestedObjectHandleImpl& node)
+    {
+        return Q_LIKELY(node) ? node.childrenBegin() : child_node_iterator_t {};
+    }
+    
+    friend child_node_iterator_t datatree_node_children_end(const NestedObjectHandleImpl& node)
+    {
+        return Q_LIKELY(node) ? node.childrenEnd() : child_node_iterator_t {};
+    }
+    
+    friend bool datatree_node_has_value(const NestedObjectHandleImpl& node)
+    {
+        return node && node._nodePtr;
+    }
+    
+    friend const NodeObject& datatree_node_value(const NestedObjectHandleImpl& node)
+    {
+        assert(node && node._nodePtr);
+        return *(node._nodePtr);
+    }
+    
+#ifdef ADDLE_TEST
+    friend class ::DataTree_UTest;
+#endif
+    
+    template<class, typename, typename>
+    friend class NestedObjectAdapterImpl;
+};
+
+template<
+    class NodeObject,
+    typename GetChildNodes
+>
+class NestedObjectHandleImpl<NodeObject, GetChildNodes, void>
+{
+    using _traits = nestedobject_adapter_traits<NodeObject, GetChildNodes, void>;
+    
+    // type of pointer to the accessor storage for this handle type
+    using adapter_t =              typename _traits::adapter_t;
+    using child_object_getter = storage_util<GetChildNodes>;
+    using child_object_range_t =    typename _traits::child_objects_range;
+    using child_node_iterator_t =   typename _traits::child_node_iterator;
+    
+public:
+    NestedObjectHandleImpl() = default;
+    NestedObjectHandleImpl(const NestedObjectHandleImpl&) = default;
+    NestedObjectHandleImpl& operator=(const NestedObjectHandleImpl&) = default;
+    
+    explicit NestedObjectHandleImpl(const typename _traits::rootHandleData_t* rootData)
+        : _adapter(static_cast<const adapter_t*>(rootData)), _nodePtr(rootData->rootObject)
+    {
+    }
+    
+    NestedObjectHandleImpl(const adapter_t* adapter, const NodeObject* nodePtr)
+        : _adapter(adapter), _nodePtr(nodePtr)
     {
     }
     
@@ -220,30 +351,30 @@ private:
     child_node_iterator_t childrenBegin() const
     {
         auto&& childrenRange = std::invoke(
-                _accessors->get(),
+                static_cast<const child_object_getter*>(_adapter)->get(),
                 *_nodePtr
             );
 
         return child_node_iterator_t(
-                _accessors,
-                boost::begin(const_cast<const child_object_range_t&&>(childrenRange))
+                _adapter,
+                boost::begin(const_cast<const child_object_range_t&>(childrenRange))
             );
     }
     
     child_node_iterator_t childrenEnd() const
     {
         auto&& childrenRange = std::invoke(
-                _accessors->get(),
+                static_cast<const child_object_getter*>(_adapter)->get(),
                 *_nodePtr
             );
             
         return child_node_iterator_t(
-                _accessors,
-                boost::end(const_cast<const child_object_range_t&&>(childrenRange))
+                _adapter,
+                boost::end(const_cast<const child_object_range_t&>(childrenRange))
             );
     }
     
-    accessor_storage_ptr_t _accessors = nullptr;
+    const adapter_t* _adapter = nullptr;
     const NodeObject* _nodePtr = nullptr;
     
     friend child_node_iterator_t datatree_node_children_begin(const NestedObjectHandleImpl& node)
@@ -256,53 +387,76 @@ private:
         return Q_LIKELY(node) ? node.childrenEnd() : child_node_iterator_t {};
     }
     
+    friend const NodeObject& datatree_node_value(const NestedObjectHandleImpl& node)
+    {
+        assert(node);
+        return *node;
+    }
+    
 #ifdef ADDLE_TEST
     friend class ::DataTree_UTest;
 #endif
+    
+    template<class, typename, typename>
+    friend class NestedObjectAdapterImpl;
 };
+
 
 template<
     class NodeObject,
-    typename GetChildNodes
+    typename GetChildNodes,
+    typename RootRange
 >
 struct datatree_traits<
-        NestedObjectAdapterImpl<NodeObject, GetChildNodes>
+        NestedObjectAdapterImpl<NodeObject, GetChildNodes, RootRange>
     >
 {
-    using node_handle = NestedObjectHandleImpl<NodeObject, GetChildNodes>;
-    using const_node_handle = NestedObjectHandleImpl<const NodeObject, GetChildNodes>;
+    using node_handle = typename nestedobject_adapter_traits<NodeObject, GetChildNodes, RootRange>::handle_t;
+    using const_node_handle = node_handle;
     using node_value_type = NodeObject;
 };
 
 template<
     class NodeObject,
     typename GetChildNodes,
+    typename RootRange,
     bool IsConst
 >
 class ChildNodeIterator<
-        NestedObjectAdapterImpl<NodeObject, GetChildNodes>,
+        NestedObjectAdapterImpl<NodeObject, GetChildNodes, RootRange>,
         IsConst
     >
-    : public boost::iterator_facade<
-        ChildNodeIterator<NestedObjectAdapterImpl<NodeObject, GetChildNodes>, IsConst>,
-        std::remove_reference_t<
-            _dereferenced_t<NestedObjectHandleImpl<NodeObject, GetChildNodes>>
+    : public boost::iterator_adaptor<
+        ChildNodeIterator<NestedObjectAdapterImpl<NodeObject, GetChildNodes, RootRange>, IsConst>,
+        boost::mp11::mp_if<
+            std::is_void<RootRange>,
+            typename nestedobject_adapter_traits<NodeObject, GetChildNodes, RootRange>::child_objects_iterator,
+            typename nestedobject_adapter_traits<NodeObject, GetChildNodes, RootRange>::iterator_variant
         >,
-        typename boost::range_category<
-            typename nestedobject_adapter_traits<NodeObject, GetChildNodes>::child_objects_range
-        >::type,
-        _dereferenced_t<NestedObjectHandleImpl<NodeObject, GetChildNodes>>
+        const NodeObject
     >
 {
-    using _traits = nestedobject_adapter_traits<NodeObject, GetChildNodes>;
+    using _traits = nestedobject_adapter_traits<NodeObject, GetChildNodes, RootRange>;
     
-    using adapter_t = NestedObjectAdapterImpl<NodeObject, GetChildNodes>;
-    using accessor_storage_ptr_t = const nestedobject_children_accessor_storage<GetChildNodes>*;
-
-    using handle_t = typename _traits::handle_t;
+    using iterator_adaptor_t = boost::iterator_adaptor<
+        ChildNodeIterator<NestedObjectAdapterImpl<NodeObject, GetChildNodes, RootRange>, IsConst>,
+        boost::mp11::mp_if<
+            std::is_void<RootRange>,
+            typename _traits::child_objects_iterator,
+            typename _traits::iterator_variant
+        >,
+        const NodeObject
+    >;
     
-    using child_objects_iterator = typename _traits::child_objects_iterator;
-        
+    using base_t = boost::mp11::mp_if<
+            std::is_void<RootRange>,
+            typename _traits::child_objects_iterator,
+            typename _traits::iterator_variant
+        >;
+    
+    using handle_t =                typename _traits::handle_t;
+    using nestedobject_adapter_t =  typename _traits::adapter_t;
+    
 public:
     ChildNodeIterator() = default;
     ChildNodeIterator(const ChildNodeIterator&) = default;
@@ -312,48 +466,37 @@ public:
         typename MutableIterator, 
         std::enable_if_t<
             IsConst
-            && std::is_same<MutableIterator, ChildNodeIterator<adapter_t, false>>::value, 
+            && std::is_same<MutableIterator, ChildNodeIterator<nestedobject_adapter_t, false>>::value, 
             void*
         > = nullptr
     >
     ChildNodeIterator(const MutableIterator& i)
-        : _accessors(i._accessors), _iter(i._iter)
+        : iterator_adaptor_t(i.base()), _adapter(i.adapter)
     {
     }
     
-    template<
-        typename MutableIterator, 
-        std::enable_if_t<
-            IsConst
-            && std::is_same<MutableIterator, ChildNodeIterator<adapter_t, false>>::value,
-            void*
-        > = nullptr
-    >
-    ChildNodeIterator(MutableIterator&& i)
-        : _accessors(i._accessors), _iter(std::move(i._iter))
-    {
-    }
-    
-    ChildNodeIterator(accessor_storage_ptr_t accessors, child_objects_iterator iter)
-        : _accessors(accessors), _iter(iter)
+    ChildNodeIterator(const nestedobject_adapter_t* adapter, base_t iter)
+        : iterator_adaptor_t(iter), 
+        _adapter(adapter)
     {
     }
     
     ChildNodeIterator& operator=(const ChildNodeIterator&) = default;
     ChildNodeIterator& operator=(ChildNodeIterator&&) = default;
     
-    inline operator handle_t () const { return handle_t(_accessors, std::addressof(*_iter)); }
+    inline operator handle_t () const { return handle_t(_adapter, std::addressof(*this->base())); }
     
 private:
-    inline _dereferenced_t<handle_t> dereference() const { return **_iter; }
-    inline bool equal(const ChildNodeIterator& x) const { return _iter == x._iter; }
-    inline bool equal(const handle_t& x) const { return _iter != typename adapter_t::child_objects_iterator {} && *_iter == x; }
-    inline void increment() { ++_iter; }
+    inline _dereferenced_t<handle_t> dereference() const { return **this->base(); }
+//     inline bool equal(const ChildNodeIterator& x) const { return this->base() == x.base(); }
+//     inline bool equal(const handle_t& x) const { 
+//         return this->base() != typename nestedobject_adapter_t::child_objects_iterator {} 
+//             && *this->base() == x; 
+//     }
     
-    accessor_storage_ptr_t _accessors = nullptr;
-    child_objects_iterator _iter = {};
+    const nestedobject_adapter_t* _adapter = nullptr;
     
-    friend class ChildNodeIterator<adapter_t, true>;
+    friend class ChildNodeIterator<nestedobject_adapter_t, true>;
     friend class boost::iterator_core_access;
 };
 
@@ -364,17 +507,56 @@ template<
     typename GetChildNodes
 >
 auto make_nested_object_adapter(
-        NodeObject&& root,
+        const NodeObject& root,
         GetChildNodes&& getChildNodes
     )
 {
+    using rootHandleData_t = typename aux_datatree::nestedobject_adapter_traits<
+            boost::remove_cv_ref_t<NodeObject>,
+            boost::remove_cv_ref_t<GetChildNodes>,
+            void
+        >::rootHandleData_t;
+    
     return aux_datatree::NestedObjectAdapterImpl<   
-            std::remove_reference_t<NodeObject>,
-            boost::remove_cv_ref_t<GetChildNodes>
+            boost::remove_cv_ref_t<NodeObject>,
+            boost::remove_cv_ref_t<GetChildNodes>,
+            void
         >(
-            std::addressof(root),
-            std::forward<GetChildNodes>(getChildNodes)
+            std::forward<GetChildNodes>(getChildNodes),
+            rootHandleData_t { std::addressof(root)}
         );
 }
+
+
+template<
+    class RootRange,
+    typename GetChildNodes
+>
+auto make_root_range_nested_object_adapter(
+        const RootRange& rootRange,
+        GetChildNodes&& getChildNodes
+    )
+{
+    using node_object_t = typename boost::range_value<RootRange>::type;
+    
+    using rootHandleData_t = typename aux_datatree::nestedobject_adapter_traits<
+            boost::remove_cv_ref_t<node_object_t>,
+            boost::remove_cv_ref_t<GetChildNodes>,
+            boost::remove_cv_ref_t<RootRange>
+        >::rootHandleData_t;
+    
+    return aux_datatree::NestedObjectAdapterImpl<   
+            boost::remove_cv_ref_t<node_object_t>,
+            boost::remove_cv_ref_t<GetChildNodes>,
+            boost::remove_cv_ref_t<RootRange>
+        >(
+            std::forward<GetChildNodes>(getChildNodes),
+            rootHandleData_t { 
+                boost::begin(rootRange), 
+                boost::end(rootRange)
+            }
+        );
+}
+
 
 } // namespace Addle

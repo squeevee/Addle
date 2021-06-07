@@ -13,7 +13,7 @@
 
 #include "interfaces/rendering/irenderable.hpp"
 #include "utilities/datatree/aux.hpp"
-// #include "utilities/datatree/observers.hpp"
+// #include "utilities/datatree/observer.hpp"
 #include "utilities/qobject.hpp"
 
 namespace Addle {

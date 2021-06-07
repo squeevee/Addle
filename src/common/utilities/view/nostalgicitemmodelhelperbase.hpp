@@ -7,7 +7,7 @@
 #include <QModelIndex>
 #include <QAbstractItemModel>
 
-// #include "utilities/datatree/observers.hpp"
+// #include "utilities/datatree/observer.hpp"
 
 namespace Addle {
     

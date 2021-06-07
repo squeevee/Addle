@@ -21,6 +21,7 @@
 #include "./ilayernodepresenter.hpp"
 
 #include "utilities/model/documentbuilder.hpp"
+#include "utilities/datatree/observer.hpp"
 
 namespace Addle {
 
@@ -71,7 +72,7 @@ public slots:
     virtual void mergeSelectedLayers() = 0;
 
 signals:
-//     virtual void layerNodesAdded(IDocumentPresenter::LayerNodesAddedEvent added) = 0;
+    virtual void layerNodesChanged(DataTreeNodeEvent) = 0;
 //     virtual void layerNodesRemoved(IDocumentPresenter::LayerNodesRemovedEvent removed) = 0;
     //virtual void layersMoved(QList<IDocumentPresenter::LayerNode*> moved) = 0;
 

@@ -3,8 +3,8 @@
 #include <QString>
 #include <QPainter>
 
-#include "utilities/datatree/basicdatatree.hpp"
-// #include "utilities/datatree/observers.hpp"
+#include "utilities/datatree/addledatatree.hpp"
+// #include "utilities/datatree/observer.hpp"
 #include "utilities/datatree/views.hpp"
 
 #include "interfaces/iamqobject.hpp"
@@ -16,7 +16,7 @@ class ILayerGroupPresenter;
 class ILayerNodePresenter : public virtual IAmQObject
 {
 public:    
-    using LayersTree        = BasicDataTree<
+    using LayersTree        = AddleDataTree<
                                     QSharedPointer<ILayerNodePresenter>
                                 >;
     using ConstLayersTree   = DataTreeCastView<

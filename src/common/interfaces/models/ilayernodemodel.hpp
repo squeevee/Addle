@@ -1,9 +1,9 @@
 #pragma once
 
 #include <QPainter>
-#include "utilities/datatree/basicdatatree.hpp"
+#include "utilities/datatree/addledatatree.hpp"
 #include "utilities/datatree/views.hpp"
-// #include "utilities/datatree/observers.hpp"
+// #include "utilities/datatree/observer.hpp"
 
 #include "interfaces/traits.hpp"
 #include "interfaces/iamqobject.hpp"
@@ -15,7 +15,7 @@ class IDocument;
 class ILayerNodeModel : public virtual IAmQObject
 {
 public:
-    using LayersTree        = BasicDataTree<
+    using LayersTree        = AddleDataTree<
                                     QSharedPointer<ILayerNodeModel>
                                 >;
     using ConstLayersTree   = DataTreeCastView<

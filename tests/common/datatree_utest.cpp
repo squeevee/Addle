@@ -10,11 +10,14 @@
 #include <QtDebug>
 #include <QObject>
 
+#include <QFile>
+
 #include "utilities/datatree/nestedobjectadapter.hpp"
-#include "utilities/datatree/basicdatatree.hpp"
-//#include "utilities/datatree/observers.hpp"
-#include "utilities/datatree/observers.hpp"
+#include "utilities/datatree/addledatatree.hpp"
+#include "utilities/datatree/observer.hpp"
 #include "utilities/datatree/views.hpp"
+
+#include "utilities/datatree/echo.hpp"
 
 using namespace Addle;
 
@@ -27,26 +30,33 @@ class DataTree_UTest : public QObject
 {
     Q_OBJECT
 private slots:
-//     void dev_basicDataTree1()
-//     {
-//         BasicDataTree<QString> tree("spiff");
+    void dev_basicDataTree1()
+    {
+        int tally = 0;
+        
+        AddleDataTree<int> sourceTree(tally++);
+        for (int i = 0; i < 6; ++i)
+        {
+            auto& branch = sourceTree.root().appendChild(tally++);
+            
+            for (int j = 0; j < 6; ++j)
+            {
+                auto& branch2 = branch.appendChild(tally++);
+                for (int k = 0; k < 6; ++k)
+                    branch2.appendChild(tally++);
+            }
+        }
+        
+//         AddleDataTree<QString> destTree;
 //         
-//         auto& branch1 = tree.root().addChild();
-//         tree.root().addChild("freem");
+//         auto echoer = aux_datatree::make_bfs_tree_echoer(
+//                 sourceTree,
+//                 destTree,
+//                 [] () {}
+//             );
 //         
-//         auto i = branch1.children().end();
-//         i = branch1.insertChild(i, "zorg");
-//         
-//         auto& branch2 = branch1.addChild("garg");
-//         branch2.addChildren({ "1", "2", "3", "4", "5", "6" });
-//         
-//         branch2.removeChildren(0, 3);
-//         
-//         for (QString s : tree)
-//         {
-//             //qDebug() << s;
-//         }
-//     }
+//         qDebug() << sizeof(echoer);
+    }
     
 //     void dev_eventBuilder1()
 //     {
@@ -134,63 +144,48 @@ private slots:
 //         } while (nostalgia.next());
 //     }
     
-//     void dev_nestedObjectAdapter()
-//     {
-//         struct TestObject
-//         {
-//             int v = 0;
-//             QList<TestObject> children;
-//             
-//             //QList<TestObject> children() const { return _children; }
-//         };
+    void dev_nestedObjectAdapter()
+    {
+        struct TestObject
+        {
+            int v = 0;
+            QList<TestObject> children;
+            
+            //const QList<TestObject> children() const { return _children; }
+        };
+        
+        //TestObject t = {0,{{1,{{2,{}},{3,{}}}},{4,{{5,{}}}}}};
+        /**
+         * 0
+         * |--\ `
+         * 1   4
+         * |\  |
+         * 2 3 5
+         */
+        
+        
+        QList<TestObject> rootRange = {
+                { 0, {{ 1, {} }}}, { 2, {} }, { 3, {{ 4, {} }, { 5, {} }}} 
+            };
+        
+        auto adapter = make_root_range_nested_object_adapter(rootRange, &TestObject::children);
+                
+//         using source_handle_t = decltype(adapter)::handle_t;
 //         
-//         TestObject t = {0,{{1,{{2,{}},{3,{}}}},{4,{{5,{}}}}}};
-//         /**
-//          * 0
-//          * |--\ `
-//          * 1   4
-//          * |\  |
-//          * 2 3 5
-//          */
-//         
-// //         auto f = [](const TestObject&) { return QList<TestObject>(); };
-//         
-// //         qDebug() << sizeof(make_nested_object_adapter(t, &TestObject::children));
-// //         qDebug() << sizeof(make_nested_object_adapter(t, f));
-//         
-// //         auto a = make_nested_object_adapter(
-// //                 t, 
-// //                 &TestObject::children,
-// //                 [] (
-// //                     TestObject& parent,
-// //                     QList<TestObject>::iterator pos,
-// //                     const TestObject& child
-// //                 ) {
-// //                     parent._children.insert(pos, child);
-// //                 }
-// //             );
-//         
-//         {
-//             auto adapter = make_nested_object_adapter(t, &TestObject::children);
-//             auto root = datatree_root(adapter);
-//             
-//             auto i = ::Addle::aux_datatree::node_dfs_begin(root);
-//             auto end = ::Addle::aux_datatree::node_dfs_end(root);
-//             
-//             for (; i != end; ::Addle::aux_datatree::node_dfs_increment(i))
-//             {
-//                 qDebug() << (*i).v;
-// //                 qDebug() 
-// //                     << ::Addle::aux_datatree::node_index(i)
-// //                     << ::Addle::aux_datatree::node_depth(i);
-//             }
-//         }
-//         
-// //         for (auto&& o : make_nested_object_adapter(t, &TestObject::children))
-// //         {
-// // //             qDebug() << o.v;/
-// //         }
-//     }
+        AddleDataTree<int> destTree;
+        
+        aux_datatree::echo_tree(
+                adapter,
+                destTree,
+                &TestObject::v
+            );
+        
+        for (auto& o : adapter)
+            qDebug() << o.v;
+        
+        for (auto& node : destTree)
+            qDebug() << node.address() << node.value();
+    }
     
 //     void dev_nestedObjectExtNode()
 //     {
@@ -217,7 +212,7 @@ private slots:
 //     {
 // 
 //     }
-    
+
     /* === FAST ADDRESS VERIFICATION TESTS === */
     
     // Representing the fast address scheme with F, and addresses a1 of
@@ -673,6 +668,160 @@ private slots:
             }
         }
     }
+    
+    
+    void benchmark_makeAddresses()
+    {
+        if (!loadBenchmarkAddressIndices()) 
+            QSKIP("No benchmark data available.");
+        
+        std::vector<NodeAddress> result;
+        result.reserve(_benchmarkAddressIndices.size());
+        
+        QBENCHMARK {
+            for (const auto& indices : qAsConst(_benchmarkAddressIndices))
+            {
+                aux_datatree::NodeAddressBuilder builder;
+                builder.reserve(indices.size());
+                for (const std::size_t i : indices)
+                    builder.append(i);
+                result.push_back(std::move(builder));
+            }
+        }
+        
+        Q_UNUSED(result);
+    }
+    
+    void benchmark_sortAddresses()
+    {
+        if (!loadBenchmarkAddressIndices()) 
+            QSKIP("No benchmark data available.");
+        
+        std::vector<NodeAddress> addresses;
+        for (const auto& indices : qAsConst(_benchmarkAddressIndices))
+        {
+            aux_datatree::NodeAddressBuilder builder;
+            builder.reserve(indices.size());
+            for (const std::size_t i : indices)
+                builder.append(i);
+            addresses.push_back(std::move(builder));
+        }
+        
+        QBENCHMARK {
+            std::sort(addresses.begin(), addresses.end());
+        }
+    
+        QVERIFY(std::is_sorted(addresses.begin(), addresses.end()));
+    }
+    
+    void benchmark_orderedSetOfAddresses()
+    {
+        if (!loadBenchmarkAddressIndices()) 
+            QSKIP("No benchmark data available.");
+        
+        std::vector<NodeAddress> addresses;
+        for (const auto& indices : qAsConst(_benchmarkAddressIndices))
+        {
+            aux_datatree::NodeAddressBuilder builder;
+            builder.reserve(indices.size());
+            for (const std::size_t i : indices)
+                builder.append(i);
+            addresses.push_back(std::move(builder));
+        }
+        
+        std::set<NodeAddress> result;
+        
+        QBENCHMARK {
+            for (const auto& address : addresses)
+            {
+                result.insert(address);
+            }
+        }
+    
+        QVERIFY(std::is_sorted(result.begin(), result.end()));
+    }
+    
+    void benchmark_hashAddresses()
+    {
+        if (!loadBenchmarkAddressIndices()) 
+            QSKIP("No benchmark data available.");
+        
+        std::vector<NodeAddress> addresses;
+        for (const auto& indices : qAsConst(_benchmarkAddressIndices))
+        {
+            aux_datatree::NodeAddressBuilder builder;
+            builder.reserve(indices.size());
+            for (const std::size_t i : indices)
+                builder.append(i);
+            addresses.push_back(std::move(builder));
+        }
+
+        QBENCHMARK {
+            for (const auto& address : addresses)
+            {
+                auto result = qHash(address);
+                Q_UNUSED(result);
+            }
+        }
+    }
+    
+    void benchmark_hashSetOfAddresses()
+    {
+        if (!loadBenchmarkAddressIndices()) 
+            QSKIP("No benchmark data available.");
+        
+        std::vector<NodeAddress> addresses;
+        for (const auto& indices : qAsConst(_benchmarkAddressIndices))
+        {
+            aux_datatree::NodeAddressBuilder builder;
+            builder.reserve(indices.size());
+            for (const std::size_t i : indices)
+                builder.append(i);
+            addresses.push_back(std::move(builder));
+        }
+                
+        QSet<NodeAddress> result;
+        
+        QBENCHMARK {
+            for (const auto& address : addresses)
+            {
+                result.insert(address);
+            }
+        }
+    
+        Q_UNUSED(result);
+    }
+    
+private:
+    bool loadBenchmarkAddressIndices()
+    {
+        if (!_benchmarkAddressIndices.empty())
+            return true;
+        
+        QFile f("datatree_utest_addressBenchmarkData.txt");
+        if (!f.exists() || !f.open(QIODevice::ReadOnly))
+            return false;
+        
+        while (true)
+        {
+            QByteArray line = f.readLine();
+            std::vector<std::size_t> lineVals;
+            
+            for (QByteArray segment : line.split(','))
+            {
+                lineVals.push_back(segment.toULong());
+            }
+            
+            _benchmarkAddressIndices.push_back(std::move(lineVals));
+            
+            if (line.isEmpty())
+                break;
+        }
+        
+        return !_benchmarkAddressIndices.empty();
+    }
+    
+    std::vector<std::vector<std::size_t>> _benchmarkAddressIndices;
 };
 
 QTEST_MAIN(DataTree_UTest)

@@ -15,6 +15,8 @@
 #include <QReadWriteLock>
 #include <QMutex>
 
+#include <QMetaType>
+
 #include <boost/range/adaptor/reversed.hpp>
 #include <boost/range/adaptor/sliced.hpp>
 #include <boost/range/adaptor/transformed.hpp>
@@ -1156,8 +1158,9 @@ public:
         assert( count <= aux_datatree::node_child_count(parent) );
         
         if constexpr (
-            aux_datatree::_handle_is_random_access_iterator<
-                aux_datatree::child_node_handle_t<handle_t>
+            aux_datatree::_handle_is_iterator_with_category<
+                aux_datatree::child_node_handle_t<handle_t>,
+                std::random_access_iterator_tag
             >::value
         )
         {
@@ -2280,6 +2283,8 @@ public:
         return false;
     }
     
+    // TODO: maybe use the cache to short-circuit mapping/size calculations?
+    
     NodeAddress mapForward(NodeAddress from) const
     {
         if (_events.empty()) 
@@ -2483,6 +2488,8 @@ private:
     r_coarse_chunk_iterator _rCChunk = {};
     r_fine_chunk_iterator   _rFChunk = {};
     
+    // The default cache size is very generous with the assumption that the 
+    // helper is essentially a temporary object. 
     std::size_t _maxCacheSize = 1024;
     
     QSharedPointer<TreeObserverData> _observerData;
@@ -2531,7 +2538,12 @@ private:
 
 }
 
+template<class Tree>
+using DataTreeObserver = aux_datatree::TreeObserver<Tree>;
+
 using DataTreeNodeEvent = aux_datatree::NodeEvent;
 using DataTreeNodeEventBuilder = aux_datatree::NodeEventBuilder;
 
 }
+
+Q_DECLARE_METATYPE(Addle::DataTreeNodeEvent)

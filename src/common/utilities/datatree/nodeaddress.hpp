@@ -8,7 +8,7 @@
 
 #include <QList>
 
-#ifdef ADDLE_DEBUG
+#if defined(ADDLE_DEBUG) || defined(ADDLE_TEST)
 #include <QtDebug>      // QDebug operator<< for NodeAddress
 #endif
 
@@ -17,20 +17,43 @@
 class DataTree_UTest;   // friend access for NodeAddress
 #endif
 
-#include "utilities/collections.hpp"
+#include "utilities/ranges.hpp"
 #include "utilities/metaprogramming.hpp"
 
 namespace Addle {
 namespace aux_datatree {
 
 // Generically represents the location of a node in a tree as a sequence of
-// 0-based integer indices. For typical values, no dynamic memory is allocated 
-// and comparisions/hashes are very fast.
+// 0-based integer indices.
 //
-// TODO: check and see if _fastAddress actually gains us anything over
-// automatic vectorization.
+// TODO Using "small" and "fast" optimizations in parallel like this is 
+// cumbersome from a maintenance standpoint. One should be eliminated, or they
+// should be combined somehow.
+// 
+// Some preliminary benchmarking gives me the impresson that the "small" 
+// optimization by itself is no slower at comparisons than the "fast" 
+// optimization.
+//
+// Curiously, my benchmarking showed the "small" optimization taking longer to
+// *construct* than no optimization (avoiding dynamic memory for speed is the 
+// whole point of the small addresses). I suspect this could be aleviated with 
+// some relatively small adjustments to NodeAddressBuilder.
+//
+// "Fast" optimizations give by far the best performance when hashing -- but 
+// 1) hashing is not very important for us, 2) even unoptimized, it's still way
+// faster than any other operation, 3) this was true even when addresses were
+// hashed exactly once after construction, which could simply be an indication
+// that the fast address scheme is better suited as a hashing algorithm.
+//
+// My takeaway is that more benchmarking and profiling is needed before anything
+// definitive can be said about these optimizations.
+//
+// Note: we will almost surely be better off with no neither optimization on
+// 32-bit platforms.
+
 class NodeAddress
 {
+#ifndef ADDLE_NO_SMALL_NODEADDRESS
     using large_t = std::size_t;
     using large_data_t = QList<large_t>;
     
@@ -46,10 +69,16 @@ class NodeAddress
     
     static constexpr std::size_t    SMALL_ADDRESS_MAX_VALUE = UINT_LEAST8_MAX;
     static constexpr unsigned short INVALID_SMALL_SIZE = USHRT_MAX;
+#else    
+    using index_t   = std::size_t;
+    using list_t    = QList<index_t>;
+#endif //ADDLE_NO_SMALL_NODEADDRESS
     
+#ifndef ADDLE_NO_FAST_NODEADDRESS
     using fast_address_t = std::uint_fast64_t;
     
     static constexpr std::uint64_t  INVALID_FAST_ADDRESS = UINT_FAST64_MAX;
+#endif // ADDLE_NO_FAST_NODEADDRESS
 public:        
     using value_type        = std::size_t;
     using const_reference   = const std::size_t&;
@@ -57,24 +86,25 @@ public:
     using difference_type   = std::ptrdiff_t;
     using size_type         = std::size_t;
     
-    class iterator : public boost::iterator_facade<
-            iterator,
+#ifndef ADDLE_NO_SMALL_NODEADDRESS
+    class Iterator : public boost::iterator_facade<
+            Iterator,
             std::size_t,
             std::random_access_iterator_tag,
             std::size_t
         >
     {
     public:
-        iterator() = default;
-        iterator(const iterator&) = default;
+        Iterator() = default;
+        Iterator(const Iterator&) = default;
         
     private:
-        iterator(const small_t* base)
+        Iterator(const small_t* base)
             : _base(base)
         {
         }
         
-        iterator(large_data_t::const_iterator base)
+        Iterator(large_data_t::const_iterator base)
             : _base(base)
         {
         }
@@ -103,7 +133,7 @@ public:
             }
         };
         
-        bool equal(const iterator other) const
+        bool equal(const Iterator& other) const
         {
             return std::visit(visitor_equal {}, _base, other._base);
         }
@@ -134,12 +164,14 @@ public:
             template<typename T, typename U>
             std::ptrdiff_t operator()(const T&, const U&) const
             {
-                // invalid comparison
-                assert(false);
+#ifdef ADDLE_DEBUG
+                qWarning("invalid nodeaddress iterator comparison");
+#endif
+                return 0;
             }
         };
         
-        std::ptrdiff_t distance_to(const iterator& other) const
+        std::ptrdiff_t distance_to(const Iterator& other) const
         {
             return std::visit(visitor_distance {}, _base, other._base);
         }
@@ -149,23 +181,35 @@ public:
         friend class boost::iterator_core_access;
         friend class NodeAddress;
     };
-    
-    using const_iterator = iterator;
+    using iterator          = Iterator;
+    using const_iterator    = Iterator;
+#else // defined ADDLE_NO_SMALL_NODEADDRESS
+    using iterator          = list_t::const_iterator;
+    using const_iterator    = list_t::const_iterator;
+#endif // ADDLE_NO_SMALL_NODEADDRESS
     
     NodeAddress() = default;
     
+#ifndef ADDLE_NO_SMALL_NODEADDRESS
     inline ~NodeAddress();
     inline NodeAddress(const NodeAddress&);
     inline NodeAddress(NodeAddress&&);
     
-    inline NodeAddress(const std::initializer_list<std::size_t>& init);
-    
     inline NodeAddress& operator=(const NodeAddress&);
     inline NodeAddress& operator=(NodeAddress&&);
+#else // ADDLE_NO_SMALL_NODEADDRESS
+    inline NodeAddress(const NodeAddress&) = default;
+    inline NodeAddress(NodeAddress&&) = default;
     
+    inline NodeAddress& operator=(const NodeAddress&) = default;
+    inline NodeAddress& operator=(NodeAddress&&) = default;
+#endif // ADDLE_NO_SMALL_NODEADDRESS
+    
+    inline NodeAddress(const std::initializer_list<std::size_t>& init);
     
     inline bool operator==(const NodeAddress& other) const
     {
+#ifndef ADDLE_NO_FAST_NODEADDRESS
         if (Q_LIKELY(
             _fastAddress != INVALID_FAST_ADDRESS 
             && other._fastAddress != INVALID_FAST_ADDRESS
@@ -174,7 +218,9 @@ public:
             return _fastAddress == other._fastAddress;
         }
         else
+#endif // ADDLE_NO_FAST_NODEADDRESS
         {
+#ifndef ADDLE_NO_SMALL_NODEADDRESS
             if (_smallSize != other._smallSize)
                 return false;
             
@@ -185,6 +231,9 @@ public:
                         other._smallData);
             else
                 return largeData() == other.largeData();
+#else // ADDLE_NO_SMALL_NODEADDRESS
+            return _data == other._data;
+#endif // ADDLE_NO_SMALL_NODEADDRESS
         }
     }
     
@@ -195,6 +244,7 @@ public:
     
     inline bool operator<(const NodeAddress& other) const
     {
+#ifndef ADDLE_NO_FAST_NODEADDRESS
         if (Q_LIKELY(
             _fastAddress != INVALID_FAST_ADDRESS 
             && other._fastAddress != INVALID_FAST_ADDRESS
@@ -203,7 +253,9 @@ public:
             return _fastAddress < other._fastAddress;
         }
         else
+#endif // ADDLE_NO_FAST_NODEADDRESS
         {            
+#ifndef ADDLE_NO_SMALL_NODEADDRESS
             if (_smallSize != INVALID_SMALL_SIZE 
                     && other._smallSize != INVALID_SMALL_SIZE)
                 return std::lexicographical_compare(
@@ -227,6 +279,12 @@ public:
                             largeData().begin(), largeData().end(),
                             other.largeData().begin(), other.largeData().end()
                         );
+#else // ADDLE_NO_SMALL_NODEADDRESS
+            return std::lexicographical_compare(
+                    _data.begin(), _data.end(),
+                    other._data.begin(), other._data.end()
+                );
+#endif // ADDLE_NO_SMALL_NODEADDRESS
         }
     }
     
@@ -237,6 +295,7 @@ public:
     
     inline bool operator>(const NodeAddress& other) const
     {
+#ifndef ADDLE_NO_FAST_NODEADDRESS
         if (Q_LIKELY(
             _fastAddress != INVALID_FAST_ADDRESS 
             && other._fastAddress != INVALID_FAST_ADDRESS
@@ -245,7 +304,9 @@ public:
             return _fastAddress > other._fastAddress;
         }
         else
+#endif // ADDLE_NO_FAST_NODEADDRESS
         {
+#ifndef ADDLE_NO_SMALL_NODEADDRESS
             if (_smallSize != INVALID_SMALL_SIZE 
                     && other._smallSize != INVALID_SMALL_SIZE)
                 return std::lexicographical_compare(
@@ -269,6 +330,12 @@ public:
                             other.largeData().begin(), other.largeData().end(),
                             largeData().begin(), largeData().end()
                         );
+#else // ADDLE_NO_SMALL_NODEADDRESS
+            return std::lexicographical_compare(
+                    other._data.begin(), other._data.end(),
+                    _data.begin(), _data.end()
+                );
+#endif // ADDLE_NO_SMALL_NODEADDRESS
         }
     }
     
@@ -279,6 +346,7 @@ public:
     
     inline std::size_t operator[](std::size_t depth) const
     { 
+#ifndef ADDLE_NO_SMALL_NODEADDRESS
         if (_smallSize != INVALID_SMALL_SIZE)
         {
             assert(depth < _smallSize);
@@ -288,42 +356,88 @@ public:
         {
             return largeData()[depth];
         }
+#else // ADDLE_NO_SMALL_NODEADDRESS
+        return _data[depth];
+#endif // ADDLE_NO_SMALL_NODEADDRESS
     }
     
     inline std::size_t lastIndex() const 
-    { 
+    {
         if (isRoot()) 
             return 0;
+#ifndef ADDLE_NO_SMALL_NODEADDRESS
         else if (_smallSize != INVALID_SMALL_SIZE)
             return _smallData[_smallSize - 1];
         else
             return largeData().last();
+#else // ADDLE_NO_SMALL_NODEADDRESS
+        return _data.last();
+#endif // ADDLE_NO_SMALL_NODEADDRESS
     }
     
     inline std::size_t size() const     
     { 
-        return (_smallSize != INVALID_SMALL_SIZE) ? _smallSize : largeData().size(); 
+#ifndef ADDLE_NO_SMALL_NODEADDRESS
+        return (_smallSize != INVALID_SMALL_SIZE) ? 
+            _smallSize : 
+            largeData().size(); 
+#else // ADDLE_NO_SMALL_NODEADDRESS
+        return _data.size();
+#endif // ADDLE_NO_SMALL_NODEADDRESS
     }
     
     inline iterator begin() const
     { 
+#ifndef ADDLE_NO_SMALL_NODEADDRESS
         if (_smallSize != INVALID_SMALL_SIZE)
             return iterator(_smallData);
         else
             return iterator(largeData().begin());
+#else // ADDLE_NO_SMALL_NODEADDRESS
+        return _data.begin();
+#endif // ADDLE_NO_SMALL_NODEADDRESS
     }
     
     inline iterator end() const  
     {
+#ifndef ADDLE_NO_SMALL_NODEADDRESS
         if (_smallSize != INVALID_SMALL_SIZE)
             return iterator(_smallData + _smallSize);
         else
             return iterator(largeData().end());
+#else // ADDLE_NO_SMALL_NODEADDRESS
+        return _data.end();
+#endif // ADDLE_NO_SMALL_NODEADDRESS
     }
     
-    inline bool isRoot() const { return !_smallSize; }
+    inline bool isRoot() const 
+    { 
+#ifndef ADDLE_NO_SMALL_NODEADDRESS
+        return !_smallSize; 
+#else // ADDLE_NO_SMALL_NODEADDRESS
+        return _data.isEmpty();
+#endif // ADDLE_NO_SMALL_NODEADDRESS
+    }
     
-    inline iterator lastCommonAncestor(const NodeAddress& other) const
+    inline iterator selfIndex() const
+    {
+        iterator result = end();
+        if (!isRoot())
+            --result;
+        
+        return result;
+    }
+    
+    inline iterator parentIndex() const
+    {
+        iterator result = end();
+        if (size() > 1)
+            std::advance(result, -2);
+        
+        return result;
+    }
+    
+    inline iterator commonAncestorIndex(const NodeAddress& other) const
     {
         if (isRoot() || other.isRoot())
             return this->end();
@@ -349,15 +463,7 @@ public:
 
     inline bool isAncestorOf(const NodeAddress& other) const
     {
-        if (isRoot() && !other.isRoot())
-            return true;
-        if (other.isRoot())
-            return false;
-        
-        if (other.size() <= size())
-            return false;
-        
-        return (lastCommonAncestor(other)) == --(this->end());
+        return (commonAncestorIndex(other)) == this->selfIndex();
     }
 
     inline bool isDescendantOf(const NodeAddress& other) const
@@ -366,14 +472,35 @@ public:
     }
     
     inline NodeAddress parent() const;
-    
+
     inline void swap(NodeAddress& other);
     
 private:
-    inline NodeAddress(const large_data_t& largeData);
-    inline NodeAddress(large_data_t&& largeData);
-    inline NodeAddress(const small_t (&smallData)[SMALL_ADDRESS_CAPACITY], unsigned short smallSize);
+// #ifndef ADDLE_NO_SMALL_NODEADDRESS
+//     inline NodeAddress(const large_data_t& largeData);
+//     inline NodeAddress(large_data_t&& largeData);
+//     inline NodeAddress(const small_t (&smallData)[SMALL_ADDRESS_CAPACITY], unsigned short smallSize);
+// #else // ADDLE_NO_SMALL_NODEADDRESS
+//     
+//     inline NodeAddress(const list_t& data)
+//         : _data(data)
+//     {
+// #ifndef ADDLE_NO_FAST_NODEADDRESS
+//         updateFastAddress();
+// #endif // ADDLE_NO_FAST_NODEADDRESS
+//     }
+//     
+//     inline NodeAddress(list_t&& data)
+//         : _data(std::move(data))
+//     {
+// #ifndef ADDLE_NO_FAST_NODEADDRESS
+//         updateFastAddress();
+// #endif // ADDLE_NO_FAST_NODEADDRESS
+//     }
+// 
+// #endif // ADDLE_NO_SMALL_NODEADDRESS
     
+#ifndef ADDLE_NO_SMALL_NODEADDRESS
     const large_data_t& largeData() const
     {
         return *reinterpret_cast<const large_data_t*>(std::addressof(_largeDataStorage));
@@ -383,8 +510,10 @@ private:
     {
         return *reinterpret_cast<large_data_t*>(std::addressof(_largeDataStorage));
     }
+#endif // ADDLE_NO_SMALL_NODEADDRESS
     
-    inline void setFastAddress()
+#ifndef ADDLE_NO_FAST_NODEADDRESS
+    inline void updateFastAddress()
     {
         // First, portion a 64-bit uint into an "array" of 8 x 8-bit uints 
         // composed from the address indices with the first index filling
@@ -410,39 +539,42 @@ private:
         
         _fastAddress = 0;
         
+        const auto calc = [&](auto&& range) -> void {
+                for (std::size_t v : range)
+                {
+                    if (Q_UNLIKELY(v > MAX_CELL_VALUE))
+                    {
+                        _fastAddress = INVALID_FAST_ADDRESS;
+                        return;
+                    }
+                    
+                    _fastAddress = _fastAddress << CELL_WIDTH | v + 1;
+                }
+            };
+            
+#ifndef ADDLE_NO_SMALL_NODEADDRESS
         if (_smallSize != INVALID_SMALL_SIZE)
-        {
-            for (std::size_t i = 0; i < _smallSize; ++i)
-            {
-                std::size_t v = _smallData[i];
-                if (Q_UNLIKELY(v > MAX_CELL_VALUE))
-                {
-                    _fastAddress = INVALID_FAST_ADDRESS;
-                    return;
-                }
-                
-                _fastAddress = _fastAddress << CELL_WIDTH | v + 1;
-            }
-        }
+            calc(
+                    boost::iterator_range<const small_t*>(
+                        _smallData, 
+                        _smallData + _smallSize
+                    )
+                );
         else
-        {
-            for (std::size_t v : largeData())
-            {
-                if (v > MAX_CELL_VALUE)
-                {
-                    _fastAddress = INVALID_FAST_ADDRESS;
-                    return;
-                }
-                
-                _fastAddress = _fastAddress << CELL_WIDTH | v + 1;
-            }
-        }
+            calc(largeData());
+#else // ADDLE_NO_SMALL_NODEADDRESS
+        calc(_data);
+#endif // ADDLE_NO_SMALL_NODEADDRESS
+        if (_fastAddress == INVALID_FAST_ADDRESS)
+            return;
         
         _fastAddress 
             <<= std::max(CELL_COUNT - size, (std::size_t) 0) * CELL_WIDTH;
     }
-        
-    unsigned short _smallSize = 0;
+#endif // ADDLE_NO_FAST_NODEADDRESS
+
+#ifndef ADDLE_NO_SMALL_NODEADDRESS
+    unsigned short                  _smallSize = 0;
     
     union
     {
@@ -451,7 +583,11 @@ private:
             sizeof(large_data_t), 
             alignof(large_data_t)>  _largeDataStorage;
     };
+#else // ADDLE_NO_SMALL_NODEADDRESS
+    list_t                          _data;
+#endif // ADDLE_NO_SMALL_NODEADDRESS
     
+#ifndef ADDLE_NO_FAST_NODEADDRESS
     // While the total address space of a data tree is arbitrarily large and 
     // requires dynamic memory and iteration to represent fully, we can 
     // encode a reasonable portion of the address space (covering a majority 
@@ -462,15 +598,19 @@ private:
     // That "reasonable portion" is currently tuned to approximately max
     // index of 255 and max depth of 8. This can be adjusted if desired.
     fast_address_t _fastAddress = 0;
+#endif // ADDLE_NO_FAST_NODEADDRESS
     
     friend uint qHash(const NodeAddress& address, uint seed = 0)
     {
+#ifndef ADDLE_NO_FAST_NODEADDRESS
         if (Q_LIKELY(address._fastAddress != INVALID_FAST_ADDRESS))
         {
             return ::qHash(address._fastAddress, seed);
         }
         else
+#endif // ADDLE_NO_FAST_NODEADDRESS
         {
+#ifndef ADDLE_NO_SMALL_NODEADDRESS
             if (address._smallSize != INVALID_SMALL_SIZE)
                 return ::qHashRange(
                         address._smallData,
@@ -483,6 +623,13 @@ private:
                         address.largeData().end(),
                         seed
                     );
+#else
+        return ::qHashRange(
+                address._data.begin(),
+                address._data.end(),
+                seed
+            );
+#endif
         }
     }
     
@@ -519,9 +666,7 @@ private:
             return result;
         }
     }
-#endif
     
-#ifdef ADDLE_DEBUG
     friend QDebug operator<<(QDebug debug, const NodeAddress& nodeAddress)
     {
         return debug << nodeAddress.repr().constData();
@@ -537,6 +682,7 @@ private:
     friend struct NodeChunk;
 };
 
+#ifndef ADDLE_NO_SMALL_NODEADDRESS
 NodeAddress::~NodeAddress()
 {
     if (Q_UNLIKELY(_smallSize == INVALID_SMALL_SIZE))
@@ -545,6 +691,9 @@ NodeAddress::~NodeAddress()
 
 inline NodeAddress::NodeAddress(const NodeAddress& other)
     : _smallSize(other._smallSize)
+#ifndef ADDLE_NO_FAST_NODEADDRESS
+    , _fastAddress(other._fastAddress)
+#endif // ADDLE_NO_FAST_NODEADDRESS
 {
     if (Q_UNLIKELY(_smallSize == INVALID_SMALL_SIZE))
     {
@@ -558,12 +707,13 @@ inline NodeAddress::NodeAddress(const NodeAddress& other)
                 _smallSize * sizeof(small_t)
             );
     }
-    
-    setFastAddress();
 }
 
 inline NodeAddress::NodeAddress(NodeAddress&& other)
     : _smallSize(other._smallSize)
+#ifndef ADDLE_NO_FAST_NODEADDRESS
+    , _fastAddress(other._fastAddress)
+#endif // ADDLE_NO_FAST_NODEADDRESS
 {
     if (Q_UNLIKELY(_smallSize == INVALID_SMALL_SIZE))
     {
@@ -579,8 +729,6 @@ inline NodeAddress::NodeAddress(NodeAddress&& other)
                 _smallSize * sizeof(small_t)
             );
     }
-    
-    setFastAddress();
 }
 
 inline NodeAddress& NodeAddress::operator=(const NodeAddress& other)
@@ -603,7 +751,9 @@ inline NodeAddress& NodeAddress::operator=(const NodeAddress& other)
             );
     }
     
-    setFastAddress();
+#ifndef ADDLE_NO_FAST_NODEADDRESS
+    _fastAddress = other._fastAddress;
+#endif // ADDLE_NO_FAST_NODEADDRESS
     return *this;
 }
 
@@ -629,42 +779,16 @@ NodeAddress& NodeAddress::operator=(NodeAddress&& other)
             );
     }
     
-    setFastAddress();
+#ifndef ADDLE_NO_FAST_NODEADDRESS
+    _fastAddress = other._fastAddress;
+#endif // ADDLE_NO_FAST_NODEADDRESS
     return *this;
 }
-    
-inline NodeAddress::NodeAddress(const large_data_t& largeData)
-    : _smallSize(INVALID_SMALL_SIZE)
-{
-    new (&_largeDataStorage) large_data_t(largeData);
-    setFastAddress();
-}
-
-inline NodeAddress::NodeAddress(large_data_t&& largeData)
-    : _smallSize(INVALID_SMALL_SIZE)
-{
-    new (&_largeDataStorage) large_data_t(std::move(largeData));
-    setFastAddress();
-}
-
-inline NodeAddress::NodeAddress(
-        const small_t (&smallData)[SMALL_ADDRESS_CAPACITY], 
-        unsigned short smallSize
-    )
-    : _smallSize(smallSize)
-{
-    assert (smallSize <= SMALL_ADDRESS_CAPACITY);
-    std::memcpy(
-            _smallData,
-            smallData,
-            _smallSize * sizeof(small_t)
-        );
-    setFastAddress();
-}
-
+#endif // ADDLE_NO_SMALL_NODEADDRESS
 
 inline void NodeAddress::swap(NodeAddress& other)
 {
+#ifndef ADDLE_NO_SMALL_NODEADDRESS
     if (_smallSize != INVALID_SMALL_SIZE 
             && other._smallSize != INVALID_SMALL_SIZE)
     {
@@ -706,23 +830,31 @@ inline void NodeAddress::swap(NodeAddress& other)
     {
         largeData().swap(other.largeData());
     }
-    
     std::swap(_smallSize, other._smallSize);
-    std::swap(_fastAddress, other._fastAddress);
-}
+#else // ADDLE_NO_SMALL_NODEADDRESS
+    std::swap(_data, other._data);
+#endif // ADDLE_NO_SMALL_NODEADDRESS
     
+#ifndef ADDLE_NO_FAST_NODEADDRESS
+    std::swap(_fastAddress, other._fastAddress);
+#endif // ADDLE_NO_FAST_NODEADDRESS
+}
+
 class NodeAddressBuilder
 {
+#ifndef ADDLE_NO_SMALL_NODEADDRESS
     using large_t       = NodeAddress::large_t;
     using large_data_t  = NodeAddress::large_data_t;
     
     using small_t       = NodeAddress::small_t;
-    using small_data_t = NodeAddress::small_data_t;
+    using small_data_t  = NodeAddress::small_data_t;
     
     static constexpr std::size_t    SMALL_ADDRESS_CAPACITY  = NodeAddress::SMALL_ADDRESS_CAPACITY;
     static constexpr std::size_t    SMALL_ADDRESS_MAX_VALUE = NodeAddress::SMALL_ADDRESS_MAX_VALUE;
     static constexpr unsigned short INVALID_SMALL_SIZE      = NodeAddress::INVALID_SMALL_SIZE;
-    
+#else
+    using list_t        = NodeAddress::list_t;
+#endif // ADDLE_NO_SMALL_NODEADDRESS    
 public:
     NodeAddressBuilder() = default;
     NodeAddressBuilder(const NodeAddressBuilder&) = delete;
@@ -733,7 +865,9 @@ public:
     
     NodeAddressBuilder(const std::initializer_list<std::size_t>& indices)
     {
-        initFromRange(std::forward<const std::initializer_list<std::size_t>&>(indices));
+        initFromRange(
+                std::forward<const std::initializer_list<std::size_t>&>(indices)
+            );
     }
     
     template<
@@ -742,27 +876,6 @@ public:
             std::is_convertible_v<
                 typename boost::range_reference<boost::remove_cv_ref_t<Range>>::type,
                 std::size_t
-            >
-            && std::is_convertible_v<
-                typename boost::range_category<boost::remove_cv_ref_t<Range>>::type, 
-                std::forward_iterator_tag
-            >,
-        void*> = nullptr>
-    NodeAddressBuilder(Range&& indices)
-    {
-        initFromRange(std::forward<Range>(indices));
-    }
-    
-    template<
-        typename Range,
-        std::enable_if_t<
-            std::is_convertible_v<
-                typename boost::range_reference<boost::remove_cv_ref_t<Range>>::type,
-                std::size_t
-            >
-            && !std::is_convertible_v<
-                typename boost::range_category<boost::remove_cv_ref_t<Range>>::type, 
-                std::forward_iterator_tag
             >,
         void*> = nullptr>
     NodeAddressBuilder(Range&& indices)
@@ -782,6 +895,7 @@ public:
     
     void append(std::size_t index)
     {
+#ifndef ADDLE_NO_SMALL_NODEADDRESS
         if (index <= SMALL_ADDRESS_MAX_VALUE 
             && _address._smallSize < SMALL_ADDRESS_CAPACITY)
         {
@@ -810,6 +924,13 @@ public:
             
             _address.largeData().append(index);
         }
+#else // ADDLE_NO_SMALL_NODEADDRESS
+        _address._data.append(index);
+#endif // ADDLE_NO_SMALL_NODEADDRESS
+        
+#ifndef ADDLE_NO_FAST_NODEADDRESS
+        _address.updateFastAddress();
+#endif
     }
     
     NodeAddressBuilder& operator<<(std::size_t index)
@@ -820,13 +941,12 @@ public:
     
     std::size_t size() const
     {
-        return (_address._smallSize != INVALID_SMALL_SIZE) ?
-            _address._smallSize : 
-            _address.largeData().size();
+        return _address.size();
     }
     
     void reserve(std::size_t size)
     {
+#ifndef ADDLE_NO_SMALL_NODEADDRESS
         if (size <= SMALL_ADDRESS_CAPACITY) return;
         
         if (_address._smallSize != INVALID_SMALL_SIZE)
@@ -848,6 +968,9 @@ public:
         {
             _address.largeData().reserve(size);
         }
+#else
+        _address._data.reserve(size);
+#endif
     }
     
     NodeAddress address() const &
@@ -864,6 +987,7 @@ public:
     operator NodeAddress () && { return address(); }
     
 private:
+#ifndef ADDLE_NO_SMALL_NODEADDRESS
     template<
         typename Range,
         std::enable_if_t<
@@ -913,6 +1037,10 @@ private:
                 new (&_address._largeDataStorage) large_data_t(begin, end);
             }
         }
+        
+#ifndef ADDLE_NO_FAST_NODEADDRESS
+        _address.updateFastAddress();
+#endif
     }
     
     template<
@@ -928,6 +1056,35 @@ private:
         large_data_t temp(boost::begin(indices), boost::end(indices));
         initFromRange(std::move(temp));
     }
+#else // ADDLE_NO_SMALL_NODEADDRESS
+    template<typename Range>
+    void initFromRange(Range&& indices)
+    {
+        _address._data = list_t(boost::begin(indices), boost::end(indices));
+        
+#ifndef ADDLE_NO_FAST_NODEADDRESS
+        _address.updateFastAddress();
+#endif // ADDLE_NO_FAST_NODEADDRESS
+    }
+    
+    void initFromRange(const list_t& indices)
+    {
+        _address._data = indices;
+        
+#ifndef ADDLE_NO_FAST_NODEADDRESS
+        _address.updateFastAddress();
+#endif // ADDLE_NO_FAST_NODEADDRESS
+    }
+    
+    void initFromRange(list_t&& indices)
+    {
+        _address._data = std::move(indices);
+        
+#ifndef ADDLE_NO_FAST_NODEADDRESS
+        _address.updateFastAddress();
+#endif // ADDLE_NO_FAST_NODEADDRESS 
+    }
+#endif // ADDLE_NO_SMALL_NODEADDRESS
     
     NodeAddress _address;
 };
@@ -963,18 +1120,19 @@ struct NodeChunk
         if (address.size() > otherAddress.size())
             return false;
    
-        auto ancestor = address.lastCommonAncestor(otherAddress);
-        auto ancestorDepth = std::distance(address.begin(), ancestor);
+        auto ancestorIndex = address.commonAncestorIndex(otherAddress);
         
-        if (ancestorDepth == address.size())
+        if (ancestorIndex == address.selfIndex())
             return true;
-        else if (ancestorDepth != address.size() - 1)
+        if (ancestorIndex != address.parentIndex())
             return false;
+
+        auto divergingIndex = otherAddress.begin() 
+            + std::distance(address.begin(), ancestorIndex) 
+            + 1;
         
-        auto otherAtDepth = otherAddress.begin() + ancestorDepth + 1;
-        
-        return (*otherAtDepth) >= address.lastIndex() 
-            && (*otherAtDepth) < address.lastIndex() + length;
+        return (*divergingIndex) >= address.lastIndex() 
+            && (*divergingIndex) < address.lastIndex() + length;
     }
     
     friend bool operator<(const NodeChunk& lhs, const NodeChunk& rhs)
@@ -1008,6 +1166,18 @@ using DataTreeNodeAddress   = aux_datatree::NodeAddress;
 using DataTreeNodeChunk     = aux_datatree::NodeChunk;
 
 } // namespace Addle
+
+namespace std 
+{
+    template<>
+    struct hash<::Addle::aux_datatree::NodeAddress>
+    {
+        std::size_t operator()(const ::Addle::aux_datatree::NodeAddress& address) const
+        {
+            return qHash(address);
+        }
+    };
+}
 
 #ifdef ADDLE_TEST
 template<>

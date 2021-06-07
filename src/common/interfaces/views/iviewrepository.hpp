@@ -15,7 +15,7 @@
 
 #include "interfaces/traits.hpp"
 
-#include "utilities/collections.hpp"
+#include "utilities/ranges.hpp"
 #include "utilities/lazyvalue.hpp"
 #include "utilities/qobject.hpp"
 #include "utilities/metaprogramming.hpp"

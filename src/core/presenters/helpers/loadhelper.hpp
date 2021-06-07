@@ -9,7 +9,7 @@
 
 #include "utilities/format/genericformat.hpp"
 #include "utilities/idinfo.hpp"
-#include "utilities/collections.hpp"
+#include "utilities/ranges.hpp"
 #include "servicelocator.hpp"
 
 namespace Addle {

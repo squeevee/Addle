@@ -13,6 +13,7 @@ set (common_sources
     #utilities/config/bindingfilter.cpp
     utilities/errors.cpp
     utilities/collatingstring.cpp
+    utilities/datatree/addledatatree.cpp
     utilities/iocheck.cpp
     utilities/indexvariant.cpp
     utilities/taskprogresshandle.cpp

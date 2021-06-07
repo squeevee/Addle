@@ -11,7 +11,7 @@
 #include "utilities/qobject.hpp"
 
 #include <QVector>
-#include <utilities/collections.hpp>
+#include <utilities/ranges.hpp>
 
 using namespace Addle;
 

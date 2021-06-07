@@ -17,9 +17,9 @@
 #include "interfaces/traits.hpp"
 #include "interfaces/iamqobject.hpp"
 
-#include "utilities/datatree/basicdatatree.hpp"
+#include "utilities/datatree/addledatatree.hpp"
 #include "utilities/datatree/views.hpp"
-// #include "utilities/datatree/observers.hpp"
+#include "utilities/datatree/observer.hpp"
 
 #include "utilities/model/documentbuilder.hpp"
 
@@ -34,9 +34,6 @@ class IDocument : public virtual IAmQObject
 public:
     using LayersTree                = ILayerNodeModel::LayersTree;
     using ConstLayersTree           = ILayerNodeModel::ConstLayersTree;
-    
-//     using LayerNodesAddedEvent      = DataTreeNodesAddedEvent<LayersTree>;
-//     using LayerNodesRemovedEvent    = DataTreeNodesRemovedEvent<LayersTree>;
     
     virtual ~IDocument() = default;
 
@@ -55,10 +52,7 @@ signals:
     virtual void backgroundColorChanged(QColor color) = 0;
     virtual void urlChanged(QUrl url) = 0;
     
-//     virtual void layerNodesAdded(IDocument::LayerNodesAddedEvent added) = 0;
-//     virtual void layerNodesRemoved(IDocument::LayerNodesRemovedEvent removed) = 0;
-    
-//     virtual void boundaryChanged(QRect newBoundary) = 0;
+    virtual void layerNodesChanged(DataTreeNodeEvent) = 0; 
 };
 
 namespace aux_IDocument {
@@ -74,5 +68,3 @@ ADDLE_DECL_FACTORY_PARAMETERS(
 } // namespace Addle
 
 Q_DECLARE_INTERFACE(Addle::IDocument, "org.addle.IDocument")
-// Q_DECLARE_METATYPE(Addle::IDocument::LayerNodesAddedEvent)
-// Q_DECLARE_METATYPE(Addle::IDocument::LayerNodesRemovedEvent)

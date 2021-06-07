@@ -15,7 +15,7 @@
 #include "interfaces/models/ipalette.hpp"
 #include "interfaces/format/iformatdriver.hpp"
 
-#include "utilities/collections.hpp"
+#include "utilities/ranges.hpp"
 #include "utilities/errors.hpp"
 #include "utilities/idinfo.hpp"
 

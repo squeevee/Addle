@@ -19,20 +19,21 @@ LayerGroup::LayerGroup(
     _layerGroupFactory(layerGroupFactory)
 {
     // TODO: validate naive builder values
-    
-    for (const LayerNodeBuilder& childBuilder : builder.childLayerNodes())
-    {
-        if (childBuilder.isLayer())
-        {
-            LayerNode& childNode = _layerNode.addLeaf();
-            auto childLayer = _layerFactory.makeShared(_document, childNode, childBuilder);
-            childNode.setLeafValue(childLayer);
-        }
-        else
-        {
-            LayerNode& childNode = _layerNode.addBranch();
-            auto childLayerGroup = _layerGroupFactory.makeShared(_document, childNode, childBuilder);
-            childNode.setBranchValue(childLayerGroup);
-        }
-    }
+   
+    // TODO datatree echo
+//     for (const LayerNodeBuilder& childBuilder : builder.childLayerNodes())
+//     {
+//         if (childBuilder.isLayer())
+//         {
+//             LayerNode& childNode = _layerNode.addLeaf();
+//             auto childLayer = _layerFactory.makeShared(_document, childNode, childBuilder);
+//             childNode.setLeafValue(childLayer);
+//         }
+//         else
+//         {
+//             LayerNode& childNode = _layerNode.addBranch();
+//             auto childLayerGroup = _layerGroupFactory.makeShared(_document, childNode, childBuilder);
+//             childNode.setBranchValue(childLayerGroup);
+//         }
+//     }
 }

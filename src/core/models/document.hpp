@@ -69,8 +69,7 @@ signals:
     void backgroundColorChanged(QColor color) override;
     void urlChanged(QUrl url) override;
     
-    void layerNodesAdded(IDocument::LayerNodesAddedEvent added) override;
-    void layerNodesRemoved(IDocument::LayerNodesRemovedEvent removed) override;
+    void layerNodesChanged(DataTreeNodeEvent) override; 
 
 private:
     LayersTree _layers;

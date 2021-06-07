@@ -123,8 +123,7 @@ public slots:
     void save(QSharedPointer<FileRequest> request) override;
 
 signals:
-    void layerNodesAdded(IDocumentPresenter::LayerNodesAddedEvent added) override;
-    void layerNodesRemoved(IDocumentPresenter::LayerNodesRemovedEvent removed) override;
+    void layerNodesChanged(DataTreeNodeEvent) override;
     //void layersMoved(QList<IDocumentPresenter::LayerNode*> moved) override;
 
     void layersChanged() override;

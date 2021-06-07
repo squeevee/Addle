@@ -109,10 +109,23 @@ public:
     }
     inline const_iterator end() const { return cend(); }
     
-    inline bool isLeaf() const { return ::Addle::aux_datatree::node_is_leaf(_node); }
-    inline bool isBranch() const { return ::Addle::aux_datatree::node_is_branch(_node); }
+    inline bool isLeaf() const
+    { 
+        return ::Addle::aux_datatree::node_children_begin(_node)
+            == ::Addle::aux_datatree::node_children_end(_node);
+    }
+    
+    inline bool isBranch() const
+    { 
+        return ::Addle::aux_datatree::node_children_begin(_node)
+            != ::Addle::aux_datatree::node_children_end(_node);
+    }
         
-    inline node_value_t<Tree> value() const { return ::Addle::aux_datatree::node_value(_node); }
+    inline decltype(auto) value() const 
+    { 
+        assert(::Addle::aux_datatree::node_has_value(_node));
+        return ::Addle::aux_datatree::node_value(_node); 
+    }
     
     inline std::size_t countChildren() const { return ::Addle::aux_datatree::node_child_count(_node); }
     
@@ -195,6 +208,11 @@ public:
         NodeHandle& operator=(const NodeHandle&) = default;
         NodeHandle& operator=(NodeHandle&&) = default;
         
+        NodeHandle(base_handle_t baseNode)
+            : _baseNode(std::move(baseNode))
+        {
+        }
+        
         inline NodeHandle(base_handle_t baseNode, TransformOp transform)
             : _baseNode(std::move(baseNode)), _transform(std::move(transform))
         {
@@ -266,7 +284,7 @@ public:
             return NodeHandle(aux_datatree::node_root(node._baseNode), node._transform);
         }
         
-        friend node_value_type datatree_node_leaf_value(const NodeHandle& node) 
+        friend node_value_type datatree_node_value(const NodeHandle& node) 
         { 
             return node._transform( aux_datatree::node_value(node._baseNode) );
         }
@@ -320,16 +338,6 @@ public:
 //         {
 //             return datatree_node_shallow_equivalent(node1._baseNode, node2._baseNode);
 //         }
-        
-        friend bool datatree_node_is_branch(const NodeHandle& node)
-        { 
-            return aux_datatree::node_is_branch(node._baseNode);
-        }
-        
-        friend bool datatree_node_is_leaf(const NodeHandle& node)
-        { 
-            return aux_datatree::node_is_leaf(node._baseNode);
-        }
         
         friend NodeAddress datatree_node_address(const NodeHandle& node)
         { 
