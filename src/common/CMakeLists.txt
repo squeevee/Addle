@@ -14,6 +14,7 @@ set (common_sources
     utilities/errors.cpp
     utilities/collatingstring.cpp
     utilities/datatree/addledatatree.cpp
+    utilities/datatree/observer.cpp
     utilities/iocheck.cpp
     utilities/indexvariant.cpp
     utilities/taskprogresshandle.cpp

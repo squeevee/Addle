@@ -15,7 +15,7 @@
 
 // #include "utilities/datatree/observer.hpp"
 
-#include "./nostalgicitemmodelhelperbase.hpp"
+#include "./observedtreeitemmodelhelperbase.hpp"
 
 namespace Addle {
 
@@ -24,11 +24,10 @@ namespace Addle {
 
 class ADDLE_COMMON_EXPORT DocumentLayersItemModel 
     : public QAbstractItemModel,
-    private NostalgicItemModelHelperBase<DocumentLayersItemModel, IDocumentPresenter::LayersTree>
+    private ObservedTreeItemModelHelperBase<DocumentLayersItemModel, IDocumentPresenter::LayersTree>
 {
     Q_OBJECT
     
-    using NostalgicHelperBase = NostalgicItemModelHelperBase<DocumentLayersItemModel, IDocumentPresenter::LayersTree>; 
     using LayerNode = IDocumentPresenter::LayersTree::Node;
 public:
     DocumentLayersItemModel(QObject* parent = nullptr);
@@ -43,20 +42,13 @@ public:
     
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
 
-//     QModelIndex indexOf(const LayerNode* node) const;
-
-//     static LayerNode* nodeAt(const QModelIndex& index);
-//     static const LayerNode* constNodeAt(const QModelIndex& index);
-
-// private slots:
-//     void onPresenterLayerNodesAdded(IDocumentPresenter::LayerNodesAddedEvent added);
-//     void onPresenterLayerNodesRemoved(IDocumentPresenter::LayerNodesRemovedEvent removed);
-//     void onPresenterLayersMoved(QList<IDocumentPresenter::LayerNode*> added);
-
+private slots:
+    void onPresenterLayerNodesChanged(DataTreeNodeEvent);
+    
 private:
     PresenterAssignment<IDocumentPresenter> _presenter;
     
-    friend class NostalgicItemModelHelperBase<DocumentLayersItemModel, IDocumentPresenter::LayersTree>;
+    friend class ObservedTreeItemModelHelperBase<DocumentLayersItemModel, IDocumentPresenter::LayersTree>;
 };
 
 } // namespace Addle

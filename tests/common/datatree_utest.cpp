@@ -119,30 +119,7 @@ private slots:
         
         QCOMPARE(builder.event().mapForward({ 2, 0 }), DataTreeNodeAddress({ 3, 0 }));
         QCOMPARE(builder.event().mapBackward({ 3, 0 }), DataTreeNodeAddress({ 2, 0 }));
-}
-    
-//     void dev_nostalgicHelper()
-//     {
-//         DataTreeNodeEventBuilder builder;
-//         
-//         //builder.passiveAddChunks({ {{ 0 }, 1 }, {{ 0, 0 }, 1} });
-//         builder.addChunks({ 
-//                 {{ 12 }, 2 }, 
-//                 {{ 10 }, 2 }, 
-//                 {{ 8 }, 2 }, 
-//                 {{ 6 }, 2 }, 
-//                 {{ 4 }, 2 }, 
-//                 {{ 2 }, 2 }, 
-//                 {{ 0 }, 2 } 
-//             });
-//         
-//         aux_datatree::NostalgicNodeEventHelper nostalgia(std::move(builder).event());
-//         
-//         do
-//         {
-//             qDebug() << nostalgia.operatingChunk();
-//         } while (nostalgia.next());
-//     }
+    }
     
     void dev_nestedObjectAdapter()
     {
@@ -168,7 +145,7 @@ private slots:
                 { 0, {{ 1, {} }}}, { 2, {} }, { 3, {{ 4, {} }, { 5, {} }}} 
             };
         
-        auto adapter = make_root_range_nested_object_adapter(rootRange, &TestObject::children);
+        auto adapter = aux_datatree::make_root_range_nested_object_adapter(rootRange, &TestObject::children);
                 
 //         using source_handle_t = decltype(adapter)::handle_t;
 //         
@@ -180,11 +157,54 @@ private slots:
                 &TestObject::v
             );
         
-        for (auto& o : adapter)
-            qDebug() << o.v;
+        for (const auto& o : adapter)
+            qDebug() << o.value().v;
         
         for (auto& node : destTree)
             qDebug() << node.address() << node.value();
+    }
+    
+    void dev_observedTreeState()
+    {
+        AddleDataTree<QString> tree;
+        aux_datatree::TreeObserver<AddleDataTree<QString>> observer(tree);
+        aux_datatree::ObservedTreeState state(observer);
+        
+        observer.startRecording();
+        observer.insertNodes(
+                &tree.root(), 
+                tree.root().children().begin(),
+                { "spiff", "freem" }
+            );
+        auto e1 = observer.finishRecording();
+        QVERIFY(state.event() == e1);
+        
+        observer.startRecording();
+        observer.insertNodes(
+                &tree.root(), 
+                tree.root().children().begin(),
+                { "spiff2", "freem3" }
+            );
+        auto e2 = observer.finishRecording();
+        
+        QVERIFY(state.event() == e1);
+        qDebug() << state.mapToCurrent({ 0 });
+        qDebug() << state.mapFromCurrent({ 4 });
+        QVERIFY(state.next());
+        
+        QVERIFY(state.event() == e2);
+        qDebug() << state.mapToCurrent({ 0 });
+        qDebug() << state.mapFromCurrent({ 2 });
+        QVERIFY(!state.next());
+        
+        //state.clear();
+    }
+    
+    void dev_addleDataTreeWithObserver()
+    {
+        AddleDataTree<QString, true> tree;
+        
+        
     }
     
 //     void dev_nestedObjectExtNode()

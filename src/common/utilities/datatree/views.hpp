@@ -120,6 +120,16 @@ public:
         return ::Addle::aux_datatree::node_children_begin(_node)
             != ::Addle::aux_datatree::node_children_end(_node);
     }
+    
+    inline bool isRoot() const
+    {
+        return ::Addle::aux_datatree::node_is_root(_node);
+    }
+    
+    inline bool hasValue() const
+    {
+        return ::Addle::aux_datatree::node_has_value(_node);
+    }
         
     inline decltype(auto) value() const 
     { 

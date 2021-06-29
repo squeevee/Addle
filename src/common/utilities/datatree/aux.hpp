@@ -495,6 +495,17 @@ using handle_is_dfs_incrementable = boost::is_detected<_node_dfs_increment_t_, N
 //     return ::Addle::aux_datatree::node_children_begin(node) != ::Addle::aux_datatree::node_children_end(node);
 // }
 
+template<typename NodeHandle>
+using _node_is_root_t = decltype( datatree_node_is_root(std::declval<NodeHandle>()) );
+
+template<typename NodeHandle, std::enable_if_t<boost::is_detected<_node_is_root_t, NodeHandle>::value, void*> = nullptr>
+inline auto node_is_root( NodeHandle&& node ) { return datatree_node_is_root(std::forward<NodeHandle>(node)); }
+
+template<typename NodeHandle, std::enable_if_t<!boost::is_detected<_node_is_root_t, NodeHandle>::value, void*> = nullptr>
+inline bool node_is_root( const NodeHandle& node )
+{ 
+    return ::Addle::aux_datatree::node_depth( node ) == 0;
+}
 
 template<typename NodeHandle>
 inline decltype(auto) node_value( NodeHandle&& node ) { return datatree_node_value(std::forward<NodeHandle>(node)); }
@@ -1206,7 +1217,12 @@ private:
         if (!node._root) 
             return 0;
         else
-            return node._descendants.size() + 1;
+            return node._descendants.size();
+    }
+    
+    friend bool datatree_is_root(const DFSExtendedNode& node)
+    {
+        return node._root && node._descendants.empty();
     }
     
     friend std::size_t datatree_node_index(const DFSExtendedNode& node)
@@ -1983,11 +1999,11 @@ public:
     using size_type         = std::size_t;
     using difference_type   = std::ptrdiff_t;
     
-    iterator begin() { return iterator(boost::begin(_range)); }
-    const_iterator begin() const { return const_iterator(boost::begin(_range)); }
+    iterator begin() { return iterator(std::begin(_range)); }
+    const_iterator begin() const { return const_iterator(std::begin(_range)); }
     
-    iterator end() { return iterator(boost::end(_range)); }
-    const_iterator end() const { return const_iterator(boost::end(_range)); }
+    iterator end() { return iterator(std::end(_range)); }
+    const_iterator end() const { return const_iterator(std::end(_range)); }
     
     const Range& base() const { return _range; }
     
@@ -2032,18 +2048,4 @@ using storage_util = typename boost::mp11::mp_if<
     >::type;
 
 } // namespace aux_datatree 
-
-template<class Tree>
-inline bool data_tree_contains_address(Tree&& tree, const DataTreeNodeAddress& address)
-{
-    return aux_datatree::node_contains_address(::Addle::aux_datatree::tree_root(tree), address);
-}
-
-template<class Tree>
-inline aux_datatree::node_handle_t<Tree> 
-    data_tree_lookup_address(Tree&& tree, const DataTreeNodeAddress& address)
-{
-    return aux_datatree::node_lookup_address(::Addle::aux_datatree::tree_root(tree), address);
-}
-
 } // namespace Addle

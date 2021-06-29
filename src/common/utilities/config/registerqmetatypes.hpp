@@ -28,6 +28,10 @@
 #include "utilities/canvas/canvasmouseevent.hpp"
 //#include "utilities/presenter/saveevent.hpp"
 #include "utilities/model/brushbuilder.hpp"
+
+#include "utilities/datatree/nodeaddress.hpp"
+#include "utilities/datatree/observer.hpp"
+
 namespace Addle {
 
 // TODO: move this into a library constructor
@@ -59,6 +63,10 @@ inline void registerQMetaTypes()
     qRegisterMetaType<IPalette::ColorArray>("ColorArray");
     
     qRegisterMetaType<QSharedPointer<IMessagePresenter>>();
+    
+    qRegisterMetaType<DataTreeNodeAddress>();
+    qRegisterMetaType<DataTreeNodeChunk>();
+    qRegisterMetaType<DataTreeNodeEvent>();
 }
 
 } // namespace Addle

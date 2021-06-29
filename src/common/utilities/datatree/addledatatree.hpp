@@ -30,6 +30,7 @@
 #include <QtDebug>
 
 #include "./aux.hpp"
+#include "./observer.hpp"
 #include "utilities/metaprogramming.hpp"
 #include "utilities/ranges.hpp"
 
@@ -162,10 +163,57 @@ Node_* AddleDataTree_NodeBase::findEnd_impl(Node_* node)
     return &(node->_treeData->_endSentinel);
 }
 
+template<class AddleDataTree_>
+class AddleDataTree_TreeDataWithObserverBase
+{
+    using observer_t = TreeObserver<AddleDataTree_>;
+    
+    observer_t& observer() { return *reinterpret_cast<observer_t*>(&_observerStorage); }
+    const observer_t& observer() const { return *reinterpret_cast<const observer_t*>(&_observerStorage); }
+    
+protected:
+    // initialization logic that needs to be called in AddleDataTree constructor
+    inline void initialize(AddleDataTree_& tree)
+    {
+        new (&_observerStorage) observer_t(tree);
+    }
+    
+    inline ~AddleDataTree_TreeDataWithObserverBase()
+    {
+        observer().~observer_t();
+    }
+    
+private:
+    std::aligned_storage_t<sizeof(observer_t), alignof(observer_t)> _observerStorage;
+    
+    template<class> friend class AddleDataTree_WithObserverBase;
+};
+
+template<class AddleDataTree_>
+class AddleDataTree_WithObserverBase
+{
+    using data_t = AddleDataTree_TreeDataWithObserverBase<AddleDataTree_>;
+public:
+    TreeObserver<AddleDataTree_>& observer()
+    {
+        return static_cast<data_t&>(*static_cast<AddleDataTree_*>(this)->_data).observer();
+    }
+    
+    const TreeObserver<AddleDataTree_>& observer() const
+    {
+        return static_cast<const data_t&>(*static_cast<const AddleDataTree_*>(this)->_data).observer();
+    }
+};
+
 } // namespace aux_datatree
  
-template<typename T>
-class AddleDataTree
+template<typename T, bool HasObserver = false>
+class AddleDataTree 
+    : public boost::mp11::mp_if_c<
+        HasObserver,
+        aux_datatree::AddleDataTree_WithObserverBase<AddleDataTree<T, HasObserver>>,
+        boost::mp11::mp_inherit<>
+    >
 {
     struct Data;
 public:
@@ -175,28 +223,22 @@ public:
         using value_type        = Node;
         using reference         = Node&;
         using const_reference   = const Node&;
-        using iterator          = aux_datatree::NodeIterator<AddleDataTree<T>>;
-        using const_iterator    = aux_datatree::ConstNodeIterator<AddleDataTree<T>>;
+        using iterator          = aux_datatree::NodeIterator<AddleDataTree<T, HasObserver>>;
+        using const_iterator    = aux_datatree::ConstNodeIterator<AddleDataTree<T, HasObserver>>;
         using difference_type   = std::ptrdiff_t;
         using size_type         = std::size_t;
         
-        using child_iterator        = aux_datatree::ChildNodeIterator<AddleDataTree<T>>;
-        using const_child_iterator  = aux_datatree::ConstChildNodeIterator<AddleDataTree<T>>;
+        using child_iterator        = aux_datatree::ChildNodeIterator<AddleDataTree<T, HasObserver>>;
+        using const_child_iterator  = aux_datatree::ConstChildNodeIterator<AddleDataTree<T, HasObserver>>;
         
-        using child_range       = aux_datatree::ChildNodeRange<AddleDataTree<T>>;
-        using const_child_range = aux_datatree::ConstChildNodeRange<AddleDataTree<T>>;
+        using child_range       = aux_datatree::ChildNodeRange<AddleDataTree<T, HasObserver>>;
+        using const_child_range = aux_datatree::ConstChildNodeRange<AddleDataTree<T, HasObserver>>;
         
-        using descendant_range          = aux_datatree::NodeRange<AddleDataTree<T>>;
-        using const_descendant_range    = aux_datatree::ConstNodeRange<AddleDataTree<T>>;
+        using descendant_range          = aux_datatree::NodeRange<AddleDataTree<T, HasObserver>>;
+        using const_descendant_range    = aux_datatree::ConstNodeRange<AddleDataTree<T, HasObserver>>;
         
-        using ancestor_range        = aux_datatree::AncestorNodeRange<AddleDataTree<T>>;
-        using const_ancestor_range  = aux_datatree::ConstAncestorNodeRange<AddleDataTree<T>>;
-        
-//         using leaf_range            = aux_datatree::LeafRange<AddleDataTree<T>>;
-//         using const_leaf_range      = aux_datatree::ConstLeafRange<AddleDataTree<T>>;
-//         
-//         using branch_range          = aux_datatree::BranchRange<AddleDataTree<T>>;
-//         using const_branch_range    = aux_datatree::ConstBranchRange<AddleDataTree<T>>;
+        using ancestor_range        = aux_datatree::AncestorNodeRange<AddleDataTree<T, HasObserver>>;
+        using const_ancestor_range  = aux_datatree::ConstAncestorNodeRange<AddleDataTree<T, HasObserver>>;
         
         Node(const Node&)               = delete;
         Node(Node&&)                    = delete;
@@ -251,6 +293,11 @@ public:
         inline bool isLeaf() const { return _children.empty(); }
         inline bool isBranch() const { return !_children.empty(); }
 
+        inline bool isRoot() const 
+        { 
+            return static_cast<const Data*>(_treeData)->_root.get() == this;
+        }
+        
         inline const T& value() const & { return _value; }
         inline T& value() & { return _value; }
         inline T&& value() && { return std::move(_value); }
@@ -546,11 +593,11 @@ public:
                 
         T _value;
         
-        friend class AddleDataTree<T>;
-        friend struct AddleDataTree<T>::Data;
+        friend class AddleDataTree<T, HasObserver>;
+        friend struct AddleDataTree<T, HasObserver>::Data;
         
-        friend class aux_datatree::ChildNodeIterator<AddleDataTree<T>, true>;
-        friend class aux_datatree::ChildNodeIterator<AddleDataTree<T>, false>;
+        friend class aux_datatree::ChildNodeIterator<AddleDataTree<T, HasObserver>, true>;
+        friend class aux_datatree::ChildNodeIterator<AddleDataTree<T, HasObserver>, false>;
         
         friend Node* datatree_node_parent(Node* node) 
         { 
@@ -568,9 +615,15 @@ public:
         { 
             return Q_LIKELY(node) ? std::addressof(node->root()) : nullptr; 
         }
+        
         friend const Node* datatree_node_root(const Node* node) 
         { 
             return Q_LIKELY(node) ? std::addressof(node->root()) : nullptr; 
+        }
+        
+        friend bool datatree_node_is_root(const Node* node)
+        {
+            return Q_LIKELY(node) && node->isRoot();
         }
         
         friend T& datatree_node_value(Node* node)
@@ -594,28 +647,24 @@ public:
             return Q_LIKELY(node) ? node->countChildren() : 0;
         }
         
-        friend aux_datatree::ConstChildNodeIterator<AddleDataTree<T>> datatree_node_children_begin(const Node* node)
+        friend const_child_iterator datatree_node_children_begin(const Node* node)
         {
-            using iterator_t = aux_datatree::ConstChildNodeIterator<AddleDataTree<T>>;
-            return Q_LIKELY(node) ? iterator_t ( node->_children.begin() ) : iterator_t {};
+            return Q_LIKELY(node) ? const_child_iterator ( node->_children.begin() ) : const_child_iterator {};
         }
         
-        friend aux_datatree::ChildNodeIterator<AddleDataTree<T>> datatree_node_children_begin(Node* node)
+        friend child_iterator datatree_node_children_begin(Node* node)
         {
-            using iterator_t = aux_datatree::ChildNodeIterator<AddleDataTree<T>>;
-            return Q_LIKELY(node) ? iterator_t ( node->_children.begin() ) : iterator_t {};
+            return Q_LIKELY(node) ? child_iterator ( node->_children.begin() ) : child_iterator {};
         }
         
-        friend aux_datatree::ConstChildNodeIterator<AddleDataTree<T>> datatree_node_children_end(const Node* node)
+        friend const_child_iterator datatree_node_children_end(const Node* node)
         {
-            using iterator_t = aux_datatree::ConstChildNodeIterator<AddleDataTree<T>>;
-            return Q_LIKELY(node) ? iterator_t ( node->_children.end() ) : iterator_t {};
+            return Q_LIKELY(node) ? const_child_iterator ( node->_children.end() ) : const_child_iterator {};
         }
         
-        friend aux_datatree::ChildNodeIterator<AddleDataTree<T>> datatree_node_children_end(Node* node)
+        friend child_iterator datatree_node_children_end(Node* node)
         {
-            using iterator_t = aux_datatree::ChildNodeIterator<AddleDataTree<T>>;
-            return Q_LIKELY(node) ? iterator_t ( node->_children.end() ) : iterator_t {};
+            return Q_LIKELY(node) ? child_iterator ( node->_children.end() ) : child_iterator {};
         }
                 
         template<typename NodePointer>
@@ -785,14 +834,22 @@ public:
 //     inline const_branch_range branches() const { return _data->root.branches(); }
     
 private:
-    struct Data : private aux_datatree::AddleDataTree_TreeDataBase
+    struct Data 
+        : private aux_datatree::AddleDataTree_TreeDataBase,
+        private boost::mp11::mp_if_c<
+            HasObserver,
+            aux_datatree::AddleDataTree_TreeDataWithObserverBase<AddleDataTree<T, HasObserver>>,
+            boost::mp11::mp_inherit<>
+        >
     {
         inline Data();
         inline Data(const T&);
         inline Data(T&&);
         
-        friend class AddleDataTree<T>;
-        friend class AddleDataTree<T>::Node;
+        // friend access to protected base members
+        friend class AddleDataTree<T, HasObserver>;
+        friend class AddleDataTree<T, HasObserver>::Node;
+        friend class aux_datatree::AddleDataTree_TreeDataWithObserverBase<AddleDataTree<T, HasObserver>>;
     };
     
     friend const Node* datatree_root(const AddleDataTree& tree)
@@ -808,9 +865,10 @@ private:
     std::unique_ptr<Data> _data;
 };
 
-template<typename T>
+template<typename T, bool HasObserver>
 template<typename Range>
-typename AddleDataTree<T>::Node::child_range AddleDataTree<T>::Node::insertChildren_impl(const_child_iterator pos, Range&& childValues)
+typename AddleDataTree<T, HasObserver>::Node::child_range 
+AddleDataTree<T, HasObserver>::Node::insertChildren_impl(const_child_iterator pos, Range&& childValues)
 {
     using namespace boost::adaptors;
     using U = typename boost::range_value<boost::remove_cv_ref_t<Range>>::type;
@@ -894,8 +952,9 @@ typename AddleDataTree<T>::Node::child_range AddleDataTree<T>::Node::insertChild
 }
 
 
-template<typename T>
-typename AddleDataTree<T>::Node::child_iterator AddleDataTree<T>::Node::removeChildren_impl(child_range removals)
+template<typename T, bool HasObserver>
+typename AddleDataTree<T, HasObserver>::Node::child_iterator
+AddleDataTree<T, HasObserver>::Node::removeChildren_impl(child_range removals)
 {
     if (removals.empty())
         return child_iterator();
@@ -938,64 +997,64 @@ typename AddleDataTree<T>::Node::child_iterator AddleDataTree<T>::Node::removeCh
     return child_iterator(_children.begin() + startIndex);
 }
 
-template<typename T>
-AddleDataTree<T>::Data::Data()
+template<typename T, bool HasObserver>
+AddleDataTree<T, HasObserver>::Data::Data()
     : aux_datatree::AddleDataTree_TreeDataBase(new Node)
 {
 }
 
-template<typename T>
-AddleDataTree<T>::Data::Data(const T& value)
+template<typename T, bool HasObserver>
+AddleDataTree<T, HasObserver>::Data::Data(const T& value)
     : aux_datatree::AddleDataTree_TreeDataBase(new Node(value))
 {
 }
 
-template<typename T>
-AddleDataTree<T>::Data::Data(T&& value)
+template<typename T, bool HasObserver>
+AddleDataTree<T, HasObserver>::Data::Data(T&& value)
     : aux_datatree::AddleDataTree_TreeDataBase(new Node(std::move(value)))
 {
 }
 
-template<typename T>
-struct aux_datatree::datatree_traits<AddleDataTree<T>>
+template<typename T, bool HasObserver>
+struct aux_datatree::datatree_traits<AddleDataTree<T, HasObserver>>
 {
-    using node_handle = typename AddleDataTree<T>::Node*;
-    using const_node_handle = const typename AddleDataTree<T>::Node*;
+    using node_handle = typename AddleDataTree<T, HasObserver>::Node*;
+    using const_node_handle = const typename AddleDataTree<T, HasObserver>::Node*;
     
     using node_value_type = T;
 };
 
-template<typename T, bool IsConst>
-class aux_datatree::ChildNodeIterator<AddleDataTree<T>, IsConst>
+template<typename T, bool HasObserver, bool IsConst>
+class aux_datatree::ChildNodeIterator<AddleDataTree<T, HasObserver>, IsConst>
     : public boost::iterator_adaptor<
-        aux_datatree::ChildNodeIterator<AddleDataTree<T>, IsConst>,
+        aux_datatree::ChildNodeIterator<AddleDataTree<T, HasObserver>, IsConst>,
         aux_datatree::AddleDataTree_NodeBase::inner_iterator_t,
         boost::mp11::mp_if_c<
             IsConst,
-            const typename AddleDataTree<T>::Node,
-            typename AddleDataTree<T>::Node
+            const typename AddleDataTree<T, HasObserver>::Node,
+            typename AddleDataTree<T, HasObserver>::Node
         >
     >
 {
     using base_t = aux_datatree::AddleDataTree_NodeBase::inner_iterator_t;
     using adaptor_t = boost::iterator_adaptor<
-            aux_datatree::ChildNodeIterator<AddleDataTree<T>, IsConst>,
+            aux_datatree::ChildNodeIterator<AddleDataTree<T, HasObserver>, IsConst>,
             aux_datatree::AddleDataTree_NodeBase::inner_iterator_t,
             boost::mp11::mp_if_c<
                 IsConst,
-                const typename AddleDataTree<T>::Node,
-                typename AddleDataTree<T>::Node
+                const typename AddleDataTree<T, HasObserver>::Node,
+                typename AddleDataTree<T, HasObserver>::Node
             >
         >;
     using node_t = boost::mp11::mp_if_c<
             IsConst,
-            const typename AddleDataTree<T>::Node,
-            typename AddleDataTree<T>::Node
+            const typename AddleDataTree<T, HasObserver>::Node,
+            typename AddleDataTree<T, HasObserver>::Node
         >;
     using handle_t = boost::mp11::mp_if_c<
             IsConst,
-            const typename AddleDataTree<T>::Node*,
-            typename AddleDataTree<T>::Node*
+            const typename AddleDataTree<T, HasObserver>::Node*,
+            typename AddleDataTree<T, HasObserver>::Node*
         >;
         
 public:
@@ -1034,7 +1093,7 @@ public:
         typename MutableIterator, 
         std::enable_if_t<
             IsConst
-            && std::is_same<MutableIterator, ChildNodeIterator<AddleDataTree<T>, false>>::value, 
+            && std::is_same<MutableIterator, ChildNodeIterator<AddleDataTree<T, HasObserver>, false>>::value, 
             void*
         > = nullptr
     >
@@ -1047,7 +1106,7 @@ public:
         typename MutableIterator, 
         std::enable_if_t<
             IsConst
-            && std::is_same<MutableIterator, ChildNodeIterator<AddleDataTree<T>, false>>::value,
+            && std::is_same<MutableIterator, ChildNodeIterator<AddleDataTree<T, HasObserver>, false>>::value,
             void*
         > = nullptr
     >
@@ -1070,7 +1129,7 @@ private:
         return static_cast<node_t&>(**(this->base()));
     }
     
-    friend class ChildNodeIterator<AddleDataTree<T>, !IsConst>;
+    friend class ChildNodeIterator<AddleDataTree<T, HasObserver>, !IsConst>;
     friend class boost::iterator_core_access;
 };
 

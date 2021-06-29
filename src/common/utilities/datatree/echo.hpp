@@ -181,25 +181,26 @@ public:
             return;
         }
         else if constexpr (std::is_invocable_v<NodeAdded, 
-                decltype(*std::declval<const_node_handle_t<SourceTree>>()),
-                decltype(*std::declval<node_handle_t<DestTree>>())
-            >)
-        {
-            std::invoke(
-                    static_cast<const storage_util<NodeAdded>*>(this)->get(),
-                    *source,
-                    *dest
-                );
-        }
-        else /*if constexpr (std::is_invocable_v<NodeAdded, 
                 const_node_handle_t<SourceTree>,
                 node_handle_t<DestTree>
-            >)*/
+            >)
         {
             std::invoke(
                     static_cast<const storage_util<NodeAdded>*>(this)->get(),
                     source,
                     dest
+                );
+        }
+        else
+        {
+            std::invoke(
+                    static_cast<const storage_util<NodeAdded>*>(this)->get(),
+                    Q_LIKELY(::Addle::aux_datatree::node_has_value(source)) ?
+                        ::Addle::aux_datatree::node_value(source) :
+                        node_value_t<SourceTree> {},
+                    Q_LIKELY(::Addle::aux_datatree::node_has_value(dest)) ?
+                        ::Addle::aux_datatree::node_value(dest) :
+                        node_value_t<DestTree> {}
                 );
         }
     }

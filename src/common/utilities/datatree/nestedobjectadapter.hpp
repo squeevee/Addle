@@ -8,6 +8,7 @@
 #include <boost/type_traits.hpp>
 
 #include "./aux.hpp"
+#include "./views.hpp"
 
 // NOTE this header outlines a concept whose name uses the word "adapter",
 // spelled with an 'e'. Other places use the word "adaptor" spelled with an 'o',
@@ -28,8 +29,7 @@
 class DataTree_UTest;
 #endif
 
-namespace Addle {
-namespace aux_datatree {
+namespace Addle::aux_datatree {
     
 template<class, typename, typename>
 class NestedObjectAdapterImpl;
@@ -221,12 +221,9 @@ public:
         return _nodePtr != other._nodePtr || _adapter != other._adapter;
     }
     
-    bool hasValue() const { return static_cast<bool>(_nodePtr); }
-    
-    const NodeObject& operator*() const
-    { 
-        assert(_nodePtr);
-        return *_nodePtr;
+    NodeView<NestedObjectAdapterImpl<NodeObject, GetChildNodes, RootRange>> operator*() const
+    {
+        return NodeView<NestedObjectAdapterImpl<NodeObject, GetChildNodes, RootRange>>( *this );
     }
     
 private:
@@ -241,7 +238,7 @@ private:
 
             return child_node_iterator_t(
                     _adapter,
-                    boost::begin(const_cast<const child_object_range_t&>(childrenRange))
+                    std::begin(const_cast<const child_object_range_t&>(childrenRange))
                 );
         }
         else
@@ -265,7 +262,7 @@ private:
 
             return child_node_iterator_t(
                     _adapter,
-                    boost::end(const_cast<const child_object_range_t&>(childrenRange))
+                    std::end(const_cast<const child_object_range_t&>(childrenRange))
                 );
         }
         else
@@ -289,6 +286,11 @@ private:
     friend child_node_iterator_t datatree_node_children_end(const NestedObjectHandleImpl& node)
     {
         return Q_LIKELY(node) ? node.childrenEnd() : child_node_iterator_t {};
+    }
+    
+    friend bool datatree_node_is_root(const NestedObjectHandleImpl& node)
+    {
+        return node._adapter && !node._nodePtr;
     }
     
     friend bool datatree_node_has_value(const NestedObjectHandleImpl& node)
@@ -357,7 +359,7 @@ private:
 
         return child_node_iterator_t(
                 _adapter,
-                boost::begin(const_cast<const child_object_range_t&>(childrenRange))
+                std::begin(const_cast<const child_object_range_t&>(childrenRange))
             );
     }
     
@@ -370,7 +372,7 @@ private:
             
         return child_node_iterator_t(
                 _adapter,
-                boost::end(const_cast<const child_object_range_t&>(childrenRange))
+                std::end(const_cast<const child_object_range_t&>(childrenRange))
             );
     }
     
@@ -385,6 +387,11 @@ private:
     friend child_node_iterator_t datatree_node_children_end(const NestedObjectHandleImpl& node)
     {
         return Q_LIKELY(node) ? node.childrenEnd() : child_node_iterator_t {};
+    }
+    
+    friend bool datatree_node_is_root(const NestedObjectHandleImpl& node)
+    {
+        return node._adapter && node._adapter->rootObject == node._nodePtr;
     }
     
     friend const NodeObject& datatree_node_value(const NestedObjectHandleImpl& node)
@@ -500,8 +507,6 @@ private:
     friend class boost::iterator_core_access;
 };
 
-} // namespace aux_datatree
-
 template<
     class NodeObject,
     typename GetChildNodes
@@ -552,11 +557,11 @@ auto make_root_range_nested_object_adapter(
         >(
             std::forward<GetChildNodes>(getChildNodes),
             rootHandleData_t { 
-                boost::begin(rootRange), 
-                boost::end(rootRange)
+                std::begin(rootRange), 
+                std::end(rootRange)
             }
         );
 }
 
 
-} // namespace Addle
+} // namespace Addle::aux_datatree

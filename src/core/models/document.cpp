@@ -8,6 +8,9 @@
 
 #include "servicelocator.hpp"
 
+#include "utilities/datatree/nestedobjectadapter.hpp"
+#include "utilities/datatree/echo.hpp"
+
 #include "document.hpp"
 #include <QImage>
 #include <QPainter>
@@ -26,25 +29,24 @@ Document::Document(
     _layerGroupFactory(layerGroupFactory)
 {
     using LayerNode = LayersTree::Node;
-   
-    // TODO DataTree echo
-//     for (const LayerNodeBuilder& layerNodeBuilder : builder.layerNodes())
-//     {
-//         if (layerNodeBuilder.isLayer())
-//         {
-//             LayerNode& node = _layers.root().addLeaf();
-//             auto layer = _layerFactory.makeShared(*this, node, layerNodeBuilder);
-//             node.setLeafValue(layer);
-//         }
-//         else
-//         {
-//             LayerNode& node = _layers.root().addBranch();
-//             auto layerGroup = _layerGroupFactory.makeShared(*this, node, layerNodeBuilder);
-//             node.setBranchValue(layerGroup);
-//         }
-//     }
     
-// 
+    aux_datatree::echo_tree(
+            aux_datatree::make_root_range_nested_object_adapter(
+                builder.layerNodes(),
+                &LayerNodeBuilder::childLayerNodes
+            ),
+            _layers,
+            aux_datatree::echo_default_node_value_tag {},
+            [&] (auto adapterNodeHandle, LayerNode* node) {
+                if (aux_datatree::node_is_root(adapterNodeHandle))
+                    node->setValue(_layerGroupFactory.makeShared(*this, *node));
+                else if((*adapterNodeHandle).value().isGroup())
+                    node->setValue(_layerGroupFactory.makeShared(*this, *node, (*adapterNodeHandle).value()));
+                else
+                    node->setValue(_layerFactory.makeShared(*this, *node, (*adapterNodeHandle).value()));
+            }
+        );
+    
 //     _size = unitedBoundary().size();
 }
 

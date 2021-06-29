@@ -238,7 +238,7 @@ template<typename Range>
 auto&& only_value(Range&& r)
 {
     assert (boost::size(std::forward<Range>(r)) == 1); // exception?
-    return *boost::begin(std::forward<Range>(r));
+    return *std::begin(std::forward<Range>(r));
 }
 
 template<class TargetContainer, typename SourceRange>
@@ -263,8 +263,8 @@ inline QList<
     return QList<
         typename boost::range_value<boost::remove_cv_ref_t<Range>>::type
     >( 
-        boost::begin(std::forward<Range>(range)), 
-        boost::end(std::forward<Range>(range)) 
+        std::begin(std::forward<Range>(range)), 
+        std::end(std::forward<Range>(range)) 
     );
 }
 

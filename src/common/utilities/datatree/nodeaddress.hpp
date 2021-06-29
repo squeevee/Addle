@@ -5,6 +5,7 @@
 
 #include <boost/mp11.hpp>
 #include <boost/iterator.hpp>
+#include <boost/container_hash/hash.hpp>
 
 #include <QList>
 
@@ -600,44 +601,45 @@ private:
     fast_address_t _fastAddress = 0;
 #endif // ADDLE_NO_FAST_NODEADDRESS
     
-    friend uint qHash(const NodeAddress& address, uint seed = 0)
+    std::size_t hash() const
     {
 #ifndef ADDLE_NO_FAST_NODEADDRESS
-        if (Q_LIKELY(address._fastAddress != INVALID_FAST_ADDRESS))
+        if (Q_LIKELY(_fastAddress != INVALID_FAST_ADDRESS))
         {
-            return ::qHash(address._fastAddress, seed);
+            return std::hash<fast_address_t>()(_fastAddress);
         }
         else
 #endif // ADDLE_NO_FAST_NODEADDRESS
         {
 #ifndef ADDLE_NO_SMALL_NODEADDRESS
-            if (address._smallSize != INVALID_SMALL_SIZE)
-                return ::qHashRange(
-                        address._smallData,
-                        address._smallData + address._smallSize,
-                        seed
+            if (_smallSize != INVALID_SMALL_SIZE)
+            {
+                return boost::hash_range(
+                        _smallData,
+                        _smallData + _smallSize
                     );
+            }
             else
-                return ::qHashRange(
-                        address.largeData().begin(),
-                        address.largeData().end(),
-                        seed
+            {
+                return boost::hash_range(
+                        largeData().begin(),
+                        largeData().end()
                     );
-#else
-        return ::qHashRange(
-                address._data.begin(),
-                address._data.end(),
-                seed
+            }
+#else // ADDLE_NO_SMALL_NODEADDRESS
+        return boost::hash_range(
+                _data.begin(),
+                _data.end()
             );
-#endif
+#endif 
         }
     }
     
-    friend void swap(NodeAddress& a1, NodeAddress& a2)
+    friend uint qHash(const NodeAddress& address, uint seed = 0)
     {
-        a1.swap(a2);
+        return static_cast<uint>(address.hash()) ^ seed;
     }
-    
+
 #if defined(ADDLE_DEBUG) || defined(ADDLE_TEST)
     QByteArray repr() const
     {
@@ -671,8 +673,13 @@ private:
     {
         return debug << nodeAddress.repr().constData();
     }
-#endif
+#endif // defined(ADDLE_DEBUG) || defined(ADDLE_TEST)
 
+    friend void swap(NodeAddress& a1, NodeAddress& a2)
+    {
+        a1.swap(a2);
+    }
+    
 #ifdef ADDLE_TEST
     friend char* ::QTest::toString<NodeAddress>(const NodeAddress&);
     friend class ::DataTree_UTest;
@@ -680,6 +687,7 @@ private:
     
     friend class NodeAddressBuilder;
     friend struct NodeChunk;
+    friend struct std::hash<NodeAddress>;
 };
 
 #ifndef ADDLE_NO_SMALL_NODEADDRESS
@@ -999,8 +1007,8 @@ private:
     void initFromRange(Range&& indices)
     {
         auto size   = boost::size(indices);
-        auto begin  = boost::begin(indices);
-        auto end    = boost::end(indices);
+        auto begin  = std::begin(indices);
+        auto end    = std::end(indices);
         
         if (
             size <= SMALL_ADDRESS_CAPACITY
@@ -1053,14 +1061,14 @@ private:
         void*> = nullptr>
     void initFromRange(Range&& indices)
     {
-        large_data_t temp(boost::begin(indices), boost::end(indices));
+        large_data_t temp(std::begin(indices), std::end(indices));
         initFromRange(std::move(temp));
     }
 #else // ADDLE_NO_SMALL_NODEADDRESS
     template<typename Range>
     void initFromRange(Range&& indices)
     {
-        _address._data = list_t(boost::begin(indices), boost::end(indices));
+        _address._data = list_t(std::begin(indices), std::end(indices));
         
 #ifndef ADDLE_NO_FAST_NODEADDRESS
         _address.updateFastAddress();
@@ -1135,6 +1143,16 @@ struct NodeChunk
             && (*divergingIndex) < address.lastIndex() + length;
     }
     
+    bool operator==(const NodeChunk& other) const
+    {
+        return address == other.address && length == other.length;
+    }
+    
+    bool operator!=(const NodeChunk& other) const
+    {
+        return address != other.address || length != other.length;
+    }
+    
     friend bool operator<(const NodeChunk& lhs, const NodeChunk& rhs)
     {
         return lhs.address < rhs.address; 
@@ -1162,8 +1180,9 @@ struct NodeChunk
 
 } // namespace aux_datatree
 
-using DataTreeNodeAddress   = aux_datatree::NodeAddress;
-using DataTreeNodeChunk     = aux_datatree::NodeChunk;
+using DataTreeNodeAddress           = aux_datatree::NodeAddress;
+using DataTreeNodeAddressBuilder    = aux_datatree::NodeAddressBuilder;
+using DataTreeNodeChunk             = aux_datatree::NodeChunk;
 
 } // namespace Addle
 
@@ -1174,7 +1193,7 @@ namespace std
     {
         std::size_t operator()(const ::Addle::aux_datatree::NodeAddress& address) const
         {
-            return qHash(address);
+            return address.hash();
         }
     };
 }
@@ -1189,3 +1208,5 @@ inline char* ::QTest::toString(
 }
 #endif
 
+Q_DECLARE_METATYPE(Addle::DataTreeNodeAddress);
+Q_DECLARE_METATYPE(Addle::DataTreeNodeChunk);
