@@ -613,6 +613,44 @@ NodeEvent::StepBuilder NodeEvent::addStep(NodeOperation type)
     return StepBuilder(step, _data->totalChunkCount, isNew);
 }
 
+void TreeObserverData::startRecording()
+{
+    const QWriteLocker locker(&_lock);
+    
+    assert(!_isRecording);
+    
+    _isRecording = true;
+    _recording = NodeEvent();
+}
+
+NodeEvent TreeObserverData::finishRecording()
+{
+    const QWriteLocker locker(&_lock);
+    
+    assert(_isRecording);
+    
+    _isRecording = false;
+    
+    if (_recording.isNull())
+        // An empty event will not be counted toward the observer's history
+        return NodeEvent();
+
+    const QMutexLocker eventListLocker(&_eventListMutex);
+    
+    if (_current == _events.begin() && !(*_current).refCounter->count.loadRelaxed())
+        // The recorded event would immediately be released, so we will just
+        // skip pushing it.
+        return std::move(_recording);
+    
+    const auto& result = ((*_current).event = std::move(_recording));
+           
+    _current = _events.emplace(_events.end());
+    (*_current).refCounter = new EventEntryRefCounter;
+    (*_current).refCounter->metaCount.ref();
+    
+    return result;
+}
+
 void TreeObserverData::releaseNodeEvent(node_event_iterator i)
 {
     const QMutexLocker locker(&_eventListMutex);

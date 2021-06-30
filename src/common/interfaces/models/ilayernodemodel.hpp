@@ -16,7 +16,8 @@ class ILayerNodeModel : public virtual IAmQObject
 {
 public:
     using LayersTree        = AddleDataTree<
-                                    QSharedPointer<ILayerNodeModel>
+                                    QSharedPointer<ILayerNodeModel>,
+                                    true
                                 >;
     using ConstLayersTree   = DataTreeCastView<
                                     LayersTree, 

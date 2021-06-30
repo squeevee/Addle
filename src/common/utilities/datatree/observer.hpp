@@ -95,8 +95,23 @@ public:
     NodeEvent(const NodeEvent&) = default;
     NodeEvent& operator=(const NodeEvent&) = default;
     
-    NodeEvent(NodeEvent&&) = default;
-    NodeEvent& operator=(NodeEvent&&) = default;
+    NodeEvent(NodeEvent&& other)
+    {
+        _data.swap(other._data);
+    }
+    
+    NodeEvent& operator=(NodeEvent&& other)
+    {
+        _data.swap(other._data);
+        other._data = {};
+        
+        return *this;
+    }
+    
+    void swap(NodeEvent& other)
+    {
+        _data.swap(other._data);
+    }
     
     bool operator==(const NodeEvent& other) const
     {
@@ -137,6 +152,29 @@ public:
         return result;
     }
 
+    explicit operator bool() const { return !isNull(); }
+    bool operator!() const { return isNull(); }
+    bool isNull() const
+    { 
+        return !_data 
+            || Q_UNLIKELY(_data->steps.isEmpty())
+            || Q_UNLIKELY(std::all_of(
+                    _data->steps.cbegin(),
+                    _data->steps.cend(),
+                    [] (const Step& step) -> bool {
+                        switch(step.operation())
+                        {
+                            case Add:
+                            case Remove:
+                                return step.primaryChunks().empty();
+                            
+                            default:
+                                Q_UNREACHABLE();
+                        }
+                    }
+                ));
+    }
+    
     NodeAddress mapBackward(
             NodeAddress from, 
             std::size_t progress = SIZE_MAX,
@@ -906,9 +944,9 @@ public:
     
     inline ~TreeObserverData();
 
-    inline void startRecording();
+    void startRecording();
     
-    inline const NodeEvent& finishRecording();
+    NodeEvent finishRecording();
     
     void onTreeDeleted()
     {
@@ -1003,39 +1041,6 @@ inline TreeObserverData::~TreeObserverData()
     delete (*_current).refCounter;
 }
 
-inline void TreeObserverData::startRecording()
-{
-    const QWriteLocker locker(&_lock);
-    
-    assert(!_isRecording);
-    
-    _isRecording = true;
-    _recording = NodeEvent();
-}
-    
-inline const NodeEvent& TreeObserverData::finishRecording()
-{
-    const QWriteLocker locker(&_lock);
-    
-    assert(_isRecording);
-    
-    _isRecording = false;
-    
-    _recording.initData();
-    
-    const auto& result = ((*_current).event = std::move(_recording));
-    
-    _eventListMutex.lock();
-        
-    _current = _events.emplace(_events.end());
-    (*_current).refCounter = new EventEntryRefCounter;
-    (*_current).refCounter->metaCount.ref();
-    
-    _eventListMutex.unlock();
-    
-    return result;
-}
-
 template<typename Tree>
 class TreeObserver
 {
@@ -1068,6 +1073,8 @@ public:
     {
         return _data->finishRecording();
     }
+    
+    bool isRecording() const { return _data->_isRecording; }
     
 //     NodeEvent lastNodeEvent() const
 //     {
@@ -1170,6 +1177,19 @@ public:
             );
     }
     
+    void passiveAddNodes(
+            handle_t parent,
+            std::size_t startIndex,
+            std::size_t count = 1
+         )
+    {
+        assert(_data->_isRecording);
+        _data->_recording.addChunk_impl(
+                NodeAddressBuilder(::Addle::aux_datatree::node_address(parent)) << startIndex,
+                count
+            );
+    }
+    
     void removeNodes(
             handle_t parent,
             std::size_t startIndex,
@@ -1194,6 +1214,22 @@ public:
                 std::forward<Range>(range)
             );
     }
+    
+    void passiveRemoveNodes(
+            handle_t parent,
+            std::size_t startIndex,
+            std::size_t count = 1
+         )
+    {
+        assert(_data->_isRecording);
+        _data->_recording.removeChunk_impl(
+                NodeAddressBuilder(::Addle::aux_datatree::node_address(parent)) << startIndex,
+                count
+            );
+    }
+    
+    std::unique_ptr<QReadLocker> lockForRead() const { return _data->lockForRead(); }
+    std::unique_ptr<QWriteLocker> lockForWrite() const { return _data->lockForWrite(); }
     
 private:
     ::Addle::aux_datatree::node_handle_t<Tree> _root = {};

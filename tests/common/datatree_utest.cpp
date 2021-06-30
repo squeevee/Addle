@@ -204,7 +204,13 @@ private slots:
     {
         AddleDataTree<QString, true> tree;
         
+        tree.observer().startRecording();
         
+        tree.root().appendChild("foo");
+        
+        auto e = tree.observer().finishRecording();
+        
+        qDebug() << "foo";
     }
     
 //     void dev_nestedObjectExtNode()
