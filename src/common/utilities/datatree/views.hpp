@@ -9,6 +9,9 @@
 
 namespace Addle {
 namespace aux_datatree {
+    
+// TODO: possibly move NodeView into aux.hpp, add EBO to transform tree
+// rename this to transformtree or something?
 
 /**
  * Exposes an API similar to DataTree::Node for any handle -- a custom handle_t
@@ -195,8 +198,26 @@ private:
     handle_t _node;
 };
 
+template<class BaseTree>
+class _TransformTree_BaseWithObserver
+{
+public:
+    const TreeObserver<BaseTree>& observer() const { return *_observer; }
+    
+protected:
+    const TreeObserver<BaseTree>* _observer;
+};
+
+class _transformtree_nil_base_with_observer {};
+
 template<class Tree, class TransformOp>
-class TransformTree
+class TransformTree 
+    : public boost::mp11::mp_eval_if_not<
+            boost::mp11::mp_valid<_tree_observer_t, Tree>,
+            _transformtree_nil_base_with_observer,
+            _TransformTree_BaseWithObserver,
+            Tree
+        >
 {
     using base_handle_t = const_node_handle_t<Tree>;
 public:
@@ -304,29 +325,9 @@ public:
             return aux_datatree::node_child_count(node._baseNode);
         }
         
-        friend NodeHandle datatree_node_children_begin(const NodeHandle& node)
-        {
-            return NodeHandle(aux_datatree::node_children_begin(node._baseNode), node._transform);
-        }
-        
-        friend NodeHandle datatree_node_children_end(const NodeHandle& node)
-        {
-            return NodeHandle(aux_datatree::node_children_end(node._baseNode), node._transform);
-        }
-        
         friend NodeHandle datatree_node_child_at(const NodeHandle& node, std::size_t index)
         { 
             return NodeHandle(datatree_node_child_at(node._baseNode, index), node._transform);
-        }
-        
-        friend NodeHandle datatree_node_sibling_next(NodeHandle&& node)
-        {
-            return NodeHandle(aux_datatree::node_sibling_next(std::move(node._baseNode)), std::move(node._transform));
-        }
-        
-        friend NodeHandle datatree_node_sibling_next(const NodeHandle& node)
-        {
-            return NodeHandle(aux_datatree::node_sibling_next(node._baseNode), node._transform);
         }
         
         friend NodeHandle datatree_node_dfs_end(const NodeHandle& node)
@@ -344,6 +345,24 @@ public:
             return NodeHandle(aux_datatree::node_dfs_next(node._baseNode), node._transform);
         }
         
+        friend ConstChildNodeIterator<TransformTree<Tree, TransformOp>>
+            datatree_node_children_begin(const NodeHandle& node)
+        {
+            return ConstChildNodeIterator<TransformTree<Tree, TransformOp>>(
+                    aux_datatree::node_children_begin(node._baseNode),
+                    node._transform
+                );
+        }
+        
+        friend ConstChildNodeIterator<TransformTree<Tree, TransformOp>>
+            datatree_node_children_end(const NodeHandle& node)
+        {
+            return ConstChildNodeIterator<TransformTree<Tree, TransformOp>>(
+                    aux_datatree::node_children_end(node._baseNode),
+                    node._transform
+                );
+        }
+        
 //         friend bool datatree_node_shallow_equivalent(const NodeHandle& node1, const NodeHandle& node2)
 //         {
 //             return datatree_node_shallow_equivalent(node1._baseNode, node2._baseNode);
@@ -353,6 +372,9 @@ public:
         { 
             return aux_datatree::node_address(node._baseNode);
         }
+        
+        friend class NodeRef<TransformTree<Tree, TransformOp>, false>;
+        friend class NodeRef<TransformTree<Tree, TransformOp>, true>;
     };
     
     using Node = typename NodeHandle::node_view_t;
@@ -383,6 +405,10 @@ public:
     inline TransformTree(const Tree& tree, TransformOp transform = {})
         : _root( datatree_root(tree), std::move(transform))
     {
+        if constexpr (boost::mp11::mp_valid<_tree_observer_t, Tree>::value)
+        {
+            this->_observer = std::addressof(aux_datatree::tree_observer(tree));
+        }
     }
     
     inline NodeHandle rootHandle() const { return _root; }
@@ -405,6 +431,62 @@ private:
     NodeHandle _root;
 };
 
+template<class Tree, class TransformOp, bool IsConst>
+class ChildNodeIterator<TransformTree<Tree, TransformOp>, IsConst>
+    : public boost::iterator_adaptor<
+        ChildNodeIterator<TransformTree<Tree, TransformOp>, IsConst>,
+        ChildNodeIterator<Tree, true>,
+        typename TransformTree<Tree, TransformOp>::Node,
+        boost::use_default,
+        typename TransformTree<Tree, TransformOp>::Node
+    >
+{
+    using adaptor_t = boost::iterator_adaptor<
+            ChildNodeIterator<TransformTree<Tree, TransformOp>, IsConst>,
+            ChildNodeIterator<Tree, true>,
+            typename TransformTree<Tree, TransformOp>::Node,
+            boost::use_default,
+            typename TransformTree<Tree, TransformOp>::Node
+        >;
+    
+    using handle_t = typename TransformTree<Tree, TransformOp>::NodeHandle;
+    using base_handle_t = const_node_handle_t<Tree>;
+    
+    using node_t = typename TransformTree<Tree, TransformOp>::Node;
+    
+public:
+    
+    ChildNodeIterator() = default;
+    ChildNodeIterator(const ChildNodeIterator&) = default;
+    ChildNodeIterator(ChildNodeIterator&&) = default;
+    
+    ChildNodeIterator(ChildNodeIterator<Tree, true> base, TransformOp transform)
+        : adaptor_t(base), _transform(transform)
+    {
+    }
+    
+    ChildNodeIterator& operator=(const ChildNodeIterator&) = default;
+    ChildNodeIterator& operator=(ChildNodeIterator&&) = default;
+    
+    inline operator handle_t () const
+    { 
+        return handle_t(static_cast<base_handle_t>(this->base()), _transform); 
+    }
+    
+private:
+    inline node_t dereference() const
+    { 
+        return node_t(
+                handle_t(static_cast<base_handle_t>(this->base()), _transform)
+            );
+    }
+
+    TransformOp _transform;
+    
+    friend class ChildNodeIterator<Tree, true>;
+    friend class boost::iterator_core_access;
+};
+
 template<class Tree, class TransformOp>
 struct datatree_traits<TransformTree<Tree, TransformOp>>
 {
@@ -412,6 +494,71 @@ struct datatree_traits<TransformTree<Tree, TransformOp>>
     using const_node_handle = typename TransformTree<Tree, TransformOp>::NodeHandle;
     
     using node_value_type = typename TransformTree<Tree, TransformOp>::node_value_type;
+};
+
+template<class Tree, class TransformOp, bool IsConst>
+class NodeRef<TransformTree<Tree, TransformOp>, IsConst>
+{
+public:
+    using handle_t = typename TransformTree<Tree, TransformOp>::NodeHandle;
+    using inner_handle_t = const_node_handle_t<Tree>;
+    
+    NodeRef() = default;
+    NodeRef(const NodeRef&) = default;
+    NodeRef(NodeRef&&) = default;
+    
+    NodeRef(NodeRef<Tree, true> inner, TransformOp transform = {})
+        : _inner(inner), _transform(transform)
+    {
+    }
+    
+    NodeRef(const TreeObserver<Tree>& observer, handle_t node)
+        : _inner(observer, node._baseNode), _transform(node._transform)
+    {
+    }
+    
+    NodeRef& operator=(const NodeRef&) = default;
+    NodeRef& operator=(NodeRef&&) = default;
+    
+    inline bool operator==(const NodeRef& x) const
+    {
+        if constexpr (boost::has_equal_to<const TransformOp&, const TransformOp&, bool>::value)
+        {
+            return static_cast<bool>(_inner == x._inner)
+                && static_cast<bool>(_transform == x._transform);
+        }
+        else
+        {
+            return static_cast<bool>(_inner == x._inner);
+        }
+    }
+    
+    inline bool operator!=(const NodeRef& x) const
+    {
+        return !(*this == x);
+    }
+    
+    explicit operator bool () const { return isValid(); }
+    bool operator! () const { return !isValid(); }
+    
+    decltype(auto) lockTreeObserverForRead() const { return _inner.lockTreeObserverForRead(); }
+    decltype(auto) lockTreeObserverForWrite() const { return _inner.lockTreeObserverForWrite(); }
+    
+    bool isValid() const { return _inner.isValid(); }
+    
+    handle_t get() const { return handle_t(_inner.get(), _transform); }
+    handle_t getConst() const { return get(); }
+    
+    typename TransformTree<Tree, TransformOp>::Node operator*() const
+    {
+        assert(isValid());
+        
+        return typename TransformTree<Tree, TransformOp>::Node(get());
+    }
+    
+private:
+    NodeRef<Tree, true> _inner;
+    TransformOp _transform;
 };
 
 template<typename Iterator, typename Tree, typename TransformOp, bool IsConst>
@@ -482,6 +629,15 @@ struct CastOp
     inline T operator()(node_value_t<Tree>&& v) const
     {
         return static_cast<T>(std::move(v));
+    }
+};
+
+struct ConstPtrOp
+{
+    template<typename T>
+    const T* operator()(const std::unique_ptr<T>& p) const
+    {
+        return const_cast<const T*>(p.get());
     }
 };
 

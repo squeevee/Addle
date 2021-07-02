@@ -52,59 +52,9 @@ public:
     ConstLayersTree layers() const override { return _layers; }
 
     QList<DataTreeNodeAddress> layerSelection() const override { return _layerSelection; }
-    void setLayerSelection(QList<DataTreeNodeAddress> selection) override
-    {
-        QList<DataTreeNodeAddress> oldSelection;
-        
-        if ( !std::is_sorted(selection.begin(), selection.end()) )
-            std::sort(_layerSelection.begin(), _layerSelection.end());
-        
-        if (selection != _layerSelection)
-        {
-            _layerSelection = selection;
-            emit layerSelectionChanged(_layerSelection);
-        }
-    }
-    
-    void addLayerSelection(QList<DataTreeNodeAddress> added) override
-    {
-        if (added.isEmpty())
-            return;
-        
-        if ( !std::is_sorted(added.cbegin(), added.cend()) )
-            std::sort(added.begin(), added.end());
-        
-        std::size_t oldSize = _layerSelection.size();
-        _layerSelection.append(added);
-        std::inplace_merge(
-                _layerSelection.begin(), 
-                _layerSelection.begin() + oldSize,
-                _layerSelection.end()
-            );
-        
-        emit layerSelectionChanged(_layerSelection);
-    }
-    
-    void subtractLayerSelection(QList<DataTreeNodeAddress> removed) override
-    {
-        if (removed.isEmpty())
-            return;
-        
-        if ( !std::is_sorted(removed.cbegin(), removed.cend()) )
-            std::sort(removed.begin(), removed.end());
-        
-        QList<DataTreeNodeAddress> selection;
-        selection.reserve(_layerSelection.size() - removed.size());
-        
-        std::set_difference(
-                _layerSelection.cbegin(), _layerSelection.cend(),
-                removed.cbegin(), removed.cend(),
-                std::back_inserter(selection)
-            );
-        
-        _layerSelection = selection;
-        emit layerSelectionChanged(_layerSelection);
-    }
+    void setLayerSelection(QList<DataTreeNodeAddress> selection) override;
+    void addLayerSelection(QList<DataTreeNodeAddress> added) override;
+    void subtractLayerSelection(QList<DataTreeNodeAddress> removed) override;
 
     QSharedPointer<ILayerPresenter> topSelectedLayer() const override
     {

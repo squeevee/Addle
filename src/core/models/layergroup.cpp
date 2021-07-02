@@ -4,13 +4,13 @@ using namespace Addle;
 
 LayerGroup::LayerGroup(
         IDocument& document,
-        LayerNode& layerNode,
+        LayerNodeRef layerNode,
         const LayerNodeBuilder& builder,
         const IFactory<ILayer>& layerFactory,
         const IFactory<ILayerGroup>& layerGroupFactory
     )
     : _document(document),
-    _layerNode(layerNode),
+    _layerNode(std::move(layerNode)),
     _name(builder.name()),
     _passThroughMode(builder.passThroughMode()),
     _compositionMode(builder.compositionMode()),

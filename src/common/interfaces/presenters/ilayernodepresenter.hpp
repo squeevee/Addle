@@ -27,29 +27,16 @@ public:
     using LayerNode         = LayersTree::Node;
     using ConstLayerNode    = ConstLayersTree::Node;
     
+    using LayerNodeRef      = aux_datatree::NodeRef<LayersTree, false>;
+    using ConstLayerNodeRef = aux_datatree::NodeRef<ConstLayersTree, true>;
+    
     virtual ~ILayerNodePresenter() = default;
     
     virtual IDocumentPresenter& document() = 0;
     virtual const IDocumentPresenter& document() const = 0;
 
-    virtual ConstLayerNode layerNode() const = 0;
-    virtual const LayerNode& layerNode() = 0;
-    
-//     inline QSharedPointer<const ILayerGroupPresenter> parentLayerGroup() const
-//     {
-//         if (layerNode().parent())
-//             return (*layerNode().parent()).branchValue();
-//         else
-//             return nullptr;
-//     }
-//     
-//     inline QSharedPointer<ILayerGroupPresenter> parentLayerGroup() 
-//     {
-//         if (layerNode().parent())
-//             return layerNode().parent()->branchValue();
-//         else
-//             return nullptr;
-//     }
+    virtual ConstLayerNodeRef layerNode() const = 0;
+    virtual LayerNodeRef layerNode() = 0;
     
     virtual QString name() const = 0;
     virtual void setName(QString name) = 0;

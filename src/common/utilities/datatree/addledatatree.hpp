@@ -41,6 +41,7 @@ class DataTree_UTest;
 namespace Addle {
 namespace aux_datatree {
     
+class AddleDataTree_NodeRefData;
 class AddleDataTree_TreeDataBase;
     
 class AddleDataTree_NodeBase
@@ -56,12 +57,14 @@ protected:
     
     NodeAddress address_impl() const;
     void reindexChildren(std::size_t startIndex = 0);
+    void removeChildren_impl(inner_iterator_t begin, inner_iterator_t end);
     
     const AddleDataTree_NodeBase* findEnd() const { return findEnd_impl(this); }
     AddleDataTree_NodeBase* findEnd() { return findEnd_impl(this); }
     
-    template<typename Node_>
-    static Node_* findEnd_impl(Node_*);
+    template<typename Node_> static Node_* findEnd_impl(Node_*);
+    // explicitly defined in addletree.cpp for const and non-const 
+    // AddleDataTree_NodeBase
         
     inner_child_container_t _children;
     
@@ -75,6 +78,8 @@ protected:
     AddleDataTree_NodeBase* _end = nullptr;
     
     AddleDataTree_TreeDataBase* _treeData = nullptr;
+    
+    mutable AddleDataTree_NodeRefData* _nodeRefData = nullptr;
     
     friend class AddleDataTree_TreeDataBase;
 #ifdef ADDLE_TEST
@@ -105,6 +110,7 @@ protected:
     void updateMaxCacheAddressSize()
     {
         // ???
+        const QMutexLocker lock(&_cacheMutex);
         _maxAddressCacheSize = std::max(
                 (unsigned) (2 * std::sqrt(_root->_descendantCount)), 
                 16U
@@ -114,6 +120,8 @@ protected:
     
     void pruneAddressCache() const
     {
+        assert(!_cacheMutex.tryLock());
+        
         while (_addressCacheQueue.size() > _maxAddressCacheSize)
         {
             auto& entry = _addressCacheQueue.back();
@@ -123,6 +131,7 @@ protected:
             _addressCacheQueue.pop_back();
         }
     }
+    
     
     std::unique_ptr<AddleDataTree_NodeBase> _root;
     AddleDataTree_NodeBase _endSentinel;
@@ -144,34 +153,15 @@ protected:
             const AddleDataTree_NodeBase*, 
             typename address_cache_queue_t::const_iterator> _addressCacheByNode;
     
+    mutable QMutex _cacheMutex;
+    
+    mutable QMutex _nodeRefMutex;
+    
     friend class AddleDataTree_NodeBase;
 #ifdef ADDLE_TEST
     friend class DataTree_UTest;
 #endif
 };
-
-template<typename Node_>
-Node_* AddleDataTree_NodeBase::findEnd_impl(Node_* node)
-{
-    static_assert(
-        std::is_same_v<std::remove_const_t<Node_>, AddleDataTree_NodeBase>
-    );
-    
-    assert(node);
-    
-    Node_* parent;
-    while ((parent = node->_parent))
-    {
-        std::size_t nextIndex = node->_index + 1;
-        
-        if (parent->_children.size() > nextIndex)
-            return parent->_children[nextIndex];
-        
-        node = parent;
-    }
-    
-    return &(node->_treeData->_endSentinel);
-}
 
 template<class AddleDataTree_>
 class AddleDataTree_TreeDataWithObserverBase
@@ -218,6 +208,19 @@ public:
     }
 };
 
+class _nil_addledatatree_withobserver_base {};
+
+class AddleDataTree_NodeRefData
+{
+    QSharedPointer<TreeObserverData> _treeObserverData;
+    
+    QAtomicInteger<unsigned> _refCount;
+    QAtomicPointer<AddleDataTree_NodeBase> _node;
+    
+    friend class AddleDataTree_NodeBase;
+    template<class, bool> friend class NodeRef;
+};
+
 } // namespace aux_datatree
  
 template<typename T, bool HasObserver = false>
@@ -225,7 +228,7 @@ class AddleDataTree
     : public boost::mp11::mp_if_c<
         HasObserver,
         aux_datatree::AddleDataTree_WithObserverBase<AddleDataTree<T, HasObserver>>,
-        boost::mp11::mp_inherit<>
+        aux_datatree::_nil_addledatatree_withobserver_base
     >
 {
     struct Data;
@@ -258,13 +261,16 @@ public:
         using ancestor_range        = aux_datatree::AncestorNodeRange<AddleDataTree<T, HasObserver>>;
         using const_ancestor_range  = aux_datatree::ConstAncestorNodeRange<AddleDataTree<T, HasObserver>>;
         
+        using node_ref_t        = aux_datatree::NodeRef<AddleDataTree<T, HasObserver>, false>;
+        using const_node_ref_t  = aux_datatree::NodeRef<AddleDataTree<T, HasObserver>, true>;
+        
         Node(const Node&)               = delete;
         Node(Node&&)                    = delete;
         
         Node& operator=(const Node&)    = delete;
         Node& operator=(Node&&)         = delete;
         
-        virtual ~Node() = default;
+        virtual ~Node() noexcept = default;
         
         inline const Node* parent() const
         { 
@@ -697,7 +703,7 @@ public:
         {
             const auto lock = static_cast<const Data*>(_treeData)->lockForWrite();
             Q_UNUSED(lock);
-            return removeChildren_impl(children);
+            return removeChildren_p(children);
         }
         
         void removeChildren(std::size_t pos, std::size_t count)
@@ -709,7 +715,7 @@ public:
             auto&& end      = _children.begin() + pos + count;
             
             // TODO error check?
-            removeChildren_impl(
+            removeChildren_p(
                     child_range(
                         begin, 
                         end 
@@ -724,6 +730,16 @@ public:
             
             assert(!address.isRoot());
             descendantAt(address.parent()).removeChildren(address.lastIndex(), 1);
+        }
+        
+        node_ref_t nodeRef()
+        {
+            return node_ref_t(this);
+        }
+        
+        const_node_ref_t nodeRef() const
+        {
+            return const_node_ref_t(this);
         }
     
     protected:
@@ -772,7 +788,7 @@ public:
             return result.begin();
         }
         
-        child_iterator removeChildren_impl( child_range removals );
+        child_iterator removeChildren_p( child_range removals );
                 
         T _value;
         
@@ -956,7 +972,32 @@ public:
             )
         {
             if (Q_LIKELY(parent))
-                return parent->removeChildren_impl(child_range(begin, end));
+                return parent->removeChildren_p(child_range(begin, end));
+            else
+                return child_iterator {};
+        }
+        
+        friend class aux_datatree::NodeRef<AddleDataTree<T, HasObserver>, true>;
+        friend class aux_datatree::NodeRef<AddleDataTree<T, HasObserver>, false>;
+        
+        QMutex* nodeRefMutex() const
+        {
+            assert(_treeData);
+            return &static_cast<Data*>(_treeData)->_nodeRefMutex;
+        }
+        
+        aux_datatree::TreeObserver<AddleDataTree<T, true>>& _observer() const
+        {
+            if constexpr (HasObserver)
+            {
+                assert(_treeData);
+                
+                return static_cast<Data*>(_treeData)->observer();
+            }
+            else
+            {
+                Q_UNREACHABLE();
+            }
         }
         
 #ifdef ADDLE_TEST
@@ -1100,27 +1141,30 @@ AddleDataTree<T, HasObserver>::Node::insertChildren_impl(const_child_iterator po
 {
     using namespace boost::adaptors;
     using U = typename boost::range_value<boost::remove_cv_ref_t<Range>>::type;
-    using _use_buffered_insert = boost::mp11::mp_and<
-            std::is_convertible<
-                typename boost::range_category<boost::remove_cv_ref_t<Range>>::type,
-                std::forward_iterator_tag
-            >,
-            std::is_nothrow_constructible<T, U&&>,
-            boost::mp11::mp_bool<noexcept( 
-                *std::declval<typename boost::range_iterator<boost::remove_cv_ref_t<Range>>::type>() 
-            )>
-        >;
-        
     static_assert(std::is_constructible_v<T, U&&>);
-        
+    
     if (boost::empty(childValues)) 
         return child_range();
     
     std::size_t startIndex = std::distance(_children.cbegin(), pos.base());
     std::size_t count;
     
-    if constexpr (!_use_buffered_insert::value)
-    {
+    if constexpr (
+        std::is_convertible_v<
+            typename boost::range_category<boost::remove_cv_ref_t<Range>>::type,
+            std::forward_iterator_tag
+        >
+        && std::is_nothrow_constructible_v<T, U&&>
+        && noexcept( 
+            *std::declval<
+                typename boost::range_iterator<boost::remove_cv_ref_t<Range>>
+                ::type
+            >() 
+        ))
+    {   
+        // This route is preferable but is only safe if `childValues` is a
+        // forward range (i.e., it can be pre-counted) and initializing nodes
+        // is guaranteed not to throw exceptions.
         count = boost::size(childValues);
         
         _children.insert(pos.base(), count, nullptr);
@@ -1132,8 +1176,12 @@ AddleDataTree<T, HasObserver>::Node::insertChildren_impl(const_child_iterator po
             ++i;
         }
     }
-    else
+    else // constexpr
     {
+        // This route is less efficient but works for single-pass ranges and can 
+        // clean up after itself in the event of an exception initializing a
+        // node.
+        
         QVarLengthArray<aux_datatree::AddleDataTree_NodeBase*, 256> nodes;
         reserve_for_size_if_forward_range(nodes, childValues);
         
@@ -1195,47 +1243,19 @@ AddleDataTree<T, HasObserver>::Node::insertChildren_impl(const_child_iterator po
 
 template<typename T, bool HasObserver>
 typename AddleDataTree<T, HasObserver>::Node::child_iterator
-AddleDataTree<T, HasObserver>::Node::removeChildren_impl(child_range removals)
+AddleDataTree<T, HasObserver>::Node::removeChildren_p(child_range removals)
 {
+    
     if (removals.empty())
         return child_iterator();
     
-    std::size_t count = removals.size();
-    
     //assert(branch.children.size() >= startIndex + count); // TODO: exception
     //assert(_treeData);
-    
-    std::size_t deficit = 0;
-    for (const auto& removal : removals)
-    {
-        deficit += 1 + removal._descendantCount;
-    }
-    
-    Node* cursor = this;
-    do
-    {
-        cursor->_descendantCount -= deficit;
-        cursor = static_cast<Node*>(cursor->_parent);
-    } while (cursor);
-
-    static_cast<Data*>(_treeData)->invalidateAddressCache(
-            static_cast<Node*>(removals.begin())
-        );
     
     auto begin = removals.begin().base();
     auto end = removals.end().base();
     
     std::size_t startIndex = std::distance(_children.cbegin(), begin);
-    
-    {
-        auto&& rend = std::make_reverse_iterator(begin);
-        for (auto i = std::make_reverse_iterator(end); i != rend; ++i)
-            delete *i;
-    }
-    
-    _children.erase(begin, end);
-    
-    reindexChildren(startIndex);
     
     if constexpr (HasObserver)
     {
@@ -1245,10 +1265,12 @@ AddleDataTree<T, HasObserver>::Node::removeChildren_impl(child_range removals)
             observer.passiveRemoveNodes(
                     this,
                     startIndex,
-                    count
+                    removals.size()
                 );
         }
     }
+    
+    this->removeChildren_impl(begin, end);
     
     return child_iterator(_children.begin() + startIndex);
 }
@@ -1270,7 +1292,6 @@ AddleDataTree<T, HasObserver>::Data::Data(T&& value)
     : aux_datatree::AddleDataTree_TreeDataBase(new Node(std::move(value)))
 {
 }
-
 
 template<typename T, bool HasObserver>
 inline typename AddleDataTree<T, HasObserver>::read_locker_t
@@ -1413,6 +1434,198 @@ private:
     friend class DataTree_UTest;
 #endif
 };
+
+template<typename T, bool HasObserver, bool IsConst>
+class aux_datatree::NodeRef<AddleDataTree<T, HasObserver>, IsConst>
+{
+    using tree_t = AddleDataTree<T, HasObserver>;
+public:
+    using handle_t = boost::mp11::mp_if_c<
+            IsConst,
+            const typename tree_t::Node*,
+            typename tree_t::Node*
+        >;
+    
+    NodeRef() : _data(nullptr) {}
+    
+    template<class Observer,
+        std::enable_if_t<
+            HasObserver && ((
+                IsConst && std::is_same_v<Observer, const TreeObserver<tree_t>>
+            ) || (
+                std::is_same_v<std::remove_const_t<Observer>, TreeObserver<tree_t>>
+            )), void*> = nullptr>
+    NodeRef(Observer& observer, handle_t node)
+        : NodeRef(node)
+    {
+#ifdef ADDLE_DEBUG
+        assert(!node || node->_observer()._data == observer._data);
+#endif
+    }
+    
+    NodeRef(handle_t node);
+    
+    NodeRef(const NodeRef& other)
+        : _data(other._data)
+    {
+        if (_data)
+            _data->_refCount.ref();
+    }
+    
+    NodeRef(NodeRef&& other)
+        : _data(other._data)
+    {
+        other._data = nullptr;
+    }
+    
+    template<class MutableNodeRef,
+        std::enable_if_t<
+            IsConst && std::is_same_v<
+                MutableNodeRef,
+                NodeRef<AddleDataTree<T, HasObserver>, false>
+            >,
+        void*> = nullptr>
+    NodeRef(const MutableNodeRef& other)
+        : _data(other._data)
+    {
+        if (_data)
+            _data->_refCount.ref();
+    }
+    
+    ~NodeRef() { deref(); }
+    
+    NodeRef& operator=(const NodeRef& other)
+    {
+        deref();
+        
+        if ((_data = other._data))
+            _data->_refCount.ref();
+        
+        return *this;
+    }
+        
+    NodeRef& operator=(NodeRef&& other)
+    {
+        deref();
+        
+        _data = other._data;
+        other._data = nullptr;
+        
+        return *this;
+    }
+    
+    bool operator==(const NodeRef& other) const { return _data == other._data; }
+    bool operator!=(const NodeRef& other) const { return _data != other._data; }
+    
+    friend bool operator==(const handle_t& handle, const NodeRef& ref) { return handle == ref.get(); }
+    friend bool operator!=(const handle_t& handle, const NodeRef& ref) { return handle != ref.get(); }
+    friend bool operator==(const NodeRef& ref, const handle_t& handle) { return ref.get() == handle; }
+    friend bool operator!=(const NodeRef& ref, const handle_t& handle) { return ref.get() != handle; }
+    
+    explicit operator bool () const { return isValid(); }
+    bool operator! () const { return !isValid(); }
+    
+    std::unique_ptr<QReadLocker> lockTreeObserverForRead() const
+    { 
+        if (_data && _data->_treeObserverData)
+            return _data->_treeObserverData->lockForRead();
+        else
+            return {};
+    }
+    
+    std::unique_ptr<QWriteLocker> lockTreeObserverForWrite() const
+    { 
+        if (_data && _data->_treeObserverData)
+            return _data->_treeObserverData->lockForWrite();
+        else
+            return {};
+    }
+    
+    bool isValid() const
+    {
+        if (!_data) return false;
+        
+        return static_cast<bool>(_data->_node.loadRelaxed());
+    }
+    
+    handle_t get() const
+    {
+        if (!_data) return {};
+        
+        return static_cast<handle_t>(_data->_node.loadRelaxed());
+    }
+    
+    const typename AddleDataTree<T, true>::Node* getConst() const 
+    { 
+        return get(); 
+    }
+    
+    decltype(auto) operator*() const
+    {
+        assert(isValid());
+        
+        handle_t node = get();
+        assert(node);
+        return *node;
+    }
+    
+private:
+    void deref();
+    
+    using data_t = AddleDataTree_NodeRefData;
+    data_t* _data;
+    
+    friend class NodeRef<AddleDataTree<T, HasObserver>, !IsConst>;
+};
+
+template<typename T, bool HasObserver, bool IsConst>
+aux_datatree::NodeRef<AddleDataTree<T, HasObserver>, IsConst>::NodeRef(handle_t node)
+{
+    if (!node)
+    {
+        _data = nullptr;
+        return;
+    }
+    
+    const QMutexLocker lock(node->nodeRefMutex());
+    
+    if (node->_nodeRefData)
+    {
+        _data = node->_nodeRefData;
+    }
+    else
+    {
+        _data = new data_t;
+        _data->_node.storeRelaxed(
+            const_cast<typename AddleDataTree<T, HasObserver>::Node*>(node)
+        );
+        
+        if constexpr (HasObserver)
+        {
+            _data->_treeObserverData = node->_observer()._data;
+        }
+        
+        node->_nodeRefData = _data;
+    }
+    
+    _data->_refCount.ref();
+}
+
+template<typename T, bool HasObserver, bool IsConst>
+void aux_datatree::NodeRef<AddleDataTree<T, HasObserver>, IsConst>::deref()
+{
+    if (_data && !_data->_refCount.deref())
+    {
+        handle_t node = static_cast<handle_t>(_data->_node.loadRelaxed());
+                
+        if (node)
+        {
+            const QMutexLocker lock(node->nodeRefMutex());
+            node->_nodeRefData = nullptr;
+        }
+        delete _data;
+    }
+}
 
 } // namespace Addle
 

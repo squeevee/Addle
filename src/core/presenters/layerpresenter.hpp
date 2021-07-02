@@ -36,13 +36,13 @@ class ADDLE_CORE_EXPORT LayerPresenter
 public:
     LayerPresenter(
             IDocumentPresenter& document, 
-            ILayerNodePresenter::LayerNode& layerNode,
+            ILayerNodePresenter::LayerNodeRef layerNode,
             QSharedPointer<ILayer> model
         );
     virtual ~LayerPresenter() = default;
 
-    ConstLayerNode layerNode() const override { return ConstLayerNode(&_layerNode); }
-    const LayerNode& layerNode() override { return _layerNode; }
+    ConstLayerNodeRef layerNode() const override { return ConstLayerNodeRef(_layerNode); }
+    LayerNodeRef layerNode() override { return _layerNode; }
     
     IDocumentPresenter& document() override { return _document; }
     const IDocumentPresenter& document() const override { return _document; }
@@ -72,7 +72,7 @@ signals:
 
 private:
     IDocumentPresenter& _document;
-    ILayerNodePresenter::LayerNode& _layerNode;
+    ILayerNodePresenter::LayerNodeRef _layerNode;
     
     double _heldOpacity = 0;
     bool _isVisible;

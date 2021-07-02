@@ -33,8 +33,6 @@ class IDocumentPresenter : public ICanSavePresenter, public virtual IAmQObject
 public:
     using LayersTree                = ILayerNodePresenter::LayersTree;
     using ConstLayersTree           = ILayerNodePresenter::ConstLayersTree;
-//     using LayerNodesAddedEvent      = DataTreeNodesAddedEvent<LayersTree>;
-//     using LayerNodesRemovedEvent    = DataTreeNodesRemovedEvent<LayersTree>;
     
     enum EmptyInitOptions
     {
@@ -73,8 +71,6 @@ public slots:
 
 signals:
     virtual void layerNodesChanged(DataTreeNodeEvent) = 0;
-//     virtual void layerNodesRemoved(IDocumentPresenter::LayerNodesRemovedEvent removed) = 0;
-    //virtual void layersMoved(QList<IDocumentPresenter::LayerNode*> moved) = 0;
 
     virtual void layersChanged() = 0;
     virtual void topSelectedLayerChanged(QSharedPointer<ILayerPresenter>) = 0;

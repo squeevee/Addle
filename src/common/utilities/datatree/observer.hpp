@@ -31,9 +31,6 @@ class DataTree_UTest;
 namespace Addle {
 namespace aux_datatree {
     
-template<typename Tree>
-class TreeObserver;
-
 class TreeObserverData;
 class ObservedTreeState;
 
@@ -46,20 +43,7 @@ extern NodeAddress mapSingle_impl(
 /**
  * Describes a change in the node structure of a data tree. Nodes may be added,
  * removed, or moved; and the event may describe multiple such operations
- * performed in sequence. 
- * 
- * The NodeEvent is agnostic of the implementation of the tree and does not rely
- * on references to any internal data structure of any tree, making it safe to 
- * use to process structural changes after they have already happened.
- * 
- * NodeEvent can be created automatically by performing operations on a tree 
- * through TreeObserver. Events created this way are "coordinated" with each 
- * other and the observer that created them. This can allow for greater async
- * safety, such as read/write locking the tree and fully safe access to the
- * underlying tree data.
- * 
- * NodeEvent can also be created with NodeEventBuilder, in which case they are
- * not coordinated.
+ * performed in sequence.
  */
 class NodeEvent
 {
@@ -526,169 +510,6 @@ void NodeEvent::removeChunks_impl(Range&& range)
     }
 }
 
-class NodeEventBuilder
-{
-public:
-    NodeEventBuilder() = default;
-    
-    template< typename Tree_>
-    NodeEventBuilder(Tree_& tree)
-        : _event(::Addle::aux_datatree::tree_root(tree))
-    {
-    }
-    
-    NodeEventBuilder(NodeEventBuilder&&) = default;
-    NodeEventBuilder& operator=(NodeEventBuilder&&) = default;
-    
-    NodeEvent event() const { return _event; }
-    
-    operator const NodeEvent& () const & { return _event; }
-    operator NodeEvent () && { return std::move(_event); }
-    
-    inline NodeEventBuilder& addAddress(DataTreeNodeAddress address)
-    {
-        _event.addChunk_impl(std::move(address), 1);
-        return *this;
-    }
-    
-    template<typename Range>
-    inline NodeEventBuilder& addAddresses(Range&& range)
-    {
-        static_assert(
-            std::is_convertible_v<
-                typename boost::range_reference<
-                    boost::remove_cv_ref_t<Range>
-                >::type,
-                DataTreeNodeAddress
-            >,
-            "This method may only be used for ranges of NodeAddress"
-        );
-        
-        if (!boost::empty(range))
-        {
-            using namespace boost::adaptors;
-            _event.addChunks_impl(
-                    range 
-                    | transformed([] (auto&& address) { 
-                        return aux_datatree::NodeChunk {
-                                std::forward<decltype(address)>(address), 
-                                1 
-                            };
-                    })
-                );
-        }
-        
-        return *this;
-    }
-    
-    inline NodeEventBuilder& addAddresses(
-            const std::initializer_list<DataTreeNodeAddress>& addresses
-        )
-    {
-        return addAddresses<
-            const std::initializer_list<DataTreeNodeAddress>&
-            >(addresses);
-    }
-    
-    inline NodeEventBuilder& addChunk(
-            DataTreeNodeAddress address,
-            std::size_t length
-        )
-    {
-        _event.addChunk_impl(std::move(address), length);
-        return *this;
-    }
-    
-    template<typename Range>
-    inline NodeEventBuilder& addChunks(Range&& range)
-    {
-        _event.addChunks_impl(std::forward<Range>(range));
-        return *this;
-    }
-    
-    inline NodeEventBuilder& addChunks(
-            const std::initializer_list<aux_datatree::NodeChunk>& chunks
-        )
-    {
-        return addChunks<
-                const std::initializer_list<aux_datatree::NodeChunk>&
-            >(chunks);
-    }
-    
-    inline NodeEventBuilder& removeAddress(DataTreeNodeAddress address)
-    {
-        _event.removeChunk_impl(std::move(address), 1);
-        return *this;
-    }
-    
-    template<typename Range>
-    inline NodeEventBuilder& removeAddresses(Range&& range)
-    {
-        static_assert(
-            std::is_convertible_v<
-                typename boost::range_reference<
-                    boost::remove_cv_ref_t<Range>
-                >::type,
-                DataTreeNodeAddress
-            >,
-            "This method may only be used for ranges of NodeAddress"
-        );
-        
-        if (!boost::empty(range))
-        {
-            using namespace boost::adaptors;
-            _event.removeChunks_impl(
-                    range 
-                    | transformed([] (auto&& address) { 
-                        return aux_datatree::NodeChunk {
-                                std::forward<decltype(address)>(address), 
-                                1 
-                            };
-                    })
-                );
-        }
-        
-        return *this;
-    }
-    
-    inline NodeEventBuilder& removeAddresses(
-            const std::initializer_list<DataTreeNodeAddress>& addresses
-        )
-    {
-        return removeAddresses<
-                const std::initializer_list<DataTreeNodeAddress>&
-            >(addresses);
-    }
-    
-    inline NodeEventBuilder& removeChunk(
-            DataTreeNodeAddress address, 
-            std::size_t length
-        )
-    {
-        _event.removeChunk_impl(std::move(address), length);
-        return *this;
-    }
-    
-    template<typename Range>
-    inline NodeEventBuilder& removeChunks(Range&& range)
-    {
-        _event.removeChunks_impl(std::forward<Range>(range));
-        return *this;
-    }
-    
-    inline NodeEventBuilder& removeChunks(
-            const std::initializer_list<aux_datatree::NodeChunk>& chunks
-        )
-    {
-        return removeChunks<
-                const std::initializer_list<aux_datatree::NodeChunk>&
-            >(chunks);
-    }
-    
-private:
-   NodeEvent _event;
-};
-
 // TODO: rename
 // Modifies a tree and records those modifications in an event.
 template<class Tree>
@@ -879,6 +700,8 @@ void NodeEventTreeHelper<Tree>::removeNodes_impl(
             count
         );
 }
+
+class GenericNodeRefData;
     
 class TreeObserverData
 {
@@ -901,44 +724,6 @@ class TreeObserverData
     using node_event_iterator = node_event_list::const_iterator;
     
 public:
-    
-//     // TODO: is this necessary anymore?
-//     class EventCollectionIterator 
-//         : public boost::iterator_adaptor<
-//             EventCollectionIterator,
-//             node_event_list::const_iterator,
-//             NodeEvent,
-//             boost::use_default, // Category 
-//             const NodeEvent&
-//         >
-//     {
-//         using base_t = node_event_list::const_iterator;
-//         using adaptor_t = boost::iterator_adaptor<
-//                 EventCollectionIterator,
-//                 node_event_list::const_iterator,
-//                 NodeEvent,
-//                 boost::use_default,
-//                 const NodeEvent&
-//             >;
-//         
-//     public:
-//         EventCollectionIterator() = default;
-//         EventCollectionIterator(const EventCollectionIterator&) = default;
-//         
-//     private:
-//         EventCollectionIterator(base_t base)
-//             : adaptor_t(base)
-//         {
-//         }
-//         
-//         const NodeEvent& dereference() const { return (*base()).event; }
-//         
-//         friend class boost::iterator_core_access;
-//         friend class TreeObserverData;
-//     };
-//     
-//     using EventCollection = boost::iterator_range<EventCollectionIterator>;
-    
     TreeObserverData(const TreeObserverData&) = delete;
     TreeObserverData(TreeObserverData&&) = delete;
     
@@ -956,24 +741,6 @@ public:
         _isDeleted = true;
     }
     
-//     EventCollection events() const
-//     {
-//         return EventCollection(
-//                 EventCollectionIterator(_events.begin()), 
-//                 EventCollectionIterator(_current)
-//             );
-//     }
-//     
-//     EventCollectionIterator eventsEnd() const { return EventCollectionIterator(_current); }
-//     
-//     EventCollectionIterator findEvent(const NodeEvent& event) const
-//     {
-//         if (!event._data || !_eventIndex.contains(event._data->id))
-//             return EventCollectionIterator(_current);
-//         else
-//             return EventCollectionIterator(_eventIndex[event._data->id]);
-//     }
-    
     std::unique_ptr<QReadLocker> lockForRead() const
     {
         return std::make_unique<QReadLocker>(&_lock);
@@ -987,6 +754,7 @@ public:
 private:
     inline TreeObserverData(std::any root);
     void releaseNodeEvent(node_event_iterator id);
+    void removeNodeRefData(const GenericNodeRefData* data);
     
     std::any _root;
     
@@ -1005,8 +773,15 @@ private:
     // private mutex guarding access to the events list
     mutable QMutex _eventListMutex;
     
+    // private mutex guarding access to the node ref map
+    mutable QMutex _nodeRefMutex;
+
+    std::multimap<NodeAddress, GenericNodeRefData*> _nodeRefs;
+    
     template<typename> friend class TreeObserver;
     friend class ObservedTreeState;
+    template<class, bool> friend class NodeRef;
+    
 #ifdef ADDLE_TEST
     friend class ::DataTree_UTest;
 #endif
@@ -1236,18 +1011,11 @@ private:
     QSharedPointer<TreeObserverData> _data;
     
     friend class ObservedTreeState;
+    template<class, bool> friend class NodeRef;
 #ifdef ADDLE_TEST
     friend class ::DataTree_UTest;
 #endif
 };
-
-template<typename Tree>
-using _datatree_observer_t = decltype( datatree_observer(std::declval<Tree>()) );
-
-template<typename Tree, typename std::enable_if_t<boost::mp11::mp_valid<_datatree_observer_t, Tree&&>::value, void*> = nullptr>
-inline decltype(auto) tree_observer(Tree&& tree) { return datatree_observer(std::forward<Tree>(tree)); }
-
-// move up?
 
 /**
  * @class ObservedTreeState
@@ -1297,11 +1065,20 @@ public:
         _observerData.swap(other._observerData);
     }
     
-    ~ObservedTreeState() { deref(_eventIt); }
+    ~ObservedTreeState()
+    { 
+        if (_observerData)
+        {
+            deref(_eventIt); 
+        }
+    }
     
     ObservedTreeState& operator=(const ObservedTreeState& other)
     {
-        deref(_eventIt);
+        if (_observerData)
+        {
+            deref(_eventIt);
+        }
         
         _observerData = other._observerData;
         _eventIt = other._eventIt;
@@ -1313,6 +1090,11 @@ public:
     
     ObservedTreeState& operator=(ObservedTreeState&& other)
     {
+        if (_observerData)
+        {
+            deref(_eventIt);
+        }
+        
         _eventIt = std::move(other._eventIt);
         _observerData.swap(other._observerData);
         other._observerData = nullptr;
@@ -1414,13 +1196,243 @@ inline void ObservedTreeState::deref(TreeObserverData::node_event_iterator i)
     }
 }
 
+// Data object for the generic implementation of NodeRef (which is coordinated
+// directly with DataTreeObserver). Other implementations may use their own data
+// object types.
+class GenericNodeRefData
+{
+public:
+    virtual ~GenericNodeRefData() noexcept = default;
+    
+    virtual const std::type_info& type() const noexcept = 0;
+    
+    virtual NodeAddress address() const noexcept = 0;
+    virtual void setAddress(NodeAddress address) noexcept = 0;
+    
+    virtual bool isDeleted() const noexcept = 0;
+    virtual void markDeleted() noexcept = 0;
+};
+
+template<typename Handle>
+class GenericNodeRefData_impl : public GenericNodeRefData
+{
+public:
+    virtual ~GenericNodeRefData_impl() noexcept = default;
+    
+    const std::type_info& type() const noexcept override { return *_type; }
+    
+    NodeAddress address() const noexcept override { return _address; }
+    void setAddress(NodeAddress address) noexcept override { _address = std::move(address); }
+    
+    bool isDeleted() const noexcept override { return _isDeleted; }
+    void markDeleted() noexcept override { _isDeleted = true; }
+    
+private:
+    QSharedPointer<TreeObserverData> _treeObserverData;
+    
+    NodeAddress _address;
+    bool _isDeleted = false;
+    
+    QAtomicInteger<unsigned> _refCount;
+    
+    Handle _handle;
+    const std::type_info* _type;
+    
+    template<class, bool> friend class NodeRef;
+};
+
+template<class Tree, bool IsConst>
+class NodeRef
+{
+public:
+    using handle_t = node_handle_t<Tree>;
+    using observer_t = boost::mp11::mp_if_c<
+            IsConst,
+            const TreeObserver<Tree>,
+            TreeObserver<Tree>
+        >;
+    
+    NodeRef() : _data(nullptr) {}
+    
+    NodeRef(observer_t& tree, handle_t node);
+    
+    NodeRef(const NodeRef& other)
+        : _data(other._data)
+    {
+        if (_data)
+            _data->_refCount.ref();
+    }
+    
+    NodeRef(NodeRef&& other)
+        : _data(other._data)
+    {
+        other._data = nullptr;
+    }
+    
+    ~NodeRef()
+    {
+        if (_data && !_data->_refCount.deref())
+        {
+            _data->_treeObserverData->removeNodeRefData(_data);
+            delete _data;
+        }
+    }
+    
+    NodeRef& operator=(const NodeRef& other)
+    {
+        if (_data && !_data->_refCount.deref())
+        {
+            _data->_treeObserverData->removeNodeRefData(_data);
+            delete _data;
+        }
+        
+        if ((_data = other._data))
+            _data->_refCount.ref();
+        
+        return *this;
+    }
+        
+    NodeRef& operator=(NodeRef&& other)
+    {
+        if (_data && !_data->_refCount.deref())
+        {
+            _data->_treeObserverData->removeNodeRefData(_data);
+            delete _data;
+        }
+        
+        _data = other._data;
+        other._data = nullptr;
+        
+        return *this;
+    }
+    
+    bool operator==(const NodeRef& other) const { return _data == other._data; }
+    bool operator!=(const NodeRef& other) const { return _data != other._data; }
+    
+    friend bool operator==(const handle_t& handle, const NodeRef& ref) { return handle == ref.get(); }
+    friend bool operator!=(const handle_t& handle, const NodeRef& ref) { return handle != ref.get(); }
+    friend bool operator==(const NodeRef& ref, const handle_t& handle) { return ref.get() == handle; }
+    friend bool operator!=(const NodeRef& ref, const handle_t& handle) { return ref.get() != handle; }
+    
+    explicit operator bool () const { return isValid(); }
+    bool operator! () const { return !isValid(); }
+    
+//     template<typename ConstHandle, 
+//         std::enable_if_t<std::is_same_v<ConstHandle, const_node_handle_t<Tree>>
+//             && !std::is_same_v<ConstHandle, handle_t>, void*> = nullptr>
+//     friend bool operator==(const ConstHandle& handle, const NodeRef& ref) { return handle == ref.get(); }
+//     
+//     template<typename ConstHandle, 
+//         std::enable_if_t<std::is_same_v<ConstHandle, const_node_handle_t<Tree>>
+//             && !std::is_same_v<ConstHandle, handle_t>, void*> = nullptr>
+//     friend bool operator==(const ConstHandle& handle, const NodeRef& ref) { return handle != ref.get(); }
+//     
+//     template<typename ConstHandle, 
+//         std::enable_if_t<std::is_same_v<ConstHandle, const_node_handle_t<Tree>>
+//             && !std::is_same_v<ConstHandle, handle_t>, void*> = nullptr>
+//     friend bool operator==(const NodeRef& ref, const ConstHandle& handle) { return ref.get() == handle; }
+//             
+//     template<typename ConstHandle, 
+//         std::enable_if_t<std::is_same_v<ConstHandle, const_node_handle_t<Tree>>
+//             && !std::is_same_v<ConstHandle, handle_t>, void*> = nullptr>
+//     friend bool operator==(const NodeRef& ref, const ConstHandle& handle) { return ref.get() != handle; }
+    
+    std::unique_ptr<QReadLocker> lockTreeObserverForRead() const
+    { 
+        if (_data)
+            return _data->_treeObserverData->lockForRead();
+        else
+            return {};
+    }
+    
+    std::unique_ptr<QWriteLocker> lockTreeObserverForWrite() const
+    { 
+        if (_data)
+            return _data->_treeObserverData->lockForWrite();
+        else
+            return {};
+    }
+    
+    bool isValid() const
+    {
+        if (!_data) return false;
+        
+        const QMutexLocker lock(&_data->_treeObserverData->_nodeRefMutex);
+        return !(_data->_isDeleted);
+    }
+    
+    handle_t get() const
+    {
+        if (!_data) return {};
+        
+        const QMutexLocker lock(&_data->_treeObserverData->_nodeRefMutex);
+        return _data->_handle;
+    }
+    
+    const_node_handle_t<Tree> getConst() const 
+    { 
+        return static_cast<const_node_handle_t<Tree>>(get()); 
+    }
+    
+    decltype(auto) operator*() const
+    {
+        assert(isValid());
+        
+        handle_t node = get();
+        assert(node);
+        return *node;
+    }
+    
+private:
+    using data_t = GenericNodeRefData_impl<node_handle_t<Tree>>;
+    data_t* _data;
+};
+
+template<class Tree, bool IsConst>
+NodeRef<Tree, IsConst>::NodeRef(observer_t& tree, handle_t node)
+{
+    if (!node)
+    {
+        _data = nullptr;
+        return;
+    }
+    
+    NodeAddress address = aux_datatree::node_address(node);
+    
+    const QMutexLocker lock(&tree._data->_nodeRefMutex);
+    
+    auto i = tree._data->_nodeRefs.lower_bound(address);
+    auto end = tree._data->_nodeRefs.upper_bound(address);
+    
+    for (; i != end; ++i)
+    {
+        if ((*i).second->type() != typeid(handle_t)) continue;
+        
+#ifdef ADDLE_DEBUG
+        assert(static_cast<data_t*>((*i).second)->_handle == node);
+#endif
+        _data = static_cast<data_t*>((*i).second);
+        _data->_refCount.ref();
+        return;
+    }
+    
+    _data = new data_t;
+    _data->_address = address;
+    _data->_handle = node;
+    _data->_type = &typeid(handle_t);
+    _data->_treeObserverData = tree._data;
+    _data->_refCount.ref();
+    
+    tree._data->_nodeRefs.insert(std::make_pair(address, _data));
+}
+    
 }
 
 template<class Tree>
 using DataTreeObserver = aux_datatree::TreeObserver<Tree>;
 
 using DataTreeNodeEvent = aux_datatree::NodeEvent;
-using DataTreeNodeEventBuilder = aux_datatree::NodeEventBuilder;
+//using DataTreeNodeEventBuilder = aux_datatree::NodeEventBuilder;
 
 }
 

@@ -24,16 +24,19 @@ public:
                                     QSharedPointer<const ILayerNodeModel>
                                 >;
     
-    using LayerNode =       typename LayersTree::Node;
-    using ConstLayerNode =  typename ConstLayersTree::Node;
+    using LayerNode         = typename LayersTree::Node;
+    using ConstLayerNode    = typename ConstLayersTree::Node;
+    
+    using LayerNodeRef      = aux_datatree::NodeRef<LayersTree, false>;
+    using ConstLayerNodeRef = aux_datatree::NodeRef<ConstLayersTree, true>;
     
     virtual ~ILayerNodeModel() = default;
     
     virtual IDocument& document() = 0;
     virtual const IDocument& document() const = 0;
     
-    virtual const LayerNode& layerNode() = 0;
-    virtual ConstLayerNode layerNode() const = 0;
+    virtual LayerNodeRef layerNode() = 0;
+    virtual ConstLayerNodeRef layerNode() const = 0;
     
     virtual QRect boundary() const = 0;
 

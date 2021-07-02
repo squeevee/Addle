@@ -73,53 +73,53 @@ private slots:
 //         qDebug() << builder.event().mapBackward({ 4 });
 //     }
     
-    void nodeEvent_mapping1()
-    {
-        DataTreeNodeEventBuilder builder;
-        builder.addChunk({ 1 }, 1);
-        
-        QCOMPARE(builder.event().mapForward({ 0 }), DataTreeNodeAddress({ 0 }));
-        QCOMPARE(builder.event().mapBackward({ 0 }), DataTreeNodeAddress({ 0 }));
-        
-        QCOMPARE(builder.event().mapForward({ 1 }), DataTreeNodeAddress({ 2 }));
-        QCOMPARE(builder.event().mapBackward({ 2 }), DataTreeNodeAddress({ 1 }));
-        
-        QCOMPARE(builder.event().mapForward({ 2 }), DataTreeNodeAddress({ 3 }));
-        QCOMPARE(builder.event().mapBackward({ 3 }), DataTreeNodeAddress({ 2 }));
-        
-        QCOMPARE(builder.event().mapForward({ 0, 0 }), DataTreeNodeAddress({ 0, 0 }));
-        QCOMPARE(builder.event().mapBackward({ 0, 0 }), DataTreeNodeAddress({ 0, 0 }));
-        
-        QCOMPARE(builder.event().mapForward({ 1, 0 }), DataTreeNodeAddress({ 2, 0 }));
-        QCOMPARE(builder.event().mapBackward({ 2, 0 }), DataTreeNodeAddress({ 1, 0 }));
-        
-        QCOMPARE(builder.event().mapForward({ 2, 0 }), DataTreeNodeAddress({ 3, 0 }));
-        QCOMPARE(builder.event().mapBackward({ 3, 0 }), DataTreeNodeAddress({ 2, 0 }));
-    }
-    
-    void nodeEvent_mapping2()
-    {
-        DataTreeNodeEventBuilder builder;
-        builder.addChunk({ 0 }, 4);
-        
-        QCOMPARE(builder.event().mapForward({ 0 }), DataTreeNodeAddress({ 4 }));
-        QCOMPARE(builder.event().mapBackward({ 4 }), DataTreeNodeAddress({ 0 }));
-    }
-    
-    void nodeEvent_mapping3()
-    {
-        DataTreeNodeEventBuilder builder;
-        builder.addChunks({ {{ 0 }, 1 }, {{ 0, 0 }, 1 }});
-
-        QCOMPARE(builder.event().mapForward({ 0, 0 }), DataTreeNodeAddress({ 1, 1 }));
-        QCOMPARE(builder.event().mapBackward({ 1, 1 }), DataTreeNodeAddress({ 0, 0 }));
-        
-        QCOMPARE(builder.event().mapForward({ 1, 0 }), DataTreeNodeAddress({ 2, 0 }));
-        QCOMPARE(builder.event().mapBackward({ 2, 0 }), DataTreeNodeAddress({ 1, 0 }));
-        
-        QCOMPARE(builder.event().mapForward({ 2, 0 }), DataTreeNodeAddress({ 3, 0 }));
-        QCOMPARE(builder.event().mapBackward({ 3, 0 }), DataTreeNodeAddress({ 2, 0 }));
-    }
+//     void nodeEvent_mapping1()
+//     {
+//         DataTreeNodeEventBuilder builder;
+//         builder.addChunk({ 1 }, 1);
+//         
+//         QCOMPARE(builder.event().mapForward({ 0 }), DataTreeNodeAddress({ 0 }));
+//         QCOMPARE(builder.event().mapBackward({ 0 }), DataTreeNodeAddress({ 0 }));
+//         
+//         QCOMPARE(builder.event().mapForward({ 1 }), DataTreeNodeAddress({ 2 }));
+//         QCOMPARE(builder.event().mapBackward({ 2 }), DataTreeNodeAddress({ 1 }));
+//         
+//         QCOMPARE(builder.event().mapForward({ 2 }), DataTreeNodeAddress({ 3 }));
+//         QCOMPARE(builder.event().mapBackward({ 3 }), DataTreeNodeAddress({ 2 }));
+//         
+//         QCOMPARE(builder.event().mapForward({ 0, 0 }), DataTreeNodeAddress({ 0, 0 }));
+//         QCOMPARE(builder.event().mapBackward({ 0, 0 }), DataTreeNodeAddress({ 0, 0 }));
+//         
+//         QCOMPARE(builder.event().mapForward({ 1, 0 }), DataTreeNodeAddress({ 2, 0 }));
+//         QCOMPARE(builder.event().mapBackward({ 2, 0 }), DataTreeNodeAddress({ 1, 0 }));
+//         
+//         QCOMPARE(builder.event().mapForward({ 2, 0 }), DataTreeNodeAddress({ 3, 0 }));
+//         QCOMPARE(builder.event().mapBackward({ 3, 0 }), DataTreeNodeAddress({ 2, 0 }));
+//     }
+//     
+//     void nodeEvent_mapping2()
+//     {
+//         DataTreeNodeEventBuilder builder;
+//         builder.addChunk({ 0 }, 4);
+//         
+//         QCOMPARE(builder.event().mapForward({ 0 }), DataTreeNodeAddress({ 4 }));
+//         QCOMPARE(builder.event().mapBackward({ 4 }), DataTreeNodeAddress({ 0 }));
+//     }
+//     
+//     void nodeEvent_mapping3()
+//     {
+//         DataTreeNodeEventBuilder builder;
+//         builder.addChunks({ {{ 0 }, 1 }, {{ 0, 0 }, 1 }});
+// 
+//         QCOMPARE(builder.event().mapForward({ 0, 0 }), DataTreeNodeAddress({ 1, 1 }));
+//         QCOMPARE(builder.event().mapBackward({ 1, 1 }), DataTreeNodeAddress({ 0, 0 }));
+//         
+//         QCOMPARE(builder.event().mapForward({ 1, 0 }), DataTreeNodeAddress({ 2, 0 }));
+//         QCOMPARE(builder.event().mapBackward({ 2, 0 }), DataTreeNodeAddress({ 1, 0 }));
+//         
+//         QCOMPARE(builder.event().mapForward({ 2, 0 }), DataTreeNodeAddress({ 3, 0 }));
+//         QCOMPARE(builder.event().mapBackward({ 3, 0 }), DataTreeNodeAddress({ 2, 0 }));
+//     }
     
     void dev_nestedObjectAdapter()
     {
@@ -211,6 +211,52 @@ private slots:
         auto e = tree.observer().finishRecording();
         
         qDebug() << "foo";
+    }
+    
+    void dev_constView()
+    {
+        struct TestObject { QString v; };
+        
+        AddleDataTree<QSharedPointer<TestObject>, true> tree1;
+        DataTreeCastView<AddleDataTree<QSharedPointer<TestObject>, true>, QSharedPointer<const TestObject>> tree2(tree1);
+        
+        tree1.root().appendChild( QSharedPointer<TestObject>(new TestObject { "Spiff" }) );
+        tree1.root().appendChild( QSharedPointer<TestObject>(new TestObject { "Freem" }) );
+        tree1.root().appendChild( QSharedPointer<TestObject>(new TestObject { "Zarg" }) );
+        
+        auto i = tree2.root().children().begin();
+        auto end = tree2.root().children().end();
+        for (; i != end; ++i)
+        {
+            qDebug() << (*i).value()->v;
+        }
+        
+        aux_datatree::NodeRef<
+            DataTreeCastView<AddleDataTree<QSharedPointer<TestObject>, true>, QSharedPointer<const TestObject>>,
+            true
+        > ref(tree2.observer(), tree2.root()[0].node());
+        
+        QVERIFY(ref.isValid());
+        tree1.root().removeChildren(0, 1);
+        QVERIFY(!ref.isValid());
+    }
+    
+    void dev_nodeRef()
+    {
+        AddleDataTree<QString, true> tree;
+        
+        auto& node = tree.root().appendChild("Spiff");
+        
+        auto ref = node.nodeRef();
+        
+        QVERIFY(ref.isValid());
+        QCOMPARE((*ref).value(), "Spiff");
+        
+        //tree.observer().startRecording();
+        tree.root().removeChildren(0, 1);
+        //tree.observer().finishRecording();
+        
+        QVERIFY(!ref.isValid());
     }
     
 //     void dev_nestedObjectExtNode()

@@ -4,11 +4,11 @@ using namespace Addle;
 
 LayerGroupPresenter::LayerGroupPresenter(
             IDocumentPresenter& document, 
-            LayerNode& layerNode,
+            LayerNodeRef layerNode,
             QSharedPointer<ILayerGroup> model
         )
     : _document(document),
-    _layerNode(layerNode),
+    _layerNode(std::move(layerNode)),
     _model(model)
 {
     HelperBase::initialize();

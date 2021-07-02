@@ -50,9 +50,9 @@ ADDLE_DECL_FACTORY_PARAMETERS(
     ILayer,
     (required 
         (document,  (IDocument&))
-        (layerNode, (ILayer::LayerNode&))
+        (layerNode, (ILayer::LayerNodeRef))
     )
-    (optional (builder, (const LayerNodeBuilder&), LayerNodeBuilder {}))
+    (optional (builder, (const LayerNodeBuilder), LayerNodeBuilder {}))
 )
 
 } // namespace Addle

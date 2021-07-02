@@ -107,7 +107,8 @@ inline void node_sibling_increment( NodeHandle& node ) { datatree_node_sibling_i
 template<
     typename NodeHandle, 
     std::enable_if_t<
-        !boost::is_detected<_node_sibling_next_t, NodeHandle>::value, void*> = nullptr>
+        !boost::is_detected<_node_sibling_next_t, NodeHandle>::value
+        && boost::is_detected<_node_sibling_increment_t, NodeHandle>::value, void*> = nullptr>
 inline std::decay_t<NodeHandle> node_sibling_next( NodeHandle&& node )
 { 
     std::decay_t<NodeHandle> result(std::forward<NodeHandle>(node));
@@ -119,7 +120,8 @@ template<
     typename NodeHandle, 
     std::enable_if_t<
         !std::is_const<NodeHandle>::value
-        && !boost::is_detected<_node_sibling_increment_t, NodeHandle>::value,
+        && !boost::is_detected<_node_sibling_increment_t, NodeHandle>::value
+        && boost::is_detected<_node_sibling_next_t, NodeHandle>::value,
     void*> = nullptr>
 inline void node_sibling_increment( NodeHandle& node ) { node = ::Addle::aux_datatree::node_sibling_next( std::move(node) ); }
 
@@ -754,6 +756,23 @@ protected:
 };
 
 class _unindexed_dfs_extended_node_base {};
+
+template<typename Tree>
+using _datatree_observer_t = decltype( datatree_observer(std::declval<Tree>()) );
+
+template<typename Tree, typename std::enable_if_t<boost::mp11::mp_valid<_datatree_observer_t, Tree&&>::value, void*> = nullptr>
+inline decltype(auto) tree_observer(Tree&& tree) { return datatree_observer(std::forward<Tree>(tree)); }
+
+template<typename Tree>
+using _datatree_observer_member_t = decltype( std::declval<Tree&>().observer() );
+
+template<typename Tree, typename std::enable_if_t<
+    !boost::mp11::mp_valid<_datatree_observer_t, Tree&&>::value
+    && boost::mp11::mp_valid<_datatree_observer_member_t, Tree&&>::value, void*> = nullptr>
+inline decltype(auto) tree_observer(Tree& tree) { return tree.observer(); }
+
+template<typename Tree>
+using _tree_observer_t = decltype( ::Addle::aux_datatree::tree_observer(std::declval<Tree&>()) );
 
 /**
  * For nodes that implement `datatree_node_parent`, it is possible to determine
@@ -1404,9 +1423,9 @@ template<
         boost::is_detected<_node_remove_children_t, NodeHandle, ChildHandle>::value,
     void*> = nullptr
 >
-inline void node_remove_children( NodeHandle node, ChildHandle begin, ChildHandle end)
+inline auto node_remove_children( NodeHandle node, ChildHandle begin, ChildHandle end)
 {
-    datatree_node_remove_children(
+    return datatree_node_remove_children(
             std::forward<NodeHandle>(node), 
             std::forward<ChildHandle>(begin),
             std::forward<ChildHandle>(end)
@@ -2047,5 +2066,8 @@ using storage_util = typename boost::mp11::mp_if<
         boost::mp11::mp_defer<_storage_util_basic, T, Discrim>
     >::type;
 
+template<class Tree, bool IsConst = false> class NodeRef;
+template<typename Tree> class TreeObserver;
+    
 } // namespace aux_datatree 
 } // namespace Addle

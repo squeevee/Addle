@@ -21,30 +21,6 @@ public:
     
     virtual QSharedPointer<ILayerGroup> model() = 0;
     virtual QSharedPointer<const ILayerGroup> model() const = 0;
-    
-//     inline auto layerNodeChildren()
-//     {
-//         using namespace boost::adaptors;
-//         return layerNode().children() | transformed(
-//             [] (const LayerNode& node) -> QSharedPointer<ILayerNodePresenter> {
-//                 if (node.isLeaf())
-//                     return qSharedPointerCast<ILayerNodePresenter>(node.leafValue());
-//                 else 
-//                     return qSharedPointerCast<ILayerNodePresenter>(node.branchValue());
-//             });
-//     }
-//     
-//     inline auto layerNodeChildren() const
-//     {
-//         using namespace boost::adaptors;
-//         return layerNode().children() | transformed(
-//             [] (const ConstLayerNode& node) -> QSharedPointer<const ILayerNodePresenter> {
-//                 if (node.isLeaf())
-//                     return qSharedPointerCast<const ILayerNodePresenter>(node.leafValue());
-//                 else 
-//                     return qSharedPointerCast<const ILayerNodePresenter>(node.branchValue());
-//             });
-//     }
 };
     
 namespace aux_ILayerGroupPresenter {
@@ -58,7 +34,7 @@ ADDLE_DECL_FACTORY_PARAMETERS(
     ILayerGroupPresenter,
     (required
         (document,  (IDocumentPresenter&))
-        (layerNode, (ILayerGroupPresenter::LayerNode&))
+        (layerNode, (ILayerGroupPresenter::LayerNodeRef))
     )
     (optional
         (model,     (QSharedPointer<ILayerGroup>),  nullptr)

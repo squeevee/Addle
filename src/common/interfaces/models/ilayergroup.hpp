@@ -18,16 +18,6 @@ public:
     virtual bool passThroughMode() const = 0;
     virtual void setPassThroughMode(bool mode) = 0;
     
-//     inline auto childLayerNodes() {
-//         using namespace boost::adaptors;
-//         return this->layerNode().children()
-//             | transformed(
-//                 [] (const LayerNode& node) -> QSharedPointer<ILayerNodeModel> {
-//                     return node.value();
-//                 }
-//             );
-//     }
-    
 signals:
     virtual void passThroughModeChanged(bool mode) = 0;
 };
@@ -43,7 +33,7 @@ ADDLE_DECL_FACTORY_PARAMETERS(
     ILayerGroup,
     (required 
         (document,  (IDocument&))
-        (layerNode, (ILayerGroup::LayerNode&)) 
+        (layerNode, (ILayerGroup::LayerNodeRef)) 
     )
     (optional (builder, (const LayerNodeBuilder&), LayerNodeBuilder()) )
 )

@@ -17,11 +17,11 @@ using namespace Addle;
 
 LayerPresenter::LayerPresenter(
     IDocumentPresenter& document,
-    ILayerNodePresenter::LayerNode& layerNode,
+    ILayerNodePresenter::LayerNodeRef layerNode,
     QSharedPointer<ILayer> model
 )
     : _document(document), 
-    _layerNode(layerNode),
+    _layerNode(std::move(layerNode)),
     _model(model)
 {    
 //     if (model)

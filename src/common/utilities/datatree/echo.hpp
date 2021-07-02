@@ -16,10 +16,61 @@ struct echo_default_node_added_tag          : echo_do_nothing_tag {};
 struct _echo_node_value_discr_tag           {};
 struct _echo_node_added_discr_tag           {};
 
+
+template<class SourceTree, class DestTree, typename NodeValue>
+class _echo_NodeValueGetter_default
+{
+public:
+    node_value_t<DestTree> getNodeValue(const const_node_handle_t<SourceTree>& sourceCursor) const
+    {
+        if constexpr (std::is_convertible_v<
+                node_value_t<SourceTree>, node_value_t<DestTree>
+            >)
+        {
+            return Q_LIKELY(::Addle::aux_datatree::node_has_value(sourceCursor)) ?
+                ::Addle::aux_datatree::node_value(sourceCursor)
+                : node_value_t<DestTree> {};
+        }
+        else
+        {
+            return node_value_t<DestTree> {};
+        }
+    }
+};
+
+template<class SourceTree, class DestTree, typename NodeValue>
+class _echo_NodeValueGetter_byHandle
+{
+public:
+    decltype(auto) getNodeValue(const const_node_handle_t<SourceTree>& sourceCursor) const
+    {
+        return std::invoke(
+                static_cast<const storage_util<NodeValue>*>(this)->get(),
+                sourceCursor
+            );
+    }
+};
+
+template<class SourceTree, class DestTree, typename NodeValue>
+class _echo_NodeValueGetter_byValue
+{
+public:
+    decltype(auto) getNodeValue(const const_node_handle_t<SourceTree>& sourceCursor) const
+    {
+        return std::invoke(
+                static_cast<const storage_util<NodeValue>*>(this)->get(),
+                Q_LIKELY(::Addle::aux_datatree::node_has_value(sourceCursor)) ?
+                    ::Addle::aux_datatree::node_value(sourceCursor)
+                    : node_value_t<SourceTree> {}
+            );
+    }
+};
+
 template<class SourceTree, class DestTree, typename NodeValue>
 class _echo_NodeValueGetter : private storage_util<NodeValue>
 {
 public:
+    
     decltype(auto) getNodeValue(const const_node_handle_t<SourceTree>& sourceCursor) const
     {
         if constexpr (std::is_convertible_v<NodeValue, echo_default_node_value_tag>)
@@ -57,9 +108,7 @@ public:
         {
             return std::invoke(
                     static_cast<const storage_util<NodeValue>*>(this)->get(),
-                    Q_LIKELY(::Addle::aux_datatree::node_has_value(sourceCursor)) ?
-                        ::Addle::aux_datatree::node_value(sourceCursor)
-                        : node_value_t<SourceTree> {}
+                    ::Addle::aux_datatree::node_value(sourceCursor)
                 );
         }
     }
@@ -351,143 +400,22 @@ void echo_tree(
         std::forward<NodeValue>(nodeValue),
         std::forward<NodeAdded>(nodeAdded)
     );
+    
+    try
+    {
+        impl.run();
+    }
+    catch(...)
+    {
+        auto destRoot = aux_datatree::tree_root(dest);
+        aux_datatree::node_remove_children(
+                destRoot,
+                aux_datatree::node_children_begin(destRoot),
+                aux_datatree::node_children_end(destRoot)
+            );
         
-    impl.run();
+        throw;
+    }
 }
-
-/*
-// Generic one-stop implementation for algorithms that involve traversing one
-// tree and modifying another accordingly. Behavior is extended by providing
-// callables for various events and conditionals.
-// 
-template<
-        class SourceTree,
-        class DestTree,
-        typename MakeNode,
-        typename AfterMakeNode
-    >
-class echo_impl
-{
-public:
-    const_node_handle_t<SourceTree> sourceRoot;
-    node_handle_t<DestTree> destRoot;
-    
-    MakeNode&& makeNode;
-    AfterMakeNode&& afterMakeNode;
-    
-    
-    void operator()() const
-    {
-        try
-        {
-            populateBranch_impl(sourceRoot, destRoot);
-        }
-        catch(...)
-        {
-            // TODO this algorithm should be able to work on trees with existing
-            // nodes
-            ::Addle::aux_datatree::node_remove_children(
-                    destRoot, 
-                    ::Addle::aux_datatree::node_children_begin(destRoot),
-                    ::Addle::aux_datatree::node_children_end(destRoot)
-                );  
-            throw;
-        }
-    }
-    
-private:
-    template<typename F, typename... Args>
-    using _f_t = decltype( std::declval<F>()( std::declval<Args>()... ) );
-    
-    void make_node_impl(
-            const_node_handle_t<SourceTree> sourceNode, 
-            node_handle_t<DestTree> destParent,
-            std::size_t pos
-        ) const
-    {
-        node_handle_t<DestTree> destNode;
-        
-        if constexpr (std::is_same<boost::remove_cv_ref_t<MakeNode>, echo_default_make_node_tag>::value)
-        {
-            destNode = ::Addle::aux_datatree::node_insert_child(
-                    destParent,
-                    pos,
-                    node_value_t<DestTree> {}
-                );
-        }
-        else
-        {
-            destNode = ::Addle::aux_datatree::node_insert_child(
-                    destParent,
-                    pos,
-                    this->makeNode( ::Addle::aux_datatree::node_value(sourceNode) )
-                );
-        }
-        
-        if (::Addle::aux_datatree::node_is_branch(sourceNode))
-            populateBranch_impl(sourceNode, destNode);
-        
-        if constexpr (!std::is_same<boost::remove_cv_ref_t<AfterMakeNode>, echo_default_after_make_node_tag>::value)
-        {
-            if constexpr (boost::is_detected<
-                    _f_t, AfterMakeNode, node_handle_t<DestTree>, const_node_handle_t<SourceTree>
-                >::value)
-            {
-                this->afterMakeNode(destNode, sourceNode);
-            }
-            else
-            {
-                this->afterMakeNode(destNode);
-            }
-        }
-    }
-    
-    void populateBranch_impl(
-            const_node_handle_t<SourceTree> sourceBranch, 
-            node_handle_t<DestTree> destBranch
-        ) const
-    {
-        std::size_t pos = 0;
-        
-        auto&& sourceEnd = ::Addle::aux_datatree::node_children_end(sourceBranch);
-        for (
-                auto sourceChild = ::Addle::aux_datatree::node_children_begin(sourceBranch);
-                sourceChild != sourceEnd; 
-                ::Addle::aux_datatree::node_sibling_increment(sourceChild)
-            )
-        {
-            this->make_node_impl(sourceChild, destBranch, pos);
-            ++pos;
-        }
-    }
-};
-
-template<
-        class SourceTree,
-        class DestTree,
-        typename MakeNode = aux_datatree::echo_default_make_node_tag,
-        typename AfterMakeNode = aux_datatree::echo_default_after_make_node_tag
-    >
-inline void datatree_echo(
-        SourceTree&& sourceTree,
-        DestTree&& destTree,
-        MakeNode&& makeNode = {},
-        AfterMakeNode&& afterMakeNode = {}
-    )
-{
-    aux_datatree::echo_impl<
-            boost::remove_cv_ref_t<SourceTree>,
-            boost::remove_cv_ref_t<DestTree>,
-            MakeNode&&,
-            AfterMakeNode&&
-        > {
-            datatree_root(sourceTree),
-            datatree_root(destTree),
-            std::forward<MakeNode>(makeNode),
-            std::forward<AfterMakeNode>(afterMakeNode)
-        } ();
-}*/
-
-
 
 } // namespace Addle::aux_datatree 

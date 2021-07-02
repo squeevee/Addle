@@ -17,7 +17,7 @@ class LayerGroup : public QObject, public ILayerGroup
 public:
     LayerGroup(
             IDocument& document,
-            LayerNode& layerNode, 
+            LayerNodeRef layerNode, 
             const LayerNodeBuilder& builder,
             const IFactory<ILayer>& layerFactory,
             const IFactory<ILayerGroup>& layerGroupFactory
@@ -27,8 +27,8 @@ public:
     IDocument& document() override { return _document; }
     const IDocument& document() const override { return _document; }
     
-    const LayerNode& layerNode() override { return _layerNode; }
-    ConstLayerNode layerNode() const override { return ConstLayerNode(&_layerNode); }
+    LayerNodeRef layerNode() override { return _layerNode; }
+    ConstLayerNodeRef layerNode() const override { return ConstLayerNodeRef(_layerNode); }
     
     QString name() const override { return _name; }
     void setName(QString name) override
@@ -100,7 +100,7 @@ signals:
     void skirtColorChanged(QColor skirtColor) override;
 private:
     IDocument& _document;
-    LayerNode& _layerNode;
+    LayerNodeRef _layerNode;
     
     QString _name;
     bool _passThroughMode = false;

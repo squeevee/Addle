@@ -635,6 +635,39 @@ NodeEvent TreeObserverData::finishRecording()
         // An empty event will not be counted toward the observer's history
         return NodeEvent();
 
+    _nodeRefMutex.lock();
+    
+    auto i = _nodeRefs.begin();
+    while (i != _nodeRefs.end())
+    {
+        bool isDeleted = false;
+        auto address = (*i).second->address();
+        auto mappedAddress = _recording.mapForward(address, SIZE_MAX, &isDeleted);
+        
+        if (!isDeleted && mappedAddress == address)
+        {
+            ++i;
+            continue;
+        }
+        
+        if (isDeleted)
+        {
+            (*i).second->markDeleted();
+            i = _nodeRefs.erase(i);
+        }
+        else
+        {
+            (*i).second->setAddress(mappedAddress);
+            
+            auto extract = _nodeRefs.extract(i);
+            extract.key() = mappedAddress;
+            
+            i = _nodeRefs.insert(std::move(extract));
+        }
+    }
+    
+    _nodeRefMutex.unlock();
+
     const QMutexLocker eventListLocker(&_eventListMutex);
     
     if (_current == _events.begin() && !(*_current).refCounter->count.loadRelaxed())
@@ -643,11 +676,11 @@ NodeEvent TreeObserverData::finishRecording()
         return std::move(_recording);
     
     const auto& result = ((*_current).event = std::move(_recording));
-           
+        
     _current = _events.emplace(_events.end());
     (*_current).refCounter = new EventEntryRefCounter;
     (*_current).refCounter->metaCount.ref();
-    
+
     return result;
 }
 
@@ -677,6 +710,31 @@ void TreeObserverData::releaseNodeEvent(node_event_iterator i)
         
         _events.erase(_events.begin(), i);
     }
+}
+
+void TreeObserverData::removeNodeRefData(const GenericNodeRefData* data)
+{
+    assert(data);
+    
+    const QMutexLocker lock(&_nodeRefMutex);
+    
+    if (data->isDeleted()) return;
+    
+    NodeAddress address = data->address();
+    const auto& type = data->type();
+    
+    auto i = _nodeRefs.lower_bound(address);
+    auto end = _nodeRefs.upper_bound(address);
+    for(; i != end; ++i)
+    {
+        if ((*i).second->type() == type)
+        {
+            _nodeRefs.erase(i);
+            return;
+        }
+    }
+    
+    Q_UNREACHABLE();
 }
 
 bool ObservedTreeState::next()

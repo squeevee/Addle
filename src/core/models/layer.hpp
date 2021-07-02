@@ -32,7 +32,7 @@ class ADDLE_CORE_EXPORT Layer : public QObject, public ILayer
 public:
     Layer(
             IDocument& document,  
-            LayerNode& layerNode,
+            LayerNodeRef layerNode,
             const LayerNodeBuilder& builder
         );
     virtual ~Layer() = default;
@@ -40,8 +40,8 @@ public:
     IDocument& document() override { return _document; }
     const IDocument& document() const override { return _document; }
     
-    const LayerNode& layerNode() override { return _layerNode; }
-    ConstLayerNode layerNode() const override { return ConstLayerNode(&_layerNode); }
+    LayerNodeRef layerNode() override { return _layerNode; }
+    ConstLayerNodeRef layerNode() const override { return ConstLayerNodeRef(_layerNode); }
     
     QRect boundary() const override { return _boundary; }
 
@@ -101,7 +101,7 @@ signals:
     
 private:
     IDocument& _document;
-    LayerNode& _layerNode;
+    LayerNodeRef _layerNode;
     
     QRect _boundary;
     

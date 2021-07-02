@@ -18,11 +18,11 @@ using namespace Addle;
 
 Layer::Layer(
         IDocument& document,  
-        LayerNode& layerNode,
+        LayerNodeRef layerNode,
         const LayerNodeBuilder& builder
     )
     : _document(document),
-    _layerNode(layerNode),
+    _layerNode(std::move(layerNode)),
     _boundary(builder.boundary()),
     _name(builder.name()),
     _skirtColor(builder.skirtColor()),

@@ -17,6 +17,9 @@
 
 #include "./observedtreeitemmodelhelperbase.hpp"
 
+class QItemSelection;
+class QItemSelectionModel;
+
 namespace Addle {
 
 // template<typename NodeType>
@@ -34,6 +37,7 @@ public:
     virtual ~DocumentLayersItemModel() = default;
 
     void setPresenter(PresenterAssignment<IDocumentPresenter> presenter);
+    void setSelectionModel(QItemSelectionModel* selectionModel);
     
     QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
     QModelIndex parent(const QModelIndex& index) const override;
@@ -44,9 +48,11 @@ public:
 
 private slots:
     void onPresenterLayerNodesChanged(DataTreeNodeEvent);
+    void onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
     
 private:
     PresenterAssignment<IDocumentPresenter> _presenter;
+    QItemSelectionModel* _selectionModel = nullptr;
     
     friend class ObservedTreeItemModelHelperBase<DocumentLayersItemModel, IDocumentPresenter::LayersTree>;
 };

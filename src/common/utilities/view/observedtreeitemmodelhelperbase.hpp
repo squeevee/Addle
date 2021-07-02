@@ -142,6 +142,8 @@ void ObservedTreeItemModelHelperBase<ItemModel, Tree>::unsetTree()
 template<class ItemModel, class Tree>
 QModelIndex ObservedTreeItemModelHelperBase<ItemModel, Tree>::index_impl(int row, const QModelIndex& parent) const
 {
+    if (!_root) return QModelIndex();
+    
     auto lock = _state.lockObserverForRead();
     
     CacheEntry* parentEntry = static_cast<CacheEntry*>(parent.internalPointer());
@@ -180,9 +182,13 @@ QModelIndex ObservedTreeItemModelHelperBase<ItemModel, Tree>::index_impl(int row
 template<class ItemModel, class Tree>
 QModelIndex ObservedTreeItemModelHelperBase<ItemModel, Tree>::parent_impl(const QModelIndex& index) const
 {
-    auto lock = _state.lockObserverForRead();
+    if (!_root) return QModelIndex();
     
     CacheEntry* entry = static_cast<CacheEntry*>(index.internalPointer());
+    
+    if (!entry) return QModelIndex();
+    
+    auto lock = _state.lockObserverForRead();
     
     DataTreeNodeAddress parentAddress = entry->address.parent();
     
@@ -228,6 +234,8 @@ QModelIndex ObservedTreeItemModelHelperBase<ItemModel, Tree>::parent_impl(const 
 template<class ItemModel, class Tree>
 bool ObservedTreeItemModelHelperBase<ItemModel, Tree>::hasChildren_impl(const QModelIndex& parent) const
 {
+    if (!_root) return false;
+    
     auto lock = _state.lockObserverForRead();
     
     CacheEntry* parentEntry = static_cast<CacheEntry*>(parent.internalPointer());
@@ -284,6 +292,8 @@ bool ObservedTreeItemModelHelperBase<ItemModel, Tree>::hasChildren_impl(const QM
 template<class ItemModel, class Tree>
 std::size_t ObservedTreeItemModelHelperBase<ItemModel, Tree>::rowCount_impl(const QModelIndex& parent) const
 {
+    if (!_root) return 0;
+    
     auto lock = _state.lockObserverForRead();
     
     CacheEntry* parentEntry = static_cast<CacheEntry*>(parent.internalPointer());

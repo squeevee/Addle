@@ -61,9 +61,8 @@ LayersManager::LayersManager(QWidget* parent)
     _view = new QTreeView();
     _view->setModel(_itemModel);
     mainLayout->addWidget(_view);
-
-    connect(_view->selectionModel(), &QItemSelectionModel::selectionChanged,
-        this, &LayersManager::viewSelectionChanged);
+    
+    _itemModel->setSelectionModel(_view->selectionModel());
 
     QBoxLayout* belowRow = new QBoxLayout(QBoxLayout::LeftToRight);
     mainLayout->addLayout(belowRow);
@@ -127,19 +126,6 @@ void LayersManager::setPresenter(PresenterAssignment<IDocumentPresenter> present
         widget()->setEnabled((bool)_presenter);
 }
 
-void LayersManager::viewSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected)
-{
-//     if(!_presenter) return;
-// 
-//     QSet<IDocumentPresenter::LayerNode*> newSelection;
-// 
-//     for (QModelIndex index : selected.indexes())
-//     {
-//         newSelection.insert(DocumentLayersItemModel::nodeAt(index));
-//     }
-// 
-//     _presenter->setLayerSelection(newSelection);
-}
 
 void LayersManager::presenterSelectionChanged()
 {

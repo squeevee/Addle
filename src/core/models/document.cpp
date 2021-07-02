@@ -38,12 +38,24 @@ Document::Document(
             _layers,
             aux_datatree::echo_default_node_value_tag {},
             [&] (auto adapterNodeHandle, LayerNode* node) {
-                if (aux_datatree::node_is_root(adapterNodeHandle))
-                    node->setValue(_layerGroupFactory.makeShared(*this, *node));
-                else if((*adapterNodeHandle).value().isGroup())
-                    node->setValue(_layerGroupFactory.makeShared(*this, *node, (*adapterNodeHandle).value()));
+                if (aux_datatree::node_is_root(adapterNodeHandle)) return;
+                
+                if((*adapterNodeHandle).value().isGroup())
+                {
+                    node->setValue(_layerGroupFactory.makeShared(
+                            *this, 
+                            node->nodeRef(), 
+                            (*adapterNodeHandle).value())
+                        );
+                }
                 else
-                    node->setValue(_layerFactory.makeShared(*this, *node, (*adapterNodeHandle).value()));
+                {
+                    node->setValue(_layerFactory.makeShared(
+                            *this, 
+                            node->nodeRef(), 
+                            (*adapterNodeHandle).value())
+                        );
+                }
             }
         );
     

@@ -38,7 +38,6 @@ public:
     void setPresenter(PresenterAssignment<IDocumentPresenter> presenter);
 
 private slots:
-    void viewSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
     void presenterSelectionChanged();
 
 private:

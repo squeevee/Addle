@@ -21,13 +21,13 @@ class LayerGroupPresenter
 public:
     LayerGroupPresenter(
             IDocumentPresenter& document, 
-            LayerNode& node,
+            LayerNodeRef node,
             QSharedPointer<ILayerGroup> model
         );
     ~LayerGroupPresenter() = default;
     
-    ConstLayerNode layerNode() const override { return ConstLayerNode(&_layerNode); }
-    const LayerNode& layerNode() override { return _layerNode; }
+    ConstLayerNodeRef layerNode() const override { return ConstLayerNodeRef(_layerNode); }
+    LayerNodeRef layerNode() override { return _layerNode; }
     
     IDocumentPresenter& document() override { return _document; }
     const IDocumentPresenter& document() const override { return _document; }
@@ -56,7 +56,7 @@ signals:
     
 private:
     IDocumentPresenter& _document;
-    LayerNode& _layerNode;
+    LayerNodeRef _layerNode;
     
     QSharedPointer<ILayerGroup> _model;
     

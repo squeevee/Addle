@@ -5,6 +5,17 @@ using namespace Addle::aux_datatree;
 AddleDataTree_NodeBase::~AddleDataTree_NodeBase() noexcept
 {
     using namespace boost::adaptors;
+    
+    if (Q_UNLIKELY(!_treeData)) return; // end sentinel
+    
+    if (_nodeRefData)
+    {
+        assert(_treeData);
+        
+        const QMutexLocker nodeRefLock(&_treeData->_nodeRefMutex);
+        _nodeRefData->_node.storeRelaxed(nullptr);
+    }
+    
     for (AddleDataTree_NodeBase* child : reverse(_children))
         delete child;
 }
@@ -42,6 +53,9 @@ struct nodebase_traverse_helper : AddleDataTree_NodeBase
 
 NodeAddress AddleDataTree_NodeBase::address_impl() const
 {
+    assert(_treeData);
+    const QMutexLocker lock(&_treeData->_cacheMutex);
+    
     auto find = _treeData->_addressCacheByNode.find(this);
     if (find != _treeData->_addressCacheByNode.end())
     {
@@ -76,6 +90,8 @@ NodeAddress AddleDataTree_NodeBase::address_impl() const
 
 const AddleDataTree_NodeBase* AddleDataTree_TreeDataBase::nodeAt(const NodeAddress& address) const
 {
+    const QMutexLocker lock(&_cacheMutex);
+    
     auto find = _addressCache.find(address);
     if (find != _addressCache.end())
     {
@@ -166,8 +182,37 @@ void AddleDataTree_NodeBase::reindexChildren(std::size_t startIndex)
         _end = nullptr;
 }
 
+void AddleDataTree_NodeBase::removeChildren_impl(inner_iterator_t begin, inner_iterator_t end)
+{
+    std::size_t deficit = 0;
+    for (auto i = begin; i != end; ++i)
+    {
+        deficit += 1 + (*i)->_descendantCount;
+    }
+    
+    AddleDataTree_NodeBase* cursor = this;
+    do
+    {
+        cursor->_descendantCount -= deficit;
+        cursor = cursor->_parent;
+    } while (cursor);
+
+    _treeData->invalidateAddressCache(*begin);
+    
+    {
+        auto&& rend = std::make_reverse_iterator(begin);
+        for (auto j = std::make_reverse_iterator(end); j != rend; ++j)
+            delete (*j);
+    }
+    
+    _children.erase(begin, end);
+    
+    reindexChildren(std::distance(_children.cbegin(), begin));
+}
+
 void AddleDataTree_TreeDataBase::invalidateAddressCache(const AddleDataTree_NodeBase* from) const
 {
+    const QMutexLocker lock(&_cacheMutex);
     if (_addressCache.empty()) return;
     
     DataTreeNodeAddress address;
@@ -206,3 +251,29 @@ void AddleDataTree_TreeDataBase::invalidateAddressCache(const AddleDataTree_Node
         _addressCacheQueue.erase(j);
     }
 }
+
+template<typename Node_>
+Node_* AddleDataTree_NodeBase::findEnd_impl(Node_* node)
+{
+    static_assert(
+        std::is_same_v<std::remove_const_t<Node_>, AddleDataTree_NodeBase>
+    );
+    
+    assert(node);
+    
+    Node_* parent;
+    while ((parent = node->_parent))
+    {
+        std::size_t nextIndex = node->_index + 1;
+        
+        if (parent->_children.size() > nextIndex)
+            return parent->_children[nextIndex];
+        
+        node = parent;
+    }
+    
+    return &(node->_treeData->_endSentinel);
+}
+
+template const AddleDataTree_NodeBase* AddleDataTree_NodeBase::findEnd_impl<const AddleDataTree_NodeBase>(const AddleDataTree_NodeBase*);
+template AddleDataTree_NodeBase* AddleDataTree_NodeBase::findEnd_impl<AddleDataTree_NodeBase>(AddleDataTree_NodeBase*);

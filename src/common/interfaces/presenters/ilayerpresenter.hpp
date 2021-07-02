@@ -49,10 +49,10 @@ ADDLE_DECL_FACTORY_PARAMETERS(
     ILayerPresenter,
     (required
         (document,  (IDocumentPresenter&))
-        (layerNode, (ILayerNodePresenter::LayerNode&))
+        (layerNode, (ILayerNodePresenter::LayerNodeRef))
     )
     (optional
-        (model,     (QSharedPointer<ILayer>),   nullptr)
+        (model,         (QSharedPointer<ILayer>),   nullptr)
         (modelBuilder,  (const LayerNodeBuilder&),  LayerNodeBuilder())
     )
 )

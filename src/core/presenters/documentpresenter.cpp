@@ -12,6 +12,9 @@
 #include "utilities/model/documentbuilder.hpp"
 
 #include "utils.hpp"
+#include "utilities/datatree/echo.hpp"
+
+#include "interfaces/models/ilayergroup.hpp"
 
 #include "interfaces/presenters/ilayerpresenter.hpp"
 #include "interfaces/presenters/ilayergrouppresenter.hpp"
@@ -34,40 +37,95 @@ DocumentPresenter::DocumentPresenter(
     _topSelectedLayer.onChange.bind(&DocumentPresenter::topSelectedLayerChanged, this);
     
     if (_model)
-    {
         defaultModel.clear();
-    }
     else
-    {
         _model = std::move(defaultModel.bind(modelBuilder)).asShared();
+
+    {
+        const auto lock = _model->layers().observer().lockForRead();
+        aux_datatree::echo_tree(
+                _model->layers(),
+                _layers,
+                aux_datatree::echo_default_node_value_tag {},
+                [&] (const IDocument::LayersTree::Node* modelNode, 
+                     LayersTree::Node* presenterNode) {
+                    if (modelNode->isRoot()) return;
+                    
+                    if (modelNode->isBranch())
+                    {
+                        presenterNode->setValue(_layerGroupFactory.makeShared(
+                                *this, 
+                                presenterNode->nodeRef(), 
+                                modelNode->value().staticCast<ILayerGroup>()
+                            ));
+                    }
+                    else
+                    {
+                        presenterNode->setValue(_layerFactory.makeShared(
+                                *this, 
+                                presenterNode->nodeRef(), 
+                                modelNode->value().staticCast<ILayer>()
+                            ));
+                    }
+                }
+            );
     }
-    
-//     datatree_echo(
-//             _model->layers(),
-//             _layers,
-//             aux_datatree::echo_default_make_leaf_tag {},
-//             aux_datatree::echo_default_make_branch_tag {},
-//             [&] (LayersTree::Node* layerNode, const IDocument::LayersTree::Node* layerModelNode) {
-//                 layerNode->setLeafValue(
-//                         _layerFactory.makeShared(
-//                             *this,
-//                             *layerNode,
-//                             layerModelNode->leafValue()
-//                         )
-//                     );
-//             },
-//             [&] (LayersTree::Node* layerNode, const IDocument::LayersTree::Node* layerModelNode) {
-//                 layerNode->setBranchValue(
-//                         _layerGroupFactory.makeShared(
-//                             *this,
-//                             *layerNode,
-//                             layerModelNode->branchValue()
-//                         )
-//                     );
-//             }
-//         );
 }
+
+void DocumentPresenter::setLayerSelection(QList<DataTreeNodeAddress> selection)
+{
+    QList<DataTreeNodeAddress> oldSelection;
     
+    if ( !std::is_sorted(selection.begin(), selection.end()) )
+        std::sort(_layerSelection.begin(), _layerSelection.end());
+    
+    if (selection != _layerSelection)
+    {
+        _layerSelection = selection;
+        emit layerSelectionChanged(_layerSelection);
+    }
+}
+
+void DocumentPresenter::addLayerSelection(QList<DataTreeNodeAddress> added)
+{
+    if (added.isEmpty())
+        return;
+    
+    if ( !std::is_sorted(added.cbegin(), added.cend()) )
+        std::sort(added.begin(), added.end());
+    
+    std::size_t oldSize = _layerSelection.size();
+    _layerSelection.append(added);
+    std::inplace_merge(
+            _layerSelection.begin(), 
+            _layerSelection.begin() + oldSize,
+            _layerSelection.end()
+        );
+    
+    emit layerSelectionChanged(_layerSelection);
+}
+
+void DocumentPresenter::subtractLayerSelection(QList<DataTreeNodeAddress> removed)
+{
+    if (removed.isEmpty())
+        return;
+    
+    if ( !std::is_sorted(removed.cbegin(), removed.cend()) )
+        std::sort(removed.begin(), removed.end());
+    
+    QList<DataTreeNodeAddress> selection;
+    selection.reserve(_layerSelection.size() - removed.size());
+    
+    std::set_difference(
+            _layerSelection.cbegin(), _layerSelection.cend(),
+            removed.cbegin(), removed.cend(),
+            std::back_inserter(selection)
+        );
+    
+    _layerSelection = selection;
+    emit layerSelectionChanged(_layerSelection);
+}
+
 void DocumentPresenter::save(QSharedPointer<FileRequest> request)
 {
 }
