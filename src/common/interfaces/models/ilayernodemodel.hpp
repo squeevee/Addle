@@ -11,18 +11,15 @@
 
 namespace Addle {
     
+class ILayer;
+class ILayerGroup;
+    
 class IDocument;
 class ILayerNodeModel : public virtual IAmQObject
 {
 public:
-    using LayersTree        = AddleDataTree<
-                                    QSharedPointer<ILayerNodeModel>,
-                                    true
-                                >;
-    using ConstLayersTree   = DataTreeCastView<
-                                    LayersTree, 
-                                    QSharedPointer<const ILayerNodeModel>
-                                >;
+    using LayersTree        = AddleDataTree<QSharedPointer<ILayerNodeModel>, aux_datatree::AddleDataTreeOptions_Observer>;
+    using ConstLayersTree   = DataTreeCastView<LayersTree, QSharedPointer<const ILayerNodeModel>>;
     
     using LayerNode         = typename LayersTree::Node;
     using ConstLayerNode    = typename ConstLayersTree::Node;

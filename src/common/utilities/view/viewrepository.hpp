@@ -86,7 +86,14 @@ public:
     {
     }
     
-    virtual ~ViewRepository() = default;
+    virtual ~ViewRepository()
+    {
+        for (auto view : _data)
+        {
+            if (view.isInitialized())
+                delete view.value();
+        }
+    }
     
     void add(presenter_t& presenter, view_t& view) override
     {

@@ -262,7 +262,6 @@ protected:
     }
 };
 
-
 template<
     class SourceTree,
     class DestTree,
@@ -279,25 +278,33 @@ class BFSTreeEchoImpl
     
     using node_value_getter_t = _echo_NodeValueGetter<SourceTree, DestTree, NodeValue>;
     using node_added_invoker_t = _echo_NodeAddedInvoker<SourceTree, DestTree, NodeAdded>;
+    
+    using dest_child_handle_t = child_node_handle_t<node_handle_t<DestTree>>;
 public:
     template<
         typename NodeValue_ = NodeValue,
         typename NodeAdded_ = NodeAdded
     >   
     BFSTreeEchoImpl(
-            const SourceTree& source,
-            DestTree&         dest,
-            NodeValue_&& nodeValue = {},
-            NodeAdded_&& nodeAdded = {}
+            const const_node_handle_t<SourceTree>& sourceCursor,
+            const node_handle_t<DestTree>& destCursor,
+            dest_child_handle_t destPos,
+            bool destRootMode,
+            NodeValue_&& nodeValue,
+            NodeAdded_&& nodeAdded
         )
         : _echo_NodeValueGetter<SourceTree, DestTree, NodeValue>( std::forward<NodeValue_>(nodeValue) ),
         _echo_NodeAddedInvoker<SourceTree, DestTree, NodeAdded>( std::forward<NodeAdded_>(nodeAdded) ),
-        _sourceCursor(::Addle::aux_datatree::tree_root(source)),
-        _destCursor(::Addle::aux_datatree::tree_root(dest))
+        _sourceCursor(sourceCursor),
+        _destCursor(destCursor),
+        _destPos(destPos),
+        _destRootMode(destRootMode)
     {
     }
 
     void run();
+    
+    NodeRange<DestTree> result() const { return NodeRange<DestTree>(_resultBegin, _resultEnd); }
     
 private:
     void enqueue()
@@ -318,6 +325,12 @@ private:
     const_node_handle_t<SourceTree> _sourceCursor;
     node_handle_t<DestTree> _destCursor;
     
+    dest_child_handle_t _destPos;
+    bool _destRootMode;
+    
+    node_handle_t<DestTree> _resultBegin = {};
+    node_handle_t<DestTree> _resultEnd = {};
+    
     struct SearchQueueEntry
     {
         child_node_handle_t<const_node_handle_t<SourceTree>> sourceChunkBegin;
@@ -333,46 +346,129 @@ void BFSTreeEchoImpl<SourceTree, DestTree, NodeValue, NodeAdded>::run()
 {
     assert(_sourceCursor && _destCursor);
     
-    static_cast<const node_added_invoker_t*>(this)
-        ->invoke(_sourceCursor, _destCursor);
-        
-    enqueue();
+    auto destRoot = _destCursor;
+    std::size_t destRootChildCount = aux_datatree::node_child_count(destRoot);
+    std::size_t destRootOffset;
     
-    // TODO: insert then invoke after add one by one for dest trees that don't 
-    // have a batch insert overload
-    
-    while (!_searchQueue.empty())
+    // TODO: generic implementation of this in aux
+    if constexpr (
+        aux_datatree::_handle_is_iterator_with_category<
+            dest_child_handle_t, 
+            std::forward_iterator_tag>::value
+        )
     {
-        const SearchQueueEntry& entry = _searchQueue.front();
-        
-        ::Addle::aux_datatree::node_insert_children(
-                entry.destParent,
-                ::Addle::aux_datatree::node_children_end(entry.destParent),
-                node_value_range_t(
-                    node_value_iter_t( entry.sourceChunkBegin, 
-                        static_cast<const node_value_getter_t*>(this) ),
-                    node_value_iter_t( entry.sourceChunkEnd )
-                )
-            );
-        
-        auto i = entry.sourceChunkBegin;
-        auto j = ::Addle::aux_datatree::node_children_begin(entry.destParent);
-        
-        while (i != entry.sourceChunkEnd)
+        destRootOffset = std::distance(aux_datatree::node_children_begin(destRoot), _destPos);
+    }
+    else
+    {
+        destRootOffset = 0;
+        auto i = aux_datatree::node_children_begin(destRoot);
+        for (; i != _destPos; aux_datatree::node_sibling_increment(i))
+            ++destRootOffset;
+    }
+    
+    assert(destRootOffset <= destRootChildCount);
+    
+    try
+    {
+        if (_destRootMode)
         {
-            _sourceCursor = static_cast<const_node_handle_t<SourceTree>>(i);
-            _destCursor = static_cast<node_handle_t<DestTree>>(j);
-            
             static_cast<const node_added_invoker_t*>(this)
                 ->invoke(_sourceCursor, _destCursor);
+        }
             
-            enqueue();
+        enqueue();
+        
+        while (!_searchQueue.empty())
+        {
+            const SearchQueueEntry& entry = _searchQueue.front();
+
+            auto i = entry.sourceChunkBegin;
+            auto j = ::Addle::aux_datatree::node_insert_children(
+                    entry.destParent,
+                    (entry.destParent == destRoot) ? _destPos 
+                        : aux_datatree::node_children_begin(entry.destParent),
+                    node_value_range_t(
+                        node_value_iter_t( entry.sourceChunkBegin, 
+                            static_cast<const node_value_getter_t*>(this) ),
+                        node_value_iter_t( entry.sourceChunkEnd )
+                    )
+                );
             
-            ::Addle::aux_datatree::node_sibling_increment(i);
-            ::Addle::aux_datatree::node_sibling_increment(j);
+            while (i != entry.sourceChunkEnd)
+            {
+                _sourceCursor = static_cast<const_node_handle_t<SourceTree>>(i);
+                _destCursor = static_cast<node_handle_t<DestTree>>(j);
+                
+                static_cast<const node_added_invoker_t*>(this)
+                    ->invoke(_sourceCursor, _destCursor);
+                
+                enqueue();
+                
+                ::Addle::aux_datatree::node_sibling_increment(i);
+                ::Addle::aux_datatree::node_sibling_increment(j);
+            }
+            
+            _searchQueue.pop_front();
+        }
+    }
+    catch(...)
+    {
+        
+        std::size_t destRootChildCountDiff = aux_datatree::node_child_count(destRoot) - destRootChildCount;
+        
+        dest_child_handle_t removeBegin = aux_datatree::node_children_begin(destRoot);
+        dest_child_handle_t removeEnd = removeBegin;
+        
+        if constexpr (aux_datatree::_handle_is_iterator_with_category<
+                dest_child_handle_t, std::forward_iterator_tag>::value)
+        {
+            std::advance(removeBegin, destRootOffset);
+            std::advance(removeEnd, destRootOffset + destRootChildCountDiff);
+        }
+        else
+        {
+            for (std::size_t i = 0; i < destRootOffset; ++i)
+                aux_datatree::node_sibling_increment(removeBegin);
+            
+            for (std::size_t i = 0; i < destRootOffset + destRootChildCountDiff; ++i)
+                aux_datatree::node_sibling_increment(removeEnd);
         }
         
-        _searchQueue.pop_front();
+        aux_datatree::node_remove_children(destRoot, removeBegin, removeEnd);
+        
+        throw;
+    }
+    
+    if (_destRootMode)
+    {
+        _resultBegin = destRoot;
+        _resultEnd = aux_datatree::node_dfs_end(destRoot);
+    }
+    else
+    {
+        std::size_t destRootChildCountDiff = aux_datatree::node_child_count(destRoot) - destRootChildCount;
+        
+        auto begin = aux_datatree::node_children_begin(destRoot);
+        auto end = aux_datatree::node_children_begin(destRoot);
+        
+        if constexpr (aux_datatree::_handle_is_iterator_with_category<
+                dest_child_handle_t, std::forward_iterator_tag>::value)
+        {
+            std::advance(begin, destRootOffset);
+            std::advance(end, destRootOffset + destRootChildCountDiff);
+        }
+        else
+        {
+            for (std::size_t i = 0; i < destRootOffset; ++i)
+                aux_datatree::node_sibling_increment(begin);
+            
+            for (std::size_t i = 0; i < destRootOffset + destRootChildCountDiff; ++i)
+                aux_datatree::node_sibling_increment(end);
+        }
+        
+        _resultBegin = static_cast<node_handle_t<DestTree>>(begin);
+        _resultEnd = static_cast<node_handle_t<DestTree>>(end);
     }
 }
 
@@ -389,33 +485,56 @@ void echo_tree(
     NodeAdded&& nodeAdded = {}
 )
 {
+    auto sourceRoot = aux_datatree::tree_root(source);
+    auto destRoot = aux_datatree::tree_root(dest);
+    
     BFSTreeEchoImpl<
         SourceTree, 
         DestTree, 
         boost::remove_cv_ref_t<NodeValue>,
         boost::remove_cv_ref_t<NodeAdded>
     > impl(
-        source,
-        dest,
+        sourceRoot,
+        destRoot,
+        aux_datatree::node_children_begin(destRoot),
+        true,
         std::forward<NodeValue>(nodeValue),
         std::forward<NodeAdded>(nodeAdded)
     );
     
-    try
-    {
-        impl.run();
-    }
-    catch(...)
-    {
-        auto destRoot = aux_datatree::tree_root(dest);
-        aux_datatree::node_remove_children(
-                destRoot,
-                aux_datatree::node_children_begin(destRoot),
-                aux_datatree::node_children_end(destRoot)
-            );
-        
-        throw;
-    }
+    impl.run();
+}
+
+template<
+    class SourceTree,
+    class DestTree,
+    typename NodeValue = echo_default_node_value_tag,
+    typename NodeAdded = echo_default_node_added_tag
+>
+NodeRange<DestTree> echo_subtree(
+    const aux_datatree::const_node_handle_t<SourceTree>& sourceNode, 
+    const aux_datatree::node_handle_t<DestTree>& destNode,
+    aux_datatree::child_node_handle_t<aux_datatree::node_handle_t<DestTree>> pos,
+    NodeValue&& nodeValue = {},
+    NodeAdded&& nodeAdded = {}
+)
+{
+    BFSTreeEchoImpl<
+        SourceTree, 
+        DestTree, 
+        boost::remove_cv_ref_t<NodeValue>,
+        boost::remove_cv_ref_t<NodeAdded>
+    > impl(
+        sourceNode,
+        destNode,
+        pos,
+        false,
+        std::forward<NodeValue>(nodeValue),
+        std::forward<NodeAdded>(nodeAdded)
+    );
+    
+    impl.run();
+    return impl.result();
 }
 
 } // namespace Addle::aux_datatree 

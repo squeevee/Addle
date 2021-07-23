@@ -27,8 +27,6 @@
 #include <boost/mp11.hpp>
 #include <boost/type_traits.hpp>
 
-// #include <QtDebug>
-
 #include "./aux.hpp"
 #include "./observer.hpp"
 #include "utilities/metaprogramming.hpp"
@@ -40,10 +38,21 @@ class DataTree_UTest;
 
 namespace Addle {
 namespace aux_datatree {
-    
-class AddleDataTree_NodeRefData;
+
+class AddleDataTree_NodeBase;
 class AddleDataTree_TreeDataBase;
     
+struct AddleDataTree_NodeRefData
+{
+    QAtomicPointer<AddleDataTree_NodeBase> node;
+    QAtomicInteger<unsigned> refCount;
+    
+    QSharedPointer<TreeObserverData> treeObserverData;
+    
+    friend class AddleDataTree_NodeBase;
+    template<class, bool> friend class NodeRef;
+};
+
 class AddleDataTree_NodeBase
 {
 public:
@@ -59,13 +68,23 @@ protected:
     void reindexChildren(std::size_t startIndex = 0);
     void removeChildren_impl(inner_iterator_t begin, inner_iterator_t end);
     
-    const AddleDataTree_NodeBase* findEnd() const { return findEnd_impl(this); }
-    AddleDataTree_NodeBase* findEnd() { return findEnd_impl(this); }
+    const AddleDataTree_NodeBase* findEnd() const { return findEnd_impl<true>(this); }
+    AddleDataTree_NodeBase* findEnd() { return findEnd_impl<false>(this); }
     
-    template<typename Node_> static Node_* findEnd_impl(Node_*);
-    // explicitly defined in addletree.cpp for const and non-const 
-    // AddleDataTree_NodeBase
-        
+    template<bool IsConst>
+    using _ptr_t = boost::mp11::mp_if_c<
+            IsConst, 
+            const AddleDataTree_NodeBase*, 
+            AddleDataTree_NodeBase*
+        >;
+    
+    template<bool IsConst> 
+    static _ptr_t<IsConst> findEnd_impl(_ptr_t<IsConst>);
+    
+    [[noreturn]] void throw_childOutOfRange(std::size_t index) const;
+    [[noreturn]] void throw_insertPosOutOfRange(std::size_t pos) const;
+    [[noreturn]] void throw_removeIndicesOutOfRange(std::size_t pos, std::size_t count) const;
+    
     inner_child_container_t _children;
     
     AddleDataTree_NodeBase* _parent = nullptr;
@@ -79,7 +98,9 @@ protected:
     
     AddleDataTree_TreeDataBase* _treeData = nullptr;
     
-    mutable AddleDataTree_NodeRefData* _nodeRefData = nullptr;
+    AddleDataTree_NodeRefData* _nodeRefData = nullptr;
+    
+    ValencyHint _valencyHint = ValencyHint_Unset;
     
     friend class AddleDataTree_TreeDataBase;
 #ifdef ADDLE_TEST
@@ -100,11 +121,14 @@ protected:
         _root->_end = &_endSentinel;
         
         _endSentinel._prev = _root.get();
+        _endSentinel._nodeRefData = nullptr;
     }
     
     using inner_node_iterator_t = AddleDataTree_NodeBase::inner_iterator_t;
     
-    const AddleDataTree_NodeBase* nodeAt(const NodeAddress& address) const;
+    template<bool Throws>
+    const AddleDataTree_NodeBase* nodeAt(const NodeAddress& address) const noexcept(!Throws);
+    
     void invalidateAddressCache(const AddleDataTree_NodeBase* from) const;
         
     void updateMaxCacheAddressSize()
@@ -132,7 +156,6 @@ protected:
         }
     }
     
-    
     std::unique_ptr<AddleDataTree_NodeBase> _root;
     AddleDataTree_NodeBase _endSentinel;
     
@@ -155,13 +178,14 @@ protected:
     
     mutable QMutex _cacheMutex;
     
-    mutable QMutex _nodeRefMutex;
-    
     friend class AddleDataTree_NodeBase;
 #ifdef ADDLE_TEST
     friend class DataTree_UTest;
 #endif
 };
+
+extern template const AddleDataTree_NodeBase* AddleDataTree_TreeDataBase::nodeAt<true>(const NodeAddress&) const;
+extern template const AddleDataTree_NodeBase* AddleDataTree_TreeDataBase::nodeAt<false>(const NodeAddress&) const noexcept;
 
 template<class AddleDataTree_>
 class AddleDataTree_TreeDataWithObserverBase
@@ -169,11 +193,14 @@ class AddleDataTree_TreeDataWithObserverBase
     using observer_t = TreeObserver<AddleDataTree_>;
     
 protected:
-    // initialization logic that needs to be called in AddleDataTree constructor
+    // observer must be initialized with a reference to the tree, so this must
+    // be called from inside the *tree* constructor
     inline void initializeObserver(AddleDataTree_& tree)
     {
         new (&_observerStorage) observer_t(tree);
     }
+    
+    AddleDataTree_TreeDataWithObserverBase() = default;
     
     inline ~AddleDataTree_TreeDataWithObserverBase()
     {
@@ -206,63 +233,98 @@ public:
     {
         return static_cast<const data_t&>(*static_cast<const AddleDataTree_*>(this)->_data).observer();
     }
+    
+    std::unique_ptr<QReadLocker> lockForRead() const { return observer().lockForRead(); }
+    std::unique_ptr<QWriteLocker> lockForWrite() const { return observer().lockForWrite(); }
 };
 
-class _nil_addledatatree_withobserver_base {};
-
-class AddleDataTree_NodeRefData
+class ValencyHintViolationError : std::logic_error
 {
-    QSharedPointer<TreeObserverData> _treeObserverData;
+public:
+    enum Why
+    {
+        // Indicates an inappropriate attempt to add children to a node with the
+        // leaf valency hint, or to set a node that already had children to the
+        // leaf valency hint.
+        ChildrenInLeaf,
+        
+        // Indicates an inappropriate value for a node's valency hint. E.g., a 
+        // tree's value type may be a pointer to a polymorphic base type, for
+        // which branches and leaves are expected to dynamically be particular
+        // derived classes.
+        // This option is available for users when verifying trees, it is not
+        // enforced by AddleDataTree.
+        InappropriateValue
+    };
     
-    QAtomicInteger<unsigned> _refCount;
-    QAtomicPointer<AddleDataTree_NodeBase> _node;
+    ValencyHintViolationError(
+            Why why,
+            ValencyHint valencyHint = ValencyHint_Unset,
+            NodeAddress address = {}
+        );
     
-    friend class AddleDataTree_NodeBase;
-    template<class, bool> friend class NodeRef;
+    virtual ~ValencyHintViolationError() = default;
+    
+    Why why() const { return _why; }
+    ValencyHint valencyHint() const { return _valencyHint; }
+    NodeAddress address() const { return _address; }
+    
+private:
+    Why _why;
+    ValencyHint _valencyHint;
+    NodeAddress _address;
 };
+
+enum AddleDataTreeOptions : unsigned
+{
+    AddleDataTreeOptions_Null         = 0x00,
+    AddleDataTreeOptions_Observer     = 0x01
+};
+
+Q_DECLARE_FLAGS(AddleDataTreeOptionFlags, AddleDataTreeOptions)
+Q_DECLARE_OPERATORS_FOR_FLAGS(AddleDataTreeOptionFlags)
 
 } // namespace aux_datatree
  
-template<typename T, bool HasObserver = false>
+template<typename T, unsigned OptionFlags = 0>
 class AddleDataTree 
-    : public boost::mp11::mp_if_c<
-        HasObserver,
-        aux_datatree::AddleDataTree_WithObserverBase<AddleDataTree<T, HasObserver>>,
-        aux_datatree::_nil_addledatatree_withobserver_base
+    : public boost::mp11::mp_apply<
+        boost::mp11::mp_inherit,
+        mp_build_list<
+            boost::mp11::mp_bool<static_cast<bool>(OptionFlags & aux_datatree::AddleDataTreeOptions_Observer)>,
+                aux_datatree::AddleDataTree_WithObserverBase<AddleDataTree<T, OptionFlags>>
+        >
     >
 {
     struct Data;
-    
-    struct _nil_locker {};
-    using read_locker_t = boost::mp11::mp_if_c<HasObserver, std::unique_ptr<QReadLocker>, _nil_locker>;
-    using write_locker_t = boost::mp11::mp_if_c<HasObserver, std::unique_ptr<QWriteLocker>, _nil_locker>;
-    
 public:
+    static constexpr bool HasObserver = static_cast<bool>(OptionFlags & aux_datatree::AddleDataTreeOptions_Observer);
+    
     class Node : private aux_datatree::AddleDataTree_NodeBase
     {
     public:
         using value_type        = Node;
         using reference         = Node&;
         using const_reference   = const Node&;
-        using iterator          = aux_datatree::NodeIterator<AddleDataTree<T, HasObserver>>;
-        using const_iterator    = aux_datatree::ConstNodeIterator<AddleDataTree<T, HasObserver>>;
+        using iterator          = aux_datatree::NodeIterator<AddleDataTree<T, OptionFlags>>;
+        using const_iterator    = aux_datatree::ConstNodeIterator<AddleDataTree<T, OptionFlags>>;
         using difference_type   = std::ptrdiff_t;
         using size_type         = std::size_t;
         
-        using child_iterator        = aux_datatree::ChildNodeIterator<AddleDataTree<T, HasObserver>>;
-        using const_child_iterator  = aux_datatree::ConstChildNodeIterator<AddleDataTree<T, HasObserver>>;
+        using child_iterator        = aux_datatree::ChildNodeIterator<AddleDataTree<T, OptionFlags>>;
+        using const_child_iterator  = aux_datatree::ConstChildNodeIterator<AddleDataTree<T, OptionFlags>>;
         
-        using child_range       = aux_datatree::ChildNodeRange<AddleDataTree<T, HasObserver>>;
-        using const_child_range = aux_datatree::ConstChildNodeRange<AddleDataTree<T, HasObserver>>;
+        using child_range       = aux_datatree::ChildNodeRange<AddleDataTree<T, OptionFlags>>;
+        using const_child_range = aux_datatree::ConstChildNodeRange<AddleDataTree<T, OptionFlags>>;
         
-        using descendant_range          = aux_datatree::NodeRange<AddleDataTree<T, HasObserver>>;
-        using const_descendant_range    = aux_datatree::ConstNodeRange<AddleDataTree<T, HasObserver>>;
+        using descendant_range          = aux_datatree::NodeRange<AddleDataTree<T, OptionFlags>>;
+        using const_descendant_range    = aux_datatree::ConstNodeRange<AddleDataTree<T, OptionFlags>>;
         
-        using ancestor_range        = aux_datatree::AncestorNodeRange<AddleDataTree<T, HasObserver>>;
-        using const_ancestor_range  = aux_datatree::ConstAncestorNodeRange<AddleDataTree<T, HasObserver>>;
+        using ancestor_range        = aux_datatree::AncestorNodeRange<AddleDataTree<T, OptionFlags>>;
+        using const_ancestor_range  = aux_datatree::ConstAncestorNodeRange<AddleDataTree<T, OptionFlags>>;
         
-        using node_ref_t        = aux_datatree::NodeRef<AddleDataTree<T, HasObserver>, false>;
-        using const_node_ref_t  = aux_datatree::NodeRef<AddleDataTree<T, HasObserver>, true>;
+        using node_ref_t        = aux_datatree::NodeRef<AddleDataTree<T, OptionFlags>, false>;
+        using const_node_ref_t  = aux_datatree::NodeRef<AddleDataTree<T, OptionFlags>, true>;
         
         Node(const Node&)               = delete;
         Node(Node&&)                    = delete;
@@ -272,220 +334,96 @@ public:
         
         virtual ~Node() noexcept = default;
         
-        inline const Node* parent() const
-        { 
-            const auto lock = static_cast<const Data*>(_treeData)->lockForRead();
-            Q_UNUSED(lock);
-            return static_cast<const Node*>(_parent); 
-        }
+        inline const Node* parent() const { return static_cast<const Node*>(_parent); }
+        inline Node* parent() { return static_cast<Node*>(_parent); }
         
-        inline Node* parent()
-        { 
-            const auto lock = static_cast<const Data*>(_treeData)->lockForRead();
-            Q_UNUSED(lock);
-            return static_cast<Node*>(_parent); 
-        }
+        inline std::size_t depth() const { return _depth; }
+        inline std::size_t index() const { return _index; }
+        DataTreeNodeAddress address() const { return this->address_impl(); }
         
-        inline std::size_t depth() const 
-        { 
-            const auto lock = static_cast<const Data*>(_treeData)->lockForRead();
-            Q_UNUSED(lock);
-            return _depth; 
-        }
+        Node& root() { return static_cast<Node&>(*static_cast<Data*>(_treeData)->_root); }
         
-        inline std::size_t index() const
-        { 
-            const auto lock = static_cast<const Data*>(_treeData)->lockForRead();
-            Q_UNUSED(lock);
-            return _index; 
-        }
+        const Node& root() const { return static_cast<const Node&>(*static_cast<Data*>(_treeData)->_root); }
         
-        DataTreeNodeAddress address() const
-        { 
-            const auto lock = static_cast<const Data*>(_treeData)->lockForRead();
-            Q_UNUSED(lock);
-            return this->address_impl(); 
-        }
-        
-        Node& root()
-        {
-            const auto lock = static_cast<const Data*>(_treeData)->lockForRead();
-            Q_UNUSED(lock);
-            return static_cast<Node&>(*static_cast<Data*>(_treeData)->_root); 
-        }
-        
-        const Node& root() const 
-        { 
-            const auto lock = static_cast<const Data*>(_treeData)->lockForRead();
-            Q_UNUSED(lock);
-            return static_cast<const Node&>(*static_cast<Data*>(_treeData)->_root); 
-        }
-        
-        inline iterator begin()
-        { 
-            const auto lock = static_cast<const Data*>(_treeData)->lockForRead();
-            Q_UNUSED(lock);
-            return iterator(this); 
-        }
-        
-        inline const_iterator begin() const
-        { 
-            const auto lock = static_cast<const Data*>(_treeData)->lockForRead();
-            Q_UNUSED(lock);
-            return const_iterator(this); 
-        }
-        
+        inline iterator begin() { return iterator(this); }
+        inline const_iterator begin() const { return const_iterator(this);  }
         inline const_iterator cbegin() const { return begin(); }
         
         inline iterator end()
         {
-            const auto lock = static_cast<const Data*>(_treeData)->lockForRead();
-            Q_UNUSED(lock);
             return iterator(static_cast<Node*>(
                     Q_LIKELY(_end) ? _end : findEnd()
                 ));
         }
         inline const_iterator end() const
         { 
-            const auto lock = static_cast<const Data*>(_treeData)->lockForRead();
-            Q_UNUSED(lock);
             return const_iterator(static_cast<const Node*>(
                     Q_LIKELY(_end) ? _end : findEnd()
                 ));
         }
         inline const_iterator cend() const { return end(); }
         
-        inline std::size_t size() const
-        { 
-            const auto lock = static_cast<const Data*>(_treeData)->lockForRead();
-            Q_UNUSED(lock);
-            return _descendantCount + 1; 
-        }
+        inline std::size_t size() const { return _descendantCount + 1; }
         
-        inline bool isLeaf() const
-        { 
-            const auto lock = static_cast<const Data*>(_treeData)->lockForRead();
-            Q_UNUSED(lock);
-            return _children.empty(); 
-        }
+        inline bool isRoot() const { return static_cast<const Data*>(_treeData)->_root.get() == this; }
         
-        inline bool isBranch() const 
-        { 
-            const auto lock = static_cast<const Data*>(_treeData)->lockForRead();
-            Q_UNUSED(lock);
-            return !_children.empty(); 
-        }
-
-        inline bool isRoot() const 
-        { 
-            const auto lock = static_cast<const Data*>(_treeData)->lockForRead();
-            Q_UNUSED(lock);
-            return static_cast<const Data*>(_treeData)->_root.get() == this;
-        }
+        inline const T& value() const & { return _value; }
+        inline T& value() & { return _value; }
+        inline T&& value() && { return std::move(_value); }
         
-        inline const T& value() const &
-        { 
-            const auto lock = static_cast<const Data*>(_treeData)->lockForRead();
-            Q_UNUSED(lock);
-            return _value; 
-        }
-        
-        inline T& value() & 
-        { 
-            const auto lock = static_cast<const Data*>(_treeData)->lockForWrite();
-            Q_UNUSED(lock);
-            return _value; 
-        }
-        
-        inline T&& value() && 
-        { 
-            const auto lock = static_cast<const Data*>(_treeData)->lockForWrite();
-            Q_UNUSED(lock);
-            return std::move(_value); 
-        }
-        
-        template<typename U>
+        template<typename U = T>
         inline void setValue(U&& value)
         {
-            const auto lock = static_cast<const Data*>(_treeData)->lockForWrite();
-            Q_UNUSED(lock);
             _value = std::forward<U>(value);
         }
         
-        template<typename U>
+        template<typename U = T>
         inline Node& operator= (U&& value)
         {
             setValue(std::forward<U>(value));
             return *this;
         }
         
-        inline operator const T& () const
-        { 
-            const auto lock = static_cast<const Data*>(_treeData)->lockForRead();
-            Q_UNUSED(lock);
-            return _value; 
-        }
+        inline operator const T& () const { return _value; }
+        inline operator T& () & { return _value; }
+        inline operator T&& () && { return std::move(_value); }
         
-        inline operator T& () &
-        { 
-            const auto lock = static_cast<const Data*>(_treeData)->lockForWrite();
-            Q_UNUSED(lock);
-            return _value; 
-        }
-        
-        inline operator T&& () &&
-        { 
-            const auto lock = static_cast<const Data*>(_treeData)->lockForWrite();
-            Q_UNUSED(lock);
-            return std::move(_value); 
-        }
-        
-        inline std::size_t childCount() const
-        { 
-            const auto lock = static_cast<const Data*>(_treeData)->lockForRead();
-            Q_UNUSED(lock);
-            return _children.size(); 
-        }
+        inline bool hasChildren() const { return !_children.empty(); }
+        inline std::size_t childCount() const { return _children.size(); }
         
         inline child_range children() 
         { 
-            const auto lock = static_cast<const Data*>(_treeData)->lockForRead();
-            Q_UNUSED(lock);
             return child_range(_children.begin(), _children.end());
         }
         
         inline const_child_range children() const 
         { 
-            const auto lock = static_cast<const Data*>(_treeData)->lockForRead();
-            Q_UNUSED(lock);
             return const_child_range(_children.begin(), _children.end());
         }
                 
         inline Node& childAt(std::size_t index)
         {
-            const auto lock = static_cast<const Data*>(_treeData)->lockForRead();
-            Q_UNUSED(lock);
-            assert(_children.size() > index); // TODO: exception
+            if (Q_UNLIKELY(index >= _children.size()))
+                throw_childOutOfRange(index);
                 
-            return *(_children[index]);
+            return *(static_cast<Node*>(_children[index]));
         }
         
         inline const Node& childAt(std::size_t index) const
         {
-            const auto lock = static_cast<const Data*>(_treeData)->lockForRead();
-            Q_UNUSED(lock);
-            assert(_children.size() > index); // TODO: exception
+            if (Q_UNLIKELY(index >= _children.size()))
+                throw_childOutOfRange(index);
+                
             
-            return *(_children[index]);
+            return *(static_cast<const Node*>(_children[index]));
         }
         
         inline Node& descendantAt(DataTreeNodeAddress address)
         {
-            const auto lock = static_cast<const Data*>(_treeData)->lockForRead();
-            Q_UNUSED(lock);
-            if (!_parent)
+            if (isRoot())
             {
-                auto node = static_cast<Data*>(_treeData)->nodeAt(address);
+                auto node = static_cast<Data*>(_treeData)
+                    ->template nodeAt<true>(address);
                 return *const_cast<Node*>(static_cast<const Node*>(node));
             }
             else
@@ -499,21 +437,11 @@ public:
         
         inline const Node& descendantAt(DataTreeNodeAddress address) const
         {
-            const auto lock = static_cast<const Data*>(_treeData)->lockForRead();
-            Q_UNUSED(lock);
-            if (!_parent)
-            {
-                return *static_cast<const Node*>(
-                        static_cast<Data*>(_treeData)->nodeAt(address)                    
-                    );
-            }
-            else
-            {
-                return *::Addle::aux_datatree::node_lookup_address(
-                        this,
-                        address
-                    );
-            }
+            address = this->address() + std::move(address);
+            
+            return *static_cast<const Node*>(
+                    static_cast<Data*>(_treeData)->nodeAt(address)                    
+                );
         }
         
         inline Node& operator[](std::size_t index)
@@ -528,8 +456,6 @@ public:
         
         inline descendant_range descendants()
         {
-            const auto lock = static_cast<const Data*>(_treeData)->lockForRead();
-            Q_UNUSED(lock);
             if (!_children.empty())
             {
                 return descendant_range(_children.front(), _end);
@@ -542,8 +468,6 @@ public:
         
         inline const_descendant_range descendants() const
         {
-            const auto lock = static_cast<const Data*>(_treeData)->lockForRead();
-            Q_UNUSED(lock);
             if (!_children.empty())
             {
                 return descendant_range(_children.front(), _end);
@@ -556,110 +480,60 @@ public:
         
         inline ancestor_range ancestors()
         { 
-            const auto lock = static_cast<const Data*>(_treeData)->lockForRead();
-            Q_UNUSED(lock);
             return ancestor_range( _parent, (Node*) nullptr ); 
         }
         
         inline const_ancestor_range ancestors() const 
         { 
-            const auto lock = static_cast<const Data*>(_treeData)->lockForRead();
-            Q_UNUSED(lock);
             return const_ancestor_range( (const Node*) _parent, (const Node*) nullptr ); 
         }
         
         inline ancestor_range ancestorsAndSelf() 
         { 
-            const auto lock = static_cast<const Data*>(_treeData)->lockForRead();
-            Q_UNUSED(lock);
             return ancestor_range( this, (Node*) nullptr );
         }
         
         inline const_ancestor_range ancestorsAndSelf() const
         { 
-            const auto lock = static_cast<const Data*>(_treeData)->lockForRead();
-            Q_UNUSED(lock);
             return const_ancestor_range( this, (const Node*) nullptr ); 
         }
-        
-//         inline leaf_range leaves()
-//         { 
-//             using leaf_iterator_t = typename leaf_range::iterator;
-//             return leaf_range(
-//                     leaf_iterator_t ( this, _end ), leaf_iterator_t ( _end, _end )
-//                 );
-//         }
-//         
-//         inline const_leaf_range leaves() const
-//         { 
-//             using leaf_iterator_t = typename const_leaf_range::iterator;
-//             return const_leaf_range(
-//                     leaf_iterator_t ( this, _end ), leaf_iterator_t ( _end, _end )
-//                 );
-//         }
-//         
-//         
-//         inline branch_range branches()
-//         { 
-//             using branch_iterator_t = typename branch_range::iterator;
-//             return branch_range(
-//                     branch_iterator_t ( this, _end ), branch_iterator_t ( _end, _end )
-//                 );
-//         }
-//         
-//         inline const_branch_range branches() const
-//         { 
-//             using branch_iterator_t = typename const_branch_range::iterator;
-//             return const_branch_range(
-//                     branch_iterator_t ( this, _end ), branch_iterator_t ( _end, _end )
-//                 );
-//         }
-        
+
         template<typename U = T>
         inline Node& appendChild(U&& branchValue = {})
         {
-            const auto lock = static_cast<const Data*>(_treeData)->lockForWrite();
-            Q_UNUSED(lock);
             return *appendChild_impl(std::forward<U>(branchValue));
         }
 
         template<typename U = T>
-        inline child_iterator insertChild(const_child_iterator pos, U&& branchValue = {})
+        inline Node& insertChild(const_child_iterator pos, U&& branchValue = {})
         {
-            const auto lock = static_cast<const Data*>(_treeData)->lockForWrite();
-            Q_UNUSED(lock);
-            return insertChild_impl(pos, std::forward<U>(branchValue));
+            return *insertChild_impl(pos, std::forward<U>(branchValue));
         }
     
         template<typename U = T>
         inline Node& insertChild(std::size_t pos, U&& branchValue = {})
         {
-            const auto lock = static_cast<const Data*>(_treeData)->lockForWrite();
-            Q_UNUSED(lock);
-            return *insertChild_impl(_children.begin() + pos, std::forward<U>(branchValue));
+            if (Q_UNLIKELY(pos > _children.size()))
+                throw_insertPosOutOfRange(pos);
+            
+            return *insertChild_impl(const_child_iterator(_children.begin() + pos), std::forward<U>(branchValue));
         }
         
         template<typename Range>
         inline child_range appendChildren(Range&& childValues)
         {
-            const auto lock = static_cast<const Data*>(_treeData)->lockForWrite();
-            Q_UNUSED(lock);
             return appendChildren_impl(std::forward<Range>(childValues));
         }
         
         template<typename U>
         inline child_range appendChildren(const std::initializer_list<U>& childValues)
         {
-            const auto lock = static_cast<const Data*>(_treeData)->lockForWrite();
-            Q_UNUSED(lock);
             return appendChildren_impl(childValues);
         }
         
         template<typename Range>
         inline child_range insertChildren(const_child_iterator pos, Range&& childValues)
         {
-            const auto lock = static_cast<const Data*>(_treeData)->lockForWrite();
-            Q_UNUSED(lock);
             return insertChildren_impl(
                     pos,
                     std::forward<Range>(childValues)
@@ -669,8 +543,9 @@ public:
         template<typename Range>
         inline child_range insertChildren(std::size_t pos, Range&& childValues)
         {
-            const auto lock = static_cast<const Data*>(_treeData)->lockForWrite();
-            Q_UNUSED(lock);
+            if (Q_UNLIKELY(pos > _children.size()))
+                throw_insertPosOutOfRange(pos);
+            
             return insertChildren_impl(
                     _children.begin() + pos,
                     std::forward<Range>(childValues)
@@ -680,8 +555,6 @@ public:
         template<typename U>
         inline child_range insertChildren(const_child_iterator pos, const std::initializer_list<U>& childValues)
         {
-            const auto lock = static_cast<const Data*>(_treeData)->lockForWrite();
-            Q_UNUSED(lock);
             return insertChildren_impl(
                     pos,
                     childValues
@@ -691,25 +564,30 @@ public:
         template<typename U>
         inline child_range insertChildren(std::size_t pos, const std::initializer_list<U>& childValues)
         {
-            const auto lock = static_cast<const Data*>(_treeData)->lockForWrite();
-            Q_UNUSED(lock);
+            if (Q_UNLIKELY(pos > _children.size()))
+                throw_insertPosOutOfRange(pos);
+            
             return insertChildren_impl(
                     _children.begin() + pos,
                     childValues
                 );
         }
+        
+        // it's an uncommon case, probably better to use a repeat range
+//         inline child_range insertChildrenCount(std::size_t pos, std::size_t count)
+//         {
+//             return insertChildrenCount_impl(pos, count);
+//         }
 
         child_iterator removeChildren(child_range children)
         {
-            const auto lock = static_cast<const Data*>(_treeData)->lockForWrite();
-            Q_UNUSED(lock);
             return removeChildren_p(children);
         }
         
         void removeChildren(std::size_t pos, std::size_t count)
         {
-            const auto lock = static_cast<const Data*>(_treeData)->lockForWrite();
-            Q_UNUSED(lock);
+            if (Q_UNLIKELY(pos + count > _children.size()))
+                throw_removeIndicesOutOfRange(pos, count);
             
             auto&& begin    = _children.begin() + pos;
             auto&& end      = _children.begin() + pos + count;
@@ -720,43 +598,56 @@ public:
                         begin, 
                         end 
                     )
-                );  
+                );
         }
         
         void removeDescendant(DataTreeNodeAddress address)
         {
-            const auto lock = static_cast<const Data*>(_treeData)->lockForWrite();
-            Q_UNUSED(lock);
-            
             assert(!address.isRoot());
             descendantAt(address.parent()).removeChildren(address.lastIndex(), 1);
         }
         
-        node_ref_t nodeRef()
+        node_ref_t nodeRef() { return node_ref_t(this); }
+        const_node_ref_t nodeRef() const { return const_node_ref_t(this); }
+        
+        inline aux_datatree::ValencyHint valencyHint() const { return this->_valencyHint; }
+
+        void setValencyHint(aux_datatree::ValencyHint hint)
         {
-            return node_ref_t(this);
+            if (Q_UNLIKELY(hint == aux_datatree::ValencyHint_Leaf && !_children.empty()))
+            {
+                throw aux_datatree::ValencyHintViolationError(
+                        aux_datatree::ValencyHintViolationError::ChildrenInLeaf,
+                        hint,
+                        address()
+                    );
+            }
+            
+            this->_valencyHint = hint;
         }
         
-        const_node_ref_t nodeRef() const
-        {
-            return const_node_ref_t(this);
-        }
-    
-    protected:
+        bool branchHint() const { return this->_valencyHint == aux_datatree::ValencyHint_Branch; }
+        bool leafHint() const { return this->_valencyHint == aux_datatree::ValencyHint_Leaf; }
+        
+    private:
         explicit inline Node(T&& value = {})
             : _value(std::move(value))
         {
+            this->_nodeRefData 
+                = new aux_datatree::AddleDataTree_NodeRefData { this, 1 };
         }
         
         explicit inline Node(const T& value)
             : _value(value)
         {
+            this->_nodeRefData 
+                = new aux_datatree::AddleDataTree_NodeRefData { this, 1 };
         }
-        
-    private:
-        
+                
         template<typename Range>
         child_range insertChildren_impl(const_child_iterator pos, Range&& childValues);
+        
+//         child_range insertChildrenCount_impl(std::size_t pos, std::size_t count);
         
         template<typename Range>
         child_range appendChildren_impl( Range&& childValues )
@@ -792,11 +683,11 @@ public:
                 
         T _value;
         
-        friend class AddleDataTree<T, HasObserver>;
-        friend struct AddleDataTree<T, HasObserver>::Data;
+        friend class AddleDataTree<T, OptionFlags>;
+        friend struct AddleDataTree<T, OptionFlags>::Data;
         
-        friend class aux_datatree::ChildNodeIterator<AddleDataTree<T, HasObserver>, true>;
-        friend class aux_datatree::ChildNodeIterator<AddleDataTree<T, HasObserver>, false>;
+        friend class aux_datatree::ChildNodeIterator<AddleDataTree<T, OptionFlags>, true>;
+        friend class aux_datatree::ChildNodeIterator<AddleDataTree<T, OptionFlags>, false>;
         
         friend Node* datatree_node_parent(Node* node) 
         { 
@@ -930,19 +821,35 @@ public:
                 return static_cast<const Node*>(node->findEnd());
         }
         
-//         friend bool datatree_node_is_branch(const Node* node)
-//         {
-//             return node && node->isBranch();
-//         }
-//         
-//         friend bool datatree_node_is_leaf(const Node* node)
-//         {
-//             return node && node->isLeaf();
-//         }
-        
         friend aux_datatree::NodeAddress datatree_node_address(const Node* node)
         {
             return node ? node->address_impl() : aux_datatree::NodeAddress();
+        }
+        
+        Node* lookup_address_p(const aux_datatree::NodeAddress& address)
+        {
+            return const_cast<Node*>(static_cast<const Node*>(
+                static_cast<const Data*>(_treeData)
+                    ->template nodeAt<false>(address_impl() + address)
+            ));
+        }
+        
+        const Node* lookup_address_p(const aux_datatree::NodeAddress& address) const
+        {
+            return static_cast<const Node*>(
+                static_cast<const Data*>(_treeData)
+                    ->template nodeAt<false>(address_impl() + address)
+            );
+        }
+        
+        friend Node* datatree_node_lookup_address(Node* node, const aux_datatree::NodeAddress& address)
+        {
+            return Q_LIKELY(node) ? node->lookup_address_p(address) : nullptr;
+        }
+        
+        friend const Node* datatree_node_lookup_address(const Node* node, const aux_datatree::NodeAddress& address)
+        {
+            return Q_LIKELY(node) ? node->lookup_address_p(address) : nullptr;
         }
         
         template<typename Range>
@@ -957,7 +864,7 @@ public:
                 return parent->insertChildren_impl(
                         pos,
                         std::forward<Range>(childValues)
-                    ).end();
+                    ).begin();
             }
             else
             {
@@ -977,28 +884,18 @@ public:
                 return child_iterator {};
         }
         
-        friend class aux_datatree::NodeRef<AddleDataTree<T, HasObserver>, true>;
-        friend class aux_datatree::NodeRef<AddleDataTree<T, HasObserver>, false>;
-        
-        QMutex* nodeRefMutex() const
+        friend bool datatree_node_branch_hint(const Node* node)
         {
-            assert(_treeData);
-            return &static_cast<Data*>(_treeData)->_nodeRefMutex;
+            return Q_LIKELY(node) && node->branchHint();
         }
         
-        aux_datatree::TreeObserver<AddleDataTree<T, true>>& _observer() const
+        friend bool datatree_node_leaf_hint(const Node* node)
         {
-            if constexpr (HasObserver)
-            {
-                assert(_treeData);
-                
-                return static_cast<Data*>(_treeData)->observer();
-            }
-            else
-            {
-                Q_UNREACHABLE();
-            }
+            return Q_LIKELY(node) && node->leafHint();
         }
+        
+        friend class aux_datatree::NodeRef<AddleDataTree<T, OptionFlags>, true>;
+        friend class aux_datatree::NodeRef<AddleDataTree<T, OptionFlags>, false>;
         
 #ifdef ADDLE_TEST
         friend class DataTree_UTest;
@@ -1034,6 +931,10 @@ public:
         if constexpr (HasObserver)
         {
             _data->initializeObserver(*this);
+            aux_datatree::NodeRef<AddleDataTree<T, OptionFlags>, true>::setTreeObserverData(
+                    static_cast<Node&>(*_data->_root)._nodeRefData,
+                    _data->observer()
+                );
         }
     }
     
@@ -1043,6 +944,10 @@ public:
         if constexpr (HasObserver)
         {
             _data->initializeObserver(*this);
+            aux_datatree::NodeRef<AddleDataTree<T, OptionFlags>, true>::setTreeObserverData(
+                    static_cast<Node&>(*_data->_root)._nodeRefData,
+                    _data->observer()
+                );
         }
     }
     
@@ -1052,6 +957,10 @@ public:
         if constexpr (HasObserver)
         {
             _data->initializeObserver(*this);
+            aux_datatree::NodeRef<AddleDataTree<T, OptionFlags>, true>::setTreeObserverData(
+                    static_cast<Node&>(*_data->_root)._nodeRefData,
+                    _data->observer()
+                );
         }
     }
     
@@ -1079,13 +988,13 @@ public:
     inline Node& nodeAt(const DataTreeNodeAddress& address)
     {
         const aux_datatree::AddleDataTree_NodeBase* node 
-            = _data->nodeAt(address);
+            = _data->template nodeAt<true>(address);
         return const_cast<Node&>(static_cast<const Node&>(*node));
     }
     
     inline const Node& nodeAt(const DataTreeNodeAddress& address) const
     {
-        return static_cast<const Node&>(*_data->nodeAt(address));
+        return static_cast<const Node&>(*_data->template nodeAt<true>(address));
     }
     
 //     inline leaf_range leaves() { return _data->root.leaves(); }
@@ -1099,7 +1008,7 @@ private:
         : private aux_datatree::AddleDataTree_TreeDataBase,
         private boost::mp11::mp_if_c<
             HasObserver,
-            aux_datatree::AddleDataTree_TreeDataWithObserverBase<AddleDataTree<T, HasObserver>>,
+            aux_datatree::AddleDataTree_TreeDataWithObserverBase<AddleDataTree<T, OptionFlags>>,
             boost::mp11::mp_inherit<>
         >
     {
@@ -1107,13 +1016,10 @@ private:
         inline Data(const T&);
         inline Data(T&&);
         
-        inline read_locker_t lockForRead() const;
-        inline write_locker_t lockForWrite() const;
-        
         // friend access to protected base members
-        friend class AddleDataTree<T, HasObserver>;
-        friend class AddleDataTree<T, HasObserver>::Node;
-        friend class aux_datatree::AddleDataTree_WithObserverBase<AddleDataTree<T, HasObserver>>;
+        friend class AddleDataTree<T, OptionFlags>;
+        friend class AddleDataTree<T, OptionFlags>::Node;
+        friend class aux_datatree::AddleDataTree_WithObserverBase<AddleDataTree<T, OptionFlags>>;
     };
     
     friend const Node* datatree_root(const AddleDataTree& tree)
@@ -1128,20 +1034,29 @@ private:
     
     std::unique_ptr<Data> _data;
     
-    friend class aux_datatree::AddleDataTree_WithObserverBase<AddleDataTree<T, HasObserver>>;
+    friend class aux_datatree::AddleDataTree_WithObserverBase<AddleDataTree<T, OptionFlags>>;
 #ifdef ADDLE_TEST
     friend class DataTree_UTest;
 #endif
 };
 
-template<typename T, bool HasObserver>
+template<typename T, unsigned OptionFlags>
 template<typename Range>
-typename AddleDataTree<T, HasObserver>::Node::child_range 
-AddleDataTree<T, HasObserver>::Node::insertChildren_impl(const_child_iterator pos, Range&& childValues)
+typename AddleDataTree<T, OptionFlags>::Node::child_range 
+AddleDataTree<T, OptionFlags>::Node::insertChildren_impl(const_child_iterator pos, Range&& childValues)
 {
     using namespace boost::adaptors;
     using U = typename boost::range_value<boost::remove_cv_ref_t<Range>>::type;
     static_assert(std::is_constructible_v<T, U&&>);
+    
+    if (Q_UNLIKELY(_valencyHint == aux_datatree::ValencyHint_Leaf))
+    {
+        throw aux_datatree::ValencyHintViolationError(
+                aux_datatree::ValencyHintViolationError::ChildrenInLeaf,
+                _valencyHint,
+                address()
+            );
+    }
     
     if (boost::empty(childValues)) 
         return child_range();
@@ -1224,6 +1139,17 @@ AddleDataTree<T, HasObserver>::Node::insertChildren_impl(const_child_iterator po
     if constexpr (HasObserver)
     {
         auto& observer = static_cast<Data*>(_treeData)->observer();
+        
+        auto i = _children.begin() + startIndex;
+        auto end = _children.begin() + startIndex + count;
+        for (; i != end; ++i)
+        {
+            aux_datatree::NodeRef<AddleDataTree<T, OptionFlags>, true>::setTreeObserverData(
+                    static_cast<Node*>(*i)->_nodeRefData,
+                    observer
+                );
+        }
+        
         if (observer.isRecording())
         {
             observer.passiveAddNodes(
@@ -1240,17 +1166,70 @@ AddleDataTree<T, HasObserver>::Node::insertChildren_impl(const_child_iterator po
         );
 }
 
+// template<typename T, unsigned OptionFlags>
+// typename AddleDataTree<T, OptionFlags>::Node::child_range 
+// AddleDataTree<T, OptionFlags>::Node::insertChildrenCount_impl(std::size_t pos, std::size_t count)
+// {
+//     if (!count) 
+//         return child_range();
+//     
+//     assert(pos <= _children.size()); // TODO: exception
+// 
+//     _children.insert(_children.begin() + pos, count, nullptr);
+//     
+//     aux_datatree::AddleDataTree_NodeBase** i = _children.data() + pos;
+//     for (; i < _children.data() + pos + count; ++i)
+//     {
+//         *i = new Node();
+//     }
+//     
+//     this->reindexChildren(pos);
+//     static_cast<Data*>(_treeData)->invalidateAddressCache(this);
+//         
+//     {
+//         Node* cursor = this;
+//         do
+//         {
+//             cursor->_descendantCount += count;
+//             cursor = static_cast<Node*>(cursor->_parent);
+//         } while (cursor);
+//     }
+//     
+//     if constexpr (HasObserver)
+//     {
+//         auto& observer = static_cast<Data*>(_treeData)->observer();
+//         
+//         auto i = _children.begin() + pos;
+//         auto end = _children.begin() + pos + count;
+//         for (; i != end; ++i)
+//         {
+//             aux_datatree::NodeRef<AddleDataTree<T, OptionFlags>, true>::setTreeObserverData(
+//                     static_cast<Node*>(*i)->_nodeRefData,
+//                     observer
+//                 );
+//         }
+//         
+//         if (observer.isRecording())
+//         {
+//             observer.passiveAddNodes(
+//                     this,
+//                     pos,
+//                     count
+//                 );
+//         }
+//     }
+//     
+//     return child_range(
+//             _children.begin() + pos,
+//             _children.begin() + pos + count
+//         );
+// }
 
-template<typename T, bool HasObserver>
-typename AddleDataTree<T, HasObserver>::Node::child_iterator
-AddleDataTree<T, HasObserver>::Node::removeChildren_p(child_range removals)
+template<typename T, unsigned OptionFlags>
+typename AddleDataTree<T, OptionFlags>::Node::child_iterator
+AddleDataTree<T, OptionFlags>::Node::removeChildren_p(child_range removals)
 {
-    
-    if (removals.empty())
-        return child_iterator();
-    
-    //assert(branch.children.size() >= startIndex + count); // TODO: exception
-    //assert(_treeData);
+    if (removals.empty()) return child_iterator();
     
     auto begin = removals.begin().base();
     auto end = removals.end().base();
@@ -1259,6 +1238,7 @@ AddleDataTree<T, HasObserver>::Node::removeChildren_p(child_range removals)
     
     if constexpr (HasObserver)
     {
+        assert(_treeData);
         auto& observer = static_cast<Data*>(_treeData)->observer();
         if (observer.isRecording())
         {
@@ -1275,84 +1255,64 @@ AddleDataTree<T, HasObserver>::Node::removeChildren_p(child_range removals)
     return child_iterator(_children.begin() + startIndex);
 }
 
-template<typename T, bool HasObserver>
-AddleDataTree<T, HasObserver>::Data::Data()
+template<typename T, unsigned OptionFlags>
+AddleDataTree<T, OptionFlags>::Data::Data()
     : aux_datatree::AddleDataTree_TreeDataBase(new Node)
 {
 }
 
-template<typename T, bool HasObserver>
-AddleDataTree<T, HasObserver>::Data::Data(const T& value)
+template<typename T, unsigned OptionFlags>
+AddleDataTree<T, OptionFlags>::Data::Data(const T& value)
     : aux_datatree::AddleDataTree_TreeDataBase(new Node(value))
 {
 }
 
-template<typename T, bool HasObserver>
-AddleDataTree<T, HasObserver>::Data::Data(T&& value)
+template<typename T, unsigned OptionFlags>
+AddleDataTree<T, OptionFlags>::Data::Data(T&& value)
     : aux_datatree::AddleDataTree_TreeDataBase(new Node(std::move(value)))
 {
 }
 
-template<typename T, bool HasObserver>
-inline typename AddleDataTree<T, HasObserver>::read_locker_t
-AddleDataTree<T, HasObserver>::Data::lockForRead() const
+template<typename T, unsigned OptionFlags>
+struct aux_datatree::datatree_traits<AddleDataTree<T, OptionFlags>>
 {
-    if constexpr (HasObserver)
-        return this->observer().lockForRead();
-    else
-        return {};
-}
-        
-template<typename T, bool HasObserver>
-inline typename AddleDataTree<T, HasObserver>::write_locker_t 
-AddleDataTree<T, HasObserver>::Data::lockForWrite() const
-{
-    if constexpr (HasObserver)
-        return this->observer().lockForWrite();
-    else
-        return {};
-}
-
-template<typename T, bool HasObserver>
-struct aux_datatree::datatree_traits<AddleDataTree<T, HasObserver>>
-{
-    using node_handle = typename AddleDataTree<T, HasObserver>::Node*;
-    using const_node_handle = const typename AddleDataTree<T, HasObserver>::Node*;
+    using node_handle = typename AddleDataTree<T, OptionFlags>::Node*;
+    using const_node_handle = const typename AddleDataTree<T, OptionFlags>::Node*;
     
     using node_value_type = T;
 };
 
-template<typename T, bool HasObserver, bool IsConst>
-class aux_datatree::ChildNodeIterator<AddleDataTree<T, HasObserver>, IsConst>
+template<typename T, unsigned OptionFlags, bool IsConst>
+class aux_datatree::ChildNodeIterator<AddleDataTree<T, OptionFlags>, IsConst>
     : public boost::iterator_adaptor<
-        aux_datatree::ChildNodeIterator<AddleDataTree<T, HasObserver>, IsConst>,
+        aux_datatree::ChildNodeIterator<AddleDataTree<T, OptionFlags>, IsConst>,
         aux_datatree::AddleDataTree_NodeBase::inner_iterator_t,
         boost::mp11::mp_if_c<
             IsConst,
-            const typename AddleDataTree<T, HasObserver>::Node,
-            typename AddleDataTree<T, HasObserver>::Node
+            const typename AddleDataTree<T, OptionFlags>::Node,
+            typename AddleDataTree<T, OptionFlags>::Node
         >
     >
 {
     using base_t = aux_datatree::AddleDataTree_NodeBase::inner_iterator_t;
     using adaptor_t = boost::iterator_adaptor<
-            aux_datatree::ChildNodeIterator<AddleDataTree<T, HasObserver>, IsConst>,
+            aux_datatree::ChildNodeIterator<AddleDataTree<T, OptionFlags>, IsConst>,
             aux_datatree::AddleDataTree_NodeBase::inner_iterator_t,
             boost::mp11::mp_if_c<
                 IsConst,
-                const typename AddleDataTree<T, HasObserver>::Node,
-                typename AddleDataTree<T, HasObserver>::Node
+                const typename AddleDataTree<T, OptionFlags>::Node,
+                typename AddleDataTree<T, OptionFlags>::Node
             >
         >;
     using node_t = boost::mp11::mp_if_c<
             IsConst,
-            const typename AddleDataTree<T, HasObserver>::Node,
-            typename AddleDataTree<T, HasObserver>::Node
+            const typename AddleDataTree<T, OptionFlags>::Node,
+            typename AddleDataTree<T, OptionFlags>::Node
         >;
     using handle_t = boost::mp11::mp_if_c<
             IsConst,
-            const typename AddleDataTree<T, HasObserver>::Node*,
-            typename AddleDataTree<T, HasObserver>::Node*
+            const typename AddleDataTree<T, OptionFlags>::Node*,
+            typename AddleDataTree<T, OptionFlags>::Node*
         >;
         
 public:
@@ -1391,7 +1351,7 @@ public:
         typename MutableIterator, 
         std::enable_if_t<
             IsConst
-            && std::is_same<MutableIterator, ChildNodeIterator<AddleDataTree<T, HasObserver>, false>>::value, 
+            && std::is_same<MutableIterator, ChildNodeIterator<AddleDataTree<T, OptionFlags>, false>>::value, 
             void*
         > = nullptr
     >
@@ -1404,7 +1364,7 @@ public:
         typename MutableIterator, 
         std::enable_if_t<
             IsConst
-            && std::is_same<MutableIterator, ChildNodeIterator<AddleDataTree<T, HasObserver>, false>>::value,
+            && std::is_same<MutableIterator, ChildNodeIterator<AddleDataTree<T, OptionFlags>, false>>::value,
             void*
         > = nullptr
     >
@@ -1427,7 +1387,7 @@ private:
         return static_cast<node_t&>(**(this->base()));
     }
     
-    friend class ChildNodeIterator<AddleDataTree<T, HasObserver>, !IsConst>;
+    friend class ChildNodeIterator<AddleDataTree<T, OptionFlags>, !IsConst>;
     friend class boost::iterator_core_access;
     
 #ifdef ADDLE_TEST
@@ -1435,10 +1395,10 @@ private:
 #endif
 };
 
-template<typename T, bool HasObserver, bool IsConst>
-class aux_datatree::NodeRef<AddleDataTree<T, HasObserver>, IsConst>
+template<typename T, unsigned OptionFlags, bool IsConst>
+class aux_datatree::NodeRef<AddleDataTree<T, OptionFlags>, IsConst>
 {
-    using tree_t = AddleDataTree<T, HasObserver>;
+    using tree_t = AddleDataTree<T, OptionFlags>;
 public:
     using handle_t = boost::mp11::mp_if_c<
             IsConst,
@@ -1450,7 +1410,7 @@ public:
     
     template<class Observer,
         std::enable_if_t<
-            HasObserver && ((
+            AddleDataTree<T, OptionFlags>::HasObserver && ((
                 IsConst && std::is_same_v<Observer, const TreeObserver<tree_t>>
             ) || (
                 std::is_same_v<std::remove_const_t<Observer>, TreeObserver<tree_t>>
@@ -1458,18 +1418,21 @@ public:
     NodeRef(Observer& observer, handle_t node)
         : NodeRef(node)
     {
-#ifdef ADDLE_DEBUG
-        assert(!node || node->_observer()._data == observer._data);
-#endif
+        assert(!node || node->_nodeRefData->treeObserverData == observer._data);
     }
     
-    NodeRef(handle_t node);
+    NodeRef(handle_t node)
+        : _data(node ? node->_nodeRefData : nullptr)
+    {
+        if (_data)
+            _data->refCount.ref();
+    }
     
     NodeRef(const NodeRef& other)
         : _data(other._data)
     {
         if (_data)
-            _data->_refCount.ref();
+            _data->refCount.ref();
     }
     
     NodeRef(NodeRef&& other)
@@ -1482,31 +1445,37 @@ public:
         std::enable_if_t<
             IsConst && std::is_same_v<
                 MutableNodeRef,
-                NodeRef<AddleDataTree<T, HasObserver>, false>
+                NodeRef<AddleDataTree<T, OptionFlags>, false>
             >,
         void*> = nullptr>
     NodeRef(const MutableNodeRef& other)
         : _data(other._data)
     {
         if (_data)
-            _data->_refCount.ref();
+            _data->refCount.ref();
     }
     
-    ~NodeRef() { deref(); }
+    ~NodeRef()
+    {         
+        if (_data && !_data->refCount.deref())
+            delete _data; 
+    }
     
     NodeRef& operator=(const NodeRef& other)
     {
-        deref();
+        if (_data && !_data->refCount.deref())
+            delete _data;
         
         if ((_data = other._data))
-            _data->_refCount.ref();
+            _data->refCount.ref();
         
         return *this;
     }
         
     NodeRef& operator=(NodeRef&& other)
     {
-        deref();
+        if (_data && !_data->refCount.deref())
+            delete _data;
         
         _data = other._data;
         other._data = nullptr;
@@ -1527,16 +1496,16 @@ public:
     
     std::unique_ptr<QReadLocker> lockTreeObserverForRead() const
     { 
-        if (_data && _data->_treeObserverData)
-            return _data->_treeObserverData->lockForRead();
+        if (_data && _data->treeObserverData)
+            return _data->treeObserverData->lockForRead();
         else
             return {};
     }
     
     std::unique_ptr<QWriteLocker> lockTreeObserverForWrite() const
     { 
-        if (_data && _data->_treeObserverData)
-            return _data->_treeObserverData->lockForWrite();
+        if (_data && _data->treeObserverData)
+            return _data->treeObserverData->lockForWrite();
         else
             return {};
     }
@@ -1545,14 +1514,14 @@ public:
     {
         if (!_data) return false;
         
-        return static_cast<bool>(_data->_node.loadRelaxed());
+        return static_cast<bool>(_data->node.loadRelaxed());
     }
     
     handle_t get() const
     {
         if (!_data) return {};
         
-        return static_cast<handle_t>(_data->_node.loadRelaxed());
+        return static_cast<handle_t>(_data->node.loadRelaxed());
     }
     
     const typename AddleDataTree<T, true>::Node* getConst() const 
@@ -1570,62 +1539,42 @@ public:
     }
     
 private:
-    void deref();
+    static inline void setTreeObserverData(
+            AddleDataTree_NodeRefData* data, 
+            const TreeObserver<tree_t>& observer
+        )
+    {
+        data->treeObserverData = observer._data;
+    }
     
-    using data_t = AddleDataTree_NodeRefData;
-    data_t* _data;
+    std::size_t hash_p() const { return std::hash<AddleDataTree_NodeRefData*>() (_data); }
     
-    friend class NodeRef<AddleDataTree<T, HasObserver>, !IsConst>;
+    friend uint qHash(const NodeRef& ref, uint seed = 0)
+    {
+        return ref.hash_p() ^ seed;
+    }
+    
+    AddleDataTree_NodeRefData* _data;
+    
+    friend class AddleDataTree<T, OptionFlags>;
+    friend class NodeRef<AddleDataTree<T, OptionFlags>, !IsConst>;
+    
+    friend class std::hash<NodeRef<AddleDataTree<T, OptionFlags>, IsConst>>;
 };
-
-template<typename T, bool HasObserver, bool IsConst>
-aux_datatree::NodeRef<AddleDataTree<T, HasObserver>, IsConst>::NodeRef(handle_t node)
-{
-    if (!node)
-    {
-        _data = nullptr;
-        return;
-    }
-    
-    const QMutexLocker lock(node->nodeRefMutex());
-    
-    if (node->_nodeRefData)
-    {
-        _data = node->_nodeRefData;
-    }
-    else
-    {
-        _data = new data_t;
-        _data->_node.storeRelaxed(
-            const_cast<typename AddleDataTree<T, HasObserver>::Node*>(node)
-        );
-        
-        if constexpr (HasObserver)
-        {
-            _data->_treeObserverData = node->_observer()._data;
-        }
-        
-        node->_nodeRefData = _data;
-    }
-    
-    _data->_refCount.ref();
-}
-
-template<typename T, bool HasObserver, bool IsConst>
-void aux_datatree::NodeRef<AddleDataTree<T, HasObserver>, IsConst>::deref()
-{
-    if (_data && !_data->_refCount.deref())
-    {
-        handle_t node = static_cast<handle_t>(_data->_node.loadRelaxed());
-                
-        if (node)
-        {
-            const QMutexLocker lock(node->nodeRefMutex());
-            node->_nodeRefData = nullptr;
-        }
-        delete _data;
-    }
-}
 
 } // namespace Addle
 
+namespace std {
+
+template<typename T, unsigned OptionFlags, bool IsConst>
+struct hash<Addle::aux_datatree::NodeRef<Addle::AddleDataTree<T, OptionFlags>, IsConst>>
+{
+    std::size_t operator() (
+        const Addle::aux_datatree::NodeRef<Addle::AddleDataTree<T, OptionFlags>, IsConst>& ref
+    ) const
+    {
+        return ref.hash_p();
+    }
+};
+
+}

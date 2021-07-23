@@ -14,6 +14,7 @@ protected:
     // call after _model is set
     inline void initialize()
     {
+        assert(static_cast<Derived*>(this)->_model);
         isVisible = static_cast<Derived*>(this)
             ->_model->opacity() >= 0.001;
     }

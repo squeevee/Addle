@@ -52,10 +52,10 @@ public:
     virtual const LayersTree& layers() = 0;
     virtual ConstLayersTree layers() const = 0;
 
-    virtual QList<DataTreeNodeAddress> layerSelection() const = 0;
-    virtual void setLayerSelection(QList<DataTreeNodeAddress> selection) = 0;
-    virtual void addLayerSelection(QList<DataTreeNodeAddress> added) = 0;
-    virtual void subtractLayerSelection(QList<DataTreeNodeAddress> removed) = 0;
+    virtual QSet<ILayerNodePresenter::LayerNodeRef> layerSelection() const = 0;
+    virtual void setLayerSelection(QSet<ILayerNodePresenter::LayerNodeRef> selection) = 0;
+    virtual void addLayerSelection(QSet<ILayerNodePresenter::LayerNodeRef> added) = 0;
+    virtual void subtractLayerSelection(QSet<ILayerNodePresenter::LayerNodeRef> removed) = 0;
 
     virtual QSharedPointer<ILayerPresenter> topSelectedLayer() const = 0;
 
@@ -72,9 +72,8 @@ public slots:
 signals:
     virtual void layerNodesChanged(DataTreeNodeEvent) = 0;
 
-    virtual void layersChanged() = 0;
     virtual void topSelectedLayerChanged(QSharedPointer<ILayerPresenter>) = 0;
-    virtual void layerSelectionChanged(QList<DataTreeNodeAddress> selection) = 0;
+    virtual void layerSelectionChanged(QSet<ILayerNodePresenter::LayerNodeRef> selection) = 0;
 
 };
 
@@ -96,7 +95,5 @@ ADDLE_DECL_FACTORY_PARAMETERS(
 } // namespace Addle
 
 Q_DECLARE_INTERFACE(Addle::IDocumentPresenter, "org.addle.IDocumentPresenter")
-// Q_DECLARE_METATYPE(Addle::IDocumentPresenter::LayerNodesAddedEvent)
-// Q_DECLARE_METATYPE(Addle::IDocumentPresenter::LayerNodesRemovedEvent)
 
 #endif // IDOCUMENTPRESENTER_HPP

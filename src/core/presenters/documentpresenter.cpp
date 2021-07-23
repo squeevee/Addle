@@ -6,6 +6,8 @@
  * MIT License. See "LICENSE" for full details.
  */
 
+#include <QtDebug>
+
 #include "documentpresenter.hpp"
 #include "servicelocator.hpp"
 
@@ -33,14 +35,23 @@ DocumentPresenter::DocumentPresenter(
     _layerFactory(layerFactory),
     _layerGroupFactory(layerGroupFactory)
 {
+    _topSelectedLayerNode.calculateBy(&DocumentPresenter::topSelectedLayerNode_p, this);
+    _topSelectedLayerNode.onChange_Recalculate(_topSelectedLayer);
+    
     _topSelectedLayer.calculateBy(&DocumentPresenter::topSelectedLayer_p, this);
     _topSelectedLayer.onChange.bind(&DocumentPresenter::topSelectedLayerChanged, this);
     
     if (_model)
+    {
         defaultModel.clear();
+    }
     else
+    {
         _model = std::move(defaultModel.bind(modelBuilder)).asShared();
+    }
 
+    _layers.root().setValencyHint(aux_datatree::ValencyHint_Branch);
+    
     {
         const auto lock = _model->layers().observer().lockForRead();
         aux_datatree::echo_tree(
@@ -51,8 +62,18 @@ DocumentPresenter::DocumentPresenter(
                      LayersTree::Node* presenterNode) {
                     if (modelNode->isRoot()) return;
                     
-                    if (modelNode->isBranch())
+                    if (modelNode->leafHint())
                     {
+                        presenterNode->setValencyHint(aux_datatree::ValencyHint_Leaf);
+                        presenterNode->setValue(_layerFactory.makeShared(
+                                *this, 
+                                presenterNode->nodeRef(), 
+                                modelNode->value().staticCast<ILayer>()
+                            ));
+                    }
+                    else if (modelNode->branchHint())
+                    {   
+                        presenterNode->setValencyHint(aux_datatree::ValencyHint_Branch);
                         presenterNode->setValue(_layerGroupFactory.makeShared(
                                 *this, 
                                 presenterNode->nodeRef(), 
@@ -61,69 +82,49 @@ DocumentPresenter::DocumentPresenter(
                     }
                     else
                     {
-                        presenterNode->setValue(_layerFactory.makeShared(
-                                *this, 
-                                presenterNode->nodeRef(), 
-                                modelNode->value().staticCast<ILayer>()
-                            ));
+                        Q_UNREACHABLE();
                     }
                 }
             );
     }
+    
+    if (_layers.root().hasChildren())
+    {
+        _layerSelection = { _layers.root()[0].nodeRef() };
+    }
 }
 
-void DocumentPresenter::setLayerSelection(QList<DataTreeNodeAddress> selection)
+void DocumentPresenter::setLayerSelection(QSet<ILayerNodePresenter::LayerNodeRef> selection)
 {
-    QList<DataTreeNodeAddress> oldSelection;
-    
-    if ( !std::is_sorted(selection.begin(), selection.end()) )
-        std::sort(_layerSelection.begin(), _layerSelection.end());
-    
     if (selection != _layerSelection)
     {
         _layerSelection = selection;
         emit layerSelectionChanged(_layerSelection);
+        
+        _topSelectedLayerNode.recalculate();
     }
 }
 
-void DocumentPresenter::addLayerSelection(QList<DataTreeNodeAddress> added)
+void DocumentPresenter::addLayerSelection(QSet<ILayerNodePresenter::LayerNodeRef> added)
 {
     if (added.isEmpty())
         return;
     
-    if ( !std::is_sorted(added.cbegin(), added.cend()) )
-        std::sort(added.begin(), added.end());
-    
-    std::size_t oldSize = _layerSelection.size();
-    _layerSelection.append(added);
-    std::inplace_merge(
-            _layerSelection.begin(), 
-            _layerSelection.begin() + oldSize,
-            _layerSelection.end()
-        );
-    
+    _layerSelection.unite(added);
     emit layerSelectionChanged(_layerSelection);
+    
+    _topSelectedLayerNode.recalculate();
 }
 
-void DocumentPresenter::subtractLayerSelection(QList<DataTreeNodeAddress> removed)
+void DocumentPresenter::subtractLayerSelection(QSet<ILayerNodePresenter::LayerNodeRef> removed)
 {
     if (removed.isEmpty())
         return;
     
-    if ( !std::is_sorted(removed.cbegin(), removed.cend()) )
-        std::sort(removed.begin(), removed.end());
-    
-    QList<DataTreeNodeAddress> selection;
-    selection.reserve(_layerSelection.size() - removed.size());
-    
-    std::set_difference(
-            _layerSelection.cbegin(), _layerSelection.cend(),
-            removed.cbegin(), removed.cend(),
-            std::back_inserter(selection)
-        );
-    
-    _layerSelection = selection;
+    _layerSelection.subtract(removed);
     emit layerSelectionChanged(_layerSelection);
+    
+    _topSelectedLayerNode.recalculate();
 }
 
 void DocumentPresenter::save(QSharedPointer<FileRequest> request)
@@ -132,27 +133,180 @@ void DocumentPresenter::save(QSharedPointer<FileRequest> request)
 
 void DocumentPresenter::addLayer()
 {
+    auto modelLock = _model->layers().observer().lockForWrite();
+    auto lock = _layers.observer().lockForWrite();
+    
+    auto location = layerNodeInsertLocation();
+    auto& newModelNode = *(_model->insertLayerNodes(
+            location,
+            {
+                LayerNodeBuilder()
+                    .setName("New Layer")
+            }
+        ).begin());
+    
+    _layers.observer().startRecording();
+    auto& newNode = _layers.root().descendantAt(location.parent())
+        .insertChild(location.lastIndex());
+    
+    newNode.setValencyHint(aux_datatree::ValencyHint_Leaf);
+    newNode.setValue(_layerFactory.makeShared(
+            *this,
+            newNode.nodeRef(),
+            newModelNode.value().staticCast<ILayer>()
+        ));
+    auto e = _layers.observer().finishRecording();
+    
+    _layerSelection = { newNode.nodeRef() };
+    
+    lock->unlock();
+    modelLock->unlock();
+    
+    emit layerNodesChanged(e);
+    emit layerSelectionChanged(_layerSelection);
+    
+    // TODO: async safety
+    _topSelectedLayerNode.recalculate();
+    _topSelectedLayer.recalculate();
 }
 
 void DocumentPresenter::addLayerGroup()
 {
+    auto modelLock = _model->layers().observer().lockForWrite();
+    auto lock = _layers.observer().lockForWrite();
+    
+    auto location = layerNodeInsertLocation();
+    auto& newModelNode = *(_model->insertLayerNodes(
+            location,
+            {
+                LayerNodeBuilder()
+                    .setName("New Layer Group")
+                    .setIsGroup(true)
+            }
+        ).begin());
+    
+    _layers.observer().startRecording();
+    auto& newNode = _layers.root().descendantAt(location.parent())
+        .insertChild(location.lastIndex());
+    
+    newNode.setValencyHint(aux_datatree::ValencyHint_Branch);
+    newNode.setValue(_layerGroupFactory.makeShared(
+            *this,
+            newNode.nodeRef(),
+            newModelNode.value().staticCast<ILayerGroup>()
+        ));
+    auto e = _layers.observer().finishRecording();
+    
+    _layerSelection = { newNode.nodeRef() };
+    
+    lock->unlock();
+    modelLock->unlock();
+    
+    emit layerNodesChanged(e);
+    emit layerSelectionChanged(_layerSelection);
+    
+    // TODO: async safety
+    _topSelectedLayerNode.recalculate();
+    _topSelectedLayer.recalculate();
 }
 
 void DocumentPresenter::removeSelectedLayers()
 {
+    auto modelLock = _model->layers().observer().lockForWrite();
+    auto lock = _layers.observer().lockForWrite();
+    
+    QList<DataTreeNodeChunk> selectedChunks;
+    
+    for (auto node : _layerSelection)
+    {
+        assert(node);
+        selectedChunks.append({(*node).address(), 1});
+    }
+    aux_datatree::cleanupChunkSet(selectedChunks);
+    
+    _model->removeLayers(selectedChunks);
+    
+    _layers.observer().startRecording();
+    
+    const DataTreeNodeEvent& pending = _layers.observer().pendingEvent();
+    std::size_t progress = 0;
+    for ( auto chunk : noDetach(selectedChunks) )
+    {
+        for ( auto mapped : noDetach(pending.mapChunkBackward(std::move(chunk), progress)) )
+        {
+            _layers.root().descendantAt(mapped.address.parent())
+                .removeChildren(mapped.address.lastIndex(), mapped.length);
+            ++progress;
+        }
+    }
+    
+    auto e = _layers.observer().finishRecording();
+    
+    _layerSelection.clear();
+    
+    lock->unlock();
+    modelLock->unlock();
+    
+    emit layerNodesChanged(e);
+    emit layerSelectionChanged(_layerSelection);
+    
+    _topSelectedLayerNode.recalculate();
+    _topSelectedLayer.recalculate();
+}
+
+ILayerNodePresenter::LayerNode* DocumentPresenter::topSelectedLayerNode_p() const
+{
+    if (noDetach(_layerSelection).isEmpty()) return {};
+    
+    auto lock = _layers.observer().lockForRead();
+    
+    ILayerNodePresenter::LayerNode* result = nullptr;
+    for (const auto& ref : noDetach(_layerSelection))
+    {
+        if (Q_UNLIKELY(!ref.isValid())) continue;
+        
+        auto newAddress = (*ref).address();
+        if (!result || newAddress < result->address())
+            result = ref.get();
+    }
+    
+    return result;
 }
 
 QSharedPointer<ILayerPresenter> DocumentPresenter::topSelectedLayer_p() const
 {
-    auto i = _layerSelection.begin();
-//     for (const auto& layer : _layers.leaves())
-//     {
-//         while (i != _layerSelection.end() && *i < layer.address())
-//         {
-//             if (*i == layer.address() || (*i).isAncestorOf(layer.address()))
-//                 return layer.leafValue();
-//             ++i;
-//         }
-//     }
-    return nullptr;
+    if (noDetach(_layerSelection).isEmpty()) return nullptr;
+    
+    auto lock = _layers.observer().lockForRead();
+    
+    auto i      = _topSelectedLayerNode.value()->begin();
+    auto end    = _topSelectedLayerNode.value()->end();
+    
+    while ((*i).branchHint())
+    {
+        ++i;
+        if (i == end) return {};
+    }
+    
+    return (*i).value().staticCast<ILayerPresenter>();
+}
+
+DataTreeNodeAddress DocumentPresenter::layerNodeInsertLocation() const
+{
+    auto topSelectedNode = _topSelectedLayerNode.value();
+    
+    if (!topSelectedNode)
+    {
+        return DataTreeNodeAddressBuilder() << _layers.root().childCount();
+    }
+    else if (topSelectedNode->branchHint())
+    {
+        return DataTreeNodeAddressBuilder(topSelectedNode->address()) 
+            << topSelectedNode->childCount();
+    }
+    else
+    {
+        return DataTreeNodeAddressBuilder(topSelectedNode->address())
+            .offsetLastIndex(1);
+    }
 }

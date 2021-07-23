@@ -34,6 +34,8 @@
 using namespace Addle;
 ApplicationService::~ApplicationService()
 {   
+    for (IMainEditorPresenter* p : _mainEditorPresenters)
+        delete p;
 }
 
 bool ApplicationService::start()

@@ -1,13 +1,14 @@
 #pragma once
 
-#include <algorithm>
 #include <any>
+#include <algorithm>
 #include <exception>
 #include <deque>
 #include <optional>
 #include <memory>
 #include <map>
 #include <vector>
+#include <typeindex>
 
 #include <stdint.h> // SIZE_MAX
 
@@ -34,11 +35,18 @@ namespace aux_datatree {
 class TreeObserverData;
 class ObservedTreeState;
 
+// TODO: NodeAddress and NodeChunk should be passed by value and not reference
+// in many cases.
+
 template<bool additive>
-extern NodeAddress mapSingle_impl(
+extern std::optional<NodeAddress> mapSingle_impl(
         const NodeAddress& from,
-        const NodeChunk& rel,
-        bool* terminal = nullptr);
+        const NodeChunk& rel);
+
+template<bool additive>
+extern std::pair<NodeChunk, NodeChunk> mapSingleChunk_impl(
+        const NodeChunk& from,
+        const NodeChunk& rel);
 
 /**
  * Describes a change in the node structure of a data tree. Nodes may be added,
@@ -49,6 +57,8 @@ class NodeEvent
 {
     class Step;
 
+    using step_list_t = QList<Step>;
+    
     // sorted set
     using chunk_list_t = std::vector<NodeChunk>;
     // collection of multiple sorted sets of sibling nodes, arranged by parent
@@ -101,43 +111,14 @@ public:
     {
         return _data.data() == other._data.data()
             || (
-                _data->steps == other._data->steps
+                _data && other._data
+                && _data->steps == other._data->steps
                 && _data->totalChunkCount == other._data->totalChunkCount
             );
     }
     
     bool operator!=(const NodeEvent& other) const { return !(*this == other); }
     
-    NodeAddress mapForward(
-            NodeAddress from, 
-            std::size_t progress = SIZE_MAX,
-            bool* wasDeleted = nullptr) const  
-    {
-        if (wasDeleted)
-            *wasDeleted = false;
-        
-        if (!_data || from.isRoot() || !progress) 
-            return from;
-
-        progress = std::min(_data->totalChunkCount, progress);
-        
-        NodeAddress result(from);
-        
-        for (const Step& step : _data->steps)
-        {
-            result = step.mapForward(result, progress, wasDeleted);
-            
-            if (progress <= step.chunkCount())
-                break;
-            else
-                progress -= step.chunkCount();
-        }
-        
-        return result;
-    }
-
-    explicit operator bool() const { return !isNull(); }
-    bool operator!() const { return isNull(); }
     bool isNull() const
     { 
         return !_data 
@@ -156,124 +137,404 @@ public:
                                 Q_UNREACHABLE();
                         }
                     }
-                ));
+                )); 
+            // Honestly it should just not be possible to have a 
+            // data-initialized but invalid event.
     }
     
-    NodeAddress mapBackward(
-            NodeAddress from, 
-            std::size_t progress = SIZE_MAX,
-            bool* wasAdded = nullptr) const
+    // Given in terms of the event's end state
+    QList<NodeChunk> chunksAdded() const;
+    
+    // Given in terms of the event's begin state
+    QList<NodeChunk> chunksRemoved() const;
+    
+    QList<NodeAddress> affectedParents() const;
+    QList<NodeAddress> affectedParentsFromEnd() const;
+    
+    bool isAffectedParent(NodeAddress parent) const;
+    bool isAffectedParentFromEnd(NodeAddress parent) const;
+    
+    std::optional<NodeAddress> mapForward(NodeAddress from) const  
+    {
+        if (!_data || from.isRoot()) 
+            return from;
+        
+        NodeAddress result(from);
+        
+        for (const Step& step : _data->steps)
+        {
+            auto next = step.mapForward(result);
+            if (!next) return {};
+            
+            result = std::move(*next);
+        }
+        
+        return result;
+    }
+    
+    QList<NodeChunk> mapChunkForward(NodeChunk from) const
+    {
+        return mapChunksForward_impl({ from });
+    }
+    
+    QList<NodeChunk> mapChunkForward(NodeAddress address, std::size_t length) const
+    {
+        return mapChunksForward_impl({{ address, length }});
+    }
+    
+    QList<NodeChunk> mapChunksForward(QList<NodeChunk> from) const
+    {
+        return mapChunksForward_impl(std::move(from));
+    }
+    
+    std::optional<NodeAddress> mapBackward(NodeAddress from) const
     {
         using namespace boost::adaptors;
-        
-        if (wasAdded)
-            *wasAdded = false;
         
         if (!_data || from.isRoot()) 
             return from;
         
-        progress = std::min(_data->totalChunkCount, progress);
-        std::size_t progressCount = 0;
-        
         NodeAddress result(from);
         
+        for (const Step& step : _data->steps | reversed)
         {
-            auto i = _data->steps.begin();
-            auto end = _data->steps.end();
+            auto next = step.mapBackward(result);
+            if (!next) return {};
             
-            for (; i != end; ++i)
+            result = std::move(*next);
+        }
+        
+        return result;
+    }
+    
+    QList<NodeChunk> mapChunkBackward(NodeChunk from) const
+    {
+        return mapChunksBackward_impl({ from });
+    }
+    
+    QList<NodeChunk> mapChunkBackward(NodeAddress address, std::size_t length) const
+    {
+        return mapChunksBackward_impl({{ address, length }});
+    }
+    
+    QList<NodeChunk> mapChunksBackward(QList<NodeChunk> from) const
+    {
+        return mapChunksBackward_impl(std::move(from));
+    }
+    
+//     // TODO: The amount of information we track is probably insufficient to be
+//     // useful and the amount that would be useful is probably impractical.
+//     std::pair<std::size_t, bool> childCount(
+//             NodeAddress parent, 
+//             std::size_t progress = SIZE_MAX) const
+//     {
+//         if (!_data) return std::make_pair(0, false);
+//         
+//         bool wasAffected = false;
+//         std::ptrdiff_t result = 0;
+//         
+//         for (const Step& step : _data->steps)
+//         {
+//             auto find = step.initialChildCounts().find(parent);
+//             if (find != step.initialChildCounts().end())
+//                 result = (*find).second;
+//             
+//             auto offset = step.childCountOffset(parent, progress);
+//             
+//             wasAffected |= (offset != 0);
+//             
+//             result += offset;
+//             
+//             auto nextParent = step.mapForward(parent);
+//             
+//             if (!nextParent)
+//                 return std::make_pair(0, true);
+//             
+//             parent = std::move(*nextParent);
+//             
+//             if (progress > step.chunkCount())
+//                 progress -= step.chunkCount();
+//             else
+//                 break;
+//         }
+//         
+//         return std::make_pair(std::max(result, (std::ptrdiff_t)0), wasAffected);
+//     }
+    
+    // Extends the event to indicate that `chunk` was added to the underlying
+    // tree.
+    void addChunk(NodeChunk chunk);
+    
+    void addChunk(NodeAddress address, std::size_t length)
+    {
+        addChunk(NodeChunk { address, length });
+    }
+
+    void addChunks(QList<NodeChunk> chunks);
+    
+    // Extends the event to indicate that `chunk` was removed from the 
+    // underlying tree.
+    void removeChunk(NodeChunk chunk);
+    
+    void removeChunk(NodeAddress address, std::size_t length)
+    {
+        removeChunk(NodeChunk { address, length });
+    }
+    
+    void removeChunks(QList<NodeChunk> chunks);
+    
+    // void merge(NodeEvent event);
+    
+    // Prepends `rel` to the address of every chunk in this event. References
+    // that were previously to the root become references to `rel`, references 
+    // to all other nodes become references to analogous descendants of `rel`.
+    void moveRoot(NodeAddress rel)
+    {
+        if (!_data) 
+            return;
+        else
+            _data.detach();
+        
+        for (auto& step : _data->steps)
+            step.moveRoot(rel);
+    }
+    
+    NodeEvent movedRoot(NodeAddress rel) const &
+    {
+        NodeEvent result(*this);
+        result.moveRoot(std::move(rel));
+        return result;
+    }
+    
+    NodeEvent movedRoot(NodeAddress rel) &&
+    {
+        moveRoot(rel);
+        return std::move(*this);
+    }
+    
+    // Truncates `rel` from the address of every chunk in this event. Chunks or 
+    // addresses which are not descendants of `rel` are removed. Move operations
+    // for which the source or destination are not descendants of `rel` are 
+    // changed into Add or Remove operations respectively.
+    // void truncateRoot(NodeAddress rel);
+    //
+    
+    /**
+     * Iterator and StagingHandle can be used to examine the full contents of 
+     * the NodeEvent, intended for reproducing the event in another tree.
+     */
+    class StagingHandle
+    {
+    public:
+        NodeOperation operation() const { return (*_step).operation(); }
+        NodeChunk operatingChunk() const
+        {
+            switch(operation())
             {
-                if (progressCount + (*i).chunkCount() > progress)
-                    break;
-                else
-                    progressCount += (*i).chunkCount();
-            }
+                case Add:
+                    return *_fChunk;
+                    
+                case Remove:
+                    return *_rFChunk;
                 
-            auto j =    std::make_reverse_iterator(i);
-            auto rend = std::make_reverse_iterator(_data->steps.begin());
-            for(; j != rend; ++j)
-            {
-                result = (*j).mapBackward(result, progress, wasAdded);
-                progress -= (*j).chunkCount();
+                default:
+                    Q_UNREACHABLE();
             }
         }
         
-        return result;
-    }
-    
-    inline bool wasAdded(NodeAddress address, 
-            std::size_t progress = SIZE_MAX) const
-    {
-        bool result;
-        mapBackward(address, progress, &result);
+        std::optional<NodeAddress> mapPastForward(NodeAddress from) const;
+        std::optional<NodeAddress> mapCurrentBackward(NodeAddress from) const;
         
-        return result;
-    }
-    
-    inline bool isDeleted(NodeAddress address, 
-            std::size_t progress = SIZE_MAX) const
-    {
-        bool result;
-        mapForward(address, progress, &result);
+        std::optional<NodeAddress> mapCurrentForward(NodeAddress from) const;
+        std::optional<NodeAddress> mapFutureBackward(NodeAddress from) const;
         
-        return result;
-    }
-    
-    // TODO: The amount of information we track is probably insufficient to be
-    // useful and the amount that would be useful is probably impractical.
-    std::size_t childCount(
-            NodeAddress parent, 
-            std::size_t progress = SIZE_MAX,
-            bool* wasAffected = nullptr) const
-    {
-        if (wasAffected)
-            *wasAffected = false;
-        
-        if (!_data) return 0;
-        
-        std::ptrdiff_t result = 0;
-        
-        for (const Step& step : _data->steps)
+        // past chunks forward
+        QList<NodeChunk> mapPastChunkForward(NodeChunk from) const
         {
-            auto find = step.initialChildCounts().find(parent);
-            if (find != step.initialChildCounts().end())
-                result = (*find).second;
-            
-            auto offset = step.childCountOffset(parent, progress);
-            
-            if (wasAffected && offset != 0)
-                *wasAffected = true;
-            
-            result += offset;
-            
-            bool wasDeleted = false;
-            parent = step.mapForward(
-                    std::move(parent),
-                    SIZE_MAX,
-                    &wasDeleted
-                );
-            
-            if (wasDeleted)
-            {
-                if (wasAffected)
-                    *wasAffected = true;
-                return 0;
-            }
-            
-            if (progress > step.chunkCount())
-                progress -= step.chunkCount();
-            else
-                break;
+            return mapPastChunksForward_impl({ from });
         }
         
-        return std::max(result, (std::ptrdiff_t)0);
+        QList<NodeChunk> mapPastChunkForward(NodeAddress address, std::size_t length) const
+        {
+            return mapPastChunksForward_impl({{ address, length }});
+        }
+        
+        QList<NodeChunk> mapPastChunksForward(QList<NodeChunk> from) const
+        {
+            return mapPastChunksForward_impl(std::move(from));
+        }
+        
+        // current chunks backward
+        QList<NodeChunk> mapCurrentChunkBackward(NodeChunk from) const
+        {
+            return mapCurrentChunksBackward_impl({ from });
+        }
+        
+        QList<NodeChunk> mapCurrentChunkBackward(NodeAddress address, std::size_t length) const
+        {
+            return mapCurrentChunksBackward_impl({{ address, length }});
+        }
+        
+        QList<NodeChunk> mapCurrentChunksBackward(QList<NodeChunk> from) const
+        {
+            return mapCurrentChunksBackward_impl(std::move(from));
+        }
+        
+        // current chunks forward
+        QList<NodeChunk> mapCurrentChunkForward(NodeChunk from) const
+        {
+            return mapCurrentChunksForward_impl({ from });
+        }
+        
+        QList<NodeChunk> mapCurrentChunkForward(NodeAddress address, std::size_t length) const
+        {
+            return mapCurrentChunksForward_impl({{ address, length }});
+        }
+        
+        QList<NodeChunk> mapCurrentChunksForward(QList<NodeChunk> from) const
+        {
+            return mapCurrentChunksForward_impl(std::move(from));
+        }
+        
+        // future chunks backward
+        QList<NodeChunk> mapFutureChunkBackward(NodeChunk from) const
+        {
+            return mapFutureChunksBackward_impl({ from });
+        }
+        
+        QList<NodeChunk> mapFutureChunkBackward(NodeAddress address, std::size_t length) const
+        {
+            return mapFutureChunksBackward_impl({{ address, length }});
+        }
+        
+        QList<NodeChunk> mapFutureChunksBackward(QList<NodeChunk> from) const
+        {
+            return mapFutureChunksBackward_impl(std::move(from));
+        }
+        
+    protected:
+        using step_iterator = step_list_t::const_iterator;
+        
+        using coarse_chunk_iterator = chunk_map_t::const_iterator;
+        using fine_chunk_iterator = chunk_list_t::const_iterator;
+        
+        using r_coarse_chunk_iterator = std::reverse_iterator<coarse_chunk_iterator>;
+        using r_fine_chunk_iterator = std::reverse_iterator<fine_chunk_iterator>;
+        
+        StagingHandle() = default;
+        StagingHandle(const StagingHandle&) = default;
+        StagingHandle& operator=(const StagingHandle&) = default;
+        
+        step_iterator _stepBegin    = {};
+        step_iterator _step         = {};
+        step_iterator _stepEnd      = {};
+        
+        std::size_t _chunkIndex       = 0;
+                
+        coarse_chunk_iterator   _cChunk     = {};
+        fine_chunk_iterator     _fChunk     = {};
+        r_coarse_chunk_iterator _rCChunk    = {};
+        r_fine_chunk_iterator   _rFChunk    = {};
+        
+    private:
+        QList<NodeChunk> mapPastChunksForward_impl(QList<NodeChunk> from) const;
+        QList<NodeChunk> mapCurrentChunksBackward_impl(QList<NodeChunk> from) const;
+        QList<NodeChunk> mapCurrentChunksForward_impl(QList<NodeChunk> from) const;
+        QList<NodeChunk> mapFutureChunksBackward_impl(QList<NodeChunk> from) const;
+        
+#ifdef ADDLE_TEST
+        friend class ::DataTree_UTest;
+#endif
+    };
+    
+    class Iterator : public boost::iterator_facade<
+            Iterator,
+            const StagingHandle,
+            std::bidirectional_iterator_tag
+        >, 
+        private StagingHandle
+    {   
+    public:
+        Iterator() = default;
+        Iterator(const Iterator&) = default;
+        Iterator& operator=(const Iterator&) = default;
+        
+        void swap(Iterator& other)
+        {
+            std::swap(_chunkIndex,    other._chunkIndex);
+            
+            std::swap(_step,    other._step);
+            std::swap(_stepEnd, other._stepEnd);
+            
+            std::swap(_cChunk,  other._cChunk);
+            std::swap(_fChunk,  other._fChunk);
+            std::swap(_rCChunk, other._rCChunk);
+            std::swap(_rFChunk, other._rFChunk);
+        }
+        
+    private:
+        Iterator(
+                step_iterator stepBegin,
+                step_iterator step,
+                step_iterator stepEnd)
+        {
+            _stepBegin  = stepBegin;
+            _step       = step;
+            _stepEnd    = stepEnd;
+            
+            if (_step != _stepEnd)
+                initStepFront();
+        }
+                
+        const StagingHandle& dereference() const
+        {
+            return static_cast<const StagingHandle&>(*this);
+        }
+        
+        bool equal(const Iterator& other) const
+        { 
+            return _step == other._step && _chunkIndex == other._chunkIndex;
+        }
+        
+        inline void initStepFront();
+        inline void initStepBack();
+        
+        inline void increment();
+        inline void decrement();
+        
+        friend class NodeEvent;
+        friend class boost::iterator_core_access;
+        
+#ifdef ADDLE_TEST
+        friend class ::DataTree_UTest;
+#endif
+    };
+    
+    Iterator begin() const
+    {
+        if (!_data) return Iterator();
+        return Iterator(
+                _data->steps.cbegin(), 
+                _data->steps.cbegin(), 
+                _data->steps.cend()
+            );
+    }
+    
+    Iterator end() const 
+    {
+        if (!_data) return Iterator();
+        return Iterator(
+                _data->steps.cbegin(), 
+                _data->steps.cend(), 
+                _data->steps.cend()
+            );
     }
     
 private:
     class Step
     {
     public:
-        Step(NodeOperation operation)
+        explicit Step(NodeOperation operation)
             : _operation(operation)
         {
         }
@@ -301,19 +562,25 @@ private:
         
         const initial_child_counts_t& initialChildCounts() const { return _initialChildCounts; }
         
-        NodeAddress mapForward(
+        std::optional<NodeAddress> mapForward(
                 const NodeAddress& from, 
-                std::size_t progress = SIZE_MAX,
-                bool* wasDeleted = nullptr) const
+                std::size_t minChunkIndex = 0,
+                std::size_t maxChunkIndex = SIZE_MAX) const
         {
-            if (from.isRoot()) return NodeAddress();
-                        
+            if (from.isRoot()) return from;
+
             switch(_operation)
             {
                 case NodeOperation::Add:
-                    return primaryMap_impl<true>(from, progress);
+                {
+                    PrimaryChunkMapper<true, true> mapper(*this, minChunkIndex, maxChunkIndex);
+                    return mapper.mapAddress(from);
+                }
                 case NodeOperation::Remove:
-                    return primaryMap_impl<false, true>(from, progress, wasDeleted);
+                {
+                    PrimaryChunkMapper<false, false> mapper(*this, minChunkIndex, maxChunkIndex);
+                    return mapper.mapAddress(from);
+                }
                 
         //                 case NodeOperation::Move: // TODO
                     
@@ -322,10 +589,17 @@ private:
             }
         }
         
-        NodeAddress mapBackward(
-                const NodeAddress& from, 
-                std::size_t progress = SIZE_MAX,
-                bool* wasAdded = nullptr) const
+        template<typename InRange, class OutContainer>
+        void mapChunksForward(
+                const InRange& in, 
+                OutContainer& out,
+                std::size_t minChunkIndex = 0, 
+                std::size_t maxChunkIndex = SIZE_MAX) const;
+        
+        std::optional<NodeAddress> mapBackward(
+                const NodeAddress& from,
+                std::size_t minChunkIndex = 0, 
+                std::size_t maxChunkIndex = SIZE_MAX) const
         {
             if (_primaryChunks.empty())
                 return from;
@@ -333,9 +607,15 @@ private:
             switch(_operation)
             {
                 case NodeOperation::Add:
-                    return primaryMap_impl<false>(from, progress, wasAdded);
+                {
+                    PrimaryChunkMapper<false, true> mapper(*this, minChunkIndex, maxChunkIndex);
+                    return mapper.mapAddress(from);
+                }
                 case NodeOperation::Remove:
-                    return primaryMap_impl<true, true>(from, progress);
+                {
+                    PrimaryChunkMapper<true, false> mapper(*this, minChunkIndex, maxChunkIndex);
+                    return mapper.mapAddress(from);
+                }
                 
         //                 case NodeOperation::Move: // TODO
                     
@@ -344,27 +624,83 @@ private:
             }
         }
         
-        std::ptrdiff_t childCountOffset(
-                NodeAddress parent, 
-                std::size_t progress = SIZE_MAX) const;
+        template<typename InRange, class OutContainer>
+        void mapChunksBackward(
+                const InRange& in, 
+                OutContainer& out,
+                std::size_t minChunkIndex = 0, 
+                std::size_t maxChunkIndex = SIZE_MAX) const;
         
-        // Adjusts relevant addresses in this Add step as if `rel` had been 
-        // inserted first. (this is occasionally necessary if merging `rel` 
-        // would require an address with a negative index.)
-        void rebase(const NodeChunk& rel);
+        // A convenience to avoid having to make a container to hold the result
+        // of a subtractive mapping (i.e., when it can be assumed there is no
+        // more than one chunk). Maps forward on Remove steps and backward on 
+        // Add steps.
+        std::optional<NodeChunk> mapChunkSubtractive(
+                NodeChunk from,
+                std::size_t minChunkIndex = 0, 
+                std::size_t maxChunkIndex = SIZE_MAX) const;
+                
+//         std::ptrdiff_t childCountOffset(
+//                 NodeAddress parent, 
+//                 std::size_t progress = SIZE_MAX) const;
+        
+        // Changes the primary chunks of this Add step as if `rel` had been 
+        // inserted before them. (Has no effect and returns quickly if `rel` is
+        // above all chunks in the step). Returns the change in the number of 
+        // chunks in the step.
+        signed rebase(const NodeChunk& rel);
         
         // Adds a chunk to this step, eliding or merging it with existing chunks
-        // as necessary.
-        void addPrimaryChunk(NodeChunk&& chunk);
+        // as necessary. Returns the change in the number of chunks in the step.
+        signed addPrimaryChunk(NodeChunk&& chunk);
+        
+        void moveRoot(NodeAddress rel);
         
     private:
+        template<bool Additive, bool ChunkIndciesAscending = true>
+        struct PrimaryChunkMapper
+        {
+            PrimaryChunkMapper(const Step& step_,
+                    std::size_t minChunkIndex_ = 0,
+                    std::size_t maxChunkIndex_ = SIZE_MAX)
+                : step(step_), 
+                minChunkIndex(minChunkIndex_),
+                maxChunkIndex(std::min(maxChunkIndex_, step._chunkCount))
+            {
+                assert(minChunkIndex <= maxChunkIndex);
+            }
+            
+            PrimaryChunkMapper(const Step& step_, 
+                    NodeChunk from_, 
+                    std::size_t minProgress_ = 0,
+                    std::size_t maxProgress_ = SIZE_MAX);
+            
+            std::optional<NodeAddress> mapAddress(NodeAddress from);
                 
-        template<bool additive, bool progressReversed = false>
-        NodeAddress primaryMap_impl(
-                const NodeAddress& from, 
-                std::size_t progress = SIZE_MAX, 
-                bool* terminal = nullptr
-            ) const;
+            std::optional<NodeChunk> yieldMapChunk();
+            
+            const Step& step;
+            const std::size_t minChunkIndex;
+            const std::size_t maxChunkIndex;
+            
+            std::optional<NodeChunk> remainderChunk;
+            
+            std::size_t chunkIndex = 0;
+            
+            std::optional<NodeAddress> mappedParentAddress;
+            
+            chunk_map_t::const_iterator cChunk = {};
+            
+//             using f_chunk_iter_t = boost::mp11::mp_if_c<
+//                     ProgressReversed,
+//                     std::reverse_iterator<chunk_list_t::const_iterator>,
+//                     chunk_list_t::const_iterator
+//                 >;
+            
+            chunk_list_t::const_iterator fChunk     = {};
+            chunk_list_t::const_iterator fChunkEnd  = {};
+        };
+                    
         NodeOperation _operation;
         
         std::size_t _chunkCount = 0;
@@ -376,27 +712,15 @@ private:
         
         NodeChunk _moveSource;
         NodeAddress _moveDest;
-    };
-    
-    class StepBuilder
-    {
-    public:
-        StepBuilder(Step& step, std::size_t& totalChunkCount, bool isNew = false)
-            : _step(step), _totalChunkCount(totalChunkCount), _isNew(isNew)
-        {
-        }
         
-        void addPrimaryChunk(NodeChunk chunk);
-        
-    private:
-        Step& _step;
-        std::size_t& _totalChunkCount;
-        bool _isNew;
+#ifdef ADDLE_TEST
+        friend class ::DataTree_UTest;
+#endif
     };
     
     struct Data : QSharedData
     {
-        QList<Step> steps;
+        step_list_t steps;
         std::size_t totalChunkCount = 0;
     };
     
@@ -408,25 +732,87 @@ private:
             _data.detach();
     }
     
-    StepBuilder addStep(NodeOperation type);    
-    
-    inline void addChunk_impl(NodeAddress address, std::size_t length)
+    void removeChunks_impl(NodeChunk* begin, NodeChunk* end);
+        
+    QList<NodeChunk> mapChunksForward_impl(QList<NodeChunk> from) const
     {
-        auto handle = addStep(NodeOperation::Add);
-        handle.addPrimaryChunk({ std::move(address), length });
+        if (!_data || from.isEmpty())
+            return from;
+        
+//         if (from.size() == 1 && (!from.first().length || from.first().length == 1))
+//         {
+//             auto mapped = mapForward(from.first().address);
+//             if (mapped)
+//                 return {{ *mapped, from.first().length }};
+//             else
+//                 return {};
+//         }
+        
+        QList<NodeChunk> result;
+        
+        auto i  = _data->steps.cbegin();
+        auto end = _data->steps.cend();
+        
+        if (i == end) return {}; // impossible?
+        
+        while (true)
+        {
+            const Step& step = *i;
+            
+            step.mapChunksForward(from, result);
+            if (result.isEmpty()) return {};
+            
+            ++i;
+            if (i == end) break;
+            
+            result.swap(from);
+            result.clear();
+        }
+        
+        cleanupChunkSet(result);
+        
+        return result;
     }
     
-    template<typename Range>
-    void addChunks_impl(Range&& range);
-    
-    inline void removeChunk_impl(NodeAddress address, std::size_t length)
+    QList<NodeChunk> mapChunksBackward_impl(QList<NodeChunk> from) const
     {
-        auto handle = addStep(NodeOperation::Remove);
-        handle.addPrimaryChunk({ std::move(address), length });
+        if (!_data || from.isEmpty())
+            return from;
+        
+//         if (from.size() == 1 && (!from.first().length || from.first().length == 1))
+//         {
+//             auto mapped = mapBackward(from.first().address);
+//             if (mapped)
+//                 return {{ *mapped, from.first().length }};
+//             else
+//                 return {};
+//         }
+        
+        QList<NodeChunk> result;
+        
+        auto i  = _data->steps.crbegin();
+        auto end = _data->steps.crend();
+        
+        if (i == end) return {}; // impossible?
+        
+        while (true)
+        {
+            const Step& step = *i;
+            
+            step.mapChunksBackward(from, result);
+            if (result.isEmpty()) return {};
+            
+            ++i;
+            if (i == end) break;
+            
+            result.swap(from);
+            result.clear();
+        }
+        
+        cleanupChunkSet(result);
+        
+        return result;
     }
-    
-    template<typename Range>
-    void removeChunks_impl(Range&& range);
     
 //     void setInitialChildCount_impl(
 //             NodeAddress address, 
@@ -442,7 +828,7 @@ private:
     QSharedDataPointer<Data> _data;
     
     template<typename> friend class TreeObserver;
-    template<class> friend class NodeEventTreeHelper;
+    template<class> friend class EnactNodeEventHelper;
     friend class TreeObserverData;
     friend class ObservedTreeState;
     friend class NodeEventBuilder;
@@ -452,84 +838,182 @@ private:
 #endif
 };
 
-template<typename Range>
-void NodeEvent::addChunks_impl(Range&& range)
+inline void NodeEvent::Iterator::initStepFront()
 {
-    static_assert(
-        std::is_convertible_v<
-            typename boost::range_reference<
-                boost::remove_cv_ref_t<Range>
-            >::type,
-            NodeChunk
-        >,
-        "This method may only be used for ranges of NodeChunk"
-    );
-    
-    if (!boost::empty(range))
+    switch(operation())
     {
-        auto handle = addStep(NodeOperation::Add);
-        
-        QVarLengthArray<NodeChunk, 64> buffer(
-                std::begin(range), 
-                std::end(range)
-            );
-        std::sort(buffer.begin(), buffer.end());
-        // sorting beforehand is by no means required, but it guarantees a
-        // best-case performance for addPrimaryChunk
-        
-        for (NodeChunk& entry : buffer)
-            handle.addPrimaryChunk(std::move(entry));
+        case Add:
+            _cChunk = (*_step).primaryChunks().begin();
+            _fChunk = (*_cChunk).second.begin();
+            break;
+            
+        case Remove:
+            _rCChunk = std::make_reverse_iterator((*_step).primaryChunks().end());
+            _rFChunk = std::make_reverse_iterator((*_rCChunk).second.end());
+            break;
+            
+        default:
+            Q_UNREACHABLE();
     }
 }
 
-template<typename Range>
-void NodeEvent::removeChunks_impl(Range&& range)
+inline void NodeEvent::Iterator::initStepBack()
 {
-    static_assert(
-        std::is_convertible_v<
-            typename boost::range_reference<
-                boost::remove_cv_ref_t<Range>
-            >::type,
-            NodeChunk
-        >,
-        "This method may only be used for ranges of NodeChunk"
-    );
-    
-    if (!boost::empty(range))
+    _chunkIndex = (*_step).chunkCount();
+    switch(operation())
     {
-        auto handle = addStep(NodeOperation::Remove);
-        
-        QVarLengthArray<NodeChunk, 64> buffer(
-                std::begin(range), 
-                std::end(range)
-            );
-        std::sort(buffer.begin(), buffer.end());
-        
-        for (NodeChunk& entry : buffer)
-            handle.addPrimaryChunk(std::move(entry));
+        case Add:
+            _cChunk = --((*_step).primaryChunks().end());
+            _fChunk = --((*_cChunk).second.end());
+            break;
+            
+        case Remove:
+            _rCChunk = --std::make_reverse_iterator((*_step).primaryChunks().begin());
+            _rFChunk = --std::make_reverse_iterator((*_rCChunk).second.begin());
+            break;
+            
+        default:
+            Q_UNREACHABLE();
     }
 }
+        
+inline void NodeEvent::Iterator::increment()
+{
+    assert (_step != _stepEnd);
+    
+    ++_chunkIndex;
+    switch(operation())
+    {
+        case Add:
+            ++_fChunk;
+            if (_fChunk == (*_cChunk).second.end())
+            {
+                ++_cChunk;
+                if (_cChunk == (*_step).primaryChunks().end())
+                {
+                    ++_step;
+                    if (_step != _stepEnd) 
+                        initStepFront();
+                    
+                    _chunkIndex = 0;
+                    return;
+                }
+                else
+                {
+                    _fChunk = (*_cChunk).second.begin();
+                }
+            }
+            return;
+        
+        case Remove:
+            ++_rFChunk;
+            if (_rFChunk.base() == (*_rCChunk).second.begin())
+            {
+                ++_rCChunk;
+                if (_rCChunk.base() == (*_step).primaryChunks().begin()) 
+                {
+                    ++_step;
+                    if (_step != _stepEnd) 
+                        initStepFront();
+                    
+                    _chunkIndex = 0;
+                    return;
+                }
+                else
+                {
+                    _rFChunk = std::make_reverse_iterator((*_rCChunk).second.end());
+                }
+            }
+            return;
+            
+        default:
+            Q_UNREACHABLE();
+    }
+}
+
+inline void NodeEvent::Iterator::decrement()
+{
+    --_chunkIndex;
+    if (_step == _stepEnd) 
+    {
+        --_step;
+        initStepBack();
+        return;
+    }
+    
+    switch(operation())
+    {
+        case Add:
+            if (_fChunk == (*_cChunk).second.begin())
+            {
+                if (_cChunk == (*_step).primaryChunks().begin()) 
+                {
+                    --_step;
+                    initStepBack();
+                    
+                    return;
+                }
+                else
+                {
+                    --_cChunk;
+                    _fChunk = --((*_cChunk).second.end());
+                }
+            }
+            else
+            {
+                --_fChunk;
+            }
+            return;
+        
+        case Remove:
+            if (_rFChunk.base() == (*_rCChunk).second.end())
+            {
+                if (_rCChunk.base() == (*_step).primaryChunks().end()) 
+                {
+                    --_step;
+                    initStepBack();
+                    
+                    return;
+                }
+                else
+                {
+                    --_rCChunk;
+                    _rFChunk = --std::make_reverse_iterator((*_rCChunk).second.begin());
+                }
+            }
+            {
+                --_rFChunk;
+            }
+            return;
+            
+        default:
+            Q_UNREACHABLE();
+    }
+}
+
+extern template void NodeEvent::Step::mapChunksForward(const QList<NodeChunk>&, QList<NodeChunk>&, std::size_t, std::size_t) const;
+extern template void NodeEvent::Step::mapChunksBackward(const QList<NodeChunk>&, QList<NodeChunk>&, std::size_t, std::size_t) const;
 
 // TODO: rename
 // Modifies a tree and records those modifications in an event.
 template<class Tree>
-class NodeEventTreeHelper
+class EnactNodeEventHelper
 {
 public:
     using handle_t = aux_datatree::node_handle_t<Tree>;
     using child_handle_t = aux_datatree::child_node_handle_t<handle_t>;
     
-    NodeEventTreeHelper(handle_t root, NodeEvent& event)
+    EnactNodeEventHelper(handle_t root, NodeEvent& event)
         : _root(root),
         _event(event)
     {
         assert(_root);
     }
     
-    NodeEventTreeHelper(const NodeEventTreeHelper&) = delete;
-    NodeEventTreeHelper(NodeEventTreeHelper&&) = delete;
-    NodeEventTreeHelper& operator=(const NodeEventTreeHelper&) = delete;
-    NodeEventTreeHelper& operator=(NodeEventTreeHelper&&) = delete;
+    EnactNodeEventHelper(const EnactNodeEventHelper&) = delete;
+    EnactNodeEventHelper(EnactNodeEventHelper&&) = delete;
+    EnactNodeEventHelper& operator=(const EnactNodeEventHelper&) = delete;
+    EnactNodeEventHelper& operator=(EnactNodeEventHelper&&) = delete;
     
     // Because tree operations have the potential to throw exceptions, we must
     // avoid actually modifying the state of the event until *after* performing
@@ -640,7 +1124,7 @@ template<typename Range,
         std::forward_iterator_tag
         >,
     void*>>
-auto NodeEventTreeHelper<Tree>::insertNodes(
+auto EnactNodeEventHelper<Tree>::insertNodes(
         handle_t parent, 
         child_handle_t before, 
         Range&& nodeValues
@@ -664,7 +1148,7 @@ auto NodeEventTreeHelper<Tree>::insertNodes(
 //     _event.setInitialChildCount_impl(
 //             _event.mapBackward(parentAddress), initialChildCount
 //         );
-    _event.addChunk_impl( 
+    _event.addChunk( 
             NodeAddressBuilder(parentAddress) << startIndex,
             valuesCount 
         );  
@@ -673,7 +1157,7 @@ auto NodeEventTreeHelper<Tree>::insertNodes(
 }
 
 template<class Tree>
-void NodeEventTreeHelper<Tree>::removeNodes_impl(
+void EnactNodeEventHelper<Tree>::removeNodes_impl(
         handle_t parent, 
         std::size_t startIndex,
         std::size_t count,
@@ -695,7 +1179,7 @@ void NodeEventTreeHelper<Tree>::removeNodes_impl(
 //     _event.setInitialChildCount_impl(
 //             _event.mapBackward(parentAddress), initialChildCount
 //         );
-    _event.removeChunk_impl(
+    _event.removeChunk(
             NodeAddressBuilder(parentAddress) << startIndex, 
             count
         );
@@ -849,6 +1333,8 @@ public:
         return _data->finishRecording();
     }
     
+    const NodeEvent& pendingEvent() { return _data->_recording; }
+    
     bool isRecording() const { return _data->_isRecording; }
     
 //     NodeEvent lastNodeEvent() const
@@ -877,7 +1363,7 @@ public:
     {
         assert(_data->_isRecording);
         
-        return NodeEventTreeHelper<Tree>(_root, _data->_recording)
+        return EnactNodeEventHelper<Tree>(_root, _data->_recording)
             .template insertNodes<Range>(
                     parent, 
                     before, 
@@ -959,7 +1445,7 @@ public:
          )
     {
         assert(_data->_isRecording);
-        _data->_recording.addChunk_impl(
+        _data->_recording.addChunk(
                 NodeAddressBuilder(::Addle::aux_datatree::node_address(parent)) << startIndex,
                 count
             );
@@ -972,7 +1458,7 @@ public:
         )
     {
         assert(_data->_isRecording);
-        NodeEventTreeHelper<Tree>(_root, _data->_recording)
+        EnactNodeEventHelper<Tree>(_root, _data->_recording)
             .removeNodes(
                 parent, 
                 startIndex, 
@@ -984,7 +1470,7 @@ public:
     void removeNodes(Range&& range)
     {
         assert(_data->_isRecording);
-        NodeEventTreeHelper<Tree>(_root, _data->_recording)
+        EnactNodeEventHelper<Tree>(_root, _data->_recording)
             .removeNodes(
                 std::forward<Range>(range)
             );
@@ -997,7 +1483,7 @@ public:
          )
     {
         assert(_data->_isRecording);
-        _data->_recording.removeChunk_impl(
+        _data->_recording.removeChunk(
                 NodeAddressBuilder(::Addle::aux_datatree::node_address(parent)) << startIndex,
                 count
             );
@@ -1133,8 +1619,8 @@ public:
             return (*_eventIt).event;
     }
     
-    NodeAddress mapToCurrent(NodeAddress address, bool* wasDeleted = nullptr) const;
-    NodeAddress mapFromCurrent(NodeAddress address, bool* wasAdded = nullptr) const;
+    std::optional<NodeAddress> mapToCurrent(NodeAddress address) const;
+    std::optional<NodeAddress> mapFromCurrent(NodeAddress address) const;
     
     std::unique_ptr<QReadLocker> lockObserverForRead() const
     {
@@ -1204,39 +1690,26 @@ class GenericNodeRefData
 public:
     virtual ~GenericNodeRefData() noexcept = default;
     
-    virtual const std::type_info& type() const noexcept = 0;
-    
-    virtual NodeAddress address() const noexcept = 0;
-    virtual void setAddress(NodeAddress address) noexcept = 0;
-    
-    virtual bool isDeleted() const noexcept = 0;
-    virtual void markDeleted() noexcept = 0;
-};
-
-template<typename Handle>
-class GenericNodeRefData_impl : public GenericNodeRefData
-{
-public:
-    virtual ~GenericNodeRefData_impl() noexcept = default;
-    
-    const std::type_info& type() const noexcept override { return *_type; }
-    
-    NodeAddress address() const noexcept override { return _address; }
-    void setAddress(NodeAddress address) noexcept override { _address = std::move(address); }
-    
-    bool isDeleted() const noexcept override { return _isDeleted; }
-    void markDeleted() noexcept override { _isDeleted = true; }
-    
-private:
+protected:
     QSharedPointer<TreeObserverData> _treeObserverData;
-    
     NodeAddress _address;
     bool _isDeleted = false;
+    const std::type_info* _type;
     
     QAtomicInteger<unsigned> _refCount;
     
+    friend class TreeObserverData;
+    template<class, bool> friend class NodeRef;
+};
+
+template<typename Handle>
+class GenericNodeRefData_withHandle : public GenericNodeRefData
+{
+public:
+    virtual ~GenericNodeRefData_withHandle() noexcept = default;
+    
+private:
     Handle _handle;
-    const std::type_info* _type;
     
     template<class, bool> friend class NodeRef;
 };
@@ -1384,8 +1857,20 @@ public:
     }
     
 private:
-    using data_t = GenericNodeRefData_impl<node_handle_t<Tree>>;
+    using data_t = GenericNodeRefData_withHandle<node_handle_t<Tree>>;
+    
+    std::size_t hash() const
+    {
+        return std::hash<data_t*>() (_data);
+    }
+    
+    friend uint qHash(const NodeRef& ref, uint seed = 0)
+    {
+        return ref.hash() ^ seed;
+    }
+    
     data_t* _data;
+    friend struct std::hash<NodeRef<Tree, IsConst>>;
 };
 
 template<class Tree, bool IsConst>
@@ -1406,7 +1891,7 @@ NodeRef<Tree, IsConst>::NodeRef(observer_t& tree, handle_t node)
     
     for (; i != end; ++i)
     {
-        if ((*i).second->type() != typeid(handle_t)) continue;
+        if ((*(*i).second->_type) != typeid(handle_t)) continue;
         
 #ifdef ADDLE_DEBUG
         assert(static_cast<data_t*>((*i).second)->_handle == node);
@@ -1426,7 +1911,7 @@ NodeRef<Tree, IsConst>::NodeRef(observer_t& tree, handle_t node)
     tree._data->_nodeRefs.insert(std::make_pair(address, _data));
 }
     
-}
+} // namespace aux_datatree
 
 template<class Tree>
 using DataTreeObserver = aux_datatree::TreeObserver<Tree>;
@@ -1437,3 +1922,15 @@ using DataTreeNodeEvent = aux_datatree::NodeEvent;
 }
 
 Q_DECLARE_METATYPE(Addle::DataTreeNodeEvent)
+
+namespace std {
+template<typename Tree, bool IsConst>
+struct hash<Addle::aux_datatree::NodeRef<Tree, IsConst>>
+{
+    std::size_t operator()(const Addle::aux_datatree::NodeRef<Tree, IsConst>& ref) const
+    { 
+        return ref.hash(); 
+    }
+};
+
+}

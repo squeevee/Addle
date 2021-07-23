@@ -51,10 +51,10 @@ public:
     const LayersTree& layers() override { return _layers; }
     ConstLayersTree layers() const override { return _layers; }
 
-    QList<DataTreeNodeAddress> layerSelection() const override { return _layerSelection; }
-    void setLayerSelection(QList<DataTreeNodeAddress> selection) override;
-    void addLayerSelection(QList<DataTreeNodeAddress> added) override;
-    void subtractLayerSelection(QList<DataTreeNodeAddress> removed) override;
+    QSet<ILayerNodePresenter::LayerNodeRef> layerSelection() const override { return _layerSelection; }
+    void setLayerSelection(QSet<ILayerNodePresenter::LayerNodeRef> selection) override;
+    void addLayerSelection(QSet<ILayerNodePresenter::LayerNodeRef> added) override;
+    void subtractLayerSelection(QSet<ILayerNodePresenter::LayerNodeRef> removed) override;
 
     QSharedPointer<ILayerPresenter> topSelectedLayer() const override
     {
@@ -74,18 +74,19 @@ public slots:
 
 signals:
     void layerNodesChanged(DataTreeNodeEvent) override;
-    //void layersMoved(QList<IDocumentPresenter::LayerNode*> moved) override;
-
-    void layersChanged() override;
     void topSelectedLayerChanged(QSharedPointer<ILayerPresenter> layer) override;
     
-    void layerSelectionChanged(QList<DataTreeNodeAddress> selection) override;
+    void layerSelectionChanged(QSet<ILayerNodePresenter::LayerNodeRef> selection) override;
 private:        
+    ILayerNodePresenter::LayerNode* topSelectedLayerNode_p() const;
     QSharedPointer<ILayerPresenter> topSelectedLayer_p() const;
     
-    IDocumentPresenter::LayersTree _layers;
-    QList<DataTreeNodeAddress> _layerSelection;
+    DataTreeNodeAddress layerNodeInsertLocation() const;
     
+    IDocumentPresenter::LayersTree _layers;
+    QSet<ILayerNodePresenter::LayerNodeRef> _layerSelection;
+    
+    LazyProperty<ILayerNodePresenter::LayerNode*> _topSelectedLayerNode;
     LazyProperty<QSharedPointer<ILayerPresenter>> _topSelectedLayer;
     
     QSize _size;

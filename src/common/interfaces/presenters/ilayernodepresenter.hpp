@@ -11,21 +11,18 @@
 
 namespace Addle {
     
-class IDocumentPresenter;
+class ILayerPresenter;
 class ILayerGroupPresenter;
+
+class IDocumentPresenter;
 class ILayerNodePresenter : public virtual IAmQObject
 {
 public:    
-    using LayersTree        = AddleDataTree<
-                                    QSharedPointer<ILayerNodePresenter>,
-                                    true
-                                >;
-    using ConstLayersTree   = DataTreeCastView<
-                                    LayersTree,
-                                    QSharedPointer<const ILayerNodePresenter>
-                                >;
-    using LayerNode         = LayersTree::Node;
-    using ConstLayerNode    = ConstLayersTree::Node;
+    using LayersTree        = AddleDataTree<QSharedPointer<ILayerNodePresenter>, aux_datatree::AddleDataTreeOptions_Observer>;
+    using ConstLayersTree   = DataTreeCastView<LayersTree, QSharedPointer<const ILayerNodePresenter>>;
+    
+    using LayerNode         = typename LayersTree::Node;
+    using ConstLayerNode    = typename ConstLayersTree::Node;
     
     using LayerNodeRef      = aux_datatree::NodeRef<LayersTree, false>;
     using ConstLayerNodeRef = aux_datatree::NodeRef<ConstLayersTree, true>;
@@ -60,3 +57,5 @@ signals:
 } // namespace Addle 
 
 Q_DECLARE_INTERFACE(Addle::ILayerNodePresenter, "org.addle.ILayerNodePresenter")
+
+Q_DECLARE_METATYPE(Addle::ILayerNodePresenter::LayerNodeRef)

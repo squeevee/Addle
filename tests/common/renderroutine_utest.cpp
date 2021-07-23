@@ -3,40 +3,51 @@
 #include <QObject>
 
 #include "utilities/render/renderroutine.hpp"
+#include "interfaces/rendering/irenderentity.hpp"
 
 using namespace Addle;
 
-void render_test(const RenderHandle&, const void*) noexcept
+class TestEntity : public IRenderEntity
 {
-}
+public:
+    virtual ~TestEntity() = default;
+    QUuid id() const override { return QUuid::createUuidV3( QUuid(), QByteArrayLiteral("spiff")); }
+}; 
 
 class RenderRoutine_UTest : public QObject
 {
     Q_OBJECT
+private:
+    QTranslator fallbackTranslator;
+    
 private slots:
+    void initTestCase()
+    {   
+        fallbackTranslator.load(":/l10n/en_US.qm");
+        QCoreApplication::instance()->installTranslator(&fallbackTranslator);
+    }
+    
     void dev_1()
     {
-        RenderRoutine r1;
-        RenderRoutine r2;
-        r1.addSubRoutine(r2);
-        r1.addMask(QPainterPath(), -100);
-        r1.addMask(QRegion(), Q_INFINITY);
-        r1.addFunction(&render_test, nullptr);
-        r1.addFunction(&render_test, nullptr, 99999);
-        r1.addFunction(&render_test, nullptr, -1);
-        r1.addFunction(&render_test, nullptr, 13);
+        QSharedPointer<IRenderEntity> e(new TestEntity);
+       
+        RenderRoutine r1, r2;
         
-        r1.visit(
-                [](double z, auto&& v) { qDebug() << typeid(v).name() << z; },
-                -2,
-                Q_INFINITY
-            );
+        r2.setId( QUuid::createUuidV3( QUuid(), QByteArrayLiteral("freem")) );
+        r2.addEntity(e, aux_render::EntityFlag_Draws, -100);
+        r1.addSubRoutine(r2); 
         
-        for (auto f : r1.functions(-Q_INFINITY, 13))
-        {
-            qDebug() << f.second.function << f.second.context << f.first;
-        }
-        //qDebug() << r1.functionsCount(-1, 13);
+        
+        RenderRoutineChangedEvent ev;
+        ev.addNodeChunks({ {{ 0 },1}, {{ 0, 0 }, 1} });
+        ev.setZValues({ 0 }, { 10, 9, 8 });
+        //ev.populateZValues(r1);
+        
+        for (auto z : ev.zValues())
+            qDebug() << z;
+        
+        for (auto z : ev.zValues({ 0 }))
+            qDebug() << z;
     }
 };
 

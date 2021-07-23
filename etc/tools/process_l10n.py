@@ -2,10 +2,11 @@
 # Addle configuration code
 # @file
 # @copyright Copyright 2020 Eleanor Hawk
-# @copyright Modification and distribution permitted under the terms of the
-# MIT License. See "LICENSE" for full details.
+# Modification and distribution permitted under the terms of the MIT License. 
+# See "LICENSE" for full details.
 #
-# Run this script to generate/update l10n/en_US.ts
+# Run this script to generate/update l10n/en_US.ts then run e.g.,
+# lrelease ../l10n/en_US.ts -idbased -qm ../../resources/l10n/en_US.qm
 #
 # The bulk of Addle text exposed to the user is kept fully out of source. Some
 # (en_US) text is provided in source, however, for e.g. debug messages. For

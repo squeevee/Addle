@@ -18,6 +18,26 @@
 #include "helpercallback.hpp"
 namespace Addle {
 
+// TODO: these utilities are used for two largely unrelated cases. LazyValue is
+// used fairly sparingly in situations that actively necessitate type erasure or 
+// implementation hiding, and is essentially fine as is.
+    
+// LazyProperty is used to simplify the pattern of an object caching the values
+// of its own properties when changes may trigger expensive updates. The 
+// implementation leans on runtime abstraction and type erasure, but this is a 
+// convenience: it is not necessary for the functionality of the utility. A more
+// appropriate design would not lean on type erasure and would avoid
+// persistently storing a `this` pointer -- this would require a certain amount 
+// of boiler-plating that may ultimately undermine the purpose of the utility 
+// altogether.
+//
+// HOWEVER, a more complete answer to the problem that LazyProperty is meant to 
+// address would actually be a state machine, likely the one provided by Qt.
+// This would provide the same advantages as caching, with a lot of additional
+// ones, and would likely be operated in a similar way to the current
+// LazyProperty implementation. So, fixing LazyProperty is not a priority over
+// that.
+    
 /**
  * @class LazyValue
  * @brief Lazily calculated value
@@ -43,6 +63,8 @@ public:
         _value = value;
         _initialized = true;
     }
+    
+    bool isInitialized() const { return _initialized; }
 
     inline const T& value() const
     {
@@ -146,6 +168,11 @@ public:
             onChange(_value);
         }
         _initialized = true;
+    }
+    
+    inline void clear()
+    {
+        _initialized = false;
     }
 
 private:

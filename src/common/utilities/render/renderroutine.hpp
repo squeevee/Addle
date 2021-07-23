@@ -1,8 +1,10 @@
 #pragma once
 
 #include <optional>
+#include <map>
 
 #include <boost/range.hpp>
+#include <boost/range/adaptor/transformed.hpp>
 
 #include <QList>
 #include <QPainter>
@@ -11,66 +13,151 @@
 #include <QSharedData>
 #include <QSharedPointer>
 
-#include "interfaces/rendering/irenderable.hpp"
+#include "interfaces/rendering/irenderentity.hpp"
+
 #include "utilities/datatree/aux.hpp"
-// #include "utilities/datatree/observer.hpp"
+#include "utilities/datatree/observer.hpp"
+#include "utilities/datatree/nestedobjectadapter.hpp"
 #include "utilities/qobject.hpp"
 
 namespace Addle {
     
-namespace aux_render { class RenderRoutineNodeHandle; }
+namespace aux_render 
+{
+    class RenderRoutineNodeHandle; 
+    enum EntityFlag
+    {
+        EntityFlag_None = 0x00,
+        
+        EntityFlag_Draws = 0x01
+        
+//         EntityFlag_ProvidesPMask = 0x02,
+//         EntityFlag_ProvidesRMask = 0x04,
+        
+//         EntityFlag_StrictlySourceOver = 0x20,
+//         
+//         EntityFlag_RequiresARGB32Buffer = 0x100
+
+//         EntityFlag_RequiresARGB16FBuffer
+
+//         EntityFlag_FastAndInaccurate
+//         EntityFlag_SlowAndAccurate
+
+//         EntityFlag_RegisterForCacheAccess
+    };
     
-class RenderHandle;
+    Q_DECLARE_FLAGS(EntityFlags, EntityFlag);
+}
 
 /**
- * A pointer to a function that implements the actual rendering of a component.
- * A renderable implementation may provide one or more render functions as part
- * of its render routine.
+ * Declaratively gives rendering instructions. 
  * 
- * The first argument gives a `RenderHandle`, which contains the QPainter
- * (i.e., drawing API) and other data.
+ * A RenderRoutine is made up of a set of components, with each component having 
+ * a unique id and z-value. A component can either be an entity, with a shared 
+ * pointer to an object that performs some step of the rendering routine (e.g., 
+ * paints onto a paint device, exposes a mask, or performs an effect on a 
+ * buffer), or a component can be a subroutine, consisting of a nested 
+ * RenderRoutine.
  * 
- * The second argument, "context" gives a `void*` which can, e.g., be
- * reinterpret_cast to/from an object pointer type specific to the
- * implementation and hidden elsewhere.
- * 
- * The function should be reentrant, and cannot be assumed to run on any 
- * particular thread. It should be very fast, and should not lock the thread it 
- * runs on. Renderable objects' state should be atomic from the perspective of 
- * the render function. 
- * 
- * If state is invalid when the function is run, it should do nothing (at most, 
- * print a warning to the console in debug builds), but preferably that kind of 
- * error detection should be done in response to state change events.
+ * RenderRoutine are exposed by instances of IRenderable2 and consumed by
+ * IRenderer2. A renderable may build its render routine out of the routines of 
+ * subordinate renderables as desired. External alterations may be made to a
+ * routine in the context of a particular renderer without affecting the
+ * renderable itself or its routine in any other renderers.
  */
-using RenderFunctionPtr = void (*)(const RenderHandle&, const void*) noexcept;
-
-struct RenderFunctionBinding
-{
-    RenderFunctionPtr function = nullptr;
-    const void* context = nullptr;
-    
-    inline bool operator==(const RenderFunctionBinding& other) const
-    {
-        return function == other.function && context == other.context;
-    }
-    
-    inline bool operator!=(const RenderFunctionBinding& other) const
-    {
-        return !(*this == other);
-    }
-    
-    inline void operator()(const RenderHandle& handle) const noexcept
-    {
-        (*function)(handle, context);
-    }
-};
-
 class RenderRoutine
 {
+    struct Data;
+    struct component_entry_t
+    {
+        double z;
+        QUuid id;
+        
+        QSharedDataPointer<Data> routineData;
+        QSharedPointer<IRenderEntity> entity;
+        
+        aux_render::EntityFlags entityFlags;
+        
+        bool operator==(const component_entry_t& other) const
+        {
+            return id           == other.id
+                && z            == other.z
+                && routineData  == other.routineData
+                && entity       == other.entity;
+        }
+        
+        friend bool operator<(const component_entry_t lhs, const component_entry_t& rhs) { return lhs.z < rhs.z; }
+        friend bool operator<(double lhs, const component_entry_t& rhs) { return lhs < rhs.z; }
+        friend bool operator<(const component_entry_t& lhs, double rhs) { return lhs.z < rhs; }
+    };
+    using component_list_t = std::vector<component_entry_t>;
+    
 public:
-    using sub_routine_range = boost::iterator_range<typename QMap<double, RenderRoutine>::const_key_value_iterator>;
-    using function_range = boost::iterator_range<typename QMap<double, RenderFunctionBinding>::const_key_value_iterator>;
+    class Component
+    {
+    public:
+        Component() = default;
+        Component(const Component&) = default;
+        
+        double z() const { return _z; }
+        QUuid id() const { return _id; }
+        
+        bool isSubRoutine() const { return _routineData; }
+        RenderRoutine asSubRoutine() const
+        {
+            RenderRoutine result;
+            if (Q_LIKELY(_routineData))
+                result._data = const_cast<Data*>(_routineData);
+            
+            return result;
+        }
+        
+        bool isEntity() const { return _entity; }
+        QSharedPointer<IRenderEntity> asEntity() const 
+        { 
+            return _entity.toStrongRef(); 
+        }
+        aux_render::EntityFlags entityFlags() const
+        {
+            return _entityFlags;
+        }
+        
+    private:
+        Component(const component_entry_t& entry)
+            : _routineData(entry.routineData.data()), 
+            _entity(entry.entity),
+            _z(entry.z), 
+            _id(entry.id),
+            _entityFlags(entry.entityFlags)
+        {
+            assert(_routineData || _entity);
+        }
+        
+        Component(const Data* routineData, QWeakPointer<IRenderEntity> entity)
+            : _routineData(routineData), _entity(entity)
+        {
+            auto s_entity = _entity.toStrongRef();
+            
+            if (_routineData)
+                _id = _routineData->id;
+            else if (s_entity)
+                _id = s_entity->id();
+            else
+                Q_UNREACHABLE();
+        }
+        
+        const Data* _routineData = nullptr;
+        QWeakPointer<IRenderEntity> _entity;
+        
+        double _z = qQNaN();
+        QUuid _id;
+        aux_render::EntityFlags _entityFlags;
+        
+        friend class RenderRoutine;
+    };
+    
+    using component_range_t = aux_datatree::ConstChildNodeRange<RenderRoutine>;
+    using dfs_range_t = aux_datatree::ConstNodeRange<RenderRoutine>;
     
     RenderRoutine() = default;
     RenderRoutine(const RenderRoutine&) = default;
@@ -79,21 +166,24 @@ public:
     RenderRoutine& operator=(const RenderRoutine&) = default;
     RenderRoutine& operator=(RenderRoutine&&) = default;
     
+    RenderRoutine(QString name)
+        : _data(new Data(std::move(name)))
+    {
+    }
+    
     inline bool operator==(const RenderRoutine& other) const
     {
         return (_data == other._data)
             || (
                 _data && other._data
                 && (
-                    _data->opacity == other._data->opacity
-                    && _data->compositionMode == other._data->compositionMode
-                    && _data->passThroughMode == other._data->passThroughMode
-                    && _data->background == other._data->background
+                       _data->id                == other._data->id
+                    && _data->opacity           == other._data->opacity
+                    && _data->compositionMode   == other._data->compositionMode
+                    && _data->passThroughMode   == other._data->passThroughMode
+                    && _data->background        == other._data->background
                     
-                    && _data->pMasks == other._data->pMasks
-                    && _data->rMasks == other._data->rMasks
-                    && _data->functions == other._data->functions
-                    && _data->subRoutines == other._data->subRoutines
+                    && _data->components        == other._data->components
                 )
             );
     }
@@ -103,183 +193,72 @@ public:
         return !(*this == other);
     }
     
-    inline RenderRoutine& addMask(const QPainterPath& mask, double z = 0)
+    inline bool isNull() const { return !_data; }
+    inline bool isEmpty() const { return !_data || _data->components.empty(); }
+    
+    RenderRoutine& addEntity(
+            QSharedPointer<IRenderEntity> entity, 
+            aux_render::EntityFlags flags,
+            double z = 0
+        )
     {
-        assert(!qIsNaN(z));
+        assert(entity);
+        initData();
         
-        if (!_data)
-            _data = new Data;
+        _data->components.insert(
+                std::upper_bound(_data->components.begin(), _data->components.end(), z),
+                {
+                    z,
+                    entity->id(),
+                    QSharedDataPointer<Data> {},
+                    entity,
+                    flags
+                }
+            );
         
-        _data->pMasks.insert(z, mask);
         return *this;
     }
     
-    inline RenderRoutine& addMask(const QRegion& mask, double z = 0)
+    RenderRoutine& addSubRoutine(
+            RenderRoutine subRoutine,
+            double z = 0
+        )
     {
-        assert(!qIsNaN(z));
+        assert(subRoutine._data);
+        initData();
         
-        if (!_data)
-            _data = new Data;
+        _data->components.insert(
+                std::upper_bound(_data->components.begin(), _data->components.end(), z),
+                {
+                    z,
+                    subRoutine.id(),
+                    subRoutine._data,
+                    QSharedPointer<IRenderEntity> {}
+                }
+            );
         
-        _data->rMasks.insert(z, mask);
+        return *this;
+    }
+
+    inline RenderRoutine& setId(QUuid id)
+    {
+        initData();
+        _data->id = id;
         return *this;
     }
     
-    inline std::size_t pMasksCount(double min = -Q_INFINITY, double max = Q_INFINITY) const
-    {
-        assert(!qIsNaN(min) && !qIsNaN(max));
-        assert(min <= max);
-        
-        if (!_data)
-            return 0;
-        
-        if (!_data)
-            return 0;
-        
-        auto lower = _data->pMasks.lowerBound(min);
-        auto upper = _data->pMasks.upperBound(max);
-        
-        if (lower == _data->pMasks.begin() && upper == _data->pMasks.end())
-            return _data->pMasks.count();
-        else
-            return std::distance(lower, upper);
-    }
+    inline QUuid id() const { return _data ? _data->id : QUuid(); }
     
-    inline std::size_t rMasksCount(double min = -Q_INFINITY, double max = Q_INFINITY) const
-    {
-        assert(!qIsNaN(min) && !qIsNaN(max));
-        assert(min <= max);
-        
-        if (!_data)
-            return 0;
-        
-        if (!_data)
-            return 0;
-        
-        auto lower = _data->rMasks.lowerBound(min);
-        auto upper = _data->rMasks.upperBound(max);
-        
-        if (lower == _data->rMasks.begin() && upper == _data->rMasks.end())
-            return _data->rMasks.count();
-        else
-            return std::distance(lower, upper);
-    }
+    inline component_range_t components(double min = -Q_INFINITY, double max = Q_INFINITY) const;
     
-    inline std::size_t masksCount(double min = -Q_INFINITY, double max = Q_INFINITY) const
-    {
-        return pMasksCount(min, max) + rMasksCount(min, max);
-    }
-    
-    inline RenderRoutine& addSubRoutine(const RenderRoutine& subRoutine, double z = 0)
-    {
-        assert(!qIsNaN(z));
-        
-        if (!_data)
-            _data = new Data;
-        
-        _data->subRoutines.insert(z, subRoutine);
-        return *this;
-    }
-    
-    /**
-     * Gives an iterator range of pairs providing access to subRoutines of this
-     * routine whose z is between min and max inclusive. For each p in the range
-     * p.first is a double giving the z value of that function and p.second is 
-     * the routine as RenderRoutine
-     * 
-     * WARNING The resulting range may be invalidated by any modification to 
-     * this RenderRoutine's subRoutines.
-     */
-    inline sub_routine_range subRoutines(double min = -Q_INFINITY, double max = Q_INFINITY) const
-    {
-        assert(!qIsNaN(min) && !qIsNaN(max));
-        assert(min <= max);
-        
-        if (!_data)
-            return sub_routine_range();
-        else
-            return sub_routine_range(_data->subRoutines.lowerBound(min), _data->subRoutines.upperBound(max));
-    }
-    
-    inline std::size_t subRoutinesCount(double min = -Q_INFINITY, double max = Q_INFINITY) const
-    {
-        assert(!qIsNaN(min) && !qIsNaN(max));
-        assert(min <= max);
-        
-        if (!_data)
-            return 0;
-        
-        auto lower = _data->subRoutines.lowerBound(min);
-        auto upper = _data->subRoutines.upperBound(max);
-        
-        if (lower == _data->subRoutines.begin() && upper == _data->subRoutines.end())
-            return _data->subRoutines.count();
-        else
-            return std::distance(lower, upper);
-    }
-    
-    inline RenderRoutine& addFunction(RenderFunctionPtr function, const void* context, double z = 0)
-    {
-        assert(!qIsNaN(z));
-        
-        if (!_data)
-            _data = new Data;
-        
-        _data->functions.insert(z, { function, context });
-        return *this;
-    }
-    
-    /**
-     * Gives an iterator range of pairs providing access to functions in this
-     * routine whose z is between min and max inclusive. For each p in the range
-     * p.first is a double giving the z value of that function and p.second is
-     * the function given as RenderFunctionBinding
-     * 
-     * WARNING The resulting range may be invalidated by any modification to 
-     * this RenderRoutine's functions.
-     */
-    inline function_range functions(double min = -Q_INFINITY, double max = Q_INFINITY) const
-    {
-        assert(!qIsNaN(min) && !qIsNaN(max));
-        assert(min <= max);
-        
-        if (!_data)
-            return function_range();
-        else
-            return function_range(_data->functions.lowerBound(min), _data->functions.upperBound(max));
-    }
-    
-    inline std::size_t functionsCount(double min = -Q_INFINITY, double max = Q_INFINITY) const
-    {
-        assert(!qIsNaN(min) && !qIsNaN(max));
-        assert(min <= max);
-    
-        if (!_data)
-            return 0;
-        
-        auto lower = _data->functions.lowerBound(min);
-        auto upper = _data->functions.upperBound(max);
-        
-        if (lower == _data->functions.begin() && upper == _data->functions.end())
-            return _data->functions.count();
-        else
-            return std::distance(lower, upper);
-    }
-    
-    inline std::size_t componentsCount(double min = -Q_INFINITY, double max = Q_INFINITY) const
-    {
-        return pMasksCount(min, max)
-            + rMasksCount(min, max)
-            + subRoutinesCount(min, max)
-            + functionsCount(min, max);
-    }
+    inline dfs_range_t depthFirstSearch() const;
     
     inline RenderRoutine& setOpacity(double opacity)
     {
-        if (!_data)
-            _data = new Data;
+        assert(!qIsNaN(opacity));
+        initData();
         
-        _data->opacity = opacity;
+        _data->opacity = qBound(0.0, opacity, 1.0);
         return *this;
     }
     
@@ -287,8 +266,7 @@ public:
     
     inline RenderRoutine& setCompositionMode(QPainter::CompositionMode compositionMode)
     {
-        if (!_data)
-            _data = new Data;
+        initData();
         
         _data->compositionMode = compositionMode;
         return *this;
@@ -301,8 +279,7 @@ public:
     
     inline RenderRoutine& setPassThroughMode(bool passThroughMode)
     {
-        if (!_data)
-            _data = new Data;
+        initData();
         
         _data->passThroughMode = passThroughMode;
         return *this;
@@ -312,8 +289,7 @@ public:
         
     inline RenderRoutine& setBackground(QColor background)
     {
-        if (!_data)
-            _data = new Data;
+        initData();
         
         _data->background = std::move(background);
         return *this;
@@ -321,53 +297,18 @@ public:
     
     inline QColor background() const { return _data ? _data->background : QColor(); }
     
-    enum VisitorFilter
-    {
-        VisitorFilter_None          = 0x00,
-        VisitorFilter_PMasks        = 0x01,
-        VisitorFilter_RMasks        = 0x02,
-        VisitorFilter_SubRoutines   = 0x04,
-        VisitorFilter_Functions     = 0x08,
-        
-        VisitorFilter_All           = 0x0F
-    };
-    
-    Q_DECLARE_FLAGS(VisitorFilters, VisitorFilter);
-    
-    /**
-     * Visits the values of all masks, sub-routines, and functions in this
-     * routine, in order of z between min and max inclusive, from lowest to
-     * highest.
-     * 
-     * `visitor` must be a callable accepting two parameters: a double
-     * representing the z of the value, and the value itself. P-masks are given
-     * as QPainterPath, r-masks as QRegion, sub-routines as RenderRoutine, and
-     * functions as RenderFunctionBinding. All values are passed by const lvalue
-     * reference
-     * 
-     * The return value of `visitor`, if any, is ignored.
-     * 
-     * Values of different types with the same z value are visited in the
-     * following order by type: p-masks, r-masks, sub-routines, and functions.
-     * Values of the same type with the same z value are visited in the same
-     * order as they were inserted.
-     * 
-     * If not all values are desired, then VisitorFilters may be applied in the 
-     * template parameters of the call to visit. The values whose corresponding 
-     * bits in the filter are set will be visited.
-     * 
-     * WARNING It is not safe to modify this RenderRoutine from inside `visitor`.
-     */
-    template<typename Visitor, typename VisitorFilters::Int Filters = VisitorFilter_All>
-    inline void visit(Visitor&& visitor, double min = -Q_INFINITY, double max = Q_INFINITY) const;
-    
 private:
     struct Data : QSharedData
     {
-        QMultiMap<double, QPainterPath> pMasks;
-        QMultiMap<double, QRegion> rMasks;
-        QMultiMap<double, RenderRoutine> subRoutines;
-        QMultiMap<double, RenderFunctionBinding> functions;
+        Data() = default;
+        Data(const Data&)   = default;
+        Data(Data&&)        = delete;
+        
+        Data(QUuid id_) : id(id_) {}
+        
+        QUuid id;
+        
+        component_list_t components;
         
         double opacity = 1.0;
         QPainter::CompositionMode compositionMode = QPainter::CompositionMode_SourceOver;
@@ -375,116 +316,26 @@ private:
         QColor background;
     };
     
-    QSharedDataPointer<Data> _data;
-};
-
-template<typename Visitor, typename RenderRoutine::VisitorFilters::Int Filters>
-inline void RenderRoutine::visit(Visitor&& visitor, double min, double max) const
-{
-    assert(!qIsNaN(min) && !qIsNaN(max));
-    assert(min <= max);
-    
-    if constexpr (Filters == 0)
-        return;
-    
-    if (!_data)
-        return;
-    
-    double z = min;
-    while (true)
+    inline void initData()
     {
-        if constexpr ((Filters & VisitorFilter_PMasks) != 0)
-        {
-            if (_data->pMasks.contains(z))
-            {
-                auto i = _data->pMasks.find(z);
-                auto&& end = _data->pMasks.end();
-                while (i != end && i.key() == z)
-                {
-                    visitor(z, *i);
-                    ++i;
-                }
-            }
-        }
-        
-        if constexpr ((Filters & VisitorFilter_RMasks) != 0)
-        {
-            if (_data->rMasks.contains(z))
-            {
-                auto i = _data->rMasks.find(z);
-                auto&& end = _data->rMasks.end();
-                while (i != end && i.key() == z)
-                {
-                    visitor(z, *i);
-                    ++i;
-                }
-            }
-        }
-        
-        if constexpr ((Filters & VisitorFilter_SubRoutines) != 0)
-        {
-            if (_data->subRoutines.contains(z))
-            {
-                auto i = _data->subRoutines.find(z);
-                auto&& end = _data->subRoutines.end();
-                while (i != end && i.key() == z)
-                {
-                    visitor(z, *i);
-                    ++i;
-                }
-            }
-        }
-        
-        if constexpr ((Filters & VisitorFilter_Functions) != 0)
-        {
-            if (_data->functions.contains(z))
-            {
-                auto i = _data->functions.find(z);
-                auto&& end = _data->functions.end();
-                while (i != end && i.key() == z)
-                {
-                    visitor(z, *i);
-                    ++i;
-                }
-            }
-        }
-        
-        if (z >= max)
-            break;
-        
-        double next = max;
-
-        if constexpr ((Filters & VisitorFilter_PMasks) != 0)
-        {
-            auto i = _data->pMasks.upperBound(z);
-            if (i != _data->pMasks.end())
-                next = qMin(next, i.key());
-        }
-        
-        if constexpr ((Filters & VisitorFilter_RMasks) != 0)
-        {
-            auto i = _data->rMasks.upperBound(z);
-            if (i != _data->rMasks.end())
-                next = qMin(next, i.key());
-        }
-        
-        if constexpr ((Filters & VisitorFilter_SubRoutines) != 0)
-        {
-            auto i = _data->subRoutines.upperBound(z);
-            if (i != _data->subRoutines.end())
-                next = qMin(next, i.key());
-        }
-        
-        if constexpr ((Filters & VisitorFilter_Functions) != 0)
-        {
-            auto i = _data->functions.upperBound(z);
-            if (i != _data->functions.end())
-                next = qMin(next, i.key());
-        }
-        
-        z = next;
+        if (!_data) 
+            _data = new Data;
+        else 
+            _data.detach();
     }
-}
+    
+    // private Component constructor access for friends
+    static Component makeComponent(const component_entry_t& entry) { return Component(entry); }
+    static Component makeComponent(const Data* routineData, QWeakPointer<IRenderEntity> entity) { return Component(routineData, entity); }
+    
+    QSharedDataPointer<Data> _data;
+    
+    friend class aux_datatree::ChildNodeIterator<RenderRoutine, true>;
+    friend class aux_datatree::ChildNodeIterator<RenderRoutine, false>;
+        // Should we even allow non-const iterators?
+    
+    friend class aux_render::RenderRoutineNodeHandle;
+};
 
 template<>
 struct aux_datatree::datatree_traits<RenderRoutine>
@@ -495,36 +346,40 @@ struct aux_datatree::datatree_traits<RenderRoutine>
 
 template<bool IsConst>
 class aux_datatree::ChildNodeIterator<RenderRoutine, IsConst>
-    : public boost::iterator_facade<
+    : public boost::iterator_adaptor<
         ChildNodeIterator<RenderRoutine, IsConst>,
-        RenderRoutine,
-        boost::bidirectional_traversal_tag,
-        RenderRoutine
+        RenderRoutine::component_list_t::const_iterator,
+        RenderRoutine::Component,
+        boost::use_default,
+        RenderRoutine::Component
     >
 {
-public:
-    using base_iterator = RenderRoutine::sub_routine_range::iterator;
+    using adaptor_t = boost::iterator_adaptor<
+            ChildNodeIterator<RenderRoutine, IsConst>,
+            RenderRoutine::component_list_t::const_iterator,
+            RenderRoutine::Component,
+            boost::use_default,
+            RenderRoutine::Component
+        >;
     
+public:
     ChildNodeIterator() = default;
     ChildNodeIterator(const ChildNodeIterator&) = default;
     ChildNodeIterator& operator=(const ChildNodeIterator&) = default;
     
-    inline ChildNodeIterator(QList<aux_render::RenderRoutineNodeHandle> ancestors, base_iterator base)
-        : _ancestors(ancestors), _base(base)
+    ChildNodeIterator(RenderRoutine::component_list_t::const_iterator base)
+        : adaptor_t(base)
     {
     }
     
-    aux_render::RenderRoutineNodeHandle cursor() const;
+    inline aux_render::RenderRoutineNodeHandle cursor() const;
+    inline operator aux_render::RenderRoutineNodeHandle () const; 
     
 private:
-    RenderRoutine dereference() const { return (*_base).second; }
-    bool equal(ChildNodeIterator& other) const { return _base == other._base; }
-    
-    void increment() { ++_base; }
-    void decrement() { --_base; }
-        
-    QList<aux_render::RenderRoutineNodeHandle> _ancestors;
-    base_iterator _base;
+    RenderRoutine::Component dereference() const
+    {
+        return RenderRoutine::makeComponent(*this->base());
+    }
     
     friend class boost::iterator_core_access;
 };
@@ -533,215 +388,596 @@ namespace aux_render {
     
 class RenderRoutineNodeHandle
 {
-    using subroutine_iterator = RenderRoutine::sub_routine_range::iterator;
-    
 public:
     RenderRoutineNodeHandle() = default;
     RenderRoutineNodeHandle(const RenderRoutineNodeHandle&) = default;
-    RenderRoutineNodeHandle(RenderRoutineNodeHandle&&) = default;
     
     RenderRoutineNodeHandle& operator=(const RenderRoutineNodeHandle&) = default;
-    RenderRoutineNodeHandle& operator=(RenderRoutineNodeHandle&&) = default;
     
-    
-    RenderRoutineNodeHandle(QList<RenderRoutineNodeHandle> ancestors, RenderRoutine routine)
-        : _ancestors(std::move(ancestors)), _routine(std::move(routine))
+    RenderRoutineNodeHandle(const RenderRoutine& routine)
+        : _routineData(routine._data.data())
     {
     }
-        
-    inline bool operator==(const RenderRoutineNodeHandle& other) const
+    
+    RenderRoutineNodeHandle(const RenderRoutine::component_entry_t& entry)
+        : _routineData(entry.routineData.data()), _entity(entry.entity)
     {
-        return _routine == other._routine;
     }
     
-    inline bool operator!=(const RenderRoutineNodeHandle& other) const
-    {
-        return _routine != other._routine;
+    explicit operator bool () const { return _routineData || _entity; }
+    bool operator! () const { return !_routineData && !_entity; }
+    
+    bool operator==(const RenderRoutineNodeHandle& other) const 
+    { 
+        return _routineData == other._routineData 
+            && _entity == other._entity;
     }
     
-    explicit inline operator bool () const
-    {
-        return _routine.has_value();
+    bool operator!=(const RenderRoutineNodeHandle& other) const 
+    { 
+        return _routineData != other._routineData 
+            || _entity != other._entity;
     }
     
-    inline bool operator!() const
+    RenderRoutine::Component operator*() const
     {
-        return !_routine.has_value();
-    }
-    
-    inline RenderRoutine operator*() const
-    {
-        return *_routine;
-    }
-    
-    inline double z() const
-    {
-        lazyInit();
-        return _z;
+        assert(*this);
+        return RenderRoutine::makeComponent(_routineData, _entity);
     }
     
 private:
-    inline void lazyInit() const
-    {
-        if (qIsNaN(_z))
-        {
-            if (!_routine || _ancestors.isEmpty())
-            {
-                _index = 0;
-            }
-            else
-            {
-                std::size_t index = 0;
-                
-                auto&& begin = (*_ancestors.last()).subRoutines().begin();
-                auto&& end = (*_ancestors.last()).subRoutines().end();
-                
-                for (auto i = begin; i != end; ++i)
-                {
-                    if ((*i).second == *_routine)
-                    {
-                        _iterator = i;
-                        _z = (*i).first;
-                        _index = index;
-                        break;
-                    }
-                    ++index;
-                }
-            }
-        }
-    }
+    const RenderRoutine::Data* _routineData = nullptr;
+    QWeakPointer<IRenderEntity> _entity;
     
-    friend RenderRoutineNodeHandle datatree_node_parent(const RenderRoutineNodeHandle& node)
+    aux_datatree::ChildNodeIterator<RenderRoutine, true> children_begin_impl() const
     {
-        if (node._ancestors.isEmpty())
-            return RenderRoutineNodeHandle();
+        if (!_routineData) 
+            return {};
         else
-            return node._ancestors.last();
+            return _routineData->components.begin();
     }
     
-    friend std::size_t datatree_node_index(const RenderRoutineNodeHandle& node)
+    friend aux_datatree::ChildNodeIterator<RenderRoutine, true> datatree_node_children_begin(const RenderRoutineNodeHandle& handle)
     {
-        node.lazyInit();
-        return node._index;
-    }
-    
-    friend std::size_t datatree_node_depth(const RenderRoutineNodeHandle& node)
-    {
-        return node._ancestors.size();
-    }
-    
-    friend DataTreeNodeAddress datatree_node_address(const RenderRoutineNodeHandle& node)
-    {
-        Q_UNUSED(node);
-        Q_UNREACHABLE();
-//         if (!node._address)
-//         {
-//             node.lazyInit();
-//             if (!node._routine || node._ancestors.isEmpty())
-//             {
-//                 node._address = DataTreeNodeAddress();
-//             }
-//             else
-//             {
-//                 node._address = datatree_node_address(node._ancestors.last()) << node._index;
-//             }
-//         }
-        
-//         return *node._address;
-    }
-    
-    friend RenderRoutineNodeHandle datatree_node_root(const RenderRoutineNodeHandle& node)
-    {
-        if (node._ancestors.isEmpty())
-            return node;
+        if (Q_UNLIKELY(!handle)) 
+            return {};
         else
-            return node._ancestors.first();
+            return handle.children_begin_impl();
     }
-    
-    friend std::size_t datatree_node_child_count(const RenderRoutineNodeHandle& node)
-    {
-        return node._routine ? (*node._routine).subRoutinesCount() : 0;
-    }
-    
-    friend aux_datatree::ChildNodeIterator<RenderRoutine> datatree_node_children_begin(const RenderRoutineNodeHandle& node)
-    {
-        return node._routine ? 
-            aux_datatree::ChildNodeIterator<RenderRoutine>(
-                    node._ancestors,
-                    (*node._routine).subRoutines().begin() 
-                ) : 
-            aux_datatree::ChildNodeIterator<RenderRoutine>();
-    }
-    
-    friend aux_datatree::ChildNodeIterator<RenderRoutine> datatree_node_children_end(const RenderRoutineNodeHandle& node)
-    {
-        return node._routine ? 
-            aux_datatree::ChildNodeIterator<RenderRoutine>(
-                    node._ancestors,
-                    (*node._routine).subRoutines().begin() 
-                ) : 
-            aux_datatree::ChildNodeIterator<RenderRoutine>();
-    }
-    
-    friend aux_datatree::NodeIterator<RenderRoutine> datatree_node_dfs_begin(const RenderRoutineNodeHandle& node)
-    { 
-        node.lazyInit();
-        return aux_datatree::NodeIterator<RenderRoutine>(node);
-    }
-    
-    friend aux_datatree::NodeIterator<RenderRoutine> datatree_node_dfs_end(const RenderRoutineNodeHandle& node)
-    {
-        node.lazyInit();
         
-        if (node._ancestors.isEmpty())
-        {
-            return aux_datatree::NodeIterator<RenderRoutine>();
-        }
+    aux_datatree::ChildNodeIterator<RenderRoutine, true> children_end_impl() const
+    {
+        if (!_routineData) 
+            return {};
         else
-        {
-            const auto& parent = node._ancestors.last();
-            auto peerRoutines = (*parent._routine).subRoutines();
-            auto i = node._iterator;
-            ++i;
-            
-            if (i == peerRoutines.end())
-            {
-                return datatree_node_dfs_end(parent);
-            }
-            else
-            {
-                auto ancestors = node._ancestors;
-                ancestors.removeLast();
-                
-                return aux_datatree::NodeIterator<RenderRoutine>({ ancestors, (*i).second });
-            }
-        }
-    }
-        
-    friend RenderRoutineNodeHandle datatree_node_dfs_next(const RenderRoutineNodeHandle& node)
-    { 
-        node.lazyInit();
-        
-        if (!node._routine)
-            return RenderRoutineNodeHandle();
-        
-        auto subRoutines = (*node._routine).subRoutines();
-        
-        
+            return _routineData->components.end();
     }
     
-    
-    QList<RenderRoutineNodeHandle> _ancestors;
-    std::optional<RenderRoutine> _routine;
-    
-    mutable double _z = qQNaN();
-    mutable subroutine_iterator _iterator;
-    mutable std::size_t _index;
-    mutable std::optional<DataTreeNodeAddress> _address;
+    friend aux_datatree::ChildNodeIterator<RenderRoutine, true> datatree_node_children_end(const RenderRoutineNodeHandle& handle)
+    {
+        if (Q_UNLIKELY(!handle)) 
+            return {};
+        else
+            return handle.children_end_impl();
+    }
 };
     
 } // namespace aux_render
 
+inline RenderRoutine::component_range_t RenderRoutine::components(double min, double max) const
+{
+    if (Q_UNLIKELY(!_data)) return component_range_t();
+    
+    auto begin = std::lower_bound(
+            _data->components.begin(),
+            _data->components.end(),
+            min
+        );
+    
+    auto end = std::upper_bound(
+            _data->components.begin(),
+            _data->components.end(),
+            max
+        );
+    
+    return component_range_t(begin, end);
+}
+
+inline RenderRoutine::dfs_range_t RenderRoutine::depthFirstSearch() const
+{
+    using dfs_node_t = aux_datatree::DFSExtendedNode<aux_render::RenderRoutineNodeHandle, true>;
+    if (Q_UNLIKELY(!_data)) return dfs_range_t();
+    
+    return dfs_range_t(
+            dfs_node_t(aux_render::RenderRoutineNodeHandle(*this)),
+            dfs_node_t()
+        );
+}
+
+template<bool IsConst>
+inline aux_render::RenderRoutineNodeHandle aux_datatree::ChildNodeIterator<RenderRoutine, IsConst>::cursor() const
+{
+    return aux_render::RenderRoutineNodeHandle(*this->base());
+}
+
+template<bool IsConst>
+inline aux_datatree::ChildNodeIterator<RenderRoutine, IsConst>::operator aux_render::RenderRoutineNodeHandle () const
+{
+    return cursor();
+}
+
+inline aux_render::RenderRoutineNodeHandle datatree_root(const RenderRoutine& routine)
+{
+    return aux_render::RenderRoutineNodeHandle(routine);
+}
+
+/**
+ * Identifies changes that have been made to a render routine and/or its 
+ * descendant subroutines.
+ */
+class RenderRoutineChangedEvent
+{    
+    using entity_flags_list_t = QList<std::pair<std::size_t, aux_render::EntityFlags>>;
+public:
+    using sub_routine_map_t = QMap<DataTreeNodeAddress, RenderRoutineChangedEvent>;
+    
+    RenderRoutineChangedEvent()
+        : _opacityChanged(false),
+        _compositionModeChanged(false),
+        _passThroughModeChanged(false),
+        _backgroundChanged(false)
+    {
+    }
+    
+    RenderRoutineChangedEvent(const RenderRoutineChangedEvent&) = default;
+    RenderRoutineChangedEvent(RenderRoutineChangedEvent&&) = default;
+        
+    RenderRoutineChangedEvent& operator=(const RenderRoutineChangedEvent&) = default;
+    RenderRoutineChangedEvent& operator=(RenderRoutineChangedEvent&&) = default;
+    
+    // NOTE: all addresses in the RenderRoutineChangedEvent should be in terms
+    // of the end state of the node event
+    DataTreeNodeEvent nodeEvent() const { return _nodeEvent; }
+    RenderRoutineChangedEvent& setNodeEvent(const DataTreeNodeEvent& event) 
+    {
+        _nodeEvent = event; 
+        return *this; 
+    }
+    
+    RenderRoutineChangedEvent& addNodeChunk(DataTreeNodeChunk chunk)
+    {
+        _nodeEvent.addChunk(chunk);
+        return *this;
+    }
+    
+    RenderRoutineChangedEvent& addNodeChunks(QList<DataTreeNodeChunk> chunks)
+    {
+        _nodeEvent.addChunks(chunks);
+        return *this;
+    }
+    
+    RenderRoutineChangedEvent& removeNodeChunk(DataTreeNodeChunk chunk)
+    {
+        _nodeEvent.removeChunk(chunk);
+        return *this;
+    }
+    
+    RenderRoutineChangedEvent& removeNodeChunks(QList<DataTreeNodeChunk> chunks)
+    {
+        _nodeEvent.removeChunks(chunks);
+        return *this;
+    }
+    
+    // Event objects describing changes to descendant subroutines, ordered by
+    // the address of that subroutine. (Subroutine events only contain
+    // information about themselves and not their descendants)
+    const sub_routine_map_t& subRoutineEvents() const { return _subRoutineEvents; }
+    
+    bool zValuesChanged(DataTreeNodeAddress parent = {}) const
+    {
+        if (parent.isRoot())
+        {
+            return !_zValues.isEmpty();
+        }
+        else 
+        {
+            auto i = _subRoutineEvents.find(parent);
+            return i != _subRoutineEvents.end()
+                && !((*i)._zValues.isEmpty());
+        }
+    }
+    
+    // The z-values of the components of the subroutine at parent. An empty list
+    // indicates that no z-values for the components of the given subroutine 
+    // were changed. 
+    QList<double> zValues(DataTreeNodeAddress parent = {}) const
+    {
+        if (parent.isRoot())
+        {
+            return _zValues;
+        }
+        else
+        {
+            auto i = _subRoutineEvents.find(parent);
+            if (i != _subRoutineEvents.end())
+                return (*i)._zValues;
+            else
+                return {};
+        }
+    }
+    
+    RenderRoutineChangedEvent& setZValues(QList<double> zValues)
+    {
+#ifdef ADDLE_DEBUG
+        if(Q_UNLIKELY(!std::is_sorted(zValues.cbegin(), zValues.cend())))
+        {
+            qWarning("%s", qUtf8Printable(
+                //% "RenderRoutineChangedEvent given a sequence of z-values "
+                //% "that were not sorted."
+                qtTrId("debug-messages.renderroutine.event-zvalues-unsorted")
+            ));
+        }
+#endif
+        _zValues = zValues;
+        return *this;
+    }
+    
+    RenderRoutineChangedEvent& setZValues(DataTreeNodeAddress parent, QList<double> zValues)
+    {
+#ifdef ADDLE_DEBUG
+        if(Q_UNLIKELY(!std::is_sorted(zValues.cbegin(), zValues.cend())))
+        {
+            qWarning("%s", qUtf8Printable(
+                qtTrId("debug-messages.renderroutine.event-zvalues-unsorted")
+            ));
+        }
+#endif
+        if (parent.isRoot())
+            _zValues = std::move(zValues);
+        else
+            _subRoutineEvents[parent]._zValues = std::move(zValues);
+        
+        return *this;
+    }
+    
+    // Automatically adds/updates the z-values for subroutines affected by 
+    // nodeEvent.
+    RenderRoutineChangedEvent& populateZValues(const RenderRoutine& routine);
+    
+    bool entityFlagsChanged(const DataTreeNodeAddress& parent = {}) const
+    {
+        if (parent.isRoot())
+        {
+            return !_entityFlags.isEmpty();
+        }
+        else 
+        {
+            auto i = _subRoutineEvents.find(parent);
+            return i != _subRoutineEvents.end() 
+                && !((*i)._entityFlags.isEmpty());
+        }
+    }
+    
+    auto entityFlagsList(const DataTreeNodeAddress& parent = {}) const
+    {
+        using namespace boost::adaptors;
+            
+        entity_flags_list_t list;
+            
+        if (parent.isRoot())
+        {
+            list = _entityFlags;
+        }
+        else 
+        {
+            auto i = _subRoutineEvents.find(parent);
+            if (i != _subRoutineEvents.end())
+                list = (*i)._entityFlags;
+        }
+        
+        return  
+              noDetach(std::move(list)) 
+            | transformed([parent] (auto&& entry) {
+                    return std::make_pair(parent << entry.first, entry.second);
+                });
+    }
+    
+    aux_render::EntityFlags entityFlags(const DataTreeNodeAddress& entity) const
+    {
+        if (Q_UNLIKELY(entity.isRoot()))
+            return {};
+        
+        entity_flags_list_t list;
+        auto parent = entity.parent();
+        
+        if (parent.isRoot())
+        {
+            list = _entityFlags;
+        }
+        else
+        {
+            auto i = _subRoutineEvents.find(parent);
+            if (i == _subRoutineEvents.end())
+                return {};
+            
+            list = (*i)._entityFlags;
+        }
+        
+        auto j = std::lower_bound( 
+                list.cbegin(),
+                list.cend(),
+                entity.lastIndex(),
+                [] (const auto& entry, std::size_t index) -> bool {
+                    return entry.first < index; 
+                }
+            );
+        
+        if (j != list.cend() && (*j).first == entity.lastIndex())
+            return (*j).second;
+        else
+            return {};
+    }
+    
+    RenderRoutineChangedEvent& setEntityFlags(
+            const DataTreeNodeAddress& entity, 
+            aux_render::EntityFlags flags
+        )
+    {
+        auto parent = entity.parent();
+
+        entity_flags_list_t& list = parent.isRoot() ? 
+            _entityFlags : _subRoutineEvents[parent]._entityFlags;
+                
+        auto i = std::lower_bound(
+                list.begin(),
+                list.end(),
+                entity.lastIndex(),
+                [] (const auto& entry, std::size_t index) -> bool {
+                    return entry.first < index; 
+                }
+            );
+        
+        if (i != list.cend() && (*i).first == entity.lastIndex())
+            (*i).second = flags;
+        else
+            list.insert(i, { entity.lastIndex(), flags });
+        
+        return *this;
+    }
+    
+    bool opacityChanged(const DataTreeNodeAddress& subRoutine = {}) const
+    {
+        if (subRoutine.isRoot()) 
+        {
+            return _opacityChanged;
+        }
+        else
+        {
+            auto i = _subRoutineEvents.find(subRoutine);
+            return i != _subRoutineEvents.end() && (*i)._opacityChanged;
+        }
+    }
+    
+    std::optional<double> opacity(const DataTreeNodeAddress& subRoutine = {}) const
+    {
+        if (subRoutine.isRoot() && _opacityChanged)
+        {
+            return _opacityChanged;
+        }
+        else
+        {
+            auto i = _subRoutineEvents.find(subRoutine);
+            if (i != _subRoutineEvents.end() && (*i)._opacityChanged)
+                return (*i)._opacity;
+        }
+        
+        return {};
+    }
+    
+    RenderRoutineChangedEvent& setOpacity(double opacity)
+    {
+        _opacity = opacity;
+        _opacityChanged = true;
+        return *this;
+    }
+    
+    RenderRoutineChangedEvent& setOpacity(const DataTreeNodeAddress& address, double opacity)
+    {
+        if (address.isRoot())
+        {
+            _opacity = opacity;
+            _opacityChanged = true;
+        }
+        else
+        {
+            auto& subRoutine = _subRoutineEvents[address];
+            subRoutine._opacity = opacity;
+            subRoutine._opacityChanged = true;
+        }
+        
+        return *this;
+    }
+    
+    bool compositionModeChanged(const DataTreeNodeAddress& address = {}) const
+    {
+        if (address.isRoot()) 
+        {
+            return _compositionModeChanged;
+        }
+        else
+        {
+            auto i = _subRoutineEvents.find(address);
+            return i != _subRoutineEvents.end() && (*i)._compositionModeChanged;
+        }
+    }
+    
+    std::optional<QPainter::CompositionMode> compositionMode(const DataTreeNodeAddress& address = {}) const
+    {
+        if (address.isRoot() && _compositionModeChanged)
+        {
+            return _compositionMode;
+        }
+        else
+        {
+            auto i = _subRoutineEvents.find(address);
+            if (i != _subRoutineEvents.end() && (*i)._compositionModeChanged)
+                return (*i)._compositionMode;
+        }
+        
+        return {};
+    }
+    
+    RenderRoutineChangedEvent& setCompositionMode(QPainter::CompositionMode compositionMode)
+    {
+        _compositionMode = compositionMode;
+        _compositionModeChanged = true;
+        return *this;
+    }
+    
+    RenderRoutineChangedEvent& setCompositionMode(const DataTreeNodeAddress& address, QPainter::CompositionMode compositionMode)
+    {
+        if (address.isRoot())
+        {
+            _compositionMode = compositionMode;
+            _compositionModeChanged = true;
+        }
+        else
+        {
+            auto& subRoutine = _subRoutineEvents[address];
+            subRoutine._compositionMode = compositionMode;
+            subRoutine._compositionModeChanged = true;
+        }
+        
+        return *this;
+    }
+    
+    bool passThroughModeChanged(const DataTreeNodeAddress& address = {}) const
+    {
+        if (address.isRoot()) 
+        {
+            return _passThroughModeChanged;
+        }
+        else
+        {
+            auto i = _subRoutineEvents.find(address);
+            return i != _subRoutineEvents.end() && (*i)._passThroughModeChanged;
+        }
+    }
+    
+    std::optional<bool> passThroughMode(const DataTreeNodeAddress& address = {}) const
+    { 
+        if (address.isRoot() && _passThroughModeChanged)
+        {
+            return _passThroughMode;
+        }
+        else
+        {
+            auto i = _subRoutineEvents.find(address);
+            if (i != _subRoutineEvents.end() && (*i)._passThroughModeChanged)
+                return (*i)._passThroughMode;
+        }
+        
+        return {};
+    }
+    
+    RenderRoutineChangedEvent& setPassThroughMode(bool passThroughMode)
+    {
+        _passThroughMode = passThroughMode;
+        _passThroughModeChanged = true;
+        return *this;
+    }
+    
+    RenderRoutineChangedEvent& setPassThroughMode(const DataTreeNodeAddress& address, bool passThroughMode)
+    {
+        if (address.isRoot())
+        {
+            _passThroughMode = passThroughMode;
+            _passThroughModeChanged = true;
+        }
+        else
+        {
+            auto& subRoutine = _subRoutineEvents[address];
+            subRoutine._passThroughMode = passThroughMode;
+            subRoutine._passThroughModeChanged = true;
+        }
+        
+        return *this;
+    }
+    
+    bool backgroundChanged(const DataTreeNodeAddress& address = {}) const
+    {
+        if (address.isRoot()) 
+        {
+            return _backgroundChanged;
+        }
+        else
+        {
+            auto i = _subRoutineEvents.find(address);
+            return i != _subRoutineEvents.end() && (*i)._backgroundChanged;
+        }
+    }
+    
+    std::optional<QColor> background(const DataTreeNodeAddress& address = {}) const 
+    {
+        if (address.isRoot() && _backgroundChanged)
+        {
+            return _background;
+        }
+        else
+        {
+            auto i = _subRoutineEvents.find(address);
+            if (i != _subRoutineEvents.end() && (*i)._backgroundChanged)
+                return (*i)._background;
+        }
+        
+        return {};
+    }
+    
+    RenderRoutineChangedEvent& setBackground(QColor background)
+    {
+        _background = std::move(background);
+        _backgroundChanged = true;
+        return *this;
+    }
+    
+    RenderRoutineChangedEvent& setBackground(const DataTreeNodeAddress& address, QColor background)
+    {
+        if (address.isRoot())
+        {
+            _background = std::move(background);
+            _backgroundChanged = true;
+        }
+        else
+        {
+            auto& subRoutine = _subRoutineEvents[address];
+            subRoutine._background = std::move(background);
+            subRoutine._backgroundChanged = true;
+        }
+        
+        return *this;
+    }
+    
+    RenderRoutineChangedEvent& moveRoot(DataTreeNodeAddress rel);
+    
+private:
+    DataTreeNodeEvent   _nodeEvent;
+    QList<double>       _zValues;
+    entity_flags_list_t _entityFlags;
+    
+    double  _opacity;
+    QPainter::CompositionMode _compositionMode;
+    bool    _passThroughMode;
+    QColor  _background;
+    
+    sub_routine_map_t _subRoutineEvents;
+    
+    bool _opacityChanged         : 1;
+    bool _compositionModeChanged : 1;
+    bool _passThroughModeChanged : 1;
+    bool _backgroundChanged      : 1;
+};
+
 } // namespace Addle
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(Addle::RenderRoutine::VisitorFilters);
+Q_DECLARE_OPERATORS_FOR_FLAGS(Addle::aux_render::EntityFlags);
+Q_DECLARE_METATYPE(Addle::RenderRoutineChangedEvent);

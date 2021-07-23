@@ -19,10 +19,14 @@
 #include "utilities/ranges.hpp"
 #include "utilities/metaprogramming.hpp"
 
+#include "compat.hpp"
+
 #include "./nodeaddress.hpp"
 
 namespace Addle {
 namespace aux_datatree {
+    
+Q_NAMESPACE_EXPORT(ADDLE_COMMON_EXPORT)
 
 template<typename Tree>
 struct datatree_traits
@@ -524,6 +528,23 @@ inline auto node_has_value( NodeHandle&& node ) { return datatree_node_has_value
 template<typename NodeHandle, std::enable_if_t<!boost::is_detected<_node_has_value_t, NodeHandle>::value, void*> = nullptr>
 inline bool node_has_value( const NodeHandle& node ) { return static_cast<bool>(node); }
 
+enum ValencyHint : char
+{
+    ValencyHint_Unset,
+    ValencyHint_Branch,
+    ValencyHint_Leaf,
+};
+Q_ENUM_NS(ValencyHint)
+
+template<typename NodeHandle>
+using _node_valency_hint_t = decltype ( datatree_node_valency_hint(std::declval<NodeHandle>()) );
+
+template<typename NodeHandle, std::enable_if_t<boost::is_detected<_node_valency_hint_t, NodeHandle>::value, void*> = nullptr>
+inline ValencyHint node_valency_hint( NodeHandle&& node ) { return datatree_node_valency_hint( std::forward<NodeHandle>(node) ); }
+
+template<typename NodeHandle, std::enable_if_t<!boost::is_detected<_node_valency_hint_t, const NodeHandle&>::value, void*> = nullptr>
+constexpr ValencyHint node_valency_hint( const NodeHandle& ) { return ValencyHint_Unset; }
+
 template<
     typename NodeHandle,
     typename ChildHandle,
@@ -612,7 +633,8 @@ std::decay<ChildHandle> node_insert_children( NodeHandle&& parent, ChildHandle&&
 template<typename NodeHandle>
 NodeAddress calculate_node_address(NodeHandle node)
 {
-    if (!node) return NodeAddress();
+    if (!node)
+        return NodeAddress();
     
     QVarLengthArray<std::size_t, 16> indices;
     indices.reserve(::Addle::aux_datatree::node_depth(node));
@@ -880,7 +902,23 @@ public:
     
     bool operator!=(const DFSExtendedNode& other) const { return !(*this == other); }
     
-    decltype(auto) operator*() const { return *currentNode(); }
+    decltype(auto) operator*() const
+    { 
+        if constexpr (std::is_same_v<
+                decltype(*std::declval<descendant_handle_t>()),
+                decltype(*std::declval<NodeHandle>())
+           >)
+        {
+            if (_descendants.empty())
+                return *(_root);
+            else
+                return *(_descendants.back());
+        }
+        else
+        {
+            return *currentNode();
+        }
+    }
     
     NodeAddress address() const
     {
@@ -1509,6 +1547,7 @@ public:
     NodeIterator& operator=(const NodeIterator&) = default;
     NodeIterator& operator=(NodeIterator&&) = default;
     
+    NodeAddress address() const { return ::Addle::aux_datatree::node_address(_cursor); }
     inline operator const handle_t& () const { return _cursor; }
     
 private:

@@ -27,6 +27,7 @@
 #include <boost/range/adaptor/transformed.hpp>
 
 #include <boost/type_traits.hpp>
+#include <boost/type_traits/is_detected.hpp>
 #include <boost/type_traits/is_detected_convertible.hpp>
 
 #include "compat.hpp"
@@ -59,29 +60,44 @@ inline const T noDetach(T&& container)
     return T(std::move(container));
 }
 
-template<typename T>
-inline QList<T> qToList(const QSet<T>& set)
-{
-    return QList<T>(set.constBegin(), set.constEnd());
+// template<typename T>
+// inline QList<T> qToList(const QSet<T>& set)
+// {
+//     return QList<T>(set.constBegin(), set.constEnd());
+// }
+// 
+// template<typename T>
+// inline QList<T> qToList(const T arr[], std::size_t length)
+// {
+//     QList<T> outList;
+//     outList.reserve(length);
+//     for (int i = 0; i < length; i++)
+//     {
+//         outList.append(arr[i]);
+//     }
+// 
+//     return outList;
+// }
+// 
+// template<typename T, std::size_t N>
+// inline QList<T> qToList(const T (&arr)[N])
+// {
+//     return qToList(arr, N);
+// }
+
+namespace aux_range_utils {
+
+template<typename Range>
+using _range_iterator_t = typename boost::range_iterator<boost::remove_cv_ref_t<Range>>::type;
+
 }
 
-template<typename T>
-inline QList<T> qToList(const T arr[], std::size_t length)
+template<typename Range, std::enable_if_t<boost::is_detected<aux_range_utils::_range_iterator_t, Range>::value, void*> = nullptr>
+QList<std::decay_t<typename boost::range_value<boost::remove_cv_ref_t<Range>>::type>>
+qToList(Range&& range)
 {
-    QList<T> outList;
-    outList.reserve(length);
-    for (int i = 0; i < length; i++)
-    {
-        outList.append(arr[i]);
-    }
-
-    return outList;
-}
-
-template<typename T, std::size_t N>
-inline QList<T> qToList(const T (&arr)[N])
-{
-    return qToList(arr, N);
+    using list_t = QList<std::decay_t<typename boost::range_value<boost::remove_cv_ref_t<Range>>::type>>;
+    return list_t(std::begin(range), std::end(range));
 }
 
 template<typename T>

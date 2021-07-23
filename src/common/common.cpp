@@ -241,6 +241,7 @@ const QSet<QByteArray> _DYNAMIC_TRIDS_REGISTRY = {
 #include "exceptions/moc_formatexception.cpp"
 #include "exceptions/moc_fileexception.cpp"
 #include "utilities/moc_genericeventfilter.cpp"
+#include "utilities/datatree/moc_aux.cpp"
 #include "utilities/presenter/moc_filerequest.cpp"
 #include "utilities/editing/moc_rasterengineparams.cpp"
 #include "interfaces/presenters/tools/moc_inavigatetoolpresenteraux.cpp"

@@ -178,21 +178,9 @@ public:
         return const_ancestor_range( _node, handle_t {}); 
     }
     
-//     inline const_leaf_range leaves() const
-//     { 
-//         using leaf_iterator_t = typename const_leaf_range::iterator;
-//         return const_leaf_range(
-//                 leaf_iterator_t ( *this, end() ), leaf_iterator_t ( end(), end() )
-//             );
-//     }
-//     
-//     inline const_branch_range branches() const
-//     { 
-//         using branch_iterator_t = typename const_branch_range::iterator;
-//         return const_branch_range(
-//                 branch_iterator_t ( *this, end() ), branch_iterator_t ( end(), end() )
-//             );
-//     }
+    inline ValencyHint valencyHint() const { return ::Addle::aux_datatree::node_valency_hint(_node); }
+    inline bool branchHint() const { return ::Addle::aux_datatree::node_valency_hint(_node) == ValencyHint_Branch; }
+    inline bool leafHint() const { return ::Addle::aux_datatree::node_valency_hint(_node) == ValencyHint_Leaf; }
     
 private:
     handle_t _node;

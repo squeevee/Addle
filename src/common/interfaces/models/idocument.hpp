@@ -22,6 +22,7 @@
 #include "utilities/datatree/observer.hpp"
 
 #include "utilities/model/documentbuilder.hpp"
+#include "utilities/model/layernodebuilder.hpp"
 
 #include "./ilayernodemodel.hpp"
 
@@ -48,6 +49,13 @@ public:
     virtual const LayersTree& layers() = 0;
     virtual ConstLayersTree layers() const = 0;
 
+    virtual aux_datatree::NodeRange<LayersTree> insertLayerNodes(
+            DataTreeNodeAddress startPos,
+            QList<LayerNodeBuilder> layerNodeBuilders
+        ) = 0;
+        
+    virtual void removeLayers(QList<DataTreeNodeChunk>) = 0;
+    
 signals:
     virtual void backgroundColorChanged(QColor color) = 0;
     virtual void urlChanged(QUrl url) = 0;

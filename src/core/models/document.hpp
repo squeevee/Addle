@@ -20,6 +20,8 @@
 
 #include "interfaces/services/ifactory.hpp"
 
+#include "utilities/datatree/nestedobjectadapter.hpp"
+
 namespace Addle {
 class ADDLE_CORE_EXPORT Document : public QObject, public IDocument
 {
@@ -64,6 +66,13 @@ public:
     const LayersTree& layers() override { return _layers; }
     ConstLayersTree layers() const override { return _layers; }
 
+    aux_datatree::NodeRange<LayersTree> insertLayerNodes(
+            DataTreeNodeAddress startPos,
+            QList<LayerNodeBuilder> layerNodeBuilders
+        ) override;
+        
+    void removeLayers(QList<DataTreeNodeChunk>) override;
+        
 signals:
 //     void boundaryChanged(QRect change) override;
     void backgroundColorChanged(QColor color) override;
@@ -72,6 +81,16 @@ signals:
     void layerNodesChanged(DataTreeNodeEvent) override; 
 
 private:
+    using builder_adapter_t = aux_datatree::NestedObjectAdapterImpl<   
+            LayerNodeBuilder,
+            QList<LayerNodeBuilder> (LayerNodeBuilder::*)() const,
+            QList<LayerNodeBuilder>
+        >;
+        
+    void populateLayerNode_p(
+            aux_datatree::const_node_handle_t<builder_adapter_t>, 
+            ILayerNodeModel::LayerNode*);
+    
     LayersTree _layers;
     
     QSize _size;

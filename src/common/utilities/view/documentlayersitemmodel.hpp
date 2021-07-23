@@ -7,6 +7,7 @@
 
 #include <QHash>
 #include <QAbstractItemModel>
+#include <QAtomicInteger>
 #include "compat.hpp"
 
 #include "../presenter/presenterassignment.hpp"
@@ -48,11 +49,17 @@ public:
 
 private slots:
     void onPresenterLayerNodesChanged(DataTreeNodeEvent);
+    void onPresenterSelectionChanged(QSet<ILayerNodePresenter::LayerNodeRef>);
     void onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
     
 private:
+    void updateSelection();
+    
     PresenterAssignment<IDocumentPresenter> _presenter;
     QItemSelectionModel* _selectionModel = nullptr;
+    
+    bool _selectionModelRecentlyChanged = false;
+    bool _selectionNeedsUpdate = false;
     
     friend class ObservedTreeItemModelHelperBase<DocumentLayersItemModel, IDocumentPresenter::LayersTree>;
 };
