@@ -60,6 +60,8 @@ public:
     virtual IColorSelectionPresenter& colorSelection() const = 0;
     virtual IMessageContext& messageContext() const = 0;
     
+    virtual QSharedPointer<ICanvasPresenter> canvas() const = 0;
+    
     virtual void setMode(Mode mode) = 0;
     virtual Mode mode() const = 0;
 
@@ -100,16 +102,12 @@ ADDLE_DECL_MAKEABLE(IMainEditorPresenter)
 
 namespace aux_IMainEditorPresenter {
     ADDLE_FACTORY_PARAMETER_NAME( mode )
-    ADDLE_FACTORY_PARAMETER_NAME( foo )
-    ADDLE_FACTORY_PARAMETER_NAME( bar )
-    ADDLE_FACTORY_PARAMETER_NAME( baz )
 }
 
 ADDLE_DECL_FACTORY_PARAMETERS(
     IMainEditorPresenter,
     (optional 
         (mode,  (IMainEditorPresenter::Mode), IMainEditorPresenter::Mode::Editor)
-//         (baz,   (const ShortLived&),  ShortLived())
     )
 )
 

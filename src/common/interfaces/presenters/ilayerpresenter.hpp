@@ -34,7 +34,7 @@ public:
     virtual QSharedPointer<ILayer> model() = 0;
     virtual QSharedPointer<const ILayer> model() const = 0;
 
-    virtual QSharedPointer<IRenderable> renderable() const = 0;
+//     virtual QSharedPointer<IRenderable> renderable() const = 0;
 };
 
 namespace aux_ILayerPresenter {

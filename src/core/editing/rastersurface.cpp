@@ -46,15 +46,15 @@ void RasterSurface::initialize(
     _area = QRect(offset, image.size());
 }
 
-QSharedPointer<IRenderable> RasterSurface::renderable()
-{
-    const QReadLocker lock(&_lock);
-    if (!_renderable)
-    {
-        _renderable = QSharedPointer<IRenderable>(new RasterSurfaceRenderable(*this));
-    }
-    return _renderable;
-}
+// QSharedPointer<IRenderable> RasterSurface::renderable()
+// {
+//     const QReadLocker lock(&_lock);
+//     if (!_renderable)
+//     {
+//         _renderable = QSharedPointer<IRenderable>(new RasterSurfaceRenderable(*this));
+//     }
+//     return _renderable;
+// }
 
 void RasterSurface::clear()
 {
@@ -67,10 +67,10 @@ void RasterSurface::clear()
     }
 
     emit changed(oldArea);
-    if (_renderable)
-    {
-        emit _renderable->changed(oldArea);
-    }
+//     if (_renderable)
+//     {
+//         emit _renderable->changed(oldArea);
+//     }
 }
 
 // QImage RasterSurface::copy(QRect copyArea) const
@@ -155,12 +155,12 @@ void RasterSurface::allocate(QRect allocArea)
 
 void RasterSurface::copyLinked()
 {
-    if (!_linked) return;
-
-    QPainter painter(&_buffer);
-
-    painter.translate(-_bufferOffset);
-    render(_linked->renderable(), QRect(_bufferOffset, _buffer.size()), &painter);
+//     if (!_linked) return;
+// 
+//     QPainter painter(&_buffer);
+// 
+//     painter.translate(-_bufferOffset);
+//     render(_linked->renderable(), QRect(_bufferOffset, _buffer.size()), &painter);
 }
 
 void RasterSurface::onPaintHandleDestroyed(const RasterPaintHandle& handle)
@@ -171,10 +171,10 @@ void RasterSurface::onPaintHandleDestroyed(const RasterPaintHandle& handle)
         const QReadLocker lock(&_lock);
 
         emit changed(handle.area());
-        if (_renderable)
-        {
-            emit _renderable->changed(handle.area());
-        }
+//         if (_renderable)
+//         {
+//             emit _renderable->changed(handle.area());
+//         }
     }
 }
 
@@ -191,10 +191,10 @@ void RasterSurface::onBitWriterDestroyed(const RasterBitWriter& writer)
         const QReadLocker lock(&_lock);
 
         emit changed(writer.area());
-        if (_renderable)
-        {
-            emit _renderable->changed(writer.area());
-        }
+//         if (_renderable)
+//         {
+//             emit _renderable->changed(writer.area());
+//         }
     }
 }
 
@@ -217,27 +217,27 @@ void RasterSurface::onBitWriterDestroyed(const RasterBitWriter& writer)
 //     }
 // }
 
-void RasterSurfaceRenderable::render(RenderHandle& data) const
-{
-    const QReadLocker lock(&_owner._lock);
-
-    if (!_owner._area.isValid()) return;
-
-    QRect intersection = _owner._area.intersected(data.area());
-
-    data.painter()->setCompositionMode(_owner._compositionMode);
-    data.painter()->setOpacity((double)_owner._alpha / 0xFF);
-
-    if (_owner._replaceMode)
-    {
-        QPainterPath p = data.painter()->clipPath();
-        p.addRect(_owner._area);
-        data.painter()->setClipPath(p.simplified(), Qt::ReplaceClip);
-    }
-
-    data.painter()->drawImage(
-        intersection, 
-        _owner._buffer,
-        intersection.translated(-_owner._bufferOffset)
-    );
-}
+// void RasterSurfaceRenderable::render(RenderHandle& data) const
+// {
+//     const QReadLocker lock(&_owner._lock);
+// 
+//     if (!_owner._area.isValid()) return;
+// 
+//     QRect intersection = _owner._area.intersected(data.area());
+// 
+//     data.painter()->setCompositionMode(_owner._compositionMode);
+//     data.painter()->setOpacity((double)_owner._alpha / 0xFF);
+// 
+//     if (_owner._replaceMode)
+//     {
+//         QPainterPath p = data.painter()->clipPath();
+//         p.addRect(_owner._area);
+//         data.painter()->setClipPath(p.simplified(), Qt::ReplaceClip);
+//     }
+// 
+//     data.painter()->drawImage(
+//         intersection, 
+//         _owner._buffer,
+//         intersection.translated(-_owner._bufferOffset)
+//     );
+// }

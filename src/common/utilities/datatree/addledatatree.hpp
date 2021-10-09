@@ -193,25 +193,13 @@ class AddleDataTree_TreeDataWithObserverBase
     using observer_t = TreeObserver<AddleDataTree_>;
     
 protected:
-    // observer must be initialized with a reference to the tree, so this must
-    // be called from inside the *tree* constructor
-    inline void initializeObserver(AddleDataTree_& tree)
-    {
-        new (&_observerStorage) observer_t(tree);
-    }
-    
     AddleDataTree_TreeDataWithObserverBase() = default;
-    
-    inline ~AddleDataTree_TreeDataWithObserverBase()
-    {
-        observer().~observer_t();
-    }
-    
-    observer_t& observer() { return *reinterpret_cast<observer_t*>(&_observerStorage); }
-    const observer_t& observer() const { return *reinterpret_cast<const observer_t*>(&_observerStorage); }
+        
+    observer_t& observer() { return _observer; }
+    const observer_t& observer() const { return _observer; }
     
 private:
-    std::aligned_storage_t<sizeof(observer_t), alignof(observer_t)> _observerStorage;
+    observer_t _observer;
     
     template<class> friend class AddleDataTree_WithObserverBase;
 #ifdef ADDLE_TEST
@@ -322,6 +310,9 @@ public:
         
         using ancestor_range        = aux_datatree::AncestorNodeRange<AddleDataTree<T, OptionFlags>>;
         using const_ancestor_range  = aux_datatree::ConstAncestorNodeRange<AddleDataTree<T, OptionFlags>>;
+        
+        using bfs_range         = aux_datatree::NodeBFSRange<AddleDataTree<T, OptionFlags>>;
+        using const_bfs_range   = aux_datatree::ConstNodeBFSRange<AddleDataTree<T, OptionFlags>>;
         
         using node_ref_t        = aux_datatree::NodeRef<AddleDataTree<T, OptionFlags>, false>;
         using const_node_ref_t  = aux_datatree::NodeRef<AddleDataTree<T, OptionFlags>, true>;
@@ -496,6 +487,16 @@ public:
         inline const_ancestor_range ancestorsAndSelf() const
         { 
             return const_ancestor_range( this, (const Node*) nullptr ); 
+        }
+        
+        inline bfs_range breadthFirstSearch()
+        {
+            return bfs_range(this);
+        }
+        
+        inline const_bfs_range breadthFirstSearch() const
+        {
+            return const_bfs_range(this);
         }
 
         template<typename U = T>
@@ -919,6 +920,9 @@ public:
     using ancestor_range        = typename Node::ancestor_range;
     using const_ancestor_range  = typename Node::const_ancestor_range;
         
+    using bfs_range             = typename Node::bfs_range;
+    using const_bfs_range       = typename Node::const_bfs_range;
+    
 //     using leaf_range        = typename Node::leaf_range;
 //     using const_leaf_range  = typename Node::const_leaf_range;
 //     
@@ -930,7 +934,7 @@ public:
     {
         if constexpr (HasObserver)
         {
-            _data->initializeObserver(*this);
+            _data->observer().setTree(*this);
             aux_datatree::NodeRef<AddleDataTree<T, OptionFlags>, true>::setTreeObserverData(
                     static_cast<Node&>(*_data->_root)._nodeRefData,
                     _data->observer()
@@ -943,7 +947,7 @@ public:
     {
         if constexpr (HasObserver)
         {
-            _data->initializeObserver(*this);
+            _data->observer().setTree(*this);
             aux_datatree::NodeRef<AddleDataTree<T, OptionFlags>, true>::setTreeObserverData(
                     static_cast<Node&>(*_data->_root)._nodeRefData,
                     _data->observer()
@@ -956,7 +960,7 @@ public:
     {
         if constexpr (HasObserver)
         {
-            _data->initializeObserver(*this);
+            _data->observer().setTree(*this);
             aux_datatree::NodeRef<AddleDataTree<T, OptionFlags>, true>::setTreeObserverData(
                     static_cast<Node&>(*_data->_root)._nodeRefData,
                     _data->observer()
@@ -997,6 +1001,16 @@ public:
         return static_cast<const Node&>(*_data->template nodeAt<true>(address));
     }
     
+    inline bfs_range breadthFirstSearch()
+    {
+        return root().breadthFirstSearch();
+    }
+    
+    inline const_bfs_range breadthFirstSearch() const
+    {
+        return root().breadthFirstSearch();
+    }
+        
 //     inline leaf_range leaves() { return _data->root.leaves(); }
 //     inline const_leaf_range leaves() const { return _data->root.leaves(); }
 //     
@@ -1539,6 +1553,7 @@ public:
     }
     
 private:
+    // private access for AddleDataTree
     static inline void setTreeObserverData(
             AddleDataTree_NodeRefData* data, 
             const TreeObserver<tree_t>& observer

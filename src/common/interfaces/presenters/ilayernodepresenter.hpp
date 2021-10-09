@@ -7,6 +7,7 @@
 // #include "utilities/datatree/observer.hpp"
 #include "utilities/datatree/views.hpp"
 
+#include "interfaces/rendering/irenderable.hpp"
 #include "interfaces/iamqobject.hpp"
 
 namespace Addle {
@@ -15,7 +16,7 @@ class ILayerPresenter;
 class ILayerGroupPresenter;
 
 class IDocumentPresenter;
-class ILayerNodePresenter : public virtual IAmQObject
+class ILayerNodePresenter : public virtual IAmQObject, public IRenderable
 {
 public:    
     using LayersTree        = AddleDataTree<QSharedPointer<ILayerNodePresenter>, aux_datatree::AddleDataTreeOptions_Observer>;

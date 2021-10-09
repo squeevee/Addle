@@ -18,6 +18,7 @@ set (
     editing/brushengines/rasterbrushengine.cpp
     editing/rasterdiff.cpp
     editing/rastersurface.cpp
+    editing/rastersurface2.cpp
     models/brush.cpp
     models/document.cpp
     models/layer.cpp

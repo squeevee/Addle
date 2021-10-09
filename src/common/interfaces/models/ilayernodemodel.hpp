@@ -8,6 +8,7 @@
 #include "interfaces/traits.hpp"
 #include "interfaces/iamqobject.hpp"
 
+#include "interfaces/rendering/irenderable.hpp"
 
 namespace Addle {
     
@@ -15,7 +16,9 @@ class ILayer;
 class ILayerGroup;
     
 class IDocument;
-class ILayerNodeModel : public virtual IAmQObject
+class ILayerNodeModel : 
+    public IRenderable, 
+    public virtual IAmQObject
 {
 public:
     using LayersTree        = AddleDataTree<QSharedPointer<ILayerNodeModel>, aux_datatree::AddleDataTreeOptions_Observer>;
@@ -39,6 +42,8 @@ public:
 
     virtual QColor skirtColor() const = 0;
     virtual void setSkirtColor(QColor skirtColor) = 0;
+    
+    virtual QUuid uuid() const = 0;
     
     virtual QString name() const = 0;
     virtual void setName(QString name) = 0;

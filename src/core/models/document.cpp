@@ -13,6 +13,8 @@
 #include "utilities/datatree/nestedobjectadapter.hpp"
 #include "utilities/datatree/echo.hpp"
 
+#include "utilities/render/brushentity.hpp"
+
 #include "document.hpp"
 #include <QImage>
 #include <QPainter>
@@ -27,7 +29,8 @@ Document::Document(
         const IFactory<ILayer>& layerFactory,
         const IFactory<ILayerGroup>& layerGroupFactory
     )
-    : _backgroundColor(builder.backgroundColor()),
+    : _uuid(QUuid::createUuid()),
+    _backgroundColor(builder.backgroundColor()),
     _url(builder.url()),
     _layerFactory(layerFactory), 
     _layerGroupFactory(layerGroupFactory)
@@ -43,6 +46,29 @@ Document::Document(
             std::bind(&Document::populateLayerNode_p, this, 
                     std::placeholders::_1, std::placeholders::_2)
         );
+    
+    auto renderRoutineBuilder 
+        = aux_render::RoutineBuilder()
+        .setName(QByteArrayLiteral("layer-") 
+            + _uuid.toByteArray(QUuid::WithoutBraces));
+    
+    for (auto& node : _layers.root().children())
+    {
+        renderRoutineBuilder.addSubRoutine(
+                node.index(), 
+                node.value()->renderRoutine()
+            );
+    }
+    
+    renderRoutineBuilder.addEntity( 
+            -Q_INFINITY,
+            _backgroundRenderEntity = QSharedPointer<aux_render::BrushEntity>::create(
+                QByteArrayLiteral("background"),
+                _backgroundColor
+            )
+        );
+    
+    _renderRoutine = std::move(renderRoutineBuilder);
 }
 
 aux_datatree::NodeRange<Document::LayersTree> Document::insertLayerNodes(
@@ -90,14 +116,12 @@ void Document::removeLayers(QList<DataTreeNodeChunk> chunks)
     _layers.observer().startRecording();
     
     const DataTreeNodeEvent& pending = _layers.observer().pendingEvent();
-    std::size_t progress = 0;
     for ( auto chunk : noDetach(chunks) )
     {
-        for ( auto mapped : noDetach(pending.mapChunkBackward(std::move(chunk), progress)) )
+        for ( auto mapped : noDetach(pending.mapChunkForward(chunk)) )
         {
             _layers.root().descendantAt(mapped.address.parent())
                 .removeChildren(mapped.address.lastIndex(), mapped.length);
-            ++progress;
         }
     }
     

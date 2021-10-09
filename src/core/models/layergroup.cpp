@@ -9,7 +9,8 @@ LayerGroup::LayerGroup(
         const IFactory<ILayer>& layerFactory,
         const IFactory<ILayerGroup>& layerGroupFactory
     )
-    : _document(document),
+    : _uuid(QUuid::createUuid()),
+    _document(document),
     _layerNode(std::move(layerNode)),
     _name(builder.name()),
     _passThroughMode(builder.passThroughMode()),

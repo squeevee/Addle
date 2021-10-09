@@ -39,3 +39,6 @@ for messageNode in tree.findall('.//message'):
             del translationNode.attrib['type']
 
 tree.write(filename, 'UTF-8', True)
+
+print('The TS file has been generated. Run something like this:')
+print('`lrelease ../l10n/en_US.ts -idbased -qm ../../resources/l10n/en_US.qm`')

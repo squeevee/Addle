@@ -11,6 +11,7 @@
 
 #include "compat.hpp"
 #include "interfaces/presenters/icanvaspresenter.hpp"
+#include "interfaces/presenters/idocumentpresenter.hpp"
 #include "utilities/initializehelper.hpp"
 
 #include "interfaces/rendering/irenderer.hpp"
@@ -18,6 +19,7 @@
 #include <QCursor>
 #include <QString>
 #include <QObject>
+
 namespace Addle {
 
 class ADDLE_CORE_EXPORT CanvasPresenter : public QObject, public ICanvasPresenter
@@ -26,11 +28,14 @@ class ADDLE_CORE_EXPORT CanvasPresenter : public QObject, public ICanvasPresente
     Q_INTERFACES(Addle::ICanvasPresenter)
     IAMQOBJECT_IMPL
 public: 
-    CanvasPresenter(std::unique_ptr<IRenderer>);
+    CanvasPresenter();
     virtual ~CanvasPresenter() = default;
 
+    QSharedPointer<IDocumentPresenter> document() const override { return _document; }
     
-    IRenderer& renderer() const override { return *_renderer; }
+    void setDocument(QSharedPointer<IDocumentPresenter> document) override;
+    
+//     IRenderer& renderer() const override { return *_renderer; }
 //     void initialize(IMainEditorPresenter& mainEditorPresenter);
 
 //     IMainEditorPresenter& mainEditorPresenter() { ASSERT_INIT(); return *_mainEditorPresenter; }
@@ -61,8 +66,11 @@ public:
 //     IMainEditorPresenter* _mainEditorPresenter;
 //     InitializeHelper _initHelper;
 
+signals:
+    void documentChanged(QSharedPointer<IDocumentPresenter>) override;
+    
 private:
-    std::unique_ptr<IRenderer> _renderer;
+    QSharedPointer<IDocumentPresenter> _document;
 };
 
 } // namespace Addle

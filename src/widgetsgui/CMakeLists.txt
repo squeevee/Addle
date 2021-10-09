@@ -14,6 +14,7 @@ set (
     SOURCES
     widgetsgui_config.cpp
     canvas/docbackgrounditem.cpp
+    canvas/documentitem.cpp
     canvas/canvasscene.cpp
     canvas/layeritem.cpp
     main/assetselector.cpp

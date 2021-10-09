@@ -30,6 +30,8 @@ public:
     LayerNodeRef layerNode() override { return _layerNode; }
     ConstLayerNodeRef layerNode() const override { return ConstLayerNodeRef(_layerNode); }
     
+    QUuid uuid() const override { return _uuid; }
+    
     QString name() const override { return _name; }
     void setName(QString name) override
     {
@@ -90,6 +92,9 @@ public:
     {
     }
     
+    // IRenderable
+    RenderRoutine renderRoutine() const override { return _renderRoutine; }
+    
 signals:
     void nameChanged(QString name) override;
     void opacityChanged(double opacity) override;
@@ -98,7 +103,14 @@ signals:
     
     void boundaryChanged(QRect boundary) override;
     void skirtColorChanged(QColor skirtColor) override;
+    
+    // IRenderable
+    void renderRoutineChanged(RenderRoutineChangedEvent) override;
+    void renderChanged(QRegion affected, DataTreeNodeAddress entity = {}) override;
+    
 private:
+    const QUuid _uuid;
+    
     IDocument& _document;
     LayerNodeRef _layerNode;
     
@@ -109,6 +121,8 @@ private:
     
     const IFactory<ILayer>& _layerFactory;
     const IFactory<ILayerGroup>& _layerGroupFactory;
+    
+    RenderRoutine _renderRoutine;
 };
     
 }

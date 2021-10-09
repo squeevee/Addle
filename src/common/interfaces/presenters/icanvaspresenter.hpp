@@ -12,15 +12,23 @@
 #include "interfaces/traits.hpp"
 #include "interfaces/iamqobject.hpp"
 
+#include "interfaces/rendering/irenderable.hpp"
+
 namespace Addle {
 
 class IRenderer;
+class IDocumentPresenter;
 class ICanvasPresenter : public virtual IAmQObject
 {
 public:
     virtual ~ICanvasPresenter() = default; 
 
-    virtual IRenderer& renderer() const = 0;
+    virtual QSharedPointer<IDocumentPresenter> document() const = 0;
+    virtual void setDocument(QSharedPointer<IDocumentPresenter> document) = 0;
+signals:
+    virtual void documentChanged(QSharedPointer<IDocumentPresenter>) = 0;
+    
+    //virtual IRenderer& renderer() const = 0;
 //     virtual void initialize(IMainEditorPresenter& mainEditorPresenter) = 0;
 // 
 //     virtual IMainEditorPresenter& mainEditorPresenter() = 0;
@@ -39,6 +47,7 @@ public:
 };
 
 ADDLE_DECL_MAKEABLE(ICanvasPresenter);
+
 
 } // namespace Addle
 

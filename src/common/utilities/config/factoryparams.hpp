@@ -16,16 +16,17 @@
  
 #include "factoryparamset.hpp"
 
-// Same as original (Boost 1.75), but prepends `typename` to two dependent
-// names -- otherwise cannot be used in a class template.
+// Same as original (Boost 1.75), but prepends `BOOST_DEDUCED_TYPENAME` to two 
+// dependent names -- otherwise cannot be used in a class template. I should
+// submit this as a change to Boost
 #undef BOOST_PARAMETER_FUNCTION_FORWARD_OVERLOAD_0_Z
 #define BOOST_PARAMETER_FUNCTION_FORWARD_OVERLOAD_0_Z(z, n, data)            \
     BOOST_PARAMETER_MEMBER_FUNCTION_STATIC(BOOST_PP_TUPLE_ELEM(4, 1, data))  \
-    inline typename BOOST_PARAMETER_FUNCTION_RESULT_NAME(                    \
+    inline BOOST_DEDUCED_TYPENAME BOOST_PARAMETER_FUNCTION_RESULT_NAME(      \
         BOOST_PP_TUPLE_ELEM(4, 1, data)                                      \
       , BOOST_PP_TUPLE_ELEM(4, 3, data)                                      \
     )<                                                                       \
-        typename ::boost::parameter::aux::argument_pack<                     \
+        BOOST_DEDUCED_TYPENAME ::boost::parameter::aux::argument_pack<       \
             BOOST_PARAMETER_FUNCTION_SPECIFICATION_NAME(                     \
                 BOOST_PP_TUPLE_ELEM(4, 1, data)                              \
               , BOOST_PP_TUPLE_ELEM(4, 3, data)                              \
@@ -115,8 +116,8 @@ struct basic_arg_predicate
             "Incomplete types and references to incomplete types are not "
             "allowed as factory arguments. Make sure you've included any "
             "needed headers before calling IFactory<...>::make(...)"
-            // If a work-around to this limitation is needed, note that pointers 
-            // to incomplete types are allowed.
+            // If a work-around to this limitation is needed, note that 
+            // pointers to incomplete types are allowed.
         );
     };
 };
@@ -221,6 +222,9 @@ template<typename> class IFactory;
 //
 // Because of complications due to template and preprocessor generation, it's
 // also necessary to explicitly specialize the `void` case of the dispatcher.
+//
+// It probably doesn't matter since the dispatcher is only ever created on the
+// stack, but it should probably hold the function object in EBO-capable storage
 #define ADDLE_DECL_FACTORY_PARAMETERS_IMPL(Interface, tag_ns, signature)    \
     template<>                                                              \
     struct Addle::Traits::factory_params<Interface> {                       \
@@ -312,6 +316,12 @@ template<typename> class IFactory;
         BOOST_PARAMETER_AUX_PP_FLATTEN(3, 2, 3, signature)                  \
     )
     
+// It'd be better for the keyword objects to be constexpr instead of just
+// const reference -- I'm not sure why they aren't except maybe backwards 
+// compatibility. Possibly write our own keyword class to do that, or add it 
+// within a feature detection macro and submit the change to Boost.
+//
+// Also add BOOST_ATTRIBUTE_UNUSED or equivalent to the object declaration.
 #define ADDLE_FACTORY_PARAMETER_NAME( name )                                \
     BOOST_PARAMETER_BASIC_NAME(                                             \
         factory_param_tags,                                                 \

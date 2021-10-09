@@ -57,7 +57,7 @@ class IEyedropToolPresenter;
 class INavigateToolPresenter;
 class IMeasureToolPresenter;
 
-class ADDLE_CORE_EXPORT MainEditorPresenter : public QObject, public virtual IMainEditorPresenter
+class ADDLE_CORE_EXPORT MainEditorPresenter : public QObject, public IMainEditorPresenter
 {
     Q_OBJECT
     Q_PROPERTY(
@@ -82,10 +82,11 @@ public:
     MainEditorPresenter(
             Mode mode,
             std::unique_ptr<IColorSelectionPresenter> colorSelection,
-            std::unique_ptr<IViewPortPresenter> viewPortPresenter,
+            QSharedPointer<ICanvasPresenter> canvas,
             std::unique_ptr<IMessageContext> messageContext,
             std::unique_ptr<IRepository<IPalettePresenter>> palettes,
             std::unique_ptr<IRepository<IToolPresenter>> tools,
+            const IFactory<IViewPortPresenter>& viewPortFactory,
             const IFactory<IDocumentPresenter>& documentFactory
         );
     virtual ~MainEditorPresenter() = default;
@@ -97,6 +98,8 @@ public:
     void setMode(Mode mode) override;
     Mode mode() const override { return _mode; }
 
+    QSharedPointer<ICanvasPresenter> canvas() const override { return _canvas; }
+    
     QSharedPointer<IDocumentPresenter> documentPresenter() const override {  return _document; }
     bool isEmpty() const override { return _isEmptyCache.value(); } // TODO: rename "hasDocument"?
 
@@ -150,6 +153,7 @@ private:
     Mode _mode;
 
     std::unique_ptr<IColorSelectionPresenter> _colorSelection;
+    QSharedPointer<ICanvasPresenter> _canvas;
     std::unique_ptr<IViewPortPresenter> _viewPortPresenter;
     std::unique_ptr<IMessageContext> _messageContext;
     

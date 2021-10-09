@@ -77,6 +77,14 @@ signals:
     void topSelectedLayerChanged(QSharedPointer<ILayerPresenter> layer) override;
     
     void layerSelectionChanged(QSet<ILayerNodePresenter::LayerNodeRef> selection) override;
+    
+public:
+    RenderRoutine renderRoutine() const override { return _renderRoutine; }
+
+signals:
+    void renderRoutineChanged(RenderRoutineChangedEvent) override;
+    void renderChanged(QRegion affected, DataTreeNodeAddress entity = {}) override;
+    
 private:        
     ILayerNodePresenter::LayerNode* topSelectedLayerNode_p() const;
     QSharedPointer<ILayerPresenter> topSelectedLayer_p() const;
@@ -91,6 +99,8 @@ private:
     
     QSize _size;
     QColor _backgroundColor;
+    
+    RenderRoutine _renderRoutine;
     
     QSharedPointer<IDocument> _model;
     

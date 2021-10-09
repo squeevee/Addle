@@ -230,9 +230,9 @@ void DocumentPresenter::removeSelectedLayers()
     
     const DataTreeNodeEvent& pending = _layers.observer().pendingEvent();
     std::size_t progress = 0;
-    for ( auto chunk : noDetach(selectedChunks) )
+    for ( auto chunk : selectedChunks )
     {
-        for ( auto mapped : noDetach(pending.mapChunkBackward(std::move(chunk), progress)) )
+        for ( auto mapped : noDetach(pending.mapChunkForward(chunk)) )
         {
             _layers.root().descendantAt(mapped.address.parent())
                 .removeChildren(mapped.address.lastIndex(), mapped.length);

@@ -23,6 +23,9 @@
 #include "utilities/datatree/nestedobjectadapter.hpp"
 
 namespace Addle {
+    
+namespace aux_render { class BrushEntity; }
+    
 class ADDLE_CORE_EXPORT Document : public QObject, public IDocument
 {
     Q_OBJECT
@@ -37,6 +40,8 @@ public:
         );
     virtual ~Document() = default;
 
+    QUuid uuid() const override { return _uuid; }
+    
 //     void render(QRect area, QPaintDevice* device) const override;
 
 //     bool isEmpty() const override { return _empty; }
@@ -80,6 +85,13 @@ signals:
     
     void layerNodesChanged(DataTreeNodeEvent) override; 
 
+public:
+    RenderRoutine renderRoutine() const override { return _renderRoutine; }
+
+signals:
+    void renderRoutineChanged(RenderRoutineChangedEvent) override;
+    void renderChanged(QRegion affected, DataTreeNodeAddress entity = {}) override;
+    
 private:
     using builder_adapter_t = aux_datatree::NestedObjectAdapterImpl<   
             LayerNodeBuilder,
@@ -91,6 +103,8 @@ private:
             aux_datatree::const_node_handle_t<builder_adapter_t>, 
             ILayerNodeModel::LayerNode*);
     
+    const QUuid _uuid;
+    
     LayersTree _layers;
     
     QSize _size;
@@ -100,8 +114,12 @@ private:
 //     void layersChanged(QList<ILayer*> layers);
 //     QRect unitedBoundary();
     
+    QSharedPointer<aux_render::BrushEntity> _backgroundRenderEntity;
+    RenderRoutine _renderRoutine;
+    
     const IFactory<ILayer>& _layerFactory;
     const IFactory<ILayerGroup>& _layerGroupFactory;
+    
 };
 
 } // namespace Addle

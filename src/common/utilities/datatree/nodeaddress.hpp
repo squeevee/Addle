@@ -12,11 +12,12 @@
 #include <QAtomicInteger>
 
 #if defined(ADDLE_DEBUG) || defined(ADDLE_TEST)
-#include <QtDebug>      // QDebug operator<< for NodeAddress
+#include <QtDebug>      // QDebug operator<< for NodeAddress and NodeChunk
+#include "utilities/debugging/qdebug_extensions.hpp"
 #endif
 
 #ifdef ADDLE_TEST
-#include <QTest>        // QTest::toString for NodeAddress
+#include <QTest>        // QTest::toString for NodeAddress and NodeChunk
 class DataTree_UTest;   // friend access for NodeAddress
 #endif
 
@@ -176,7 +177,8 @@ public:
 
     inline bool isAncestorOf(const NodeAddress& other) const
     {
-        return (commonAncestorIndex(other)) == this->selfIndex();
+        return commonAncestorIndex(other) == selfIndex() 
+            && size() != other.size();
     }
 
     inline bool isDescendantOf(const NodeAddress& other) const
@@ -184,6 +186,16 @@ public:
         return other.isAncestorOf(*this);
     }
     
+    inline bool isAncestorOrSame(const NodeAddress& other) const
+    {
+        return commonAncestorIndex(other) == selfIndex();
+    }
+    
+    inline bool isDescendantOrSame(const NodeAddress& other) const
+    {
+        return other.isAncestorOrSame(*this);
+    }
+        
     inline NodeAddress parent() const;
     // defined below NodeAddressBuilder
 
@@ -199,6 +211,8 @@ public:
     inline NodeAddress&& operator+(NodeAddress) &&;
     // defined below NodeAddressBuilder
     
+    inline std::optional<NodeAddress> lowerTruncate(NodeAddress) const;
+    
 private:
     std::size_t hash_p() const
     {
@@ -207,36 +221,6 @@ private:
                 _list.cend()
             );
     }
-    
-#if defined(ADDLE_DEBUG) || defined(ADDLE_TEST)
-    QByteArray repr_p() const
-    {
-        auto i      = this->begin();
-        auto end    = this->end();
-        
-        if (i == end)
-        {
-            return QByteArrayLiteral("{}");
-        }
-        else
-        {
-            QByteArray result = QByteArrayLiteral("{ ");
-            
-            while (true)
-            {
-                result += QByteArray::number(qulonglong(*i));
-                
-                ++i;
-                if (i == end) break;
-                
-                result += QByteArrayLiteral(", ");
-            }
-
-            result += QByteArrayLiteral(" }");
-            return result;
-        }
-    }
-#endif // defined(ADDLE_DEBUG) || defined(ADDLE_TEST)
     
     list_t _list;
     
@@ -252,13 +236,47 @@ private:
 
 #if defined(ADDLE_DEBUG) || defined(ADDLE_TEST)
     friend QDebug operator<<(QDebug debug, const NodeAddress& nodeAddress)
-    {
-        return debug << nodeAddress.repr_p().constData();
+    {          
+        auto i      = nodeAddress.begin();
+        auto end    = nodeAddress.end();
+        
+        if (debug.verbosity() > QDebug::DefaultVerbosity)
+            debug << "DataTreeNodeAddress(";
+        
+        if (i == end)
+        {
+            debug << "{}";
+        }
+        else
+        {
+            debug << "{";
+            while (true)
+            {
+                std::size_t index = *i;
+                ++i;
+                if (i != end)
+                {
+                    const QDebugStateSaver s(debug);
+                    debug.nospace();
+                    debug << index << ",";
+                }
+                else
+                {
+                    debug << index;
+                    break;
+                }
+            }
+            debug << "}";
+        }
+        
+        if (debug.verbosity() > QDebug::DefaultVerbosity)
+            debug << ")";
+        
+        return debug;
     }
 #endif // defined(ADDLE_DEBUG) || defined(ADDLE_TEST)
 
 #ifdef ADDLE_TEST
-    friend char* ::QTest::toString<NodeAddress>(const NodeAddress&);
     friend class ::DataTree_UTest;
 #endif
     
@@ -296,6 +314,11 @@ public:
     NodeAddressBuilder(Range&& indices)
     {
         initFromRange(std::forward<Range>(indices));
+    }
+    
+    NodeAddressBuilder(NodeAddress::const_iterator begin, NodeAddress::const_iterator end)
+    {
+        initFromRange(boost::iterator_range<NodeAddress::const_iterator>(begin, end));
     }
     
     explicit NodeAddressBuilder(const NodeAddress& address)
@@ -435,6 +458,17 @@ inline NodeAddress&& NodeAddress::operator+(NodeAddress other) &&
         builder.append(index);
     
     return std::move((*this) = std::move(builder));
+}
+
+inline std::optional<NodeAddress> NodeAddress::lowerTruncate(NodeAddress other) const
+{
+    if (other.isRoot())
+        return *this;
+    if (other.commonAncestorIndex(*this) == other.end())
+        return {};
+    
+    NodeAddressBuilder builder(begin() + other.size(), end());
+    return std::move(builder);
 }
 
 /**
@@ -583,9 +617,11 @@ void _chunkifyAddresses_impl(OutContainer& out, InRange&& in)
     auto i = std::begin(in);
     auto&& end = std::end(in);
     
-    using address_ref_t = boost::copy_reference_t<
-            NodeAddress,
-            typename boost::range_reference<boost::remove_cv_ref_t<InRange>>::type&&
+    using _range_ref_t = typename boost::range_reference<std::remove_reference_t<InRange>>::type;
+    using address_ref_t =  boost::mp11::mp_if<
+            std::is_same<std::remove_reference_t<_range_ref_t>, NodeAddress>,
+            _range_ref_t&&,
+            NodeAddress
         >;
     
     if (i == end) return;
@@ -593,35 +629,43 @@ void _chunkifyAddresses_impl(OutContainer& out, InRange&& in)
     auto j = i;
     ++j;
     
-    std::size_t span = 0;
+    std::size_t span = 1;
     
-    while (j != end)
+    for (; j != end; ++j)
     {
         address_ref_t a1 = *i;
         address_ref_t a2 = *j;
         
-        if (a1.commonAncestorIndex(a2) == a1.parentIndex()
-            && a2.lastIndex() == a1.lastIndex() + span + 1)
+#ifdef ADDLE_DEBUG
+        assert(!(a1 > a2) || a2.size() > a1.size());
+#endif
+        
+        bool isSibling = (a2.commonAncestorIndex(a1) == a2.parentIndex());
+        
+        if (!isSibling || a2.lastIndex() > a1.lastIndex() + span)
+        {   
+            out.push_back(NodeChunk { std::forward<address_ref_t>(a1), span });
+            span = 1;
+            i = j;
+        }
+        else if (Q_LIKELY(isSibling && a2.lastIndex() == a1.lastIndex() + span))
         {
             ++span;
         }
-        else
-        {
-            out.push_back(NodeChunk { a1, span });
-            span = 0;
-            i = j;
-        }
-        ++j;
     }
-    
     out.push_back(NodeChunk { *i, span });
+    
+    std::sort(out.begin(), out.end());
 }
 
-template<class OutContainer = QList<NodeChunk>, typename InRange = const QList<NodeAddress>&>
+// Takes a range of NodeAddress and groups them into an equivalent collection 
+// of NodeChunk. Performs optimally if addresses are sorted by breath-first 
+// search.
+template<class OutContainer = QList<NodeChunk>, typename InRange = QList<NodeAddress>>
 OutContainer chunkifyAddresses(InRange&& in)
 {
     static_assert(std::is_convertible_v<
-        typename boost::range_reference<boost::remove_cv_ref_t<InRange>>::type,
+        typename boost::range_reference<std::remove_reference_t<InRange>>::type,
         NodeAddress
     >);
     
@@ -645,7 +689,7 @@ OutContainer chunkifyAddresses(InRange&& in)
         >
         && std::is_rvalue_reference_v<InRange&&>
         && !std::is_const_v<std::remove_reference_t<
-            typename boost::range_reference<boost::remove_cv_ref_t<InRange>>::type
+            typename boost::range_reference<std::remove_reference_t<InRange>>::type
         >>)
     {
         std::sort(std::begin(in), std::end(in), NodeAddressBFSComparator{});
@@ -732,13 +776,10 @@ struct hash<::Addle::aux_datatree::NodeAddress>
 }
 
 #ifdef ADDLE_TEST
-template<>
-inline char* ::QTest::toString(
-        const ::Addle::aux_datatree::NodeAddress& nodeAddress
-    )
-{
-    return qstrdup(nodeAddress.repr_p().constData());
-}
+
+QTEST_TOSTRING_IMPL_BY_QDEBUG((::Addle::aux_datatree::NodeAddress))
+QTEST_TOSTRING_IMPL_BY_QDEBUG((::Addle::aux_datatree::NodeChunk))
+
 #endif
 
 Q_DECLARE_METATYPE(Addle::DataTreeNodeAddress);

@@ -14,35 +14,44 @@
 #include <QGraphicsScene>
 #include <QGraphicsItemGroup>
 
+#include "interfaces/services/ifactory.hpp"
+#include "interfaces/rendering/irenderer.hpp"
+
 #include "layeritem.hpp"
 
 //#include "interfaces/presenters/icanvaspresenter.hpp"
 
 namespace Addle {
 
+class IDocumentPresenter;
 class ICanvasPresenter;
-class CanvasItem;
+class DocumentItem;
 class ADDLE_WIDGETSGUI_EXPORT CanvasScene : public QGraphicsScene
 {
     Q_OBJECT
 public:
-    CanvasScene(ICanvasPresenter& presenter, QObject* parent = nullptr);
+    CanvasScene(ICanvasPresenter& presenter, 
+        const IFactory<IRenderer>& rendererFactory, QObject* parent = nullptr);
     virtual ~CanvasScene() = default;
 
     bool event(QEvent* e) override;
 
+public slots:
+    void onDocumentChanged(QSharedPointer<Addle::IDocumentPresenter> document);
+    
 protected:
-    void mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent);
-    void mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent);
-    void mouseReleaseEvent(QGraphicsSceneMouseEvent* mouseEvent);
+    void mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent) override;
+    void mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent) override;
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent* mouseEvent) override;
 
 private slots:
     void layersUpdated();
     
 private:
-    CanvasItem* _canvasItem;
+    DocumentItem* _documentItem = nullptr;
 
     ICanvasPresenter& _presenter;
+    const IFactory<IRenderer>& _rendererFactory;
 };
 
 } // namespace Addle

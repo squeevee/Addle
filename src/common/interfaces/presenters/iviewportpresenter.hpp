@@ -203,9 +203,15 @@ DECL_INTERFACE_META_PROPERTIES(
     DECL_INTERFACE_PROPERTY(zoom)        // double
 );
 
+namespace aux_IViewPortPresenter {
+    ADDLE_FACTORY_PARAMETER_NAME( canvas )
+}
+
 ADDLE_DECL_MAKEABLE(IViewPortPresenter)
-
-
+ADDLE_DECL_FACTORY_PARAMETERS(
+    IViewPortPresenter,
+    (required (canvas, (QSharedPointer<ICanvasPresenter>)))
+)
 
 } // namespace Addle
 

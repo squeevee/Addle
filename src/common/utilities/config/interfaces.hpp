@@ -22,6 +22,7 @@
 #include "interfaces/views/imaineditorview.hpp"
 
 #include "interfaces/rendering/irenderer.hpp"
+#include "interfaces/rendering/irenderer.hpp"
 #include "interfaces/models/idocument.hpp"
 #include "interfaces/models/ilayer.hpp"
 #include "interfaces/models/ilayergroup.hpp"
@@ -45,12 +46,11 @@
     Addle::ILayer,                      \
     Addle::ILayerGroup,                 \
     Addle::IPalette,                    \
-    Addle::IRenderer,                \
+    Addle::IRenderer,                   \
     Addle::IMainEditorView
 
 // ADDLE_CONFIG_INTERFACES contains a comma-separated list of the 
-// unqualified names of interfaces exposed to the dependency injector.
-// The interfaces and all their traits must be defined (`#include`d) here
-// as well.
+// interfaces exposed to the dependency injector. The interfaces and all their 
+// traits must be defined (`#include`d) here as well.
 
 #endif // ADDLE_CONFIG_INTERFACES

@@ -17,6 +17,8 @@
 #include "interfaces/traits.hpp"
 #include "interfaces/iamqobject.hpp"
 
+#include "interfaces/rendering/irenderable.hpp"
+
 #include "utilities/datatree/addledatatree.hpp"
 #include "utilities/datatree/views.hpp"
 #include "utilities/datatree/observer.hpp"
@@ -30,7 +32,7 @@ namespace Addle {
 
 class ILayer;
 class ILayerGroup;
-class IDocument : public virtual IAmQObject
+class IDocument : public virtual IAmQObject, public IRenderable
 {
 public:
     using LayersTree                = ILayerNodeModel::LayersTree;
@@ -38,6 +40,8 @@ public:
     
     virtual ~IDocument() = default;
 
+    virtual QUuid uuid() const = 0;
+    
     virtual QSize size() const = 0;
     
     virtual QColor backgroundColor() const = 0;
@@ -51,8 +55,7 @@ public:
 
     virtual aux_datatree::NodeRange<LayersTree> insertLayerNodes(
             DataTreeNodeAddress startPos,
-            QList<LayerNodeBuilder> layerNodeBuilders
-        ) = 0;
+            QList<LayerNodeBuilder> layerNodeBuilders) = 0;
         
     virtual void removeLayers(QList<DataTreeNodeChunk>) = 0;
     

@@ -1,113 +1,72 @@
-/**
- * Addle source code
- * @file
- * @copyright Copyright 2020 Eleanor Hawk
- * @copyright Modification and distribution permitted under the terms of the
- * MIT License. See "LICENSE" for full details.
- */
-
 #include "renderer.hpp"
-
-#include "utilities/qobject.hpp"
-
-#include <QVector>
-#include <utilities/ranges.hpp>
 
 using namespace Addle;
 
-void Renderer::clear()
+Renderer::Renderer(Mode mode, const IRenderable* renderable, RenderRoutine routine)
+    : _mode(mode), 
+    _renderable(renderable),
+    _routine(routine)
+{
+#ifdef ADDLE_DEBUG
+    if (Q_UNLIKELY(_renderable && !routine.isNull()))
+    {
+        qWarning("%s",
+            //% "Renderer was created with a non-null renderable and a non-null "
+            //% "render routine. The routine given will be overwritten with the "
+            //% "routine of the renderable."
+            qUtf8Printable(qtTrId("debug-messages.renderer.nonnull-renderable-and-routine"))
+        );
+    }
+    else if (Q_UNLIKELY(!_renderable && routine.isEmpty()))
+    {
+        qWarning("%s",
+            //% "Renderer was created with a null renderable and an empty render "
+            //% "routine. The renderer will be unable to do anything useful."
+            qUtf8Printable(qtTrId("debug-messages.renderer.null-renderable-and-routine"))
+        );
+    }
+#endif
+
+    if (_renderable) _routine = _renderable->renderRoutine();
+    
+    switch(_mode)
+    {
+        case Mode_Live:
+            _cacheCapacity = 100;
+            _timeout = 0;
+            break;
+            
+        case Mode_IO:
+            _cacheCapacity = 0;
+            _timeout = -1;
+            break;
+        
+        default:
+            Q_UNREACHABLE();
+    }
+}
+
+void Renderer::setScaleHint(double scale) 
 {
 }
 
-void Renderer::render(RenderHandle data) const
-{
-//     if (maxDepth == -1) maxDepth = _steps.size();
-//     if (maxDepth == 0) return;
-//     maxDepth = qMin(maxDepth, _steps.size());
-// 
-//     QVector<RenderHandle> stackData(qMin(maxDepth, _steps.size()));
-// 
-//     int depth = maxDepth;
-//     RenderHandle lastData = data;
-//     while (depth >= 1)
-//     {
-//         auto s_step = _steps[depth - 1].toStrongRef();
-// 
-//         RenderHandle stepData = lastData;
-//         stepData.painter()->save();
-//         
-//         if (s_step) //temporary stop gap
-//             s_step->onPush(stepData);
-// 
-//         stackData[depth - 1] = stepData;
-//         lastData = stepData;
-//     
-//         --depth;
-//     }
-// 
-//     while (depth < maxDepth)
-//     {
-//         auto s_step = _steps[depth].toStrongRef();
-// 
-//         RenderHandle stepData = stackData[depth];
-//         if (s_step)
-//             s_step->onPop(stepData);
-//         stepData.painter()->restore();
-// 
-//         ++depth;
-//     }
-}
-
-void Renderer::removeSteps(QList<QWeakPointer<IRenderable>> steps)
+void Renderer::setCacheCapacity(int capacity) 
 {
 }
 
-void Renderer::onRenderableChange(QRect area)
+void Renderer::clearCache() 
 {
-    emit changed(area);
 }
 
-
-void Renderer::onStepDestroyed(QObject* step_)
+void Renderer::setTimeout(int timeout) 
 {
-//     auto i = _index_byQObject[step_];
-//     this->removeStep(_steps[i]);
 }
 
-// void Renderer::rebuild_p()
-// {
-//     assert(this->thread() == QThread::currentThread());
-//     
-//     _steps.clear();
-//     _pMasks.clear();
-//     _rMasks.clear();
-//     //_groups.clear();
-//     
-//     _index_byQObject.clear();
-//     _index_byStep.clear();
-//     
-//     structure_t oldStructure(std::move(_structure));
-//     
-//     QList<RendererBuilder::StepInfo> builderSteps;
-//     QList<RendererBuilder::MaskInfo> builderMasks;
-//     QList<RendererBuilder::CompositeModeInfo> builderCompositeModes;
-//     
-//     {
-//         auto builder = QSharedPointer<RendererBuilder>::create(this->thread());
-//         emit needsRebuild(builder);
-//         std::move(*builder).result(builderSteps, builderMasks, builderCompositeModes);
-//     }
-//     
-// //     for (const auto& stepInfo : noDetach(builderSteps))
-// //     {
-// //         TODO support lookup by address in DataTree
-// //         
-// //         auto node = &_structure.root();
-// //         {
-// //             for (int i : noDetach(stepInfo.groupAddress))
-// //             {
-// //                 node = &((*node)[i]);
-// //             }
-// //         }
-// //     }
-// }
+void Renderer::render_p_Live(QPainter& painter, QRegion region) const
+{
+}
+
+void Renderer::render_p_IO(QPainter& painter, QRegion region) const
+{
+    
+}

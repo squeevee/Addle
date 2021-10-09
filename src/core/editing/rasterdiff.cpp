@@ -31,15 +31,15 @@ void RasterDiff::initialize(
     
     _uncompressed = QByteArray(bufferLength, 0x00);
     {
-        QImage mergedBuffer(
-            reinterpret_cast<uchar*>(_uncompressed.data()), 
-            _area.width(),
-            _area.height(),
-            QImage::Format_ARGB32
-        );
-        QPainter painter(&mergedBuffer);
-        painter.translate(-_area.topLeft());
-        render({ s_destination->renderable(), source.renderable() }, _area, &painter);
+//         QImage mergedBuffer(
+//             reinterpret_cast<uchar*>(_uncompressed.data()), 
+//             _area.width(),
+//             _area.height(),
+//             QImage::Format_ARGB32
+//         );
+//         QPainter painter(&mergedBuffer);
+//         painter.translate(-_area.topLeft());
+//         render({ s_destination->renderable(), source.renderable() }, _area, &painter);
     }
 
     {

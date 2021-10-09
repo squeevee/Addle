@@ -30,6 +30,9 @@
 #include "interfaces/views/imaineditorview.hpp"
 #include "interfaces/presenters/imaineditorpresenter.hpp"
 
+#include "interfaces/services/ifactory.hpp"
+#include "interfaces/rendering/irenderer.hpp"
+
 #include "utils.hpp"
 #include "utilities/qobject.hpp"
 #include "utilities/view/messageviewhelper.hpp"
@@ -41,6 +44,7 @@ class NavigateToolOptionsBar;
 
 class ViewPort;
 class ViewPortScrollWidget;
+class CanvasScene;
 class ZoomRotateWidget;
 class ColorSelector;
 class LayersManager;
@@ -55,7 +59,8 @@ class ADDLE_WIDGETSGUI_EXPORT MainEditorView : public QMainWindow, public IMainE
     Q_INTERFACES(Addle::IMainEditorView Addle::ITopLevelView)
     IAMQOBJECT_IMPL    
 public:
-    MainEditorView(IMainEditorPresenter& presenter);
+    MainEditorView(IMainEditorPresenter& presenter, 
+        const IFactory<IRenderer>& rendererFactory);
     virtual ~MainEditorView() = default;
 
     IMainEditorPresenter& presenter() const override{ return _presenter; }
@@ -109,6 +114,8 @@ private:
     ViewPortScrollWidget* _viewPortScrollWidget;
     ZoomRotateWidget* _zoomRotateWidget;
 
+    CanvasScene* _canvasScene;
+    
     QAction* _action_new;
     QAction* _action_open;
     QAction* _action_save;
@@ -159,6 +166,7 @@ private:
     TopLevelViewHelper _tlvHelper;
     
     MessageViewHelper _messageViewHelper;
+    const IFactory<IRenderer>& _rendererFactory;
     
     friend class ToolSetupHelper;
 };

@@ -32,12 +32,12 @@ BrushIconHelper::BrushIconHelper(QObject* parent)
 {
     _underSurface = ServiceLocator::makeShared<IRasterSurface>();
     _brushSurface = ServiceLocator::makeShared<IRasterSurface>();
-    _renderer = ServiceLocator::makeShared<IRenderer>(
-        QList<QWeakPointer<IRenderable>>({ 
-            _underSurface->renderable().toWeakRef(),
-            _brushSurface->renderable().toWeakRef()
-        })
-    );
+//     _renderer = ServiceLocator::makeShared<IRenderer>(
+//         QList<QWeakPointer<IRenderable>>({ 
+//             _underSurface->renderable().toWeakRef(),
+//             _brushSurface->renderable().toWeakRef()
+//         })
+//     );
 
 //     if (_pattern8.isNull())
 //         _pattern8.load(ServiceLocator::get<IAppearanceService>().selector().select(":/misc/pattern8.png"));
@@ -271,7 +271,7 @@ void BrushIconHelper::BrushIconEngine::paint_p(QSize iconSize)
         painter.scale(scale, scale);
     }
 
-    _helper->_renderer->render(RenderHandle(iconRect, &painter));
+//     _helper->_renderer->render(RenderHandle(iconRect, &painter));
     //render(_helper->_brushSurface->renderable(), coarseBoundRect(canonicalRect), &painter);
 }
 

@@ -192,13 +192,25 @@ inline void postInterfaceEvent(QSharedPointer<Interface> receiver, QEvent* event
     postInterfaceEvent(receiver.data(), event, priority);
 }
 
+
+// WARNING this pointer class (and indeed QPointer) is not really suitable for 
+// asynchronous usage as there is no guarantee of how long a pointer will remain 
+// valid after a check.
+//
+// I don't know if a general solution to this limitation is actually possible in
+// C++ -- for example, we can give InterfacePointer a shared mutex and connect a 
+// functor to the `destroyed()` signal such that locking the mutex prevents the 
+// object from being fully destroyed -- but in this case, the mutex is only 
+// locked after potentially several derived class destructors have been called 
+// on the object and thus it's still a valid QObject but no longer really a 
+// valid instance of Interface. Even handling a QObject mid-destructor couldn't 
+// be guaranteed to be really safe.
+//
+// Ultimately this class is limited to situations with well-defined threading 
+// constraints and therefore is of dubious usefulness compared to just QPointer.
 template<class Interface>
 class InterfacePointer
 {
-    static_assert(
-       Traits::implemented_as_QObject<Interface>::value,
-       "InterfacePointer may only be used for interfaces implemented as QObject"
-    );
     typedef typename std::conditional<
         std::is_const<Interface>::value,
         const QObject,
@@ -206,7 +218,10 @@ class InterfacePointer
     >::type ObjectType;
     
 public:
-    inline InterfacePointer(Interface* interface = nullptr)
+    InterfacePointer() = default;
+    InterfacePointer(const InterfacePointer&) = default;
+    
+    inline InterfacePointer(Interface* interface)
         : _inner(qobject_interface_cast<ObjectType*>(interface))
     {
     }

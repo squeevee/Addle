@@ -22,6 +22,7 @@
 #include "utilities/guiutils.hpp"
 
 #include "docbackgrounditem.hpp"
+#include "documentitem.hpp"
 #include "layeritem.hpp"
 
 #include "utils.hpp"
@@ -30,9 +31,23 @@ using namespace Addle;
 
 const double MINIMUM_LAYER_Z = 1;
 
-CanvasScene::CanvasScene(ICanvasPresenter& presenter, QObject* parent)
-    : QGraphicsScene(parent), _presenter(presenter)
+CanvasScene::CanvasScene(ICanvasPresenter& presenter, 
+    const IFactory<IRenderer>& rendererFactory, 
+    QObject* parent)
+    : QGraphicsScene(parent), _presenter(presenter), _rendererFactory(rendererFactory)
 {
+    auto document = _presenter.document();
+    if (document)
+    {
+        _documentItem = new DocumentItem(
+            document, 
+            _rendererFactory.makeUnique(
+                IRenderer::Mode_Live,
+                aux_IRenderer::renderable_ = document.get()
+            ));
+        addItem(_documentItem);
+    }
+    
 //     _presenter = presenter;
 // 
 //     auto documentPresenter = _presenter.mainEditorPresenter().documentPresenter();
@@ -100,6 +115,26 @@ bool CanvasScene::event(QEvent* e)
 //     return QGraphicsScene::event(e);
 }
 
+void CanvasScene::onDocumentChanged(QSharedPointer<IDocumentPresenter> document)
+{
+    if (_documentItem)
+    {
+        removeItem(_documentItem);
+        delete _documentItem;
+    }
+    
+    if (document)
+    {
+        _documentItem = new DocumentItem(
+            document, 
+            _rendererFactory.makeUnique(
+                IRenderer::Mode_Live,
+                aux_IRenderer::renderable_ = document.get()
+            ));
+        addItem(_documentItem);
+    }
+}
+    
 void CanvasScene::layersUpdated()
 {
 //     clear();

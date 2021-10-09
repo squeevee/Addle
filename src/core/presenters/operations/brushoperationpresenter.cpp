@@ -18,13 +18,13 @@ using namespace Addle;
 
 void BrushOperationPresenter::initialize(QWeakPointer<BrushStroke> BrushStroke, QWeakPointer<ILayerPresenter> layerPresenter)
 {
-    auto s_layerPresenter = layerPresenter.toStrongRef();
-    auto s_BrushStroke = BrushStroke.toStrongRef();
+//     auto s_layerPresenter = layerPresenter.toStrongRef();
+//     auto s_BrushStroke = BrushStroke.toStrongRef();
     
-    _operation = ServiceLocator::makeShared<IRasterDiff>(
-        std::ref(*s_BrushStroke->buffer()),
-        s_layerPresenter->model()->rasterSurface()
-    );
+//     _operation = ServiceLocator::makeShared<IRasterDiff>(
+//         std::ref(*s_BrushStroke->buffer()),
+//         s_layerPresenter->model()->rasterSurface()
+//     );
 }
 
 void BrushOperationPresenter::do_()

@@ -69,8 +69,7 @@ int main(int argc, char *argv[])
     widgetsgui_config(*config);
     
     auto& appService = config->getSingleton<IApplicationService>();
-        
-    
+
     if (appService.start())
     {
         connect_interface(&a, SIGNAL(aboutToQuit()), &appService, SLOT(quitting()), Qt::ConnectionType::DirectConnection);

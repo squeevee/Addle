@@ -133,9 +133,6 @@ void ViewPort::setDocument(QSharedPointer<IDocumentPresenter> documentPresenter)
 
     if (!documentPresenter)
         return;
-
-//     _canvasScene = new CanvasScene(_presenter.mainEditorPresenter()->canvasPresenter(), this);
-//     setScene(_canvasScene);
 }
 
 void ViewPort::focusInEvent(QFocusEvent* focusEvent)

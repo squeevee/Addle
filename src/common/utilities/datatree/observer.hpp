@@ -25,8 +25,16 @@
 
 #include "./aux.hpp"
 
+#if defined(ADDLE_DEBUG) || defined(ADDLE_TEST)
+// QDebug operator<< for std::optional<NodeAddress>
+#include <QtDebug>      
+
+// QTEST_TOSTRING_IMPL_BY_QDEBUG for std::optional<NodeAddress>
+#include "utilities/debugging/qdebug_extensions.hpp"
+#endif
+
 #ifdef ADDLE_TEST
-class DataTree_UTest;
+class DataTree_UTest;   // friend access
 #endif
 
 namespace Addle {
@@ -429,7 +437,7 @@ public:
         step_iterator _step         = {};
         step_iterator _stepEnd      = {};
         
-        std::size_t _chunkIndex       = 0;
+        std::size_t _chunkOrd       = 0;
                 
         coarse_chunk_iterator   _cChunk     = {};
         fine_chunk_iterator     _fChunk     = {};
@@ -461,7 +469,7 @@ public:
         
         void swap(Iterator& other)
         {
-            std::swap(_chunkIndex,    other._chunkIndex);
+            std::swap(_chunkOrd, other._chunkOrd);
             
             std::swap(_step,    other._step);
             std::swap(_stepEnd, other._stepEnd);
@@ -493,7 +501,7 @@ public:
         
         bool equal(const Iterator& other) const
         { 
-            return _step == other._step && _chunkIndex == other._chunkIndex;
+            return _step == other._step && _chunkOrd == other._chunkOrd;
         }
         
         inline void initStepFront();
@@ -564,8 +572,8 @@ private:
         
         std::optional<NodeAddress> mapForward(
                 const NodeAddress& from, 
-                std::size_t minChunkIndex = 0,
-                std::size_t maxChunkIndex = SIZE_MAX) const
+                std::size_t minChunkOrd = 0,
+                std::size_t maxChunkOrd = SIZE_MAX) const
         {
             if (from.isRoot()) return from;
 
@@ -573,12 +581,12 @@ private:
             {
                 case NodeOperation::Add:
                 {
-                    PrimaryChunkMapper<true, true> mapper(*this, minChunkIndex, maxChunkIndex);
+                    PrimaryChunkMapper<true, true> mapper(*this, minChunkOrd, maxChunkOrd);
                     return mapper.mapAddress(from);
                 }
                 case NodeOperation::Remove:
                 {
-                    PrimaryChunkMapper<false, false> mapper(*this, minChunkIndex, maxChunkIndex);
+                    PrimaryChunkMapper<false, false> mapper(*this, minChunkOrd, maxChunkOrd);
                     return mapper.mapAddress(from);
                 }
                 
@@ -593,13 +601,13 @@ private:
         void mapChunksForward(
                 const InRange& in, 
                 OutContainer& out,
-                std::size_t minChunkIndex = 0, 
-                std::size_t maxChunkIndex = SIZE_MAX) const;
+                std::size_t minChunkOrd = 0, 
+                std::size_t maxChunkOrd = SIZE_MAX) const;
         
         std::optional<NodeAddress> mapBackward(
                 const NodeAddress& from,
-                std::size_t minChunkIndex = 0, 
-                std::size_t maxChunkIndex = SIZE_MAX) const
+                std::size_t minChunkOrd = 0, 
+                std::size_t maxChunkOrd = SIZE_MAX) const
         {
             if (_primaryChunks.empty())
                 return from;
@@ -608,12 +616,12 @@ private:
             {
                 case NodeOperation::Add:
                 {
-                    PrimaryChunkMapper<false, true> mapper(*this, minChunkIndex, maxChunkIndex);
+                    PrimaryChunkMapper<false, true> mapper(*this, minChunkOrd, maxChunkOrd);
                     return mapper.mapAddress(from);
                 }
                 case NodeOperation::Remove:
                 {
-                    PrimaryChunkMapper<true, false> mapper(*this, minChunkIndex, maxChunkIndex);
+                    PrimaryChunkMapper<true, false> mapper(*this, minChunkOrd, maxChunkOrd);
                     return mapper.mapAddress(from);
                 }
                 
@@ -628,8 +636,8 @@ private:
         void mapChunksBackward(
                 const InRange& in, 
                 OutContainer& out,
-                std::size_t minChunkIndex = 0, 
-                std::size_t maxChunkIndex = SIZE_MAX) const;
+                std::size_t minChunkOrd = 0, 
+                std::size_t maxChunkOrd = SIZE_MAX) const;
         
         // A convenience to avoid having to make a container to hold the result
         // of a subtractive mapping (i.e., when it can be assumed there is no
@@ -637,8 +645,8 @@ private:
         // Add steps.
         std::optional<NodeChunk> mapChunkSubtractive(
                 NodeChunk from,
-                std::size_t minChunkIndex = 0, 
-                std::size_t maxChunkIndex = SIZE_MAX) const;
+                std::size_t minChunkOrd = 0, 
+                std::size_t maxChunkOrd = SIZE_MAX) const;
                 
 //         std::ptrdiff_t childCountOffset(
 //                 NodeAddress parent, 
@@ -661,13 +669,13 @@ private:
         struct PrimaryChunkMapper
         {
             PrimaryChunkMapper(const Step& step_,
-                    std::size_t minChunkIndex_ = 0,
-                    std::size_t maxChunkIndex_ = SIZE_MAX)
+                    std::size_t minChunkOrd_ = 0,
+                    std::size_t maxChunkOrd_ = SIZE_MAX)
                 : step(step_), 
-                minChunkIndex(minChunkIndex_),
-                maxChunkIndex(std::min(maxChunkIndex_, step._chunkCount))
+                minChunkOrd(minChunkOrd_),
+                maxChunkOrd(std::min(maxChunkOrd_, step._chunkCount))
             {
-                assert(minChunkIndex <= maxChunkIndex);
+                assert(minChunkOrd <= maxChunkOrd);
             }
             
             PrimaryChunkMapper(const Step& step_, 
@@ -680,12 +688,12 @@ private:
             std::optional<NodeChunk> yieldMapChunk();
             
             const Step& step;
-            const std::size_t minChunkIndex;
-            const std::size_t maxChunkIndex;
+            const std::size_t minChunkOrd;
+            const std::size_t maxChunkOrd;
             
             std::optional<NodeChunk> remainderChunk;
             
-            std::size_t chunkIndex = 0;
+            std::size_t chunkOrd = 0;
             
             std::optional<NodeAddress> mappedParentAddress;
             
@@ -859,7 +867,7 @@ inline void NodeEvent::Iterator::initStepFront()
 
 inline void NodeEvent::Iterator::initStepBack()
 {
-    _chunkIndex = (*_step).chunkCount();
+    _chunkOrd = (*_step).chunkCount();
     switch(operation())
     {
         case Add:
@@ -881,7 +889,7 @@ inline void NodeEvent::Iterator::increment()
 {
     assert (_step != _stepEnd);
     
-    ++_chunkIndex;
+    ++_chunkOrd;
     switch(operation())
     {
         case Add:
@@ -895,7 +903,7 @@ inline void NodeEvent::Iterator::increment()
                     if (_step != _stepEnd) 
                         initStepFront();
                     
-                    _chunkIndex = 0;
+                    _chunkOrd = 0;
                     return;
                 }
                 else
@@ -916,7 +924,7 @@ inline void NodeEvent::Iterator::increment()
                     if (_step != _stepEnd) 
                         initStepFront();
                     
-                    _chunkIndex = 0;
+                    _chunkOrd = 0;
                     return;
                 }
                 else
@@ -933,7 +941,7 @@ inline void NodeEvent::Iterator::increment()
 
 inline void NodeEvent::Iterator::decrement()
 {
-    --_chunkIndex;
+    --_chunkOrd;
     if (_step == _stepEnd) 
     {
         --_step;
@@ -1213,9 +1221,29 @@ public:
     
     inline ~TreeObserverData();
 
-    void startRecording();
+    void startRecording()
+    {
+        const QWriteLocker locker(&_lock);
+        
+        assert(!_isRecording);
+        
+        _isRecording = true;
+        _recording = NodeEvent();
+    }
     
-    NodeEvent finishRecording();
+    NodeEvent finishRecording()
+    {
+        const QWriteLocker locker(&_lock);
+        
+        assert(_isRecording);
+        
+        _isRecording = false;
+        
+        pushEvent(_recording);
+        return std::exchange(_recording, NodeEvent());
+    }
+    
+    void pushEvent(NodeEvent event);
     
     void onTreeDeleted()
     {
@@ -1236,11 +1264,9 @@ public:
     }
     
 private:
-    inline TreeObserverData(std::any root);
+    inline TreeObserverData();
     void releaseNodeEvent(node_event_iterator id);
     void removeNodeRefData(const GenericNodeRefData* data);
-    
-    std::any _root;
     
     node_event_list _events;
     node_event_list::iterator _current;
@@ -1271,8 +1297,7 @@ private:
 #endif
 };
 
-inline TreeObserverData::TreeObserverData(std::any root)
-    : _root(root)
+inline TreeObserverData::TreeObserverData()
 {
     // One event entry is always kept at the end of the history, essentially
     // representing the "current" state of the tree. After a change to the tree
@@ -1307,9 +1332,12 @@ public:
     using handle_t = aux_datatree::node_handle_t<Tree>;
     using child_handle_t = aux_datatree::child_node_handle_t<handle_t>;
     
+    TreeObserver() = default;
+    
     TreeObserver(Tree& tree)
-        : _root(::Addle::aux_datatree::tree_root(tree)),
-        _data(new TreeObserverData(_root))
+        : _tree(std::addressof(tree)),
+        _root(::Addle::aux_datatree::tree_root(tree)),
+        _data(new TreeObserverData)
     {
     }
     
@@ -1320,39 +1348,41 @@ public:
     
     ~TreeObserver()
     {
-        _data->onTreeDeleted(); 
+        if (_data) _data->onTreeDeleted(); 
     }
+    
+    void setTree(Tree& tree)
+    {
+        _data = QSharedPointer<TreeObserverData>(new TreeObserverData);
+        
+        _tree = std::addressof(tree);
+        _root = ::Addle::aux_datatree::tree_root(tree);
+    }
+    
+    const Tree* tree() const { return _tree; }
+    Tree* tree() { return _tree; }
     
     void startRecording()
     {
+        assert(_data);
         _data->startRecording();
     }
     
     NodeEvent finishRecording()
     {
+        assert(_data);
         return _data->finishRecording();
     }
     
-    const NodeEvent& pendingEvent() { return _data->_recording; }
+    NodeEvent pendingEvent() const
+    {
+        if (_data)
+            return _data->_recording; 
+        else
+            return NodeEvent();
+    }
     
-    bool isRecording() const { return _data->_isRecording; }
-    
-//     NodeEvent lastNodeEvent() const
-//     {
-//         const auto lock = _data->lockForRead();
-//         
-//         if (_data->_current != _data->_events.begin())
-//         {
-//             auto it = _data->_current;
-//             --it;
-//             
-//             return (*it).event;
-//         }
-//         else
-//         {
-//             return NodeEvent();
-//         }
-//     }
+    bool isRecording() const { return _data && _data->_isRecording; }
     
     template<typename Range>
     auto insertNodes(
@@ -1361,7 +1391,7 @@ public:
             Range&& nodeValues
          )
     {
-        assert(_data->_isRecording);
+        assert(_data && _data->_isRecording && _root);
         
         return EnactNodeEventHelper<Tree>(_root, _data->_recording)
             .template insertNodes<Range>(
@@ -1444,7 +1474,7 @@ public:
             std::size_t count = 1
          )
     {
-        assert(_data->_isRecording);
+        assert(_data && _data->_isRecording);
         _data->_recording.addChunk(
                 NodeAddressBuilder(::Addle::aux_datatree::node_address(parent)) << startIndex,
                 count
@@ -1457,7 +1487,7 @@ public:
             std::size_t count = 1
         )
     {
-        assert(_data->_isRecording);
+        assert(_data && _data->_isRecording && _root);
         EnactNodeEventHelper<Tree>(_root, _data->_recording)
             .removeNodes(
                 parent, 
@@ -1469,7 +1499,7 @@ public:
     template<typename Range>
     void removeNodes(Range&& range)
     {
-        assert(_data->_isRecording);
+        assert(_data && _data->_isRecording && _root);
         EnactNodeEventHelper<Tree>(_root, _data->_recording)
             .removeNodes(
                 std::forward<Range>(range)
@@ -1482,18 +1512,39 @@ public:
             std::size_t count = 1
          )
     {
-        assert(_data->_isRecording);
+        assert(_data && _data->_isRecording);
         _data->_recording.removeChunk(
                 NodeAddressBuilder(::Addle::aux_datatree::node_address(parent)) << startIndex,
                 count
             );
     }
     
-    std::unique_ptr<QReadLocker> lockForRead() const { return _data->lockForRead(); }
-    std::unique_ptr<QWriteLocker> lockForWrite() const { return _data->lockForWrite(); }
+    void passivePushEvent(NodeEvent event)
+    {
+        assert(_data && !_data->_isRecording);
+        _data->pushEvent(std::move(event));
+    }
+    
+    std::unique_ptr<QReadLocker> lockForRead() const
+    { 
+        if (_data)
+            return _data->lockForRead(); 
+        else
+            return nullptr;
+    }
+    
+    std::unique_ptr<QWriteLocker> lockForWrite() const 
+    { 
+        if (_data)
+            return _data->lockForWrite(); 
+        else
+            return nullptr;
+    }
     
 private:
-    ::Addle::aux_datatree::node_handle_t<Tree> _root = {};
+    Tree* _tree = nullptr;
+    handle_t _root = {};
+    
     QSharedPointer<TreeObserverData> _data;
     
     friend class ObservedTreeState;
@@ -1934,3 +1985,7 @@ struct hash<Addle::aux_datatree::NodeRef<Tree, IsConst>>
 };
 
 }
+
+#ifdef ADDLE_TEST
+QTEST_TOSTRING_IMPL_BY_QDEBUG((::std::optional<::Addle::aux_datatree::NodeAddress>))
+#endif // ADDLE_TEST

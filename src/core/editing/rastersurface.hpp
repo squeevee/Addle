@@ -17,7 +17,7 @@
 #include <QReadWriteLock>
 namespace Addle {
 
-class RasterSurfaceRenderable;
+// class RasterSurfaceRenderable;
 class ADDLE_CORE_EXPORT RasterSurface : public QObject, public IRasterSurface
 {
     Q_OBJECT
@@ -77,7 +77,7 @@ public:
     int alpha() const { ASSERT_INIT(); return _alpha; }
     void setAlpha(int alpha) { ASSERT_INIT(); _alpha = alpha; emit changed(_area); }
 
-    QSharedPointer<IRenderable> renderable() override;
+//     QSharedPointer<IRenderable> renderable() override;
 
     RasterPaintHandle paintHandle(QRect handleArea) override
     {
@@ -120,7 +120,7 @@ private:
     mutable QReadWriteLock _lock;
     
     QSharedPointer<IRasterSurface> _linked;
-    QSharedPointer<IRenderable> _renderable;
+//     QSharedPointer<IRenderable> _renderable;
 
     QPainter::CompositionMode _compositionMode = (QPainter::CompositionMode)NULL;
     int _alpha = 0xFF;
@@ -133,27 +133,27 @@ private:
 
     InitializeHelper _initHelper;
 
-    friend class RasterSurfaceRenderable;
+//     friend class RasterSurfaceRenderable;
 };
 
-class RasterSurfaceRenderable : public QObject, public IRenderable
-{
-    Q_OBJECT
-    IAMQOBJECT_IMPL
-public: 
-    RasterSurfaceRenderable(RasterSurface& owner) : _owner(owner) { }
-    virtual ~RasterSurfaceRenderable() = default;
-
-    virtual void render(RenderHandle& data) const override;
-
-    virtual QRect areaHint() const override { return _owner._area; }
-
-signals: 
-    void changed(QRect area) override;
-
-private:
-    RasterSurface& _owner;
-};
+// class RasterSurfaceRenderable : public QObject, public IRenderable
+// {
+//     Q_OBJECT
+//     IAMQOBJECT_IMPL
+// public: 
+//     RasterSurfaceRenderable(RasterSurface& owner) : _owner(owner) { }
+//     virtual ~RasterSurfaceRenderable() = default;
+// 
+//     virtual void render(RenderHandle& data) const override;
+// 
+//     virtual QRect areaHint() const override { return _owner._area; }
+// 
+// signals: 
+//     void changed(QRect area) override;
+// 
+// private:
+//     RasterSurface& _owner;
+// };
 
 } // namespace Addle
 

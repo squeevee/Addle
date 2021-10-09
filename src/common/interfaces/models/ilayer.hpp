@@ -14,6 +14,7 @@
 #include <QRect>
 #include <QPoint>
 #include <QImage>
+#include <QPainter>
 
 #include "utilities/model/layernodebuilder.hpp"
 
@@ -24,19 +25,28 @@
 
 namespace Addle {
 
-class IRasterSurface;
+//class IRasterSurface;
+class TileBuffer;
 class IRenderable;
 
+// WARNING Behavior is undefined if ILayer outlives the IDocument it was
+// initialized with -- be aware of this if keeping a persistent shared reference
+// to ILayer
 class ILayer : public ILayerNodeModel, public virtual IAmQObject
 {
 public:
     virtual ~ILayer() = default;
 
-    virtual QSharedPointer<IRasterSurface> rasterSurface() = 0;
-    virtual QSharedPointer<const IRasterSurface> rasterSurface() const = 0;
+//     virtual const TileBuffer& rasterSurface() const = 0;
     
-    virtual QSharedPointer<IRenderable> renderable() = 0;
-    virtual QSharedPointer<const IRenderable> renderable() const = 0;
+    
+//     virtual QSharedPointer<IRasterSurface> rasterSurface() = 0;
+//     virtual QSharedPointer<const IRasterSurface> rasterSurface() const = 0;
+    
+    
+    
+//     virtual QSharedPointer<IRenderable> renderable() = 0;
+//     virtual QSharedPointer<const IRenderable> renderable() const = 0;
 };
 
 namespace aux_ILayer {

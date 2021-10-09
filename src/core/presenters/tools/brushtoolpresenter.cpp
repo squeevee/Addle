@@ -296,11 +296,11 @@ void BrushToolPresenter::onEngage()
             brushSurface
         ));
 
-        if (brush->model().copyMode())
-        {
-            brushSurface->link(layer->model()->rasterSurface());
-            //brushSurface->setCompositionMode(QPainter::CompositionMode_Source);
-        }
+//         if (brush->model().copyMode())
+//         {
+//             brushSurface->link(layer->model()->rasterSurface());
+//             //brushSurface->setCompositionMode(QPainter::CompositionMode_Source);
+//         }
 
         //layer->renderer().push(brushSurface->renderable());
 
@@ -335,14 +335,14 @@ void BrushToolPresenter::onDisengage()
         if (!layer) return;
 
         {
-            QSharedPointer<IRasterSurface> previewBuffer;
-            QSharedPointer<IRenderable> previewRenderable;
-            if ((previewBuffer = _brushStroke->buffer())
-                && (previewRenderable = previewBuffer->renderable())
-            )
-            {
-                //layer->renderer().remove(previewRenderable);
-            }
+//             QSharedPointer<IRasterSurface> previewBuffer;
+//             QSharedPointer<IRenderable> previewRenderable;
+//             if ((previewBuffer = _brushStroke->buffer())
+//                 && (previewRenderable = previewBuffer->renderable())
+//             )
+//             {
+//                 //layer->renderer().remove(previewRenderable);
+//             }
         }
         
         auto operation = ServiceLocator::makeShared<IBrushOperationPresenter>(
@@ -408,15 +408,15 @@ void BrushToolPresenter::HoverPreview::update()
             _layer = nullptr;
         }
 
-        if (isVisible_cache.value() && _layer != _owner._document->topSelectedLayer())
-        {
-            _layer = _owner._document->topSelectedLayer();
-            if (_owner.selectedBrushPresenter()->model().eraserMode())
-            {
-                _surface->link(_layer->model()->rasterSurface());
-            }
-            //_layer->renderer().push(_surface->renderable());
-        }   
+//         if (isVisible_cache.value() && _layer != _owner._document->topSelectedLayer())
+//         {
+//             _layer = _owner._document->topSelectedLayer();
+//             if (_owner.selectedBrushPresenter()->model().eraserMode())
+//             {
+//                 _surface->link(_layer->model()->rasterSurface());
+//             }
+//             //_layer->renderer().push(_surface->renderable());
+//         }   
     }
 
     paint();

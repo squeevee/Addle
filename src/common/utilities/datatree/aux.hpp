@@ -28,6 +28,39 @@ namespace aux_datatree {
     
 Q_NAMESPACE_EXPORT(ADDLE_COMMON_EXPORT)
 
+// TODO It would probably be an improvement to have function templates in the
+// aux_datatree namespace take Tree as a type parameter rather than NodeHandle.
+// This could allow for more explicit static capability discovery through
+// datatree_traits and eliminate a lot of redundant metafunctions. The ADL
+// functions can still be in terms of the node handle for the convenience of 
+// implementation, since they are not meant to be called directly it shouldn't 
+// be a problem. But this change would probably have a lot of subtle non-trivial 
+// consequences so should be made *after* the data tree unit tests provide full 
+// coverage
+// 
+// It may further be an improvement to canonize e.g., ChildNodeIterator as *the*
+// return value for node_children_begin. Users of the API would have a much 
+// firmer set of assumptions, and I don't see any real benefit to the vaguer
+// (too-informal) concept-based way of doing it now, particularly when 
+// implementers basically have to specialize ChildNodeIterator anyway. 
+//
+// Similarly, DFSExtendedNode and NodeIterator could be rolled into one 
+// NodeDFSIterator that could be extended to account for possible future support
+// for cyclical graphs.
+//
+// I also want to add the capability for child keys, where for some trees, each 
+// child node is associated to a value that is its "key" within its parent. It 
+// will probably be easier to do this in the general case after the above 
+// changes, such that the presence or absence of keys is testable through 
+// datatree_traits and "key()" is a method on ChildNodeIterator and
+// NodeDFSIterator. This feature would have consequences for node_insert_child
+// where trees with child keys would (optionally?) require a key when inserting
+// a child.
+// 
+// This feature would immediately benefit RenderRoutine whose components have
+// keys in the form of a double representing a z-value. But it could also be
+// applied to QVariantHash and JSON documents.
+
 template<typename Tree>
 struct datatree_traits
 {
@@ -821,6 +854,8 @@ using _tree_observer_t = decltype( ::Addle::aux_datatree::tree_observer(std::dec
  * for repeat random access of the tree, but much less efficient for the simple 
  * case).
  * 
+ * TODO Should Indexed even be an option? Do we need it?
+ * 
  * DFSExtendedNode is not thread safe.
  */
 template<typename NodeHandle, bool Portable = false, bool Indexed = false>
@@ -970,6 +1005,9 @@ public:
     // non-portable DFSExtendedNode as it avoids allocating array space that
     // will never be used.
     struct EndSentinel {};
+    
+    // TODO this should be in the API
+    void skip() { moveToEnd(); }
     
 private:
     NodeHandle _root = {};
@@ -1470,6 +1508,103 @@ inline auto node_remove_children( NodeHandle node, ChildHandle begin, ChildHandl
         );
 }
 
+template<typename T, typename Discrim>
+struct _storage_util_basic
+{
+    using discriminator = Discrim;
+    std::decay_t<T> accessor;
+    
+    inline T& get() { return static_cast<T&>(accessor); }
+    inline const T& get() const { return static_cast<const T&>(accessor); }
+};
+
+template<typename T, typename Discrim>
+struct _storage_util_ebo : T
+{
+    using discriminator = Discrim;
+    
+    inline T& get() { return *static_cast<T*>(this); }
+    inline const T& get() const { return *static_cast<const T*>(this); }
+};
+
+struct _nil_storage_util_discrim {};
+
+// Utility base class type for storing user-supplied objects (especially 
+// callables) that might benefit from empty base optimization.
+template<typename T, typename Discrim = _nil_storage_util_discrim>
+using storage_util = typename boost::mp11::mp_if<
+        boost::mp11::mp_and<
+            std::is_class<T>,
+#ifdef __cpp_lib_is_final
+            boost::mp11::mp_not< std::is_final<T> >,
+#endif
+            std::is_empty<T>
+        >,
+        boost::mp11::mp_defer<_storage_util_ebo, T, Discrim>,
+        boost::mp11::mp_defer<_storage_util_basic, T, Discrim>
+    >::type;
+
+template<typename NodeHandle>
+class BreadthFirstSearch
+{
+public:
+    BreadthFirstSearch() = default;
+    BreadthFirstSearch(const BreadthFirstSearch&) = default;
+    BreadthFirstSearch(BreadthFirstSearch&&) = default;
+    
+    BreadthFirstSearch& operator=(const BreadthFirstSearch&) = default;
+    BreadthFirstSearch& operator=(BreadthFirstSearch&&) = default;
+    
+    BreadthFirstSearch(NodeHandle handle)
+        : _queue({{ NodeAddress(), std::move(handle) }})
+    {
+    }
+    
+    template<typename OtherHandle>
+    BreadthFirstSearch(const BreadthFirstSearch<OtherHandle>& other)
+    {
+        for (const auto& h : other._queue)
+            _queue.push_back(h);
+    }
+    
+    bool operator==(const BreadthFirstSearch& other) const { return _queue == other._queue; }
+    bool operator!=(const BreadthFirstSearch& other) const { return _queue != other._queue; }
+    
+    const NodeHandle& current() const { return _queue.front().second; }
+    const NodeHandle& operator*() const { return current(); }
+    
+    NodeAddress address() const { return _queue.front().first; }
+    
+    bool hasNext() const { return !_queue.empty(); }
+    
+    bool next()
+    {
+        if (_queue.empty()) 
+            return false;
+        
+        auto&& front = std::move(_queue.front());
+        
+        std::size_t index = 0;
+        
+        auto child = ::Addle::aux_datatree::node_children_begin(front.second);
+        auto end = ::Addle::aux_datatree::node_children_end(front.second);
+        
+        for(; child != end; ::Addle::aux_datatree::node_sibling_increment(child))
+            _queue.push_back({ front.first << (index++), static_cast<NodeHandle>(child) });
+        
+        _queue.pop_front();
+        return !_queue.empty();
+    }
+    
+    void skip()
+    {
+        _queue.pop_front();
+    }
+    
+private:
+    std::deque<std::pair<NodeAddress, NodeHandle>> _queue;
+};
+
 template<typename T>
 using _dereferenced_t = decltype( *std::declval<T>() );
 
@@ -1962,6 +2097,145 @@ private:
 // template<typename NodeHandle>
 // using ConstBranchRange = boost::iterator_range<ConstBranchIterator<NodeHandle>>;
 
+template<class Tree, bool IsConst = false>
+class NodeBFSIterator
+    : public boost::iterator_facade<
+        NodeBFSIterator<Tree, IsConst>,
+        std::remove_reference_t<
+            _dereferenced_t<
+                boost::mp11::mp_if_c<
+                    IsConst,
+                    const_node_handle_t<Tree>,
+                    node_handle_t<Tree>
+                >
+            >
+        >,
+        boost::forward_traversal_tag,
+        _dereferenced_t<
+            boost::mp11::mp_if_c<
+                IsConst,
+                const_node_handle_t<Tree>,
+                node_handle_t<Tree>
+            >
+        >
+    >
+{
+    using handle_t = boost::mp11::mp_if_c<
+            IsConst,
+            const_node_handle_t<Tree>,
+            node_handle_t<Tree>
+        >;
+        
+    struct Data : QSharedData
+    {
+        Data() = default;
+        Data(const Data&) = default;
+        Data(Data&&) = delete;
+        
+        Data(handle_t root)
+            : search(root)
+        {
+        }
+        
+        template<typename OtherSearch>
+        Data(const OtherSearch& otherSearch)
+            : search(otherSearch)
+        {
+        }
+        
+        BreadthFirstSearch<handle_t> search;
+    };
+        
+public:
+    NodeBFSIterator() = default;
+    NodeBFSIterator(const NodeBFSIterator&) = default;
+    NodeBFSIterator(NodeBFSIterator&&) = default;
+    
+    NodeBFSIterator(handle_t cursor)
+        : _data(new Data(cursor))
+    {
+    }
+    
+    template<
+        typename MutableIterator, 
+        std::enable_if_t<
+            IsConst
+            && std::is_same<MutableIterator, AncestorNodeIterator<Tree, false>>::value, 
+            void*
+        > = nullptr
+    >
+    NodeBFSIterator(const MutableIterator& i)
+    {
+        if (i._data)
+        {
+            _data = new Data(i._data->search);
+        }
+    }
+    
+    NodeBFSIterator& operator=(const NodeBFSIterator&) = default;
+    NodeBFSIterator& operator=(NodeBFSIterator&&) = default;
+    
+    inline operator handle_t () const
+    { 
+        if (!_data || !_data->search.hasNext()) 
+            return {};
+        else
+            return _data->search.current(); 
+    }
+    
+private:
+    inline _dereferenced_t<handle_t>& dereference() const
+    { 
+        assert(_data && _data->search.hasNext());
+        return *(_data->search.current()); 
+    }
+    
+    inline bool equal(const NodeBFSIterator& x) const
+    { 
+        if (!_data || !_data->search.hasNext())
+            return !(x._data) || !(x._data->search.hasNext());
+        else
+            return x._data && (_data->search == x._data->search);
+    }
+    
+    inline void increment()
+    { 
+        assert(_data); 
+        _data->search.next(); 
+    }
+    
+    QSharedDataPointer<Data> _data;
+    
+    friend class AncestorNodeIterator<Tree, true>;
+    friend class boost::iterator_core_access;
+};
+
+template<typename Tree>
+using ConstNodeBFSIterator = NodeBFSIterator<Tree, true>;
+
+template<typename Tree, bool IsConst = false>
+class NodeBFSRange : public boost::iterator_range<NodeBFSIterator<Tree>>
+{
+    using iter_t = NodeBFSIterator<Tree, IsConst>;
+    using handle_t = boost::mp11::mp_if_c<
+            IsConst,
+            const_node_handle_t<Tree>,
+            node_handle_t<Tree>
+        >;
+    
+public:
+    NodeBFSRange() = default;
+    NodeBFSRange(const NodeBFSRange&) = default;
+    
+    NodeBFSRange(iter_t begin, iter_t end = {})
+        : boost::iterator_range<iter_t>(begin, end)
+    {
+    }
+};
+
+template<typename Tree>
+using ConstNodeBFSRange = NodeBFSRange<Tree, true>;
+
 
 template<class Tree, class Range>
 class NodeHandleRangeAdapter
@@ -2068,42 +2342,6 @@ public:
 private:
     const Range& _range;
 };
-
-template<typename T, typename Discrim>
-struct _storage_util_basic
-{
-    using discriminator = Discrim;
-    std::decay_t<T> accessor;
-    
-    inline T& get() { return static_cast<T&>(accessor); }
-    inline const T& get() const { return static_cast<const T&>(accessor); }
-};
-
-template<typename T, typename Discrim>
-struct _storage_util_ebo : T
-{
-    using discriminator = Discrim;
-    
-    inline T& get() { return *static_cast<T*>(this); }
-    inline const T& get() const { return *static_cast<const T*>(this); }
-};
-
-struct _nil_storage_util_discrim {};
-
-// Utility base class type for storing user-supplied objects (especially 
-// callables) that might benefit from empty base optimization.
-template<typename T, typename Discrim = _nil_storage_util_discrim>
-using storage_util = typename boost::mp11::mp_if<
-        boost::mp11::mp_and<
-            std::is_class<T>,
-#ifdef __cpp_lib_is_final
-            boost::mp11::mp_not< std::is_final<T> >,
-#endif
-            std::is_empty<T>
-        >,
-        boost::mp11::mp_defer<_storage_util_ebo, T, Discrim>,
-        boost::mp11::mp_defer<_storage_util_basic, T, Discrim>
-    >::type;
 
 template<class Tree, bool IsConst = false> class NodeRef;
 template<typename Tree> class TreeObserver;

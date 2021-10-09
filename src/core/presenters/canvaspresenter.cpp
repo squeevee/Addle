@@ -18,8 +18,11 @@
 
 using namespace Addle;
 
-CanvasPresenter::CanvasPresenter(std::unique_ptr<IRenderer> renderer)
-    : _renderer(std::move(renderer))
+CanvasPresenter::CanvasPresenter()
+{
+}
+
+void CanvasPresenter::setDocument(QSharedPointer<IDocumentPresenter> document)
 {
 }
 

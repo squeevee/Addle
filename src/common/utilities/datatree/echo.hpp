@@ -16,6 +16,7 @@ struct echo_default_node_added_tag          : echo_do_nothing_tag {};
 struct _echo_node_value_discr_tag           {};
 struct _echo_node_added_discr_tag           {};
 
+// TODO: custom insert logic
 
 template<class SourceTree, class DestTree, typename NodeValue>
 class _echo_NodeValueGetter_default

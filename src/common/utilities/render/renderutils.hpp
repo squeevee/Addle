@@ -16,22 +16,22 @@
 #include "servicelocator.hpp"
 namespace Addle {
 
-inline void render(QList<QWeakPointer<IRenderable>> steps, RenderHandle data)
-{
-    auto stack = ServiceLocator::makeUnique<IRenderer>(steps);
-    stack->render(data);
-}
+// inline void render(QList<QWeakPointer<IRenderable>> steps, RenderHandle data)
+// {
+// //     auto stack = ServiceLocator::makeUnique<IRenderer>(steps);
+// //     stack->render(data);
+// }
 
-inline void render(QList<QWeakPointer<IRenderable>> steps, QRect area, QPainter* painter)
-{
-    RenderHandle data(area, painter);
-    render(steps, data);
-}
+// inline void render(QList<QWeakPointer<IRenderable>> steps, QRect area, QPainter* painter)
+// {
+//     RenderHandle data(area, painter);
+//     render(steps, data);
+// }
 
-inline void render(QWeakPointer<IRenderable> step, QRect area, QPainter* painter)
-{
-    render(QList<QWeakPointer<IRenderable>> { step }, area, painter);
-}
+// inline void render(QWeakPointer<IRenderable> step, QRect area, QPainter* painter)
+// {
+//     render(QList<QWeakPointer<IRenderable>> { step }, area, painter);
+// }
 // void isolatedRender(IRenderable& step, RenderHandle data)
 // {
 //     data.painter()->save();

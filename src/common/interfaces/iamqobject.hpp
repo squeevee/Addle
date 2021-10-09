@@ -25,6 +25,12 @@ namespace Addle {
  */
 class IAmQObject
 {
+public:
+    virtual ~IAmQObject() = default;
+    
+    IAmQObject& operator=(const IAmQObject&) = delete;
+    IAmQObject& operator=(IAmQObject&&) = delete;
+    
 protected:
     virtual QObject* asQObject_p() = 0;
     virtual const QObject* asQObject_p() const = 0;

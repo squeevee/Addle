@@ -53,10 +53,18 @@ signals:
     void opacityChanged(double opacity) override;
     void visibilityChanged(bool isVisible) override;
 
+public:
+    RenderRoutine renderRoutine() const override { return _renderRoutine; }
+
+signals:
+    void renderRoutineChanged(RenderRoutineChangedEvent) override;
+    void renderChanged(QRegion affected, DataTreeNodeAddress entity = {}) override;
     
 private:
     IDocumentPresenter& _document;
     LayerNodeRef _layerNode;
+    
+    RenderRoutine _renderRoutine;
     
     QSharedPointer<ILayerGroup> _model;
     

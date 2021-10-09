@@ -21,7 +21,8 @@ Layer::Layer(
         LayerNodeRef layerNode,
         const LayerNodeBuilder& builder
     )
-    : _document(document),
+    : _uuid(QUuid::createUuid()),
+    _document(document),
     _layerNode(std::move(layerNode)),
     _boundary(builder.boundary()),
     _name(builder.name()),
@@ -30,4 +31,8 @@ Layer::Layer(
     _opacity(builder.opacity())
 {   
     // TODO: validate naive builder values
+    
+    _renderRoutine = aux_render::RoutineBuilder()
+        .setName(QByteArrayLiteral("layer-") 
+            + _uuid.toByteArray(QUuid::WithoutBraces));
 }

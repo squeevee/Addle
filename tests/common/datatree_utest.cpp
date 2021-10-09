@@ -58,22 +58,6 @@ private slots:
         
         for (const auto& s : DataTreeNodeChunk { { 1, 2 }, 4 })
             qDebug() << s;
-        
-        
-        
-            
-            
-        //sourceTree.nodeAt({ 99, 99, 99, 99, 99, 99 });
-        
-//         AddleDataTree<QString> destTree;
-//         
-//         auto echoer = aux_datatree::make_bfs_tree_echoer(
-//                 sourceTree,
-//                 destTree,
-//                 [] () {}
-//             );
-//         
-//         qDebug() << sizeof(echoer);
     }
     
     void dev_mapChunks()
@@ -134,23 +118,37 @@ private slots:
 //             qDebug() << c.operatingChunk;
     }
     
-//     void nodeEvent_mapping3()
-//     {
-//         DataTreeNodeEvent event;
-//         event.addChunks({ {{ 0 }, 1 }, {{ 0, 0 }, 1 }});
-// 
-//         QCOMPARE(event.mapForward({ 0, 0 }), DataTreeNodeAddress({ 1, 1 }));
-//         QCOMPARE(event.mapBackward({ 1, 1 }), DataTreeNodeAddress({ 0, 0 }));
-//         
-//         QCOMPARE(event.mapForward({ 1, 0 }), DataTreeNodeAddress({ 2, 0 }));
-//         QCOMPARE(event.mapBackward({ 2, 0 }), DataTreeNodeAddress({ 1, 0 }));
-//         
-//         QCOMPARE(event.mapForward({ 2, 0 }), DataTreeNodeAddress({ 3, 0 }));
-//         QCOMPARE(event.mapBackward({ 3, 0 }), DataTreeNodeAddress({ 2, 0 }));
-//         
-// //         for (auto c : event)
-// //             qDebug() << c.operatingChunk;
-//     }
+    void nodeEvent_mapping3()
+    {
+        DataTreeNodeEvent event;
+        event.addChunks({ {{ 0 }, 1 }, {{ 0, 0 }, 1 }});
+
+        QCOMPARE(event.mapForward({ 0, 0 }), DataTreeNodeAddress({ 1, 1 }));
+        QCOMPARE(event.mapBackward({ 1, 1 }), DataTreeNodeAddress({ 0, 0 }));
+        
+        QCOMPARE(event.mapForward({ 1, 0 }), DataTreeNodeAddress({ 2, 0 }));
+        QCOMPARE(event.mapBackward({ 2, 0 }), DataTreeNodeAddress({ 1, 0 }));
+        
+        QCOMPARE(event.mapForward({ 2, 0 }), DataTreeNodeAddress({ 3, 0 }));
+        QCOMPARE(event.mapBackward({ 3, 0 }), DataTreeNodeAddress({ 2, 0 }));
+        
+//         for (auto c : event)
+//             qDebug() << c.operatingChunk;
+    }
+
+    void nodeEvent_mapping4()
+    {
+        DataTreeNodeEvent event;
+        event.removeChunk({ 1 }, 1);
+        
+        QCOMPARE(event.mapForward({ 0 }), DataTreeNodeAddress({ 0 }));
+        QCOMPARE(event.mapForward({ 1 }), {});
+        QCOMPARE(event.mapForward({ 2 }), DataTreeNodeAddress({ 1 }));
+        
+        QCOMPARE(event.mapChunkForward({0},1), QList<DataTreeNodeChunk>({ {{0}, 1} }));
+        QCOMPARE(event.mapChunkForward({1},1), QList<DataTreeNodeChunk>());
+        QCOMPARE(event.mapChunkForward({2},1), QList<DataTreeNodeChunk>({ {{1}, 1} }));
+    }
     
     void dev_nestedObjectAdapter()
     {
@@ -250,7 +248,12 @@ private slots:
 //             qDebug() << n.address() << n.value();
 //         }
         
-        for (auto& n : r)
+//         for (auto& n : r)
+//         {
+//             qDebug() << n.address() << n.value();
+//         }
+        
+        for (auto& n : destTree.breadthFirstSearch())
         {
             qDebug() << n.address() << n.value();
         }
@@ -261,33 +264,46 @@ private slots:
         AddleDataTree<QString> tree;
         aux_datatree::TreeObserver<AddleDataTree<QString>> observer(tree);
         aux_datatree::ObservedTreeState state(observer);
+   
+//         for (int i = 0; i < 100; ++i)
+//         {
+//             observer.startRecording();
+//             observer.insertNodes(
+//                     &tree.root(), 
+//                     tree.root().children().begin(),
+//                     { QString::number(i) }
+//                 );
+//             observer.finishRecording();
+//         }
         
-        observer.startRecording();
-        observer.insertNodes(
-                &tree.root(), 
-                tree.root().children().begin(),
-                { "spiff", "freem" }
-            );
-        auto e1 = observer.finishRecording();
-        QVERIFY(state.event() == e1);
+//         for (const auto& node : tree) qDebug() << node.address() << node.value();
         
-        observer.startRecording();
-        observer.insertNodes(
-                &tree.root(), 
-                tree.root().children().begin(),
-                { "spiff2", "freem3" }
-            );
-        auto e2 = observer.finishRecording();
-        
-        QVERIFY(state.event() == e1);
-        qDebug() << *state.mapToCurrent({ 0 });
-        qDebug() << *state.mapFromCurrent({ 4 });
-        QVERIFY(state.next());
-        
-        QVERIFY(state.event() == e2);
-        qDebug() << *state.mapToCurrent({ 0 });
-        qDebug() << *state.mapFromCurrent({ 2 });
-        QVERIFY(!state.next());
+//         observer.startRecording();
+//         observer.insertNodes(
+//                 &tree.root(), 
+//                 tree.root().children().begin(),
+//                 { "spiff", "freem" }
+//             );
+//         auto e1 = observer.finishRecording();
+//         QVERIFY(state.event() == e1);
+//         
+//         observer.startRecording();
+//         observer.insertNodes(
+//                 &tree.root(), 
+//                 tree.root().children().begin(),
+//                 { "spiff2", "freem3" }
+//             );
+//         auto e2 = observer.finishRecording();
+//         
+//         QVERIFY(state.event() == e1);
+//         qDebug() << *state.mapToCurrent({ 0 });
+//         qDebug() << *state.mapFromCurrent({ 4 });
+//         QVERIFY(state.next());
+//         
+//         QVERIFY(state.event() == e2);
+//         qDebug() << *state.mapToCurrent({ 0 });
+//         qDebug() << *state.mapFromCurrent({ 2 });
+//         QVERIFY(!state.next());
         
         //state.clear();
     }

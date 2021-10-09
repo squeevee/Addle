@@ -23,6 +23,7 @@
 #include "utilities/model/colorinfo.hpp"
 
 #include <QtGlobal>
+#include <QEvent>
 #include <QColor>
 
 namespace Addle
@@ -205,6 +206,11 @@ enum LayoutUnits
     pixels
 };
 Q_ENUM_NS(LayoutUnits)
+
+enum EventTypes
+{
+    EventType_LayerRasterEditCommitted = QEvent::User + 100
+};
 
 } // namespace Addle
 

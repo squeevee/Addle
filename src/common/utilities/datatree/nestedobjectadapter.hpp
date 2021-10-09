@@ -25,6 +25,9 @@
  * or other implicitly shared data.
  */
 
+// TODO: if we use iterators instead of pointers then this adapter can support
+// e.g., generator ranges rather than being limited to containers.
+
 #ifdef ADDLE_TEST
 class DataTree_UTest;
 #endif

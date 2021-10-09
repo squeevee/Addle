@@ -62,15 +62,17 @@ using namespace Addle;
 MainEditorPresenter::MainEditorPresenter(
         Mode mode,
         std::unique_ptr<IColorSelectionPresenter> colorSelection,
-        std::unique_ptr<IViewPortPresenter> viewPortPresenter,
+        QSharedPointer<ICanvasPresenter> canvas,
         std::unique_ptr<IMessageContext> messageContext,
         std::unique_ptr<IRepository<IPalettePresenter>> palettes,
         std::unique_ptr<IRepository<IToolPresenter>> tools,
+        const IFactory<IViewPortPresenter>& viewPortFactory,
         const IFactory<IDocumentPresenter>& documentFactory
     )
     : _mode(mode),
     _colorSelection(std::move(colorSelection)),
-    _viewPortPresenter(std::move(viewPortPresenter)),
+    _canvas(std::move(canvas)),
+    _viewPortPresenter(viewPortFactory.makeUnique(_canvas)),
     _messageContext(std::move(messageContext)),
     _palettes(std::move(palettes)),
     _tools(std::move(tools)),

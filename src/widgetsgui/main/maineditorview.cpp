@@ -42,12 +42,16 @@
 
 #include "utilities/filedialoghelper.hpp"
 
+#include "canvas/canvasscene.hpp"
+
 using namespace Addle;
 
 
-MainEditorView::MainEditorView(IMainEditorPresenter& presenter)
+MainEditorView::MainEditorView(IMainEditorPresenter& presenter, 
+    const IFactory<IRenderer>& rendererFactory)
      : _presenter(presenter),
-     _tlvHelper(this, std::bind(&MainEditorView::setupUi, this))
+     _tlvHelper(this, std::bind(&MainEditorView::setupUi, this)),
+     _rendererFactory(rendererFactory)
 {
     _tlvHelper.onOpened.bind(&MainEditorView::tlv_opened, this);
     _tlvHelper.onClosed.bind(&MainEditorView::tlv_closed, this);
@@ -92,6 +96,16 @@ void MainEditorView::setupUi()
     QMainWindow::setCentralWidget(_viewPortScrollWidget);
     _viewPort->setFocus();
      
+    _canvasScene = new CanvasScene(*_presenter.canvas(), _rendererFactory);
+    _viewPort->setScene(_canvasScene);
+    
+    connect_interface(
+            &_presenter, 
+            SIGNAL(documentPresenterChanged(QSharedPointer<Addle::IDocumentPresenter>)),
+            _canvasScene,
+            SLOT(onDocumentChanged(QSharedPointer<Addle::IDocumentPresenter>))
+        );
+    
     connect_interface(&_presenter, SIGNAL(isEmptyChanged(bool)), this, SLOT(onPresenterEmptyChanged(bool)));
  
     _statusBar = new QStatusBar(this);

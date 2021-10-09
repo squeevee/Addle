@@ -1,6 +1,8 @@
 #pragma once
 
 #include <QUuid>
+#include <QRegion>
+#include <QPainterPath>
 
 namespace Addle {
  
@@ -10,6 +12,7 @@ public:
     virtual ~IRenderEntity() = default;
     
     virtual QUuid id() const = 0;
+    virtual QRegion region() const = 0;
 };
-    
+
 }

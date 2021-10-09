@@ -16,6 +16,8 @@
 #include "interfaces/iamqobject.hpp"
 #include "interfaces/metaobjectinfo.hpp"
 
+#include "interfaces/rendering/irenderable.hpp"
+
 #include "icansavepresenter.hpp"
 
 #include "./ilayernodepresenter.hpp"
@@ -28,7 +30,8 @@ namespace Addle {
 class IDocument;
 class ICanvasPresenter;
 class ILayerPresenter;
-class IDocumentPresenter : public ICanSavePresenter, public virtual IAmQObject
+class IDocumentPresenter : public virtual IAmQObject, public ICanSavePresenter,
+    public IRenderable
 {
 public:
     using LayersTree                = ILayerNodePresenter::LayersTree;

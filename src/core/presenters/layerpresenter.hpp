@@ -22,7 +22,7 @@
 
 namespace Addle {
 
-class LayerPresenterRenderable;
+// class LayerPresenterRenderable;
 class ADDLE_CORE_EXPORT LayerPresenter 
     : public QObject, 
     public ILayerPresenter,
@@ -62,7 +62,7 @@ public:
     bool isVisible() const override { return HelperBase::isVisible; }
     void setVisibility(bool isVisible) override { HelperBase::setVisibility_impl(isVisible); }
     
-    QSharedPointer<IRenderable> renderable() const override { return nullptr; }
+//     QSharedPointer<IRenderable> renderable() const override { return nullptr; }
     
 signals:
     void nameChanged(QString name) override;
@@ -70,6 +70,13 @@ signals:
     void opacityChanged(double opacity) override;
     void visibilityChanged(bool isVisible) override;
 
+public:
+    RenderRoutine renderRoutine() const override { return _renderRoutine; }
+
+signals:
+    void renderRoutineChanged(RenderRoutineChangedEvent) override;
+    void renderChanged(QRegion affected, DataTreeNodeAddress entity = {}) override;
+    
 private:
     IDocumentPresenter& _document;
     ILayerNodePresenter::LayerNodeRef _layerNode;
@@ -77,31 +84,34 @@ private:
     double _heldOpacity = 0;
     bool _isVisible;
     
+    RenderRoutine _renderRoutine;
+    
     QSharedPointer<ILayer> _model;
     
-    friend class LayerPresenterRenderable;
+//     friend class LayerPresenterRenderable;
     friend class LayerNodeHelperBase<LayerPresenter>;
 };
 
-class LayerPresenterRenderable : public QObject, public IRenderable
-{
-    Q_OBJECT
-    Q_INTERFACES(Addle::IRenderable)
-    IAMQOBJECT_IMPL
-public:
-    LayerPresenterRenderable(LayerPresenter& owner) : _owner(owner) { }
-    virtual ~LayerPresenterRenderable() = default;
+// class LayerPresenterRenderable : public QObject, public IRenderable
+// {
+//     Q_OBJECT
+//     Q_INTERFACES(Addle::IRenderable)
+//     IAMQOBJECT_IMPL
+// public:
+//     LayerPresenterRenderable(LayerPresenter& owner) : _owner(owner) { }
+//     virtual ~LayerPresenterRenderable() = default;
+// 
+//     void render(RenderHandle& data) const override {}
+// 
+//     QRect areaHint() const override { return QRect(); }
+// 
+// signals: 
+//     void changed(QRect area) override;
+// 
+// private:
+//     LayerPresenter& _owner;
+// };
 
-    void render(RenderHandle& data) const override {}
-
-    QRect areaHint() const override { return QRect(); }
-
-signals: 
-    void changed(QRect area) override;
-
-private:
-    LayerPresenter& _owner;
-};
 } // namespace Addle
 
 #endif // LAYERPRESENTER_HPP

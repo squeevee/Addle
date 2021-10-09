@@ -46,8 +46,6 @@ private slots:
     void updateCursor();
 
 private:
-    CanvasScene* _canvasScene;
-
     IViewPortPresenter& _presenter;
     QSharedPointer<IDocumentPresenter> _documentPresenter;
 };

@@ -200,11 +200,7 @@ void DocumentLayersItemModel::updateSelection()
     std::sort(
             workingList.begin(), 
             workingList.end(),
-            [&] (const DataTreeNodeAddress& lhs, const DataTreeNodeAddress& rhs) -> bool {
-                return lhs.size() != rhs.size() ? 
-                    lhs.size() < rhs.size() :
-                    lhs < rhs;
-            }
+            aux_datatree::NodeAddressBFSComparator {}
         );
     
     QItemSelection selection;

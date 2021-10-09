@@ -1,56 +1,69 @@
-/**
- * Addle source code
- * @file
- * @copyright Copyright 2020 Eleanor Hawk
- * @copyright Modification and distribution permitted under the terms of the
- * MIT License. See "LICENSE" for full details.
- */
+#pragma once
 
-#ifndef RENDERSTACK_HPP
-#define RENDERSTACK_HPP
-
-#include "compat.hpp"
+#include <QObject>
 #include "interfaces/rendering/irenderer.hpp"
 
-#include "utilities/datatree/addledatatree.hpp"
-
 namespace Addle {
+
 class ADDLE_CORE_EXPORT Renderer : public QObject, public IRenderer
 {
-    Q_OBJECT 
+    Q_OBJECT
+    Q_INTERFACES(Addle::IRenderer)
     IAMQOBJECT_IMPL
-public: 
+public:
+    Renderer(Mode mode, const IRenderable* renderable, RenderRoutine routine);
     virtual ~Renderer() = default;
+    
+    Mode mode() const override { return _mode; }
+    
+    const IRenderable* renderable() const override { return _renderable; }
+    
+    RenderRoutine routine() const override { return _routine; }
+    
+    double scaleHint() const override { return _scaleHint; }
+    void setScaleHint(double scale) override;
 
-    void render(RenderHandle data) const override;
+    int cacheCapacity() const override { return _cacheCapacity; }
+    void setCacheCapacity(int capacity) override;
     
-    void removeSteps(QList<QWeakPointer<IRenderable>> steps) override;
+    void clearCache() override;
     
-    void clear() override;
+    int timeout() const override { return _timeout; }
+    void setTimeout(int timeout) override;
     
-// public slots:
-//     void rebuild() override {}
+    void render(QPainter& painter, QRegion region) const override
+    {
+        render_p_IO(painter, std::move(region));
+//         switch(_mode)
+//         {
+//             case Mode_Live:
+//                 render_p_Live(painter, std::move(region));
+//                 return;
+//                 
+//             case Mode_IO:
+//                 render_p_IO(painter, std::move(region));
+//                 return;
+//             
+//             default:
+//                 Q_UNREACHABLE();
+//         }
+    }
     
-signals: 
-    void changed(QRect area) override;
-    //void needsRebuild(QWeakPointer<RendererBuilder>) override;
+signals:
+    void renderChanged(QRegion region) override;
 
-private slots:
-    void onRenderableChange(QRect area);
-    void onStepDestroyed(QObject* step);
-    
 private:
-/*        
-    QMap<StepLocation, QWeakPointer<IRenderable>> _steps;
-    QMap<StepLocation, QPainterPath*> _pMasks;
-    QMap<StepLocation, QRegion*> _rMasks;
+    void render_p_Live(QPainter& painter, QRegion region) const;
+    void render_p_IO(QPainter& painter, QRegion region) const;
     
-    QHash<IRenderable*, StepLocation> _index_byStep;
-    QHash<QObject*, StepLocation> _index_byQObject;
+    const Mode _mode;
     
-    QList<QMetaObject::Connection> _changeConnections;
-    QList<QMetaObject::Connection> _destroyedConnections;*/
+    const IRenderable* _renderable;
+    RenderRoutine _routine;
+    
+    double _scaleHint = 1.0;
+    int _cacheCapacity;
+    int _timeout;
 };
-} // namespace Addle
-
-#endif // RENDERSTACK_HPP
+  
+}

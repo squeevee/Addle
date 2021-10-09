@@ -43,6 +43,8 @@ public:
     LayerNodeRef layerNode() override { return _layerNode; }
     ConstLayerNodeRef layerNode() const override { return ConstLayerNodeRef(_layerNode); }
     
+    QUuid uuid() const override { return _uuid; }
+    
     QRect boundary() const override { return _boundary; }
 
     QColor skirtColor() const override { return _skirtColor; }
@@ -86,12 +88,15 @@ public:
         }
     }
     
-    QSharedPointer<IRasterSurface> rasterSurface() override { return _rasterSurface; }
-    QSharedPointer<const IRasterSurface> rasterSurface() const override { return _rasterSurface; }
+//     QSharedPointer<IRasterSurface> rasterSurface() override { return _rasterSurface; }
+//     QSharedPointer<const IRasterSurface> rasterSurface() const override { return _rasterSurface; }
     
-    QSharedPointer<IRenderable> renderable() override { return _renderable; }
-    QSharedPointer<const IRenderable> renderable() const override { return _renderable; }
+//     QSharedPointer<IRenderable> renderable() override { return _renderable; }
+//     QSharedPointer<const IRenderable> renderable() const override { return _renderable; }
 
+    // IRenderable
+    RenderRoutine renderRoutine() const override { return _renderRoutine; }
+    
 signals:
     void boundaryChanged(QRect boundary) override;
     void skirtColorChanged(QColor skirtColor) override;
@@ -99,7 +104,13 @@ signals:
     void compositionModeChanged(QPainter::CompositionMode compositionMode) override;
     void opacityChanged(double opacity) override;
     
+    // IRenderable
+    void renderRoutineChanged(RenderRoutineChangedEvent) override;
+    void renderChanged(QRegion affected, DataTreeNodeAddress entity = {}) override;
+    
 private:
+    const QUuid _uuid;
+    
     IDocument& _document;
     LayerNodeRef _layerNode;
     
@@ -111,7 +122,9 @@ private:
     double _opacity;
     
     QSharedPointer<IRasterSurface> _rasterSurface;
-    QSharedPointer<IRenderable> _renderable;
+//     QSharedPointer<IRenderable> _renderable;
+    
+    RenderRoutine _renderRoutine;
 };
 
 } // namespace Addle

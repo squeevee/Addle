@@ -12,6 +12,7 @@
 #include <iterator>
 #include <type_traits>
 #include <tuple>
+#include <variant>
 
 #include <list>
 

@@ -1,4 +1,4 @@
-find_package(Qt5 REQUIRED COMPONENTS Core Gui)
+find_package(Qt5 REQUIRED COMPONENTS Core Gui Concurrent)
 find_package(Boost REQUIRED )
 
 set (CMAKE_AUTOMOC ON)
@@ -24,6 +24,8 @@ set (common_sources
     utilities/format/genericformat.cpp
     utilities/image/rasterbithandles.cpp
     utilities/image/rasterpainthandle.cpp
+    utilities/image/rastertile.cpp
+    utilities/image/tilesurface.cpp
     utilities/render/renderroutine.cpp
     utilities/presenter/filerequest.cpp
     utilities/presenter/propertybinding.cpp

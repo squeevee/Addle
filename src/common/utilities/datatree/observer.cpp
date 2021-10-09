@@ -393,7 +393,7 @@ std::optional<NodeAddress> NodeEvent::StagingHandle::mapPastForward(NodeAddress 
         } while (step != _step);
     }
     
-    return (*_step).mapForward(from, 0, _chunkIndex);
+    return (*_step).mapForward(from, 0, _chunkOrd);
 }
 
 std::optional<NodeAddress> NodeEvent::StagingHandle::mapCurrentBackward(NodeAddress from) const
@@ -401,7 +401,7 @@ std::optional<NodeAddress> NodeEvent::StagingHandle::mapCurrentBackward(NodeAddr
     assert(_step != _stepEnd);
     
     {
-        auto mapped = (*_step).mapBackward(from, 0, _chunkIndex);
+        auto mapped = (*_step).mapBackward(from, 0, _chunkOrd);
         if (!mapped) return {};
         
         from = std::move(*mapped);
@@ -424,7 +424,7 @@ std::optional<NodeAddress> NodeEvent::StagingHandle::mapCurrentForward(NodeAddre
     assert(_step != _stepEnd);
     
     {
-        auto mapped = (*_step).mapForward(from, _chunkIndex, SIZE_MAX);
+        auto mapped = (*_step).mapForward(from, _chunkOrd, SIZE_MAX);
         if (!mapped) return {};
         
         from = std::move(*mapped);
@@ -459,7 +459,7 @@ std::optional<NodeAddress> NodeEvent::StagingHandle::mapFutureBackward(NodeAddre
         from = std::move(*mapped);
     }
     
-    return (*_step).mapBackward(from, _chunkIndex, SIZE_MAX);
+    return (*_step).mapBackward(from, _chunkOrd, SIZE_MAX);
 }
 
 QList<NodeChunk> NodeEvent::StagingHandle::mapPastChunksForward_impl(QList<NodeChunk> from) const
@@ -483,7 +483,7 @@ QList<NodeChunk> NodeEvent::StagingHandle::mapPastChunksForward_impl(QList<NodeC
         } while (step != _step); 
     }
     
-    (*_step).mapChunksForward(from, result, 0, _chunkIndex);
+    (*_step).mapChunksForward(from, result, 0, _chunkOrd);
     return result;
 }
 
@@ -493,7 +493,7 @@ QList<NodeChunk> NodeEvent::StagingHandle::mapCurrentChunksBackward_impl(QList<N
     
     QList<NodeChunk> result;
 
-    (*_step).mapChunksBackward(from, result, 0, _chunkIndex);
+    (*_step).mapChunksBackward(from, result, 0, _chunkOrd);
     if (result.isEmpty()) return {};
 
     auto step = std::make_reverse_iterator(_step);
@@ -516,7 +516,7 @@ QList<NodeChunk> NodeEvent::StagingHandle::mapCurrentChunksForward_impl(QList<No
     
     QList<NodeChunk> result;
     
-    (*_step).mapChunksForward(from, result, _chunkIndex + 1, SIZE_MAX);
+    (*_step).mapChunksForward(from, result, _chunkOrd + 1, SIZE_MAX);
     if (result.isEmpty()) return {};
 
     auto step = _step;
@@ -558,55 +558,9 @@ QList<NodeChunk> NodeEvent::StagingHandle::mapFutureChunksBackward_impl(QList<No
         }
     }
     
-    (*_step).mapChunksBackward(from, result, _chunkIndex, SIZE_MAX);
+    (*_step).mapChunksBackward(from, result, _chunkOrd, SIZE_MAX);
     return result;
 }
-
-// std::optional<NodeAddress> NodeEvent::mapBackward_impl(NodeAddress from, std::size_t progress) const
-// {
-//     using namespace boost::adaptors;
-//     
-//     if (!_data || from.isRoot() || !progress) 
-//         return from;
-//     
-//     auto i = _data->steps.cbegin();
-//     auto end = _data->steps.cend();
-//     
-//     if (Q_UNLIKELY(i == end)) return from; // impossible?
-//     
-//     if (progress >= _data->totalChunkCount)
-//     {
-//         progress = _data->totalChunkCount;
-//         i = end;
-//     }
-//     else
-//     {
-//         while( progress > (*i).chunkCount() )
-//         {
-//             progress -= (*i).chunkCount();
-//             ++i;
-//             
-//             assert(i != end);
-//         }
-//         ++i;
-//     }
-//     
-//     NodeAddress result(from);
-//     
-//     auto j =    std::make_reverse_iterator(i);
-//     auto rend = _data->steps.rend();
-//     for(; j != rend; ++j)
-//     {
-//         auto next = (*j).mapBackward(result, progress);
-//         
-//         if (!next) return {};
-//         
-//         result = std::move(*next);
-//         progress -= (*j).chunkCount();
-//     }
-//     
-//     return result;
-// }
 
 // std::ptrdiff_t NodeEvent::Step::childCountOffset(
 //         NodeAddress parent, 
@@ -708,19 +662,19 @@ template<bool Additive, bool ChunkIndicesAscending>
 NodeEvent::Step::PrimaryChunkMapper<Additive, ChunkIndicesAscending>::PrimaryChunkMapper(
         const Step& step_,
         NodeChunk from_,
-        std::size_t minChunkIndex_,
-        std::size_t maxChunkIndex_
+        std::size_t minChunkOrd_,
+        std::size_t maxChunkOrd_
     )
         : step(step_), 
-        minChunkIndex(minChunkIndex_),
-        maxChunkIndex(std::min(maxChunkIndex_, step._chunkCount))
+        minChunkOrd(minChunkOrd_),
+        maxChunkOrd(std::min(maxChunkOrd_, step._chunkCount))
 {
-    assert(minChunkIndex <= maxChunkIndex);
+    assert(minChunkOrd <= maxChunkOrd);
     auto parentAddress = from_.address.parent();
     
-    // this call will update chunkIndex 
+    // this call will update chunkOrd 
     mappedParentAddress = mapAddress(parentAddress); 
-    assert(chunkIndex <= maxChunkIndex);
+    assert(chunkOrd <= maxChunkOrd);
     
     if (mappedParentAddress)
     {
@@ -739,25 +693,25 @@ NodeEvent::Step::PrimaryChunkMapper<Additive, ChunkIndicesAscending>::PrimaryChu
     if constexpr (ChunkIndicesAscending)
     {   
         fChunk = (*cChunk).second.cbegin();
-        if (chunkIndex < minChunkIndex)
+        if (chunkOrd < minChunkOrd)
         {
-            fChunk += minChunkIndex - chunkIndex;
-            chunkIndex = minChunkIndex;
+            fChunk += minChunkOrd - chunkOrd;
+            chunkOrd = minChunkOrd;
         }
         
-        if (maxChunkIndex - chunkIndex < (*cChunk).second.size())
-            fChunkEnd = fChunk + (maxChunkIndex - chunkIndex);
+        if (maxChunkOrd - chunkOrd < (*cChunk).second.size())
+            fChunkEnd = fChunk + (maxChunkOrd - chunkOrd);
         else
             fChunkEnd = (*cChunk).second.cend();
     }
     else 
     {
-        if (maxChunkIndex - chunkIndex <= (*cChunk).second.size())
+        if (maxChunkOrd - chunkOrd <= (*cChunk).second.size())
         {
-            fChunk = (*cChunk).second.cend() - (maxChunkIndex - chunkIndex);
-            fChunkEnd = (*cChunk).second.cend() - minChunkIndex;
+            fChunk = (*cChunk).second.cend() - (maxChunkOrd - chunkOrd);
+            fChunkEnd = (*cChunk).second.cend() - minChunkOrd;
             
-            chunkIndex = maxChunkIndex;
+            chunkOrd = maxChunkOrd;
         }
     }
 }
@@ -775,11 +729,11 @@ NodeEvent::Step::PrimaryChunkMapper<Additive, ChunkIndicesAscending>::mapAddress
 {
     using namespace boost::adaptors;
     
-    if (Q_UNLIKELY(!maxChunkIndex)) return from;
+    if (Q_UNLIKELY(!maxChunkOrd)) return from;
     // other fixed-point cases should be handled upstream
     
     NodeAddressBuilder result;
-    chunkIndex = 0;
+    chunkOrd = 0;
     
     auto lowerBound = step._primaryChunks.lower_bound(from);
     for (auto i = step._primaryChunks.begin(); i != lowerBound; ++i)
@@ -789,17 +743,17 @@ NodeEvent::Step::PrimaryChunkMapper<Additive, ChunkIndicesAscending>::mapAddress
         
         if constexpr (ChunkIndicesAscending)
         {
-            if (chunkIndex + chunks.size() < minChunkIndex)
+            if (chunkOrd + chunks.size() <= minChunkOrd)
             {
-                chunkIndex += chunks.size();
+                chunkOrd += chunks.size();
                 continue;
             }
         }
         else
         {
-            if (chunkIndex + chunks.size() < step._chunkCount - maxChunkIndex)
+            if (chunkOrd + chunks.size() <= step._chunkCount - maxChunkOrd)
             {
-                chunkIndex += chunks.size();
+                chunkOrd += chunks.size();
                 continue;
             }
         }
@@ -808,7 +762,7 @@ NodeEvent::Step::PrimaryChunkMapper<Additive, ChunkIndicesAscending>::mapAddress
         {
             if (!key.isAncestorOf(from))
             {
-                chunkIndex += chunks.size();
+                chunkOrd += chunks.size();
                 continue;
             }
         }
@@ -817,7 +771,7 @@ NodeEvent::Step::PrimaryChunkMapper<Additive, ChunkIndicesAscending>::mapAddress
             if (key > result) break;
             if (!key.isAncestorOf(result) && key != result) 
             {
-                chunkIndex += chunks.size();
+                chunkOrd += chunks.size();
                 continue;
             }
         }
@@ -841,20 +795,26 @@ NodeEvent::Step::PrimaryChunkMapper<Additive, ChunkIndicesAscending>::mapAddress
         
         if constexpr (ChunkIndicesAscending)
         {
-            j += minChunkIndex - chunkIndex;
-            chunkIndex = minChunkIndex;
+            if (chunkOrd < minChunkOrd)
+            {
+                j += minChunkOrd - chunkOrd;
+                chunkOrd = minChunkOrd;
+            }
         }
         else 
         {
-            j += step._chunkCount - maxChunkIndex - chunkIndex;
-            chunkIndex = step._chunkCount - maxChunkIndex;
+            if (chunkOrd < step._chunkCount - maxChunkOrd)
+            {
+                j += step._chunkCount - maxChunkOrd - chunkOrd;
+                chunkOrd = step._chunkCount - maxChunkOrd;
+            }
         }
         
         for (; j != chunksEnd; ++j)
         {
             if constexpr (ChunkIndicesAscending)
             {
-                if (chunkIndex >= maxChunkIndex)
+                if (chunkOrd >= maxChunkOrd)
                 {
                     result.append(index);
                     goto limitReached; // break from _primaryChunks loop
@@ -862,7 +822,7 @@ NodeEvent::Step::PrimaryChunkMapper<Additive, ChunkIndicesAscending>::mapAddress
             }
             else
             {
-                if (chunkIndex >= step._chunkCount - minChunkIndex)
+                if (chunkOrd >= step._chunkCount - minChunkOrd)
                 {
                     result.append(index);
                     goto limitReached; // break from _primaryChunks loop
@@ -882,7 +842,7 @@ NodeEvent::Step::PrimaryChunkMapper<Additive, ChunkIndicesAscending>::mapAddress
             {
                 if ((*j).address.lastIndex() <= sourceIndex)
                 {
-                    if (index < (*j).length)
+                    if ((*j).address.lastIndex() + (*j).length > sourceIndex)
                     {
                         return {};
                     }
@@ -899,11 +859,11 @@ NodeEvent::Step::PrimaryChunkMapper<Additive, ChunkIndicesAscending>::mapAddress
                 // `*j` will have no bearing on `from`, nor will any
                 // of its subsequent siblings.
                 
-                chunkIndex += std::distance(j, chunksEnd);
+                chunkOrd += std::distance(j, chunksEnd);
                 break; // chunk list loop
             }
             
-            ++chunkIndex;
+            ++chunkOrd;
         }
         
         result.append(index);
@@ -935,7 +895,7 @@ NodeEvent::Step::PrimaryChunkMapper<Additive, ChunkIndicesAscending>::yieldMapCh
     if (!remainderChunk || !mappedParentAddress) 
         return (remainderChunk = {});
     
-    if (Q_UNLIKELY(!maxChunkIndex)) 
+    if (Q_UNLIKELY(!maxChunkOrd)) 
         return std::exchange(remainderChunk, {});
 
     while (fChunk != fChunkEnd)
@@ -950,7 +910,7 @@ NodeEvent::Step::PrimaryChunkMapper<Additive, ChunkIndicesAscending>::yieldMapCh
                     .offsetLastIndex((*fChunk).length);
                 
                 ++fChunk;
-                ++chunkIndex;
+                ++chunkOrd;
                 
                 continue;
             }
@@ -999,7 +959,7 @@ NodeEvent::Step::PrimaryChunkMapper<Additive, ChunkIndicesAscending>::yieldMapCh
                 }
                 
                 ++fChunk;
-                ++chunkIndex;
+                ++chunkOrd;
                 
                 continue;
             }
@@ -1042,17 +1002,17 @@ template<typename InRange, class OutContainer>
 void NodeEvent::Step::mapChunksForward(
         const InRange& in, 
         OutContainer& out, 
-        std::size_t minChunkIndex,
-        std::size_t maxChunkIndex) const
+        std::size_t minChunkOrd,
+        std::size_t maxChunkOrd) const
 {
-    assert(minChunkIndex <= maxChunkIndex);
+    assert(minChunkOrd <= maxChunkOrd);
     for (NodeChunk chunk : in)
     {        
         switch(_operation)
         {
             case Add:
             {
-                PrimaryChunkMapper<true, true> mapper(*this, chunk, minChunkIndex, maxChunkIndex);
+                PrimaryChunkMapper<true, true> mapper(*this, chunk, minChunkOrd, maxChunkOrd);
                 
                 while (auto mappedChunk = mapper.yieldMapChunk())
                     out.push_back(*mappedChunk);
@@ -1062,7 +1022,7 @@ void NodeEvent::Step::mapChunksForward(
                 
             case Remove:
             {
-                PrimaryChunkMapper<false, false> mapper(*this, chunk, minChunkIndex, maxChunkIndex);
+                PrimaryChunkMapper<false, false> mapper(*this, chunk, minChunkOrd, maxChunkOrd);
                 
                 while (auto mappedChunk = mapper.yieldMapChunk())
                     out.push_back(*mappedChunk);
@@ -1080,17 +1040,17 @@ template<typename InRange, class OutContainer>
 void NodeEvent::Step::mapChunksBackward(
         const InRange& in, 
         OutContainer& out, 
-        std::size_t minChunkIndex,
-        std::size_t maxChunkIndex) const
+        std::size_t minChunkOrd,
+        std::size_t maxChunkOrd) const
 {
-    assert(minChunkIndex <= maxChunkIndex);
+    assert(minChunkOrd <= maxChunkOrd);
     for (NodeChunk chunk : in)
     {   
         switch(_operation)
         {
             case Add:
             {
-                PrimaryChunkMapper<false, true> mapper(*this, chunk, minChunkIndex, maxChunkIndex);
+                PrimaryChunkMapper<false, true> mapper(*this, chunk, minChunkOrd, maxChunkOrd);
                 
                 while (auto mappedChunk = mapper.yieldMapChunk())
                     out.push_back(*mappedChunk);
@@ -1100,7 +1060,7 @@ void NodeEvent::Step::mapChunksBackward(
                 
             case Remove:
             {
-                PrimaryChunkMapper<true, false> mapper(*this, chunk, minChunkIndex, maxChunkIndex);
+                PrimaryChunkMapper<true, false> mapper(*this, chunk, minChunkOrd, maxChunkOrd);
                 
                 while (auto mappedChunk = mapper.yieldMapChunk())
                     out.push_back(*mappedChunk);
@@ -1119,15 +1079,15 @@ template void NodeEvent::Step::mapChunksBackward(const QList<NodeChunk>&, QList<
 
 std::optional<NodeChunk> NodeEvent::Step::mapChunkSubtractive(
         NodeChunk from, 
-        std::size_t minChunkIndex,
-        std::size_t maxChunkIndex) const
+        std::size_t minChunkOrd,
+        std::size_t maxChunkOrd) const
 {
-    assert(minChunkIndex <= maxChunkIndex);
+    assert(minChunkOrd <= maxChunkOrd);
     switch(_operation)
     {
         case Add:
         {
-            PrimaryChunkMapper<false, true> mapper(*this, from, minChunkIndex, maxChunkIndex);
+            PrimaryChunkMapper<false, true> mapper(*this, from, minChunkOrd, maxChunkOrd);
             auto result = mapper.yieldMapChunk();
             assert(!mapper.yieldMapChunk());
             
@@ -1139,7 +1099,7 @@ std::optional<NodeChunk> NodeEvent::Step::mapChunkSubtractive(
             
         case Remove:
         {
-            PrimaryChunkMapper<false, false> mapper(*this, from, minChunkIndex, maxChunkIndex);
+            PrimaryChunkMapper<false, false> mapper(*this, from, minChunkOrd, maxChunkOrd);
             auto result = mapper.yieldMapChunk();
             assert(!mapper.yieldMapChunk());
             
@@ -1396,35 +1356,19 @@ void NodeEvent::Step::moveRoot(NodeAddress rel)
     }
 }
 
-void TreeObserverData::startRecording()
+void TreeObserverData::pushEvent(NodeEvent event)
 {
-    const QWriteLocker locker(&_lock);
-    
-    assert(!_isRecording);
-    
-    _isRecording = true;
-    _recording = NodeEvent();
-}
-
-NodeEvent TreeObserverData::finishRecording()
-{
-    const QWriteLocker locker(&_lock);
-    
-    assert(_isRecording);
-    
-    _isRecording = false;
-    
-    if (_recording.isNull())
+    if (event.isNull())
         // An empty event will not be counted toward the observer's history
-        return NodeEvent();
-
+        return;
+    
     _nodeRefMutex.lock();
     
     auto i = _nodeRefs.begin();
     while (i != _nodeRefs.end())
     {
         auto address = (*i).second->_address;
-        auto mappedAddress = _recording.mapForward(address);
+        auto mappedAddress = event.mapForward(address);
         
         if (mappedAddress && mappedAddress == address)
         {
@@ -1455,10 +1399,10 @@ NodeEvent TreeObserverData::finishRecording()
     {
         // The recorded event would immediately be released, so we will just
         // skip pushing it.
-        return std::move(_recording);
+        return;
     }
     
-    const auto& result = ((*_current).event = std::move(_recording));
+    (*_current).event = std::move(event);
         
     _current = _events.emplace(_events.end());
     (*_current).refCounter = new EventEntryRefCounter;
@@ -1474,17 +1418,22 @@ NodeEvent TreeObserverData::finishRecording()
             || (size < 100  && size % 10 == 0) 
             || (size < 1000 && size % 100 == 0))
         {
-            qWarning("DataTreeObserver has recorded %lu unprocessed events.",
-                     size);
-            qWarning("At least %u lingering references are preventing these "
-                    "events from being deleted.", 
-                    _events.front().refCounter->count.loadRelaxed());
+            qWarning("%s", qUtf8Printable(
+                //% "DataTreeObserver has recorded %1 unprocessed events."
+                qtTrId("debug-messages.datatree-observer.unprocessed-events")
+                    .arg(size)
+            ));
+            qWarning("%s", qUtf8Printable(
+                //% "At least %1 lingering references are preventing these "
+                //% "events from being deleted."
+                qtTrId("debug-messages.datatree-observer.lingering-references")
+                    .arg(_events.front().refCounter->count.loadRelaxed())
+            ));
         }
     }
 #endif 
-
-    return result;
 }
+
 
 void TreeObserverData::releaseNodeEvent(node_event_iterator i)
 {

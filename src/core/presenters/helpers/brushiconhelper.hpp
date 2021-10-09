@@ -99,7 +99,7 @@ private:
 
     QSharedPointer<IRasterSurface> _underSurface;
     QSharedPointer<IRasterSurface> _brushSurface; // make static
-    QSharedPointer<IRenderer> _renderer;
+//     QSharedPointer<IRenderer> _renderer;
     static CheckerBoard _checkerBoard;
 
     void paint(QPainter* painter, const QRect& rect, BrushId brush);

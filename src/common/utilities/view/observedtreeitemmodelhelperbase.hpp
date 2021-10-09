@@ -428,8 +428,6 @@ void ObservedTreeItemModelHelperBase<ItemModel, Tree>::onNodesChanged(
         if (!address)
         {
             toPersistentIndices.append(QModelIndex());
-            
-            delete entry;
             continue;
         }
         
@@ -469,6 +467,7 @@ void ObservedTreeItemModelHelperBase<ItemModel, Tree>::onNodesChanged(
         else
         {
             entry->childCount = SIZE_MAX;
+            //entry->directHandle = {}; 
             _locationCache.insert(std::make_pair(entry->address, entry));
         }
     }
