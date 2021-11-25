@@ -39,29 +39,29 @@ namespace Addle {
 class ADDLE_CORE_EXPORT BrushToolPresenter : public QObject, public virtual IBrushToolPresenter
 {
     Q_OBJECT
-    Q_PROPERTY(
-        BrushId selectedBrush 
-        READ selectedBrush
-        WRITE selectBrush
-        NOTIFY brushChanged
-    )
+//     Q_PROPERTY(
+//         BrushId selectedBrush 
+//         READ selectedBrush
+//         WRITE selectBrush
+//         NOTIFY brushChanged
+//     )
     Q_INTERFACES(Addle::IToolPresenter Addle::IBrushToolPresenter)
     IAMQOBJECT_IMPL
 public:
-    BrushToolPresenter(ToolId id, IMainEditorPresenter& editor);
+//     BrushToolPresenter(ToolId id, IMainEditorPresenter& editor);
     virtual ~BrushToolPresenter() = default;
 
     void initialize(IMainEditorPresenter* owner, Mode mode);
 
     IMainEditorPresenter* owner() { ASSERT_INIT(); return nullptr;/*_mainEditor;*/ }
-    ToolId id() const;
+//     ToolId id() const;
 
     IAssetSelectionPresenter& brushSelection() { ASSERT_INIT(); return *_brushSelection; }
-    void selectBrush(BrushId id) { brushSelection().select(id); }
-    BrushId selectedBrush()
-    {
-        return static_cast<BrushId>(brushSelection().selectedId());
-    } 
+//     void selectBrush(BrushId id) { brushSelection().select(id); }
+//     BrushId selectedBrush()
+//     {
+//         return static_cast<BrushId>(brushSelection().selectedId());
+//     } 
     QSharedPointer<IBrushPresenter> selectedBrushPresenter()
     {
         return brushSelection().selectedPresenter().staticCast<IBrushPresenter>();
@@ -75,7 +75,7 @@ public:
     QCursor cursor() { return QCursor(Qt::CrossCursor); }
 
 signals:
-    void brushChanged(BrushId brush);
+//     void brushChanged(BrushId brush);
     void isSelectedChanged(bool isSelected);
     void refreshPreviews();
 
@@ -150,7 +150,7 @@ private:
 
     QSharedPointer<ILayerPresenter> _layer;
 
-    QSharedPointer<IRasterSurface> _surface;
+//     QSharedPointer<IRasterSurface> _surface;
     std::unique_ptr<BrushStroke> _brushStroke;
 
     BrushToolPresenter& _owner;

@@ -17,16 +17,16 @@ namespace Addle {
 class ADDLE_CORE_EXPORT Brush : public IBrush
 {
 public:
-    Brush(BrushId id)
-        : _id(id)
-    {
-    }
+//     Brush(BrushId id)
+//         : _id(id)
+//     {
+//     }
     virtual ~Brush() = default;
     
     void initialize(const BrushBuilder& builder);
 
-    BrushId id() const { ASSERT_INIT(); return _id; }
-    BrushEngineId engineId() const { ASSERT_INIT(); return _engineId; }
+//     BrushId id() const { ASSERT_INIT(); return _id; }
+//     BrushEngineId engineId() const { ASSERT_INIT(); return _engineId; }
     QVariantHash customEngineParameters() const { ASSERT_INIT(); return _customEngineParameters; }
 
     QIcon icon() const { ASSERT_INIT(); return _icon; }
@@ -47,8 +47,8 @@ public:
     PreviewHints previewHints() const { return _previewHints; }
 
 private:
-    const BrushId _id;
-    BrushEngineId _engineId;
+//     const BrushId _id;
+//     BrushEngineId _engineId;
     //BrushInfo _info;
     QVariantHash _customEngineParameters;
 

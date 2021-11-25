@@ -30,7 +30,7 @@
 #include "utilities/editing/brushstroke.hpp"
 #include "interfaces/presenters/imaineditorpresenter.hpp"
 
-#include "interfaces/editing/irastersurface.hpp"
+// #include "interfaces/editing/irastersurface.hpp"
 
 #include "interfaces/editing/ibrushengine.hpp"
 
@@ -43,26 +43,26 @@
 #include <QSharedPointer>
 using namespace Addle;
 
-BrushToolPresenter::BrushToolPresenter(ToolId id, IMainEditorPresenter& editor)
-    : _mode([id] {
-            switch(id)
-            {
-                case CoreTools::Brush:
-                    return Mode::Brush;
-                case CoreTools::Eraser:
-                    return Mode::Eraser;
-                default:
-                    Q_UNREACHABLE();
-            }
-        }()),
-    _mainEditor(editor),
-    _selectHelper(*this)
-{
-    _mouseHelper.onEngage.bind(&BrushToolPresenter::onEngage, this);  
-    _mouseHelper.onMove.bind(&BrushToolPresenter::onMove, this);
-    _mouseHelper.onDisengage.bind(&BrushToolPresenter::onDisengage, this);
-    _selectHelper.onIsSelectedChanged.bind(&BrushToolPresenter::onSelectedChanged, this);
-}
+// BrushToolPresenter::BrushToolPresenter(ToolId id, IMainEditorPresenter& editor)
+//     : _mode([id] {
+//             switch(id)
+//             {
+//                 case CoreTools::Brush:
+//                     return Mode::Brush;
+//                 case CoreTools::Eraser:
+//                     return Mode::Eraser;
+//                 default:
+//                     Q_UNREACHABLE();
+//             }
+//         }()),
+//     _mainEditor(editor),
+//     _selectHelper(*this)
+// {
+//     _mouseHelper.onEngage.bind(&BrushToolPresenter::onEngage, this);  
+//     _mouseHelper.onMove.bind(&BrushToolPresenter::onMove, this);
+//     _mouseHelper.onDisengage.bind(&BrushToolPresenter::onDisengage, this);
+//     _selectHelper.onIsSelectedChanged.bind(&BrushToolPresenter::onSelectedChanged, this);
+// }
     
 void BrushToolPresenter::initialize(IMainEditorPresenter* owner, Mode mode)
 {
@@ -82,33 +82,33 @@ void BrushToolPresenter::initialize(IMainEditorPresenter* owner, Mode mode)
     switch(_mode)
     {
     case Mode::Brush:
-        _brushSelection = ServiceLocator::makeUnique<IAssetSelectionPresenter>(
-            QList<QSharedPointer<IAssetPresenter>>({
-                ServiceLocator::makeShared<IBrushPresenter>(CoreBrushes::BasicBrush, _previewProvider),
-                ServiceLocator::makeShared<IBrushPresenter>(CoreBrushes::SoftBrush, _previewProvider)
-            }),
-            false
-        );
-        _brushSelection->setFavorites({ 
-            CoreBrushes::BasicBrush, 
-            CoreBrushes::SoftBrush 
-        });
-
-        _brushSelection->select(CoreBrushes::BasicBrush);
+//         _brushSelection = ServiceLocator::makeUnique<IAssetSelectionPresenter>(
+//             QList<QSharedPointer<IAssetPresenter>>({
+//                 ServiceLocator::makeShared<IBrushPresenter>(CoreBrushes::BasicBrush, _previewProvider),
+//                 ServiceLocator::makeShared<IBrushPresenter>(CoreBrushes::SoftBrush, _previewProvider)
+//             }),
+//             false
+//         );
+//         _brushSelection->setFavorites({ 
+//             CoreBrushes::BasicBrush, 
+//             CoreBrushes::SoftBrush 
+//         });
+// 
+//         _brushSelection->select(CoreBrushes::BasicBrush);
         break;
 
     case Mode::Eraser:
-        _brushSelection = ServiceLocator::makeUnique<IAssetSelectionPresenter>(
-            QList<QSharedPointer<IAssetPresenter>>({
-                ServiceLocator::makeShared<IBrushPresenter>(CoreBrushes::BasicEraser, _previewProvider)
-            }),
-            false
-        );
-        _brushSelection->setFavorites({ 
-            CoreBrushes::BasicEraser
-        });
-
-        _brushSelection->select(CoreBrushes::BasicEraser);
+//         _brushSelection = ServiceLocator::makeUnique<IAssetSelectionPresenter>(
+//             QList<QSharedPointer<IAssetPresenter>>({
+//                 ServiceLocator::makeShared<IBrushPresenter>(CoreBrushes::BasicEraser, _previewProvider)
+//             }),
+//             false
+//         );
+//         _brushSelection->setFavorites({ 
+//             CoreBrushes::BasicEraser
+//         });
+// 
+//         _brushSelection->select(CoreBrushes::BasicEraser);
         break;
     }
 
@@ -116,25 +116,25 @@ void BrushToolPresenter::initialize(IMainEditorPresenter* owner, Mode mode)
 
     //connect_interface(_mainEditor, SIGNAL(documentPresenterChanged(QSharedPointer<Addle::IDocumentPresenter>)), this, SLOT(onDocumentChanged(QSharedPointer<Addle::IDocumentPresenter>)));
     //connect_interface(_canvas, SIGNAL(hasMouseChanged(bool)), this, SLOT(onCanvasHasMouseChanged(bool)));
-    connect_interface(_brushSelection.get(), SIGNAL(selectionChanged(QList<AddleId>)), this, SLOT(onBrushSelectionChanged()));
+//     connect_interface(_brushSelection.get(), SIGNAL(selectionChanged(QList<AddleId>)), this, SLOT(onBrushSelectionChanged()));
     connect_interface(_viewPort, SIGNAL(zoomChanged(double)), this, SLOT(onViewPortZoomChanged(double)));
     connect_interface(_colorSelection, SIGNAL(color1Changed(ColorInfo)), this, SLOT(onColorChanged(ColorInfo)));
     //connect_interface(_mainEditor, SIGNAL(topSelectedLayerChanged(QSharedPointer<ILayerPresenter>)), this, SLOT(onSelectedLayerChanged()));
 }
 
-ToolId BrushToolPresenter::id() const
-{
-    ASSERT_INIT();
-    switch(_mode)
-    {
-    case Mode::Brush:
-        return CoreTools::Brush;
-    case Mode::Eraser:
-        return CoreTools::Eraser;
-    default:
-        return ToolId();
-    }
-}
+// ToolId BrushToolPresenter::id() const
+// {
+//     ASSERT_INIT();
+//     switch(_mode)
+//     {
+//     case Mode::Brush:
+//         return CoreTools::Brush;
+//     case Mode::Eraser:
+//         return CoreTools::Eraser;
+//     default:
+//         return ToolId();
+//     }
+// }
 
 void BrushToolPresenter::onSelectedChanged(bool selected)
 {
@@ -177,22 +177,22 @@ bool BrushToolPresenter::event(QEvent* e)
 
 void BrushToolPresenter::onBrushSelectionChanged()
 {
-    try 
-    {
-        if (_connection_onSizeChanged)
-            QObject::disconnect(_connection_onSizeChanged);
-
-        _connection_onSizeChanged = connect_interface(
-            &selectedBrushPresenter()->sizeSelection(),
-            SIGNAL(changed(double)),
-            this,
-            SLOT(onSizeChanged(double))
-        );
-
-        _hoverPreview->isVisible_cache.recalculate();
-        emit brushChanged(selectedBrush());
-    } 
-    ADDLE_SLOT_CATCH
+//     try 
+//     {
+//         if (_connection_onSizeChanged)
+//             QObject::disconnect(_connection_onSizeChanged);
+// 
+//         _connection_onSizeChanged = connect_interface(
+//             &selectedBrushPresenter()->sizeSelection(),
+//             SIGNAL(changed(double)),
+//             this,
+//             SLOT(onSizeChanged(double))
+//         );
+// 
+//         _hoverPreview->isVisible_cache.recalculate();
+//         emit brushChanged(selectedBrush());
+//     } 
+//     ADDLE_SLOT_CATCH
 }
 
 void BrushToolPresenter::onSizeChanged(double size)
@@ -288,13 +288,13 @@ void BrushToolPresenter::onEngage()
 
         QColor color = _colorSelection->color1().color();
 
-        auto brushSurface = ServiceLocator::makeShared<IRasterSurface>();
-        _brushStroke = QSharedPointer<BrushStroke>(new BrushStroke(
-            brush->brushId(),
-            color,
-            size,
-            brushSurface
-        ));
+//         auto brushSurface = ServiceLocator::makeShared<IRasterSurface>();
+//         _brushStroke = QSharedPointer<BrushStroke>(new BrushStroke(
+//             brush->brushId(),
+//             color,
+//             size,
+//             brushSurface
+//         ));
 
 //         if (brush->model().copyMode())
 //         {
@@ -330,7 +330,7 @@ void BrushToolPresenter::onDisengage()
     {
         if (!_brushStroke) return;
 
-        _brushStroke->buffer()->unlink();    
+//         _brushStroke->buffer()->unlink();    
         auto layer = _operatingLayer.toStrongRef();
         if (!layer) return;
 
@@ -371,55 +371,55 @@ BrushToolPresenter::HoverPreview::HoverPreview(BrushToolPresenter& owner)
 
 void BrushToolPresenter::HoverPreview::update()
 {
-    _ASSERT_INIT(_owner._initHelper);
-
-    BrushId id = _owner.selectedBrush();
-    if (!id) return;
-
-    QColor color = _owner._colorSelection->color1().color();
-    double size = _owner.selectedBrushPresenter()->size();
-
-    if (_brushStroke && _brushStroke->id() == id)
-    {
-        _brushStroke->setSize(size);
-        _brushStroke->setColor(color);
-    }
-    else if (isVisible_cache.value())
-    {
-        if (!_surface) _surface = ServiceLocator::makeShared<IRasterSurface>();
-
-        _brushStroke = std::unique_ptr<BrushStroke>(new BrushStroke(
-            id,
-            color, 
-            size,
-            _surface
-        ));
-    }
-
-    if (_surface)
-    {
-        if (_layer && (!isVisible_cache.value() || _layer != _owner._document->topSelectedLayer()))
-        {
-            //_layer->renderer().remove(_surface->renderable());
-            if (_owner.selectedBrushPresenter()->model().eraserMode())
-            {
-                _surface->unlink();
-            }
-            _layer = nullptr;
-        }
-
-//         if (isVisible_cache.value() && _layer != _owner._document->topSelectedLayer())
-//         {
-//             _layer = _owner._document->topSelectedLayer();
-//             if (_owner.selectedBrushPresenter()->model().eraserMode())
-//             {
-//                 _surface->link(_layer->model()->rasterSurface());
-//             }
-//             //_layer->renderer().push(_surface->renderable());
-//         }   
-    }
-
-    paint();
+//     _ASSERT_INIT(_owner._initHelper);
+// 
+//     BrushId id = _owner.selectedBrush();
+//     if (!id) return;
+// 
+//     QColor color = _owner._colorSelection->color1().color();
+//     double size = _owner.selectedBrushPresenter()->size();
+// 
+//     if (_brushStroke && _brushStroke->id() == id)
+//     {
+//         _brushStroke->setSize(size);
+//         _brushStroke->setColor(color);
+//     }
+//     else if (isVisible_cache.value())
+//     {
+// //         if (!_surface) _surface = ServiceLocator::makeShared<IRasterSurface>();
+// // 
+// //         _brushStroke = std::unique_ptr<BrushStroke>(new BrushStroke(
+// //             id,
+// //             color, 
+// //             size,
+// //             _surface
+// //         ));
+//     }
+// 
+// //     if (_surface)
+// //     {
+// //         if (_layer && (!isVisible_cache.value() || _layer != _owner._document->topSelectedLayer()))
+// //         {
+// //             //_layer->renderer().remove(_surface->renderable());
+// //             if (_owner.selectedBrushPresenter()->model().eraserMode())
+// //             {
+// // //                 _surface->unlink();
+// //             }
+// //             _layer = nullptr;
+// //         }
+// // 
+// // //         if (isVisible_cache.value() && _layer != _owner._document->topSelectedLayer())
+// // //         {
+// // //             _layer = _owner._document->topSelectedLayer();
+// // //             if (_owner.selectedBrushPresenter()->model().eraserMode())
+// // //             {
+// // //                 _surface->link(_layer->model()->rasterSurface());
+// // //             }
+// // //             //_layer->renderer().push(_surface->renderable());
+// // //         }   
+// //     }
+// 
+//     paint();
 }
 
 void BrushToolPresenter::HoverPreview::setPosition(QPointF position)
@@ -459,7 +459,7 @@ void BrushToolPresenter::HoverPreview::paint()
     
     _brushStroke->clear();
     _brushStroke->moveTo(_position);
-    _surface->clear();
+//     _surface->clear();
 
     _brushStroke->paint();
 }

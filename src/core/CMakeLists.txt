@@ -16,8 +16,6 @@ set (
     core_config.cpp
     editing/brushengines/pathbrushengine.cpp
     editing/brushengines/rasterbrushengine.cpp
-    editing/rasterdiff.cpp
-    editing/rastersurface.cpp
     editing/rastersurface2.cpp
     models/brush.cpp
     models/document.cpp
@@ -47,8 +45,6 @@ set (
     rendering/renderer.cpp
     services/applicationservice.cpp
     services/errorservice.cpp
-    services/formatservice.cpp
-    format/qtimageformatdriver.cpp
 )
 
 add_definitions(-DADDLE_EXPORTING_CORE)

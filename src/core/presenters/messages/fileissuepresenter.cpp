@@ -4,7 +4,7 @@
 
 #include "utilities/presenter/messagebuilders.hpp"
 #include "exceptions/fileexception.hpp"
-#include "exceptions/formatexception.hpp"
+// #include "exceptions/formatexception.hpp"
 
 #include "fileissuepresenter.hpp"
 
@@ -56,11 +56,11 @@ void FileIssuePresenter::initialize(const FileIssuePresenterBuilder& builder)
             }
 #endif
         }
-        else if (typeid(baseException) == typeid(FormatException))
-        {
-            //TODO format heursitics
-            _issue = IFileIssuePresenter::UnrecognizedFormat;
-        }
+//         else if (typeid(baseException) == typeid(FormatException))
+//         {
+//             //TODO format heursitics
+//             _issue = IFileIssuePresenter::UnrecognizedFormat;
+//         }
         else 
         {
 #ifdef ADDLE_DEBUG

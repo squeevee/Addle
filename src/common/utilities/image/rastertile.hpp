@@ -58,6 +58,9 @@ public:
     RasterTile(const RasterTile&) = default;
     RasterTile(RasterTile&&) = default;
     
+    RasterTile& operator=(const RasterTile&) = default;
+    RasterTile& operator=(RasterTile&&) = default;
+    
     RasterTile(QImage::Format format, QPoint offset, 
                QVector<QRgb> colorTable = QVector<QRgb>())
         : _data(new Data(format, (offset / (int)SIDE_LENGTH), colorTable))

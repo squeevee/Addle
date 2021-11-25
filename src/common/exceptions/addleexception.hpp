@@ -9,96 +9,270 @@
 #ifndef ADDLEEXCEPTION_HPP
 #define ADDLEEXCEPTION_HPP
 
+#include <type_traits>
+#include <boost/type_traits/is_detected_convertible.hpp>
+#include <boost/type_traits.hpp>
+
+#ifdef ADDLE_DEBUG
+#include <functional> // std::function
+# if defined(ADDLE_USE_LIBBACKTRACE)
+#  define BOOST_STACKTRACE_USE_BACKTRACE
+# endif
+#include <boost/stacktrace/stacktrace.hpp>
+#endif // ADDLE_DEBUG
+
 #include "compat.hpp"
 #include <exception>
 #include <type_traits>
 #include <typeinfo>
 
-#include <QStack>
+#include <variant>
+
+#include <QList>
+#include <QAtomicInteger>
+#include <QMutex>
 #include <QString>
 #include <QByteArray>
+#include <QDateTime>
+#include <QException>
 
 #include <QMetaType>
 #include <QSharedPointer>
 
+#if defined(ADDLE_DEBUG) || defined(ADDLE_TEST)
+#include <QtDebug> // operator<<
+#endif
+
 namespace Addle {
-    
+ 
 /**
- * @brief Base class for exceptions in Addle.
+ * @brief Abstract base class for rich exceptions in Addle.
  */
-class ADDLE_COMMON_EXPORT AddleException : public std::exception
+class ADDLE_COMMON_EXPORT AddleException : public QException
 {
+public:
+    using inner_exception_t = std::variant<QSharedPointer<AddleException>, std::exception_ptr>;
+    struct AddleExceptionBuilder
+    {
+        AddleExceptionBuilder() = default;
+        AddleExceptionBuilder(const AddleExceptionBuilder&) = default;
+        AddleExceptionBuilder(AddleExceptionBuilder&&) = default;
+        
+        AddleExceptionBuilder(QString what_) : what(std::move(what_)) {}
+        AddleExceptionBuilder(QList<inner_exception_t> innerExceptions_) 
+            : innerExceptions(std::move(innerExceptions_)) 
+        {
+        }
+        
+        QString what;
+        AddleExceptionBuilder& setWhat(QString what_) { what = std::move(what_); return *this; }
+        
+        QList<inner_exception_t> innerExceptions;
+        AddleExceptionBuilder& setInnerExceptions(QList<inner_exception_t> innerExceptions_)
+        {
+            innerExceptions = std::move(innerExceptions_);
+            return *this;
+        }
+        
 #ifdef ADDLE_DEBUG
-    struct Location
+        using property_t = std::function<QString(const AddleException&)>;
+        QMap<QByteArray, property_t> properties;
+        AddleExceptionBuilder& addProperty(QByteArray name, property_t property)
+        {
+            properties.insert(name, property);
+            return *this;
+        }
+#endif
+    };
+    
+    AddleException& operator=(const AddleException&) = delete;
+    
+    virtual bool isLogicError() const { return false; }
+    virtual bool isRuntimeError() const { return false; }
+
+    // Throws this exception as its most derived polymorphic type.
+    [[noreturn]] virtual void raise() const override = 0;
+
+    // Makes a copy of this exception as its most derived polymorphic type.
+    virtual AddleException* clone() const override = 0;
+    
+    const QList<inner_exception_t> innerExceptions() const { return _innerExceptions; }
+    
+protected:
+    QList<inner_exception_t> _innerExceptions;
+    
+#ifdef ADDLE_DEBUG
+public:
+    struct HistoryEntry
     {
         const char* function;
         const char* file;
         int line;
+        QDateTime dateTime;
+        QString threadName;
+        const void* threadId;
+        
+        boost::stacktrace::stacktrace backTrace;
     };
-public:
-    AddleException(const QString& what);
+    
+    explicit AddleException(AddleExceptionBuilder builder);
+    AddleException(const AddleException&);
+    virtual ~AddleException();
+    
+    [[noreturn]] void debugRaise(const char* function, const char* file, const int line);
+        
+    const QList<HistoryEntry> history() const { return _history; }
+    
+    const char* what() const noexcept override;
+    
+protected:
+    using debug_data_t = QList< std::pair<QByteArray, QString> >;
+    virtual debug_data_t debugData() const;
+    void dataChanged();
+    
+    virtual QString what_p(int verbosity = 2) const;
+    
+private:   
+    debug_data_t debugData_p() const;
+
+    QList<HistoryEntry> _history;
+    const QString _what;
+    QMap<QByteArray, AddleExceptionBuilder::property_t> _properties;
+    
+    mutable QByteArray _whatBytes;
+    mutable QMutex _whatBytesMutex;
+    
+    mutable debug_data_t _debugDataCache;
+    mutable bool _debugDataCacheIsSet = false;
+    mutable QMutex _debugDataCacheMutex;
 #else
 public:
-    AddleException() = default;
-#endif
-public:
+    explicit AddleException(AddleExceptionBuilder builder)
+        : _innerExceptions(std::move(builder.innerExceptions)), 
+        _whatBytes(builder.what.toUtf8())
+    {
+    }
     virtual ~AddleException() = default;
-
-    virtual bool isLogicError() const = 0;
-    virtual bool isRuntimeError() const = 0;
-
-    // Throws this exception as its most derived polymorphic type.
-    [[noreturn]] virtual void raise() const = 0;
-
-    // Makes a copy of this exception as its most derived polymorphic type.
-    virtual AddleException* clone() const = 0;
     
-#ifdef ADDLE_DEBUG
-    const char* what() const noexcept { return _whatBytes.constData(); }
-    [[noreturn]] void debugRaise(const char* function, const char* file, const int line);
+    const char* what() const noexcept override { return _whatBytes.constData(); }
 private:
-    QStack<Location> _locations;
-    const QString _what;
-    QByteArray _whatBytes;
-    QStringList _firstRaiseBacktrace;
-
-    void updateWhat();
+    const QByteArray _whatBytes;
+#endif
+    
+#if defined(ADDLE_DEBUG)
+    friend QDebug operator<<(QDebug debug, const AddleException& ex)
+    {
+        QDebugStateSaver s(debug);
+        return debug.noquote() << ex.what_p(debug.verbosity());
+    }
+#elif defined(ADDLE_TEST)
+    friend QDebug operator<<(QDebug debug, const AddleException& ex)
+    {
+        QDebugStateSaver s(debug);
+        return debug.noquote() << "AddleException(" << ex._whatBytes << ")";
+    }
 #endif
 };
 
-#define ADDLE_EXCEPTION_BOILERPLATE(T) \
-public: \
-    [[noreturn]] void raise() const override { throw *this; } \
-    AddleException* clone() const override { return new T(*this); } \
-    bool isLogicError() const { return Traits::is_logic_error<T>::value; } \
-    bool isRuntimeError() const { return Traits::is_runtime_error<T>::value; }
+#define ADDLE_EXCEPTION_BOILERPLATE(T)                                      \
+public:                                                                     \
+    [[noreturn]] void raise() const override { throw *this; }               \
+    T* clone() const override { return new T(*this); }                      \
+    bool isLogicError() const override                                      \
+    { return Traits::is_logic_error<T>::value; }                            \
+    bool isRuntimeError() const override                                    \
+    { return Traits::is_runtime_error<T>::value; }
 
 namespace Traits {
 
+namespace detail {
+
+template<typename T>
+using _is_logic_error_t = decltype(T::IsLogicError);
+
+template<typename T, bool = boost::is_detected_convertible<bool, _is_logic_error_t, T>::value>
+struct is_logic_error_impl : std::integral_constant<bool, T::IsLogicError> {};
+
+template<typename T>
+struct is_logic_error_impl<T, false> : std::false_type {};
+
+template<typename T>
+using _is_runtime_error_t = decltype(T::IsRuntimeError);
+
+template<typename T, bool = boost::is_detected_convertible<bool, _is_runtime_error_t, T>::value>
+struct is_runtime_error_impl : std::integral_constant<bool, T::IsRuntimeError> {};
+
+template<typename T>
+struct is_runtime_error_impl<T, false> : std::false_type {};
+
+}
+    
 template<class T>
-struct is_logic_error : std::false_type {};
+struct is_logic_error : detail::is_logic_error_impl<T> {};
 
 template<class T>
-struct is_runtime_error : std::false_type {};
+struct is_runtime_error : detail::is_runtime_error_impl<T> {};
 
 } // namespace Traits
 
-#define DECL_LOGIC_ERROR(T) class T; namespace Traits { template<> struct is_logic_error<T> : std::true_type {}; }
-#define DECL_RUNTIME_ERROR(T) class T; namespace Traits { template<> struct is_runtime_error<T> : std::true_type {}; }
-
 #ifdef ADDLE_DEBUG
+
+[[noreturn]] inline void _addle_throw_helper(AddleException& ex, const char* func, const char* file, int line)
+{
+    ex.debugRaise(func, file, line);
+}
+
+[[noreturn]] inline void _addle_throw_helper(const AddleException& ex, const char* func, const char* file, int line)
+{
+    std::unique_ptr<AddleException> ex_(ex.clone());
+    ex_->debugRaise(func, file, line);
+}
+
+[[noreturn]] inline void _addle_throw_helper(AddleException&& ex, const char* func, const char* file, int line)
+{
+    ex.debugRaise(func, file, line);
+}
+
+[[noreturn]] inline void _addle_throw_helper(const AddleException&& ex, const char* func, const char* file, int line)
+{
+    std::unique_ptr<AddleException> ex_(ex.clone());
+    ex_->debugRaise(func, file, line);
+}
+
 /**
- * @def
- * @def Throws the AddleException ex as its most derived polymorphic type.
+ * @def 
+ * Throws the AddleException ex as its most derived polymorphic type.
  * (Attaches debug information in debug builds.)
  */
-#define ADDLE_THROW(ex) \
-static_cast<AddleException&&>(ex).debugRaise( Q_FUNC_INFO, __FILE__, __LINE__ )
+# define ADDLE_THROW(ex) \
+::Addle::_addle_throw_helper(ex, Q_FUNC_INFO, __FILE__, __LINE__ )
+
 #else
+# if defined(Q_CC_GNU)
+
+template<typename T>
+[[noreturn]] inline void _addle_throw_helper(T&& ex)
+{
+    {
+        (static_cast<boost::copy_cv_ref_t<AddleException, T&&>>(ex), std::forward<T>(ex)).raise();
+    }
+    Q_UNREACHABLE();
+    // G++ warns about non-returning code paths despite [[noreturn]] on raise()
+}
+
+# else // release mode for compilers besides G++
+
+template<typename T>
+[[noreturn]] inline void _addle_throw_helper(T&& ex)
+{
+    (static_cast<boost::copy_cv_ref_t<AddleException, T&&>>(ex), std::forward<T>(ex)).raise();
+}
+
+# endif
+
 #define ADDLE_THROW(ex) \
-{ { static_cast<AddleException&&>(ex).raise(); } Q_UNREACHABLE(); }
-// Q_UNREACHABLE() ought to be implied by raise() being [[noreturn]] but GCC in
-// particular has a hard time with that since raise is virtual.
+::Addle::_addle_throw_helper(ex)
+
 #endif
 
 } // namespace Addle

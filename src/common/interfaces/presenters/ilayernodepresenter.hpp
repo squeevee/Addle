@@ -58,5 +58,4 @@ signals:
 } // namespace Addle 
 
 Q_DECLARE_INTERFACE(Addle::ILayerNodePresenter, "org.addle.ILayerNodePresenter")
-
 Q_DECLARE_METATYPE(Addle::ILayerNodePresenter::LayerNodeRef)

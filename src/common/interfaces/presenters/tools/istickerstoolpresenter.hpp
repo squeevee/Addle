@@ -20,7 +20,7 @@ namespace Addle {
 class IStickersToolPresenter
 {
 public:
-    static const ToolId STICKERS_TOOL_ID;
+//     static const ToolId STICKERS_TOOL_ID;
 
     virtual ~IStickersToolPresenter() = default;
 };

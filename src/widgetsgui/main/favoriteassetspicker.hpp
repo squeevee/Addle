@@ -36,7 +36,7 @@ private slots:
     void onButtonClicked(bool checked);
 
 private:
-    QHash<AddleId, FavoriteAssetButton*> _buttons_byAsset;
+//     QHash<AddleId, FavoriteAssetButton*> _buttons_byAsset;
     QList<FavoriteAssetButton*> _buttons;
 
     QHBoxLayout* _layout;

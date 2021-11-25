@@ -77,7 +77,7 @@ public:
     }
     
     // Refers to the locked status of this handle and not the locked status of
-    // the mutex itself.
+    // the mutex itself (which may not be deterministic).
     bool isLocked() const { return _isLocked; }
     
     void relock()
@@ -101,6 +101,18 @@ public:
         _isLocked = false;
     }
     
+    const Lockable& target() const
+    {
+        assert(_target);
+        return *_target;
+    }
+    
+    Lockable& target()
+    {
+        assert(_target);
+        return *_target;
+    }
+    
 private:
     LockHandleImpl(Lockable* lockable, bool isLocked)
         : _target(lockable), _isLocked(isLocked)
@@ -116,7 +128,6 @@ class RecursiveLockHandleImpl
 {
 public:
     RecursiveLockHandleImpl() = default;
-    RecursiveLockHandleImpl(const RecursiveLockHandleImpl&) = delete;
     
     explicit RecursiveLockHandleImpl(Lockable& target)
         : _target(std::addressof(target)), _lockCount(1)
@@ -124,11 +135,20 @@ public:
         Ops::lock(_target);
     }
     
+    RecursiveLockHandleImpl(const RecursiveLockHandleImpl& other)
+        : _target(other._target),
+        _lockCount((_target && other.isLocked()) ? 1 : 0)
+    {
+        if (_target && other.isLocked())
+            Ops::lock(_target);
+    }
+    
     RecursiveLockHandleImpl(RecursiveLockHandleImpl&& other)
         : _target(std::exchange(other._target, nullptr)),
         _lockCount(std::exchange(other._lockCount, 0))
     {
     }
+    
     
     ~RecursiveLockHandleImpl()
     {
@@ -147,7 +167,19 @@ public:
         return RecursiveLockHandleImpl(std::addressof(target), 0);
     }
     
-    RecursiveLockHandleImpl& operator=(const RecursiveLockHandleImpl&) = delete;
+    RecursiveLockHandleImpl& operator=(const RecursiveLockHandleImpl& other)
+    {
+        fullUnlock();
+        
+        _target = other._target;
+        _lockCount = (_target && other.isLocked()) ? 1 : 0;
+        
+        if (_target && other.isLocked())
+            Ops::lock(_target);
+        
+        return *this;
+    }
+    
     RecursiveLockHandleImpl& operator=(RecursiveLockHandleImpl&& other)
     {
         fullUnlock();
@@ -169,8 +201,6 @@ public:
         _target = nullptr;
     }
     
-    // Refers to the locked status of this handle and not the locked status of
-    // the mutex itself.
     bool isLocked() const { return _lockCount; }
     
     void relock()
@@ -201,6 +231,18 @@ public:
         assert(_target && _lockCount);
         Ops::unlock(_target);
         --_lockCount;
+    }
+    
+    const Lockable& target() const
+    {
+        assert(_target);
+        return *_target;
+    }
+    
+    Lockable& target()
+    {
+        assert(_target);
+        return *_target;
     }
     
 private:

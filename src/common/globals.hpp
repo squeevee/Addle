@@ -13,13 +13,6 @@
 
 #include <boost/mp11.hpp>
 
-#include "idtypes/brushengineid.hpp"
-#include "idtypes/brushid.hpp"
-#include "idtypes/formatid.hpp"
-#include "idtypes/moduleid.hpp"
-#include "idtypes/paletteid.hpp"
-#include "idtypes/toolid.hpp"
-
 #include "utilities/model/colorinfo.hpp"
 
 #include <QtGlobal>
@@ -54,146 +47,55 @@ enum ErrorCodes {
 
 extern ADDLE_COMMON_EXPORT const QColor DefaultBackgroundColor;
 
-#define START_MODULE_IDS 0x01
-namespace Modules
-{
-    constexpr ModuleId Core         = START_MODULE_IDS + 0x00;
-    constexpr ModuleId WidgetsGui   = START_MODULE_IDS + 0x01;
+namespace BuiltinModules {
+    constexpr auto Core         = "org.addle.core";
+    constexpr auto WidgetsGui   = "org.addle.widgets_gui";
     
-    typedef boost::mp11::mp_list<
-        STATIC_ID_WRAPPER(Core),
-        STATIC_ID_WRAPPER(WidgetsGui)
-    > all_modules;
+    constexpr const char* all_builtin_modules[] = { Core, WidgetsGui };
 }
-DECLARE_STATIC_ID_METADATA(Modules::Core,       "org.addle.core");
-DECLARE_STATIC_ID_METADATA(Modules::WidgetsGui, "org.addle.widgets_gui");
 
-#undef START_MODULE_IDS
-
-#define START_CORE_BRUSH_ENGINE_IDS 0x100
-namespace CoreBrushEngines
-{
-    constexpr BrushEngineId PathEngine      = START_CORE_BRUSH_ENGINE_IDS + 0x00;
-    constexpr BrushEngineId RasterEngine    = START_CORE_BRUSH_ENGINE_IDS + 0x01;
+namespace CoreBrushEngines {
+    constexpr auto PathEngine   = "org.addle.path-brush-engine";
+    constexpr auto RasterEngine = "org.addle.raster-brush-engine";
     
-    typedef boost::mp11::mp_list<
-        STATIC_ID_WRAPPER(PathEngine),
-        STATIC_ID_WRAPPER(RasterEngine)
-    > all_brush_engines;
+    constexpr const char* all_brush_engines[] = { PathEngine, RasterEngine };
 }
-DECLARE_STATIC_ID_METADATA(CoreBrushEngines::PathEngine,    "path-brush-engine");
-DECLARE_STATIC_ID_METADATA(CoreBrushEngines::RasterEngine,  "raster-brush-engine");
 
-#undef START_CORE_BRUSH_ENGINE_IDS
-
-#define START_CORE_BRUSH_IDS 0x200
-#define START_CORE_ERASER_IDS 0x400
-namespace CoreBrushes
-{
-    constexpr BrushId BasicBrush    = START_CORE_BRUSH_IDS + 0x00;
-    constexpr BrushId SoftBrush     = START_CORE_BRUSH_IDS + 0x01;
+namespace CoreBrushes {
+    constexpr auto BasicBrush   = "org.addle.basic-brush";
+    constexpr auto SoftBrush    = "org.addle.soft-brush";
+    constexpr auto BasicEraser  = "org.addle.basic-eraser";
     
-    typedef boost::mp11::mp_list<
-        STATIC_ID_WRAPPER(BasicBrush),
-        STATIC_ID_WRAPPER(SoftBrush)
-    > all_brushes;
-
-    constexpr BrushId BasicEraser   = START_CORE_ERASER_IDS + 0x00;
-    
-    typedef boost::mp11::mp_list<
-        STATIC_ID_WRAPPER(BasicEraser)
-    > all_erasers;
+    constexpr const char* all_brushes[] = { BasicBrush, SoftBrush, BasicEraser };
 }
-DECLARE_STATIC_ID_METADATA(CoreBrushes::BasicBrush,     "basic-brush");
-DECLARE_STATIC_ID_METADATA(CoreBrushes::SoftBrush,      "soft-brush");
-DECLARE_STATIC_ID_METADATA(CoreBrushes::BasicEraser,    "basic-eraser");
 
-#undef START_CORE_BRUSH_IDS
-#undef START_CORE_ERASER_IDS
-
-#define START_CORE_DOCUMENT_FORMAT_IDS 0x500
-#define START_CORE_BRUSH_FORMAT_IDS 0x600
-#define START_CORE_PALETTE_FORMAT_IDS 0x610
-namespace CoreFormats
-{
-    constexpr DocumentFormatId PNG  = START_CORE_DOCUMENT_FORMAT_IDS + 0x00;
-    constexpr DocumentFormatId JPEG = START_CORE_DOCUMENT_FORMAT_IDS + 0x01;
-    constexpr DocumentFormatId GIF  = START_CORE_DOCUMENT_FORMAT_IDS + 0x02;
-    constexpr DocumentFormatId WebP = START_CORE_DOCUMENT_FORMAT_IDS + 0x03;
-    constexpr DocumentFormatId ORA  = START_CORE_DOCUMENT_FORMAT_IDS + 0x04;
+namespace CorePalettes {
+    constexpr auto BasicPalette = "org.addle.basic-palette";
     
-    typedef boost::mp11::mp_list<
-        STATIC_ID_WRAPPER(PNG),
-        STATIC_ID_WRAPPER(JPEG),
-        STATIC_ID_WRAPPER(GIF),
-        STATIC_ID_WRAPPER(WebP),
-        STATIC_ID_WRAPPER(ORA)
-    > all_formats;
+    constexpr const char* all_palettes[] = { BasicPalette };
 }
-DECLARE_STATIC_FORMAT_ID_METADATA(CoreFormats::PNG,     "format-png");
-DECLARE_STATIC_FORMAT_ID_METADATA(CoreFormats::JPEG,    "format-jpeg");
-DECLARE_STATIC_FORMAT_ID_METADATA(CoreFormats::GIF,     "format-gif");
-DECLARE_STATIC_FORMAT_ID_METADATA(CoreFormats::WebP,    "format-webp");
-DECLARE_STATIC_FORMAT_ID_METADATA(CoreFormats::ORA,     "format-ora");
 
-#undef START_CORE_DOCUMENT_FORMAT_IDS
-#undef START_CORE_BRUSH_FORMAT_IDS
-#undef START_CORE_PALETTE_FORMAT_IDS
-
-#define START_CORE_PALETTE_IDS 0x700
-namespace CorePalettes
-{
-    constexpr PaletteId BasicPalette    = START_CORE_PALETTE_IDS + 0x00;
+namespace CoreTools {
+    constexpr auto Select   = "org.addle.select-tool";
+    constexpr auto Brush    = "org.addle.brush-tool";
+    constexpr auto Eraser   = "org.addle.eraser-tool";
+    constexpr auto Fill     = "org.addle.fill-tool";
+    constexpr auto Text     = "org.addle.text-tool";
+    constexpr auto Shapes   = "org.addle.shapes-tool";
+    constexpr auto Stickers = "org.addle.stickers-tool";
+    constexpr auto Eyedrop  = "org.addle.eyedrop-tool";
+    constexpr auto Navigate = "org.addle.navigate-tool";
+    constexpr auto Measure  = "org.addle.measure-tool";
     
-    typedef boost::mp11::mp_list<
-        STATIC_ID_WRAPPER(BasicPalette)
-    > all_palettes;
+    constexpr const char* all_tools[] = {
+            Select, Brush, Eraser, Fill, Text, Shapes, Stickers, Eyedrop, 
+            Navigate, Measure
+        };
 }
-DECLARE_STATIC_ID_METADATA(CorePalettes::BasicPalette,  "basic-palette");
-
-#undef START_CORE_PALETTE_IDS
-
-#define START_TOOL_IDS 0x1000
-namespace CoreTools
-{
-    constexpr ToolId Select     = START_TOOL_IDS + 0x00;
-    constexpr ToolId Brush      = START_TOOL_IDS + 0x01;
-    constexpr ToolId Eraser     = START_TOOL_IDS + 0x02;
-    constexpr ToolId Fill       = START_TOOL_IDS + 0x03;
-    constexpr ToolId Text       = START_TOOL_IDS + 0x04;
-    constexpr ToolId Shapes     = START_TOOL_IDS + 0x05;
-    constexpr ToolId Stickers   = START_TOOL_IDS + 0x06;
-    constexpr ToolId Eyedrop    = START_TOOL_IDS + 0x07;
-    constexpr ToolId Navigate   = START_TOOL_IDS + 0x08;
-    constexpr ToolId Measure    = START_TOOL_IDS + 0x09;
-    
-    typedef boost::mp11::mp_list<
-        STATIC_ID_WRAPPER(Select),
-        STATIC_ID_WRAPPER(Brush),
-        STATIC_ID_WRAPPER(Eraser),
-        STATIC_ID_WRAPPER(Fill),
-        STATIC_ID_WRAPPER(Text),
-        STATIC_ID_WRAPPER(Shapes),
-        STATIC_ID_WRAPPER(Stickers),
-        STATIC_ID_WRAPPER(Eyedrop),
-        STATIC_ID_WRAPPER(Navigate),
-        STATIC_ID_WRAPPER(Measure)
-    > all_tools;
-}
-DECLARE_STATIC_ID_METADATA(CoreTools::Select,   "select-tool");
-DECLARE_STATIC_ID_METADATA(CoreTools::Brush,    "brush-tool");
-DECLARE_STATIC_ID_METADATA(CoreTools::Eraser,   "eraser-tool");
-DECLARE_STATIC_ID_METADATA(CoreTools::Fill,     "fill-tool");
-DECLARE_STATIC_ID_METADATA(CoreTools::Text,     "text-tool");
-DECLARE_STATIC_ID_METADATA(CoreTools::Shapes,   "shapes-tool");
-DECLARE_STATIC_ID_METADATA(CoreTools::Stickers, "stickers-tool");
-DECLARE_STATIC_ID_METADATA(CoreTools::Eyedrop,  "eyedrop-tool");
-DECLARE_STATIC_ID_METADATA(CoreTools::Navigate, "navigate-tool");
-DECLARE_STATIC_ID_METADATA(CoreTools::Measure,  "measure-tool");
-#undef START_TOOL_IDS
 
 namespace GlobalColorInfo
 {
+    // ???
     extern ADDLE_COMMON_EXPORT const ColorInfo Black;
     extern ADDLE_COMMON_EXPORT const ColorInfo White;
     extern ADDLE_COMMON_EXPORT const ColorInfo Transparent;

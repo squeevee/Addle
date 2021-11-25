@@ -24,10 +24,10 @@ class ADDLE_CORE_EXPORT Palette : public QObject, public IPalette
     Q_OBJECT
     IAMQOBJECT_IMPL
 public:
-    Palette(PaletteId id, const PaletteBuilder& builder);
+    Palette(const PaletteBuilder& builder);
     virtual ~Palette() = default;
 
-    PaletteId id() const override { return _id; }
+//     PaletteId id() const override { return _id; }
 
     ColorArray colors() const override { return _colors; }
 
@@ -43,7 +43,7 @@ signals:
 private:
     void buildIndex();
 
-    const PaletteId _id;
+//     const PaletteId _id;
 
     ColorArray _colors;
     QHash<QRgb, ColorInfo> _index;

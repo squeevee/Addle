@@ -5,16 +5,16 @@
 #include <QMetaEnum>
 
 #include "addleexception.hpp"
-#include "idtypes/addleid.hpp"
+// #include "idtypes/addleid.hpp"
 
 namespace Addle {
     
-DECL_LOGIC_ERROR(FactoryException)
 class FactoryException : public AddleException
 {
     Q_GADGET
     ADDLE_EXCEPTION_BOILERPLATE(FactoryException)
 public:
+    static constexpr bool IsLogicError = true;
     enum Why
     {
         FactoryNotFound
@@ -23,7 +23,7 @@ public:
     
 #ifdef ADDLE_DEBUG 
 public:
-    FactoryException(Why why, const char* interface = nullptr, AddleId id = AddleId())
+    FactoryException(Why why, const char* interface = nullptr)
         : AddleException(
             //% "A factory error occurred.\n"
             //% "       why: %1\n"
@@ -32,14 +32,13 @@ public:
             qtTrId("debug-messages.factory-exception")
                 .arg(QMetaEnum::fromType<Why>().valueToKey(why))
                 .arg(interface)
-                .arg(id.key())
+//                 .arg(id.key())
         ),
-        _interface(interface), _id(id), _why(why)
+        _interface(interface), _why(why)
     {
     }
 private:
     const char* _interface;
-    const AddleId _id;
 #else
 public:
     FactoryException(Why why)

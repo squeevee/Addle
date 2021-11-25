@@ -12,7 +12,7 @@
 #include "interfaces/traits.hpp"
 #include "interfaces/iamqobject.hpp"
 
-#include "idtypes/paletteid.hpp"
+// #include "idtypes/paletteid.hpp"
 
 #include "utilities/model/colorinfo.hpp"
 #include "utilities/multiarray.hpp"
@@ -27,7 +27,7 @@ class IPalettePresenter : public virtual IAmQObject
 public: 
     virtual ~IPalettePresenter() = default;
     
-    virtual PaletteId id() const = 0;
+//     virtual PaletteId id() const = 0;
 
     virtual IPalette& model() const = 0;
     virtual MultiArray<ColorInfo, 2> colors() const = 0;
@@ -37,7 +37,7 @@ namespace aux_IPalettePresenter {
     ADDLE_FACTORY_PARAMETER_NAME( model )
 }
 
-ADDLE_DECL_UNIQUE_REPO_MEMBER_BASIC(IPalettePresenter, PaletteId)
+// ADDLE_DECL_UNIQUE_REPO_MEMBER_BASIC(IPalettePresenter, PaletteId)
 ADDLE_DECL_FACTORY_PARAMETERS(
     IPalettePresenter,
     (required  ( model, (IPalette&) ))

@@ -25,7 +25,7 @@ public:
         angle
     };
 
-    static const ToolId MEASURE_TOOL_ID;
+//     static const ToolId MEASURE_TOOL_ID;
 
     virtual ~IMeasureToolPresenter() = default;
 

@@ -15,7 +15,7 @@
 #include <QCursor>
 #include "../idocumentpresenter.hpp"
 
-#include "idtypes/toolid.hpp"
+// #include "idtypes/toolid.hpp"
 #include "interfaces/iamqobject.hpp"
 
 #include "interfaces/traits.hpp"
@@ -30,7 +30,7 @@ public:
     
     virtual IMainEditorPresenter* owner() = 0;
 
-    virtual ToolId id() const = 0;
+    virtual QByteArray id() const = 0;
 
     virtual bool isSelected() const = 0;
     virtual void setSelected(bool isSelected) = 0;
@@ -43,16 +43,16 @@ signals:
 };
 
 namespace aux_IToolPresenter {
-    ADDLE_FACTORY_PARAMETER_ALIAS(config_detail::generic_id_parameter, id)
+    ADDLE_FACTORY_PARAMETER_NAME(id)
     ADDLE_FACTORY_PARAMETER_NAME(editor)
 }
 
 //ADDLE_DECL_UNIQUE_REPO_MEMBER(IToolPresenter, ToolId)
-ADDLE_DECL_UNIQUE_REPO_MEMBER_BASIC(IToolPresenter, ToolId)
+// ADDLE_DECL_UNIQUE_REPO_MEMBER_BASIC(IToolPresenter, ToolId)
 ADDLE_DECL_FACTORY_PARAMETERS(
     IToolPresenter,
     (required
-        (id,        (ToolId))
+        (id,        (QByteArray))
         (editor,    (IMainEditorPresenter&))
     )
 )

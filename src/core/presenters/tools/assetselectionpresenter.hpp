@@ -30,12 +30,12 @@ public:
 
     void initialize(QList<QSharedPointer<IAssetPresenter>> assets, bool canMultiSelect);
 
-    AddleId selectedId()
-    {
-        ASSERT_INIT(); 
-        return _selectedIds.isEmpty() ? AddleId() : _selectedIds.first();
-    }
-    QList<AddleId> selectedIds() { ASSERT_INIT(); return _selectedIds; }
+//     AddleId selectedId()
+//     {
+//         ASSERT_INIT(); 
+//         return _selectedIds.isEmpty() ? AddleId() : _selectedIds.first();
+//     }
+//     QList<AddleId> selectedIds() { ASSERT_INIT(); return _selectedIds; }
 
     QSharedPointer<IAssetPresenter> selectedPresenter()
     {
@@ -46,50 +46,50 @@ public:
 
     bool canMultiSelect() { ASSERT_INIT(); return _canMultiSelect; }
 
-    void select(AddleId assetId);
-    void select(QList<AddleId> assetIds);
+//     void select(AddleId assetId);
+//     void select(QList<AddleId> assetIds);
 
     void select(QSharedPointer<IAssetPresenter> asset);
     void select(QList<QSharedPointer<IAssetPresenter>> assets);
 
-    QList<AddleId> ids() { ASSERT_INIT(); return _ids; }
+//     QList<AddleId> ids() { ASSERT_INIT(); return _ids; }
 
     QList<QSharedPointer<IAssetPresenter>> assets() { ASSERT_INIT(); return _assets; }
     void setAssets(QList<QSharedPointer<IAssetPresenter>> assets);
 
-    QSharedPointer<IAssetPresenter> assetById(AddleId id) { ASSERT_INIT(); return _assets_ById.value(id); }
+//     QSharedPointer<IAssetPresenter> assetById(AddleId id) { ASSERT_INIT(); return _assets_ById.value(id); }
     
-    QList<AddleId> favorites() { ASSERT_INIT(); return _favorites;}
-    void setFavorites(QList<AddleId> favorites);
+//     QList<AddleId> favorites() { ASSERT_INIT(); return _favorites;}
+//     void setFavorites(QList<AddleId> favorites);
 
-    void addFavorite(AddleId id);
-    void removeFavorite(AddleId id);
+//     void addFavorite(AddleId id);
+//     void removeFavorite(AddleId id);
 
     //QList<AddleId> recent();
 
 signals:
-    void selectionChanged(QList<AddleId> selection);
-    void assetsChanged(QList<AddleId> ids);
-    void favoritesChanged(QList<AddleId> favorites);
+//     void selectionChanged(QList<AddleId> selection);
+//     void assetsChanged(QList<AddleId> ids);
+//     void favoritesChanged(QList<AddleId> favorites);
 
     void refresh();
 public:
-    void pushRecent(AddleId id);
+//     void pushRecent(AddleId id);
 
     bool _canMultiSelect;
 
-    QList<AddleId> _ids;
+//     QList<AddleId> _ids;
     QList<QSharedPointer<IAssetPresenter>> _assets;
-    QHash<AddleId, QSharedPointer<IAssetPresenter>> _assets_ById;
+//     QHash<AddleId, QSharedPointer<IAssetPresenter>> _assets_ById;
 
-    QList<AddleId> _selectedIds;
+//     QList<AddleId> _selectedIds;
     QList<QSharedPointer<IAssetPresenter>> _selection;
 
-    QList<AddleId> _favorites;
+//     QList<AddleId> _favorites;
 
-    std::list<AddleId> _recent;
-    QHash<AddleId, std::list<AddleId>::iterator> _recentIndex;
-    QList<AddleId> _recentCache;
+//     std::list<AddleId> _recent;
+//     QHash<AddleId, std::list<AddleId>::iterator> _recentIndex;
+//     QList<AddleId> _recentCache;
 
     InitializeHelper _initHelper;
 };

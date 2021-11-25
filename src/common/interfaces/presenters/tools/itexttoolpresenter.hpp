@@ -18,7 +18,7 @@ namespace Addle {
 class ITextToolPresenter : public virtual IToolPresenter
 {
 public:
-    static const ToolId TEXT_TOOL_ID;
+//     static const ToolId TEXT_TOOL_ID;
 
     virtual ~ITextToolPresenter() = default;
 };

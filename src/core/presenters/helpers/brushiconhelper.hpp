@@ -20,11 +20,11 @@
 
 #include "compat.hpp"
 
-#include "idtypes/brushid.hpp"
+// #include "idtypes/brushid.hpp"
 #include "utilities/editing/brushstroke.hpp"
 #include "interfaces/presenters/assets/ibrushpresenter.hpp"
 #include "interfaces/presenters/tools/isizeselectionpresenter.hpp"
-#include "interfaces/editing/irastersurface.hpp"
+// #include "interfaces/editing/irastersurface.hpp"
 #include "interfaces/rendering/irenderer.hpp"
 
 #include "utilities/render/checkerboard.hpp"
@@ -40,9 +40,9 @@ public:
     QIcon icon() const;
     QIcon varySize(double size) const;
     //QIcon varyColor(QColor color) const;
-    QIcon varyBrush(BrushId brush) const;
+//     QIcon varyBrush(BrushId brush) const;
 
-    void setBrush(BrushId brush) { _brush = brush;}
+//     void setBrush(BrushId brush) { _brush = brush;}
     void setInfoProvider(QSharedPointer<const IBrushPresenter::PreviewInfoProvider> info) { _info = info; }
 
     QSharedPointer<ISizeSelectionPresenter::ISizeIconProvider> sizeIconProvider();
@@ -51,8 +51,8 @@ private:
     class BrushIconEngine : public QIconEngine
     {
     public:
-        BrushIconEngine(QPointer<const BrushIconHelper> helper, BrushId brush, double size);
-        BrushIconEngine(QPointer<const BrushIconHelper> helper, BrushId brush);
+//         BrushIconEngine(QPointer<const BrushIconHelper> helper, BrushId brush, double size);
+//         BrushIconEngine(QPointer<const BrushIconHelper> helper, BrushId brush);
 
         virtual ~BrushIconEngine() = default;
 
@@ -97,14 +97,14 @@ private:
     static QImage _pattern8;
     static QImage _pattern64;
 
-    QSharedPointer<IRasterSurface> _underSurface;
-    QSharedPointer<IRasterSurface> _brushSurface; // make static
+//     QSharedPointer<IRasterSurface> _underSurface;
+//     QSharedPointer<IRasterSurface> _brushSurface; // make static
 //     QSharedPointer<IRenderer> _renderer;
     static CheckerBoard _checkerBoard;
 
-    void paint(QPainter* painter, const QRect& rect, BrushId brush);
+//     void paint(QPainter* painter, const QRect& rect, BrushId brush);
 
-    BrushId _brush;
+//     BrushId _brush;
 
     inline double scale() const { return _info ? _info->scale() : 1; }
     inline QColor color() const { return _info ? _info->color() : QColor(); }

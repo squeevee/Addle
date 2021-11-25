@@ -35,42 +35,42 @@ public:
     {
     }
 
-    template<class ToolBarType>
-    void addTool(
-            ToolId tool,
-            OptionAction** selectActionptr,
-            ToolBarType** toolbarptr
-        )
-    {
-//         typedef typename ToolBarType::PresenterType PresenterType;
-//         auto presenter = qobject_interface_cast<PresenterType*>(
-//                 std::addressof(_mainEditorPresenter.tools()[tool])
-//             );
-
-        OptionAction* selectAction = new OptionAction(tool, _owner);
-        selectAction->setText(dynamic_qtTrId({"tools", tool.key(), "name"}));
-        selectAction->setToolTip(dynamic_qtTrId({"tools", tool.key(), "description"}));
-        selectAction->setIcon(QIcon::fromTheme(tool.key()));
-        *selectActionptr = selectAction;
-
-        _selectGroup->addOption(selectAction);
-
-//         ToolBarType* optionsToolBar = new ToolBarType(*presenter, _owner);
-//         *toolbarptr = optionsToolBar;
+//     template<class ToolBarType>
+//     void addTool(
+//             ToolId tool,
+//             OptionAction** selectActionptr,
+//             ToolBarType** toolbarptr
+//         )
+//     {
+// //         typedef typename ToolBarType::PresenterType PresenterType;
+// //         auto presenter = qobject_interface_cast<PresenterType*>(
+// //                 std::addressof(_mainEditorPresenter.tools()[tool])
+// //             );
 // 
-//         QObject::connect(
-//             optionsToolBar, 
-//             &ToolBarType::needsShown,
-//             _owner, 
-//             &MainEditorView::onToolBarNeedsShown
-//         );
-//         QObject::connect(
-//             optionsToolBar, 
-//             &ToolBarType::needsHidden,
-//             _owner, 
-//             &MainEditorView::onToolBarNeedsHidden
-//         );
-    }
+//         OptionAction* selectAction = new OptionAction(tool, _owner);
+//         selectAction->setText(dynamic_qtTrId({"tools", tool.key(), "name"}));
+//         selectAction->setToolTip(dynamic_qtTrId({"tools", tool.key(), "description"}));
+//         selectAction->setIcon(QIcon::fromTheme(tool.key()));
+//         *selectActionptr = selectAction;
+// 
+//         _selectGroup->addOption(selectAction);
+// 
+// //         ToolBarType* optionsToolBar = new ToolBarType(*presenter, _owner);
+// //         *toolbarptr = optionsToolBar;
+// // 
+// //         QObject::connect(
+// //             optionsToolBar, 
+// //             &ToolBarType::needsShown,
+// //             _owner, 
+// //             &MainEditorView::onToolBarNeedsShown
+// //         );
+// //         QObject::connect(
+// //             optionsToolBar, 
+// //             &ToolBarType::needsHidden,
+// //             _owner, 
+// //             &MainEditorView::onToolBarNeedsHidden
+// //         );
+//     }
 
 private:
     MainEditorView* _owner;

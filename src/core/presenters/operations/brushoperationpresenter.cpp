@@ -9,11 +9,11 @@
 #include "brushoperationpresenter.hpp"
 #include "servicelocator.hpp"
 
-#include "interfaces/editing/irastersurface.hpp"
+// #include "interfaces/editing/irastersurface.hpp"
 #include "utilities/editing/brushstroke.hpp"
 #include "interfaces/models/ilayer.hpp"
 #include "interfaces/presenters/ilayerpresenter.hpp"
-#include "interfaces/editing/irasterdiff.hpp"
+// #include "interfaces/editing/irasterdiff.hpp"
 using namespace Addle;
 
 void BrushOperationPresenter::initialize(QWeakPointer<BrushStroke> BrushStroke, QWeakPointer<ILayerPresenter> layerPresenter)
@@ -29,10 +29,10 @@ void BrushOperationPresenter::initialize(QWeakPointer<BrushStroke> BrushStroke, 
 
 void BrushOperationPresenter::do_()
 { 
-    _operation->apply();
+//     _operation->apply();
 }
 
 void BrushOperationPresenter::undo()
 {
-    _operation->apply();
+//     _operation->apply();
 }

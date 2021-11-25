@@ -3,37 +3,37 @@
 <context>
     <name />
     <message id="ui.document-actions.title">
-        <location filename="../../src/widgetsgui/main/maineditorview.cpp" line="73" />
+        <location filename="../../src/widgetsgui/main/maineditorview.cpp" line="77" />
         <source />
         <translation>Document Actions</translation>
     </message>
     <message id="ui.tool-selection.title">
-        <location filename="../../src/widgetsgui/main/maineditorview.cpp" line="77" />
+        <location filename="../../src/widgetsgui/main/maineditorview.cpp" line="81" />
         <source />
         <translation>Tool Selection</translation>
     </message>
     <message id="ui.open.description">
-        <location filename="../../src/widgetsgui/main/maineditorview.cpp" line="106" />
+        <location filename="../../src/widgetsgui/main/maineditorview.cpp" line="120" />
         <source />
         <translation>Open an image</translation>
     </message>
     <message id="ui.save.description">
-        <location filename="../../src/widgetsgui/main/maineditorview.cpp" line="111" />
+        <location filename="../../src/widgetsgui/main/maineditorview.cpp" line="125" />
         <source />
         <translation type="unfinished" />
     </message>
     <message id="ui.new.description">
-        <location filename="../../src/widgetsgui/main/maineditorview.cpp" line="125" />
+        <location filename="../../src/widgetsgui/main/maineditorview.cpp" line="139" />
         <source />
         <translation>New image</translation>
     </message>
     <message id="ui.undo.description">
-        <location filename="../../src/widgetsgui/main/maineditorview.cpp" line="130" />
+        <location filename="../../src/widgetsgui/main/maineditorview.cpp" line="144" />
         <source />
         <translation>Undo</translation>
     </message>
     <message id="ui.redo.description">
-        <location filename="../../src/widgetsgui/main/maineditorview.cpp" line="136" />
+        <location filename="../../src/widgetsgui/main/maineditorview.cpp" line="150" />
         <source />
         <translation>Redo</translation>
     </message>
@@ -73,168 +73,168 @@
         <translation>Pivot (zoom and rotate) the canvas around a fixed point by gripping the canvas.</translation>
     </message>
     <message id="global-color-names.black">
-        <location filename="../../src/common/common.cpp" line="163" />
+        <location filename="../../src/common/common.cpp" line="55" />
         <source />
         <extracomment>Name of the color black (#000000)</extracomment>
         <translation>Black</translation>
     </message>
     <message id="global-color-names.white">
-        <location filename="../../src/common/common.cpp" line="168" />
+        <location filename="../../src/common/common.cpp" line="60" />
         <source />
         <extracomment>Name of the color white (#FFFFFF)</extracomment>
         <translation>White</translation>
     </message>
     <message id="global-color-names.transparent">
-        <location filename="../../src/common/common.cpp" line="173" />
+        <location filename="../../src/common/common.cpp" line="65" />
         <source />
         <extracomment>Name for a fully transparent color value</extracomment>
         <translation>Transparent</translation>
     </message>
     <message id="units.pixels">
-        <location filename="../../src/common/common.cpp" line="195" />
+        <location filename="../../src/common/common.cpp" line="87" />
         <location filename="../../src/widgetsgui/main/sizeselector.cpp" line="49" />
         <source>px</source>
         <translation>px</translation>
     </message>
     <message id="tools.select-tool.name">
-        <location filename="../../src/common/common.cpp" line="197" />
+        <location filename="../../src/common/common.cpp" line="89" />
         <source />
         <translation type="unfinished" />
     </message>
     <message id="tools.select-tool.description">
-        <location filename="../../src/common/common.cpp" line="198" />
+        <location filename="../../src/common/common.cpp" line="90" />
         <source />
         <translation />
     </message>
     <message id="tools.brush-tool.name">
-        <location filename="../../src/common/common.cpp" line="199" />
+        <location filename="../../src/common/common.cpp" line="91" />
         <source />
         <translation>Paintbrush</translation>
     </message>
     <message id="tools.brush-tool.description">
-        <location filename="../../src/common/common.cpp" line="200" />
+        <location filename="../../src/common/common.cpp" line="92" />
         <source />
         <translation>Paint on the canvas.</translation>
     </message>
     <message id="tools.eraser-tool.name">
-        <location filename="../../src/common/common.cpp" line="201" />
+        <location filename="../../src/common/common.cpp" line="93" />
         <source />
         <translation>Eraser</translation>
     </message>
     <message id="tools.eraser-tool.description">
-        <location filename="../../src/common/common.cpp" line="202" />
+        <location filename="../../src/common/common.cpp" line="94" />
         <source />
         <translation>Erase image contents from the canvas.</translation>
     </message>
     <message id="tools.fill-tool.name">
-        <location filename="../../src/common/common.cpp" line="203" />
+        <location filename="../../src/common/common.cpp" line="95" />
         <source />
         <translation type="unfinished" />
     </message>
     <message id="tools.fill-tool.description">
-        <location filename="../../src/common/common.cpp" line="204" />
+        <location filename="../../src/common/common.cpp" line="96" />
         <source />
         <translation type="unfinished" />
     </message>
     <message id="tools.text-tool.name">
-        <location filename="../../src/common/common.cpp" line="205" />
+        <location filename="../../src/common/common.cpp" line="97" />
         <source />
         <translation type="unfinished" />
     </message>
     <message id="tools.text-tool.description">
-        <location filename="../../src/common/common.cpp" line="206" />
+        <location filename="../../src/common/common.cpp" line="98" />
         <source />
         <translation type="unfinished" />
     </message>
     <message id="tools.shapes-tool.name">
-        <location filename="../../src/common/common.cpp" line="207" />
+        <location filename="../../src/common/common.cpp" line="99" />
         <source />
         <translation type="unfinished" />
     </message>
     <message id="tools.shapes-tool.description">
-        <location filename="../../src/common/common.cpp" line="208" />
+        <location filename="../../src/common/common.cpp" line="100" />
         <source />
         <translation type="unfinished" />
     </message>
     <message id="tools.stickers-tool.name">
-        <location filename="../../src/common/common.cpp" line="209" />
+        <location filename="../../src/common/common.cpp" line="101" />
         <source />
         <translation type="unfinished" />
     </message>
     <message id="tools.stickers-tool.description">
-        <location filename="../../src/common/common.cpp" line="210" />
+        <location filename="../../src/common/common.cpp" line="102" />
         <source />
         <translation type="unfinished" />
     </message>
     <message id="tools.navigate-tool.name">
-        <location filename="../../src/common/common.cpp" line="211" />
+        <location filename="../../src/common/common.cpp" line="103" />
         <source />
         <translation>Navigate tool</translation>
     </message>
     <message id="tools.navigate-tool.description">
-        <location filename="../../src/common/common.cpp" line="212" />
+        <location filename="../../src/common/common.cpp" line="104" />
         <source />
         <translation>Move, zoom, and rotate the viewport.</translation>
     </message>
     <message id="tools.eyedrop-tool.name">
-        <location filename="../../src/common/common.cpp" line="213" />
+        <location filename="../../src/common/common.cpp" line="105" />
         <source />
         <translation type="unfinished" />
     </message>
     <message id="tools.eyedrop-tool.description">
-        <location filename="../../src/common/common.cpp" line="214" />
+        <location filename="../../src/common/common.cpp" line="106" />
         <source />
         <translation type="unfinished" />
     </message>
     <message id="tools.measure-tool.name">
-        <location filename="../../src/common/common.cpp" line="215" />
+        <location filename="../../src/common/common.cpp" line="107" />
         <source />
         <translation type="unfinished" />
     </message>
     <message id="tools.measure-tool.description">
-        <location filename="../../src/common/common.cpp" line="216" />
+        <location filename="../../src/common/common.cpp" line="108" />
         <source />
         <translation type="unfinished" />
     </message>
     <message id="brushes.basic-brush.name">
-        <location filename="../../src/common/common.cpp" line="218" />
+        <location filename="../../src/common/common.cpp" line="110" />
         <source />
         <translation>Basic Brush</translation>
     </message>
     <message id="brushes.soft-brush.name">
-        <location filename="../../src/common/common.cpp" line="219" />
+        <location filename="../../src/common/common.cpp" line="111" />
         <source />
         <translation>Soft Brush</translation>
     </message>
     <message id="brushes.basic-eraser.name">
-        <location filename="../../src/common/common.cpp" line="221" />
+        <location filename="../../src/common/common.cpp" line="113" />
         <source />
         <translation>Basic Eraser</translation>
     </message>
     <message id="formats.format-png.name">
-        <location filename="../../src/common/common.cpp" line="224" />
+        <location filename="../../src/common/common.cpp" line="116" />
         <source>PNG images</source>
         <oldsource>JPEG images</oldsource>
         <translation>PNG images</translation>
     </message>
     <message id="formats.format-jpeg.name">
-        <location filename="../../src/common/common.cpp" line="226" />
+        <location filename="../../src/common/common.cpp" line="118" />
         <source>JPEG images</source>
         <oldsource>PNG images</oldsource>
         <translation>JPEG images</translation>
     </message>
     <message id="formats.format-gif.name">
-        <location filename="../../src/common/common.cpp" line="228" />
+        <location filename="../../src/common/common.cpp" line="120" />
         <source>GIF images and animations</source>
         <translation>GIF images and animations</translation>
     </message>
     <message id="formats.format-webp.name">
-        <location filename="../../src/common/common.cpp" line="230" />
+        <location filename="../../src/common/common.cpp" line="122" />
         <source>WebP images</source>
         <translation>WebP images</translation>
     </message>
     <message id="formats.format-ora.name">
-        <location filename="../../src/common/common.cpp" line="232" />
+        <location filename="../../src/common/common.cpp" line="124" />
         <source>OpenRaster images</source>
         <translation>OpenRaster images</translation>
     </message>
@@ -310,51 +310,85 @@
         <translation>Custom</translation>
     </message>
     <message id="debug-messages.starting-addle">
-        <location filename="../../src/addle/addle.cpp" line="62" />
+        <location filename="../../src/addle/addle.cpp" line="65" />
         <source>Starting Addle. This is a debug build.</source>
         <translation>Starting Addle. This is a debug build.</translation>
     </message>
-    <message id="debug-messages.exception-already-has-backtrace">
-        <location filename="../../src/common/exceptions/addleexception.cpp" line="73" />
-        <source>The exception unexpectedly already had a backtrace.</source>
-        <translation>The exception unexpectedly already had a backtrace.</translation>
+    <message id="debug-messages.main-thread-name">
+        <location filename="../../src/common/exceptions/addleexception.cpp" line="72" />
+        <source>&lt;Main Thread&gt;</source>
+        <oldsource>Main Thread</oldsource>
+        <translation>&lt;Main Thread&gt;</translation>
     </message>
     <message id="debug-messages.logic-error-occurred">
-        <location filename="../../src/common/exceptions/addleexception.cpp" line="125" />
-        <source>A logic error occurred:
-%1</source>
-        <translation>A logic error occurred:
-%1</translation>
+        <location filename="../../src/common/exceptions/addleexception.cpp" line="86" />
+        <source>A logic error has occurred: %1</source>
+        <oldsource>A logic error occurred:
+%1</oldsource>
+        <translation>A logic error has occurred: %1</translation>
     </message>
-    <message id="debug-messages.exception-throw-header">
-        <location filename="../../src/common/exceptions/addleexception.cpp" line="147" />
-        <source>  thrown from:</source>
-        <oldsource>  thrown from:
-</oldsource>
-        <translation>  thrown from:</translation>
+    <message id="debug-messages.exception.instance-of-header">
+        <location filename="../../src/common/exceptions/addleexception.cpp" line="222" />
+        <source>=== Instance of exception type `%1` ===</source>
+        <oldsource>=== Exception instance of `%1` ===</oldsource>
+        <translation>=== Instance of exception type `%1` ===</translation>
     </message>
-    <message id="debug-messages.exception-location-formatter">
-        <location filename="../../src/common/exceptions/addleexception.cpp" line="150" />
-        <location filename="../../src/common/exceptions/addleexception.cpp" line="178" />
-        <source> %1: %2 (%3:%4)</source>
-        <oldsource> %1: %2 (%3:%4)
-</oldsource>
-        <translation> %1: %2 (%3:%4)</translation>
+    <message id="debug-messages.exception.is-logic-error">
+        <location filename="../../src/common/exceptions/addleexception.cpp" line="233" />
+        <source>(this is a logic error)</source>
+        <translation>(this is a logic error)</translation>
     </message>
-    <message id="debug-messages.exception-backtrace-header">
-        <location filename="../../src/common/exceptions/addleexception.cpp" line="160" />
-        <source>  backtrace:</source>
-        <oldsource>
-  backtrace:
-</oldsource>
-        <translation>  backtrace:</translation>
+    <message id="debug-messages.exception.is-runtime-error">
+        <location filename="../../src/common/exceptions/addleexception.cpp" line="241" />
+        <source>(this is a runtime error)</source>
+        <translation>(this is a runtime error)</translation>
     </message>
-    <message id="debug-messages.exception-rethrow-header">
-        <location filename="../../src/common/exceptions/addleexception.cpp" line="171" />
-        <source>  rethrown from:</source>
-        <oldsource>  rethrown from:
-</oldsource>
-        <translation>  rethrown from:</translation>
+    <message id="debug-messages.exception.data-header">
+        <location filename="../../src/common/exceptions/addleexception.cpp" line="255" />
+        <source>==== Exception data ====</source>
+        <translation>==== Exception data ====</translation>
+    </message>
+    <message id="debug-messages.exception.inner-exceptions-header">
+        <location filename="../../src/common/exceptions/addleexception.cpp" line="286" />
+        <source>==== Inner exceptions ====</source>
+        <translation>==== Inner exceptions ====</translation>
+    </message>
+    <message id="debug-messages.exception.null-inner-addleexception">
+        <location filename="../../src/common/exceptions/addleexception.cpp" line="300" />
+        <source>(null QSharedPointer&lt;AddleException&gt;)</source>
+        <translation>(null QSharedPointer&lt;AddleException&gt;)</translation>
+    </message>
+    <message id="debug-messages.exception.null-std-exception_ptr">
+        <location filename="../../src/common/exceptions/addleexception.cpp" line="313" />
+        <source>(null std::exception_ptr)</source>
+        <translation>(null std::exception_ptr)</translation>
+    </message>
+    <message id="debug-messages.exceptions.unknown-inner-exception-type">
+        <location filename="../../src/common/exceptions/addleexception.cpp" line="334" />
+        <source>(instance of unknown exception type)</source>
+        <translation>(instance of unknown exception type)</translation>
+    </message>
+    <message id="debug-messages.exception.history-header">
+        <location filename="../../src/common/exceptions/addleexception.cpp" line="354" />
+        <source>==== Throw history ====</source>
+        <oldsource>==== Exception history ====</oldsource>
+        <translation>==== Throw history ====</translation>
+    </message>
+    <message id="debug-messages.exception.history-thread">
+        <location filename="../../src/common/exceptions/addleexception.cpp" line="373" />
+        <source>on thread "%1" (%2)</source>
+        <translation>on thread "%1" (%2)</translation>
+    </message>
+    <message id="debug-messages.exception.history-location">
+        <location filename="../../src/common/exceptions/addleexception.cpp" line="379" />
+        <source>    Location:</source>
+        <oldsource>    Throw location:</oldsource>
+        <translation>    Location:</translation>
+    </message>
+    <message id="debug-messages.exception.history-backtrace">
+        <location filename="../../src/common/exceptions/addleexception.cpp" line="388" />
+        <source>    Backtrace:</source>
+        <translation>    Backtrace:</translation>
     </message>
     <message id="cli-messages.parser-error">
         <location filename="../../src/common/exceptions/commandlineexceptions.hpp" line="53" />
@@ -367,29 +401,29 @@
         <translation>You may not specify multiple modes to start Addle in.</translation>
     </message>
     <message id="debug-messages.initialize-error.not-initialized">
-        <location filename="../../src/common/exceptions/initializeexceptions.hpp" line="57" />
+        <location filename="../../src/common/exceptions/initializeexceptions.hpp" line="56" />
         <source>Attempted operation on object that was not yet initialized.</source>
         <translation>Attempted operation on object that was not yet initialized.</translation>
     </message>
     <message id="debug-messages.initialize-error.already-initialized">
-        <location filename="../../src/common/exceptions/initializeexceptions.hpp" line="85" />
+        <location filename="../../src/common/exceptions/initializeexceptions.hpp" line="83" />
         <source>Attempted to initialize object that was already initialized.</source>
         <translation>Attempted to initialize object that was already initialized.</translation>
     </message>
     <message id="debug-messages.initialize-error.other">
-        <location filename="../../src/common/exceptions/initializeexceptions.hpp" line="116" />
+        <location filename="../../src/common/exceptions/initializeexceptions.hpp" line="113" />
         <source>A problem was encountered during initialization.
 Why code:    %2</source>
         <translation>A problem was encountered during initialization.
 Why code:    %2</translation>
     </message>
     <message id="global.addle-name">
-        <location filename="../../src/common/globals.hpp" line="36" />
+        <location filename="../../src/common/globals.hpp" line="30" />
         <source>Addle</source>
         <translation>Addle</translation>
     </message>
     <message id="global.addle-tagline">
-        <location filename="../../src/common/globals.hpp" line="39" />
+        <location filename="../../src/common/globals.hpp" line="33" />
         <source>Pretty little drawing program and image utility</source>
         <translation>Pretty little drawing program and image utility</translation>
     </message>
@@ -544,20 +578,14 @@ Assertion failed: `%2`</translation>
         <translation>This is an unrecoverable state. The application will terminate immediately.</translation>
     </message>
     <message id="debug-messages.service-locator.not-initialized-error">
-        <location filename="../../src/common/exceptions/servicelocatorexceptions.hpp" line="49" />
+        <location filename="../../src/common/exceptions/servicelocatorexceptions.hpp" line="47" />
         <source>The service locator is not initialized.</source>
         <translation>The service locator is not initialized.</translation>
     </message>
     <message id="debug-messages.service-locator.factory-by-type-not-found-error">
-        <location filename="../../src/common/exceptions/servicelocatorexceptions.hpp" line="74" />
+        <location filename="../../src/common/exceptions/servicelocatorexceptions.hpp" line="72" />
         <source>No factory was found for the interface "%1".</source>
         <translation>No factory was found for the interface "%1".</translation>
-    </message>
-    <message id="debug-messages.service-locator.factory-by-id-not-found-error">
-        <location filename="../../src/common/exceptions/servicelocatorexceptions.hpp" line="86" />
-        <source>No factory was found for the interface "%1" and the ID "%2".</source>
-        <oldsource>No factory was found for the interface "%1" at the ID "%2".</oldsource>
-        <translation>No factory was found for the interface "%1" and the ID "%2".</translation>
     </message>
     <message id="debug-messages.debug-behavior-initialized">
         <location filename="../../src/common/utilities/debugging/debugbehavior.cpp" line="46" />
@@ -573,12 +601,12 @@ Assertion failed: `%2`</translation>
 %2</translation>
     </message>
     <message id="debug-messages.bad-logically-unreachable">
-        <location filename="../../src/common/utilities/errors.hpp" line="82" />
+        <location filename="../../src/common/utilities/errors.hpp" line="81" />
         <source>A code path that was designated logically unreachable was reached.</source>
         <translation>A code path that was designated logically unreachable was reached.</translation>
     </message>
     <message id="debug-messages.last-ditch-catch">
-        <location filename="../../src/common/utilities/errors.hpp" line="85" />
+        <location filename="../../src/common/utilities/errors.hpp" line="84" />
         <source>An exception of an unknown type was caught.</source>
         <translation>An exception of an unknown type was caught.</translation>
     </message>
@@ -595,17 +623,6 @@ Assertion failed: `%2`</translation>
         <translation>A file exception occurred
  operation: %1
        why: %2
- file path: %3</translation>
-    </message>
-    <message id="debug-messages.format-exception">
-        <location filename="../../src/common/exceptions/formatexception.hpp" line="41" />
-        <source>A format exception occurred:
-       why: %1
-    format: %2
- file path: %3</source>
-        <translation>A format exception occurred:
-       why: %1
-    format: %2
  file path: %3</translation>
     </message>
     <message id="debug-messages.io-check.unknown-device-error">
@@ -864,8 +881,8 @@ range: [0, %3)</translation>
   valencyHint: %2</translation>
     </message>
     <message id="debug-messages.renderroutine.event-zvalues-unsorted">
-        <location filename="../../src/common/utilities/render/renderroutine.hpp" line="1054" />
-        <location filename="../../src/common/utilities/render/renderroutine.hpp" line="1068" />
+        <location filename="../../src/common/utilities/render/renderroutine.hpp" line="1057" />
+        <location filename="../../src/common/utilities/render/renderroutine.hpp" line="1071" />
         <source>RenderRoutineChangedEvent given a sequence of z-values that were not sorted.</source>
         <translation>RenderRoutineChangedEvent given a sequence of z-values that were not sorted.</translation>
     </message>
@@ -892,38 +909,107 @@ range: [0, %3)</translation>
     </message>
     <message id="debug-messages.renderroutine.component-id-collision-exception">
         <location filename="../../src/common/utilities/render/renderroutine.cpp" line="168" />
-        <source>Attempted to insert one or more components into RenderRoutine with ids that are the same as preexisting routine components or subcomponents.
-  ids: %1</source>
-        <oldsource>Attempted to insert one or more components into RenderRoutine with conflicting ids to preexisting routine components or subcomponents.
+        <source>Attempted to insert one or more components into RenderRoutine with names that are the same as preexisting routine components or subcomponents.
+  names: %1</source>
+        <oldsource>Attempted to insert one or more components into RenderRoutine with ids that are the same as preexisting routine components or subcomponents.
   ids: %1</oldsource>
-        <translation>Attempted to insert one or more components into RenderRoutine with ids that are the same as preexisting routine components or subcomponents.
-  ids: %1</translation>
+        <translation>Attempted to insert one or more components into RenderRoutine with names that are the same as preexisting routine components or subcomponents.
+  names: %1</translation>
     </message>
     <message id="debug-messages.renderroutine.subordinate-differing-thread-affinity">
         <location filename="../../src/common/utilities/render/renderroutine.cpp" line="499" />
         <location filename="../../src/common/utilities/render/renderroutine.cpp" line="690" />
         <source>Encountered a render subroutine associated to an IRenderable with a different thread affinity to the IRenderable of this routine.
-  subroutine id: %1</source>
+  subroutine name: %1</source>
+        <oldsource>Encountered a render subroutine associated to an IRenderable with a different thread affinity to the IRenderable of this routine.
+  subroutine id: %1</oldsource>
         <translation>Encountered a render subroutine associated to an IRenderable with a different thread affinity to the IRenderable of this routine.
-  subroutine id: %1</translation>
+  subroutine name: %1</translation>
     </message>
     <message id="debug-messages.renderroutine.subordinate-thread-affinity-timeout">
         <location filename="../../src/common/utilities/render/renderroutine.cpp" line="515" />
         <location filename="../../src/common/utilities/render/renderroutine.cpp" line="699" />
         <source>Attempted lock of subroutine cache mutex timed out, thread affinity of associated IRenderable could not be verified.
-  subroutine id: %1</source>
+  subroutine name: %1</source>
+        <oldsource>Attempted lock of subroutine cache mutex timed out, thread affinity of associated IRenderable could not be verified.
+  subroutine id: %1</oldsource>
         <translation>Attempted lock of subroutine cache mutex timed out, thread affinity of associated IRenderable could not be verified.
-  subroutine id: %1</translation>
+  subroutine name: %1</translation>
     </message>
     <message id="debug-messages.renderer.nonnull-renderable-and-routine">
-        <location filename="../../src/core/rendering/renderer2.cpp" line="17" />
+        <location filename="../../src/core/rendering/renderer.cpp" line="17" />
         <source>Renderer was created with a non-null renderable and a non-null render routine. The routine given will be overwritten with the routine of the renderable.</source>
         <translation>Renderer was created with a non-null renderable and a non-null render routine. The routine given will be overwritten with the routine of the renderable.</translation>
     </message>
     <message id="debug-messages.renderer.null-renderable-and-routine">
-        <location filename="../../src/core/rendering/renderer2.cpp" line="25" />
-        <source>Renderer was created with a null renderable and a null render routine. The renderer will be unable to do anything useful.</source>
-        <translation>Renderer was created with a null renderable and a null render routine. The renderer will be unable to do anything useful.</translation>
+        <location filename="../../src/core/rendering/renderer.cpp" line="25" />
+        <source>Renderer was created with a null renderable and an empty render routine. The renderer will be unable to do anything useful.</source>
+        <oldsource>Renderer was created with a null renderable and a null render routine. The renderer will be unable to do anything useful.</oldsource>
+        <translation>Renderer was created with a null renderable and an empty render routine. The renderer will be unable to do anything useful.</translation>
+    </message>
+    <message id="debug-messages.raster-tile.offset-truncated">
+        <location filename="../../src/common/utilities/image/rastertile.hpp" line="73" />
+        <location filename="../../src/common/utilities/image/rastertile.hpp" line="93" />
+        <source>Non-aligned tile offset (%1) will be truncated.</source>
+        <translation>Non-aligned tile offset (%1) will be truncated.</translation>
+    </message>
+    <message id="debug-messages.multi-array-util.index-access-too-few-dimensions">
+        <location filename="../../src/common/utilities/multi_array_util.hpp" line="280" />
+        <location filename="../../src/common/utilities/multi_array_util.hpp" line="299" />
+        <source>Accessed dimension %1 on traverser with only %2 dimension(s).</source>
+        <translation>Accessed dimension %1 on traverser with only %2 dimension(s).</translation>
+    </message>
+    <message id="debug-messages.interface-not-bound">
+        <location filename="../../src/common/utilities/config3/configexceptions.cpp" line="31" />
+        <source>No bindings were found for the given interface.</source>
+        <oldsource>The given interface was not bound.</oldsource>
+        <translation>No bindings were found for the given interface.</translation>
+    </message>
+    <message id="debug-messages.interface-condition-failure">
+        <location filename="../../src/common/utilities/config3/configexceptions.cpp" line="37" />
+        <source>One or more conditional bindings for the given interface were found, but all bindings found rejected and/or did not match the given factory parameter(s).</source>
+        <oldsource>The given factory parameters were not suitable for any of the interface's bindings.</oldsource>
+        <translation>One or more conditional bindings for the given interface were found, but all bindings found rejected and/or did not match the given factory parameter(s).</translation>
+    </message>
+    <message id="debug-messages.module-config-commit-failure">
+        <location filename="../../src/common/utilities/config3/configexceptions.cpp" line="108" />
+        <source>The module configuration could not be committed.</source>
+        <translation>The module configuration could not be committed.</translation>
+    </message>
+    <message id="debug-messages.repo-keys-not-found-error">
+        <location filename="../../src/common/utilities/config3/configexceptions.cpp" line="139" />
+        <source>This repository did not contain one or more of the given key(s).</source>
+        <translation>This repository did not contain one or more of the given key(s).</translation>
+    </message>
+    <message id="debug-messages.repo-keys-already-added-error">
+        <location filename="../../src/common/utilities/config3/configexceptions.cpp" line="150" />
+        <source>This repository already contained one or more of the given key(s).</source>
+        <translation>This repository already contained one or more of the given key(s).</translation>
+    </message>
+    <message id="debug-messages.repo-lazy-init-not-supported">
+        <location filename="../../src/common/utilities/config3/configexceptions.cpp" line="160" />
+        <source>This repository does not support lazy initialization.</source>
+        <translation>This repository does not support lazy initialization.</translation>
+    </message>
+    <message id="debug-messages.repo-key-deduction-not-supported">
+        <location filename="../../src/common/utilities/config3/configexceptions.cpp" line="168" />
+        <source>This repository does not support key deduction.</source>
+        <translation>This repository does not support key deduction.</translation>
+    </message>
+    <message id="debug-messages.repo-key-conversion-failure">
+        <location filename="../../src/common/utilities/config3/configexceptions.cpp" line="180" />
+        <source>Failed to convert a given variant to the type expected by this repository.</source>
+        <translation>Failed to convert a given variant to the type expected by this repository.</translation>
+    </message>
+    <message id="debug-messages.repo-key-conversion-failure.unnamed-type">
+        <location filename="../../src/common/utilities/config3/configexceptions.cpp" line="200" />
+        <source>(Unnamed type with metatype ID `%1`)</source>
+        <translation>(Unnamed type with metatype ID `%1`)</translation>
+    </message>
+    <message id="debug-messages.repo-member-lazy-init-error">
+        <location filename="../../src/common/utilities/config3/configexceptions.cpp" line="211" />
+        <source>An error occurred while attempting to lazily initialize a member of this repository.</source>
+        <translation>An error occurred while attempting to lazily initialize a member of this repository.</translation>
     </message>
 </context>
 </TS>

@@ -16,7 +16,7 @@
 #include "interfaces/iamqobject.hpp"
 
 #include "utilities/model/colorinfo.hpp"
-#include "idtypes/paletteid.hpp"
+// #include "idtypes/paletteid.hpp"
 #include "utilities/model/palettebuilder.hpp"
 
 namespace Addle {
@@ -28,7 +28,7 @@ public:
 
     virtual ~IPalette() = default;
 
-    virtual PaletteId id() const = 0;
+//     virtual PaletteId id() const = 0;
 
     virtual ColorArray colors() const = 0;
 
@@ -47,11 +47,11 @@ namespace aux_IPalette {
     ADDLE_FACTORY_PARAMETER_NAME( builder )
 }
 
-ADDLE_DECL_SINGLETON_REPO_MEMBER_BASIC(IPalette, PaletteId);
+// ADDLE_DECL_SINGLETON_REPO_MEMBER_BASIC(IPalette, PaletteId);
 ADDLE_DECL_FACTORY_PARAMETERS(
     IPalette, 
     (required 
-        (id,      (PaletteId)) 
+//         (id,      (PaletteId)) 
         (builder, (const PaletteBuilder&)) 
     ) 
         // TODO: r-value

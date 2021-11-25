@@ -13,7 +13,7 @@
 #include <QObject>
 
 #include "interfaces/presenters/operations/ibrushoperationpresenter.hpp"
-#include "interfaces/editing/irasterdiff.hpp"
+// #include "interfaces/editing/irasterdiff.hpp"
 namespace Addle {
 
 class ADDLE_CORE_EXPORT BrushOperationPresenter : public QObject, public IBrushOperationPresenter
@@ -37,7 +37,7 @@ public slots:
 private:
     QWeakPointer<ILayerPresenter> _layer;
 
-    QSharedPointer<IRasterDiff> _operation;
+//     QSharedPointer<IRasterDiff> _operation;
 
     friend class BrushOperationPreview;
 };

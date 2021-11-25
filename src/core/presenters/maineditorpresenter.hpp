@@ -26,13 +26,14 @@
 #include "helpers/loadhelper.hpp"
 
 #include "interfaces/services/ifactory.hpp"
-#include "interfaces/services/irepository.hpp"
+// #include "interfaces/services/irepository.hpp"
 
 #include "interfaces/presenters/imaineditorpresenter.hpp"
 
 #include "utilities/asynctask.hpp"
 #include "utilities/lazyvalue.hpp"
 
+#include "interfaces/presenters/ipalettepresenter.hpp"
 
 #include "interfaces/views/imaineditorview.hpp"
 #include "interfaces/presenters/icanvaspresenter.hpp"
@@ -60,12 +61,12 @@ class IMeasureToolPresenter;
 class ADDLE_CORE_EXPORT MainEditorPresenter : public QObject, public IMainEditorPresenter
 {
     Q_OBJECT
-    Q_PROPERTY(
-        Addle::ToolId currentTool 
-        READ currentTool 
-        WRITE setCurrentTool
-        NOTIFY currentToolChanged
-    )
+//     Q_PROPERTY(
+//         Addle::ToolId currentTool 
+//         READ currentTool 
+//         WRITE setCurrentTool
+//         NOTIFY currentToolChanged
+//     )
     Q_PROPERTY(
         bool empty
         READ isEmpty
@@ -84,8 +85,8 @@ public:
             std::unique_ptr<IColorSelectionPresenter> colorSelection,
             QSharedPointer<ICanvasPresenter> canvas,
             std::unique_ptr<IMessageContext> messageContext,
-            std::unique_ptr<IRepository<IPalettePresenter>> palettes,
-            std::unique_ptr<IRepository<IToolPresenter>> tools,
+            IFactory<IPalettePresenter> paletteFactory,
+            IFactory<IToolPresenter> toolFactory,
             const IFactory<IViewPortPresenter>& viewPortFactory,
             const IFactory<IDocumentPresenter>& documentFactory
         );
@@ -120,14 +121,13 @@ public slots:
     void loadDocument(QSharedPointer<FileRequest> request) override;
 
 public:
-    ToolId currentTool() const override { return _currentTool; }
-    void setCurrentTool(ToolId tool) override;
-    const IRepository<IToolPresenter>& tools() const override { return *_tools; }
-
-    QSharedPointer<IToolPresenter> currentToolPresenter() const override { return _currentToolPresenter; }
+    QHash<QByteArray, QSharedPointer<IToolPresenter>> tools() const override { return _tools; }
+    
+    QSharedPointer<IToolPresenter> currentTool() const override { return _currentTool; }
+    void setCurrentTool(QSharedPointer<IToolPresenter> tool) override;
 
 signals:
-    void currentToolChanged(ToolId tool) override;
+//     void currentToolChanged(ToolId tool) override;
 
 public:
     bool canUndo() const override { return _undoStackHelper.canUndo(); }
@@ -157,17 +157,16 @@ private:
     std::unique_ptr<IViewPortPresenter> _viewPortPresenter;
     std::unique_ptr<IMessageContext> _messageContext;
     
-    std::unique_ptr<IRepository<IPalettePresenter>> _palettes;
+//     std::unique_ptr<IRepository<IPalettePresenter>> _palettes;
     
     std::unique_ptr<IMainEditorView> _view;
 
     QSharedPointer<IDocumentPresenter> _document;
     LazyProperty<bool> _isEmptyCache;
     
-    std::unique_ptr<IRepository<IToolPresenter>> _tools;
-    
-    ToolId _currentTool;
-    QSharedPointer<IToolPresenter> _currentToolPresenter;
+//     std::unique_ptr<IRepository<IToolPresenter>> _tools;
+    QHash<QByteArray, QSharedPointer<IToolPresenter>> _tools;
+    QSharedPointer<IToolPresenter> _currentTool;
 
     UndoStackHelper _undoStackHelper;
 
@@ -177,6 +176,9 @@ private:
     QMetaObject::Connection _connection_onSaveDocumentComplete;
 
     QSharedPointer<FileRequest> _pendingDocumentFileRequest;
+    
+    IFactory<IPalettePresenter> _paletteFactory;
+    IFactory<IToolPresenter> _toolFactory;
     
     const IFactory<IDocumentPresenter>& _documentFactory;
     

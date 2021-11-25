@@ -14,8 +14,8 @@
 #include <QIcon>
 
 #include "interfaces/models/ibrush.hpp"
-#include "idtypes/brushid.hpp"
-#include "idtypes/brushengineid.hpp"
+// #include "idtypes/brushid.hpp"
+// #include "idtypes/brushengineid.hpp"
 namespace Addle {
 
 class BrushBuilder
@@ -23,11 +23,11 @@ class BrushBuilder
 public:
     ~BrushBuilder() = default;
     
-    BrushId id() const { return _id; }
-    BrushBuilder& setId(BrushId id) { _id = id; return *this; }
+//     BrushId id() const { return _id; }
+//     BrushBuilder& setId(BrushId id) { _id = id; return *this; }
 
-    BrushEngineId engine() const { return _engine; }
-    BrushBuilder& setEngine(BrushEngineId engine) { _engine = engine; return *this; }
+//     BrushEngineId engine() const { return _engine; }
+//     BrushBuilder& setEngine(BrushEngineId engine) { _engine = engine; return *this; }
 
     QVariantHash customEngineParameters() const { return _customEngineParameters; }
     BrushBuilder& setCustomEngineParameters(QVariantHash customEngineParameters) { _customEngineParameters = customEngineParameters; return *this; }
@@ -66,8 +66,8 @@ public:
     BrushBuilder& setPreviewHints(IBrush::PreviewHints previewHints) { _previewHints = previewHints; return *this; }
 
 private:
-    BrushId _id;
-    BrushEngineId _engine;
+//     BrushId _id;
+//     BrushEngineId _engine;
     QVariantHash _customEngineParameters;
 
     QString _name;

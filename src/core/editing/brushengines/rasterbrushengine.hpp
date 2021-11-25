@@ -23,7 +23,7 @@ class ADDLE_CORE_EXPORT RasterBrushEngine : public IBrushEngine
 public:
     virtual ~RasterBrushEngine() = default;
 
-    BrushEngineId id() const { return CoreBrushEngines::RasterEngine; }
+//     BrushEngineId id() const { return CoreBrushEngines::RasterEngine; }
 
     //BrushInfo info(const IBrush& model) const { return BrushInfo(); }
 

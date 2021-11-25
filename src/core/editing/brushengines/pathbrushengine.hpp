@@ -22,7 +22,7 @@ class ADDLE_CORE_EXPORT PathBrushEngine : public IBrushEngine
 public:
     virtual ~PathBrushEngine() = default;
 
-    BrushEngineId id() const { return CoreBrushEngines::PathEngine; }
+//     BrushEngineId id() const { return CoreBrushEngines::PathEngine; }
 
     //BrushInfo info(const IBrush& model) const { return BrushInfo::fromDefaults(); }
 

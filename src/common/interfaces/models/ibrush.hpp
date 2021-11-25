@@ -12,8 +12,8 @@
 #include <QIcon>
 #include <QList>
 
-#include "idtypes/brushid.hpp"
-#include "idtypes/brushengineid.hpp"
+// #include "idtypes/brushid.hpp"
+// #include "idtypes/brushengineid.hpp"
 
 #include "interfaces/traits.hpp"
 
@@ -33,8 +33,8 @@ public:
 
     virtual void initialize(const BrushBuilder& builder) = 0;
 
-    virtual BrushId id() const = 0;
-    virtual BrushEngineId engineId() const = 0;
+//     virtual BrushId id() const = 0;
+//     virtual BrushEngineId engineId() const = 0;
 
     virtual QIcon icon() const = 0;
 
@@ -61,7 +61,7 @@ public:
 Q_DECLARE_OPERATORS_FOR_FLAGS(IBrush::PreviewHints);
 
 namespace aux_IBrush { using namespace config_detail::generic_id_parameter; }
-ADDLE_DECL_SINGLETON_REPO_MEMBER(IBrush, BrushId);
+// ADDLE_DECL_SINGLETON_REPO_MEMBER(IBrush, BrushId);
 
 } // namespace Addle
 

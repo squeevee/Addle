@@ -60,15 +60,15 @@ BrushToolOptionsBar::BrushToolOptionsBar(IBrushToolPresenter& presenter, QWidget
     );
 
     {
-        if (_presenter.selectedBrushPresenter())
-        {
-            PresenterAssignment<ISizeSelectionPresenter> sizePresenter(
-                _presenter.selectedBrushPresenter()->sizeSelection(),
-                _presenter.selectedBrushPresenter().toWeakRef()
-            );
-
-            _button_sizeSelector->setPresenter(sizePresenter);
-        }
+//         if (_presenter.selectedBrushPresenter())
+//         {
+//             PresenterAssignment<ISizeSelectionPresenter> sizePresenter(
+//                 _presenter.selectedBrushPresenter()->sizeSelection(),
+//                 _presenter.selectedBrushPresenter().toWeakRef()
+//             );
+// 
+//             _button_sizeSelector->setPresenter(sizePresenter);
+//         }
     }
 
     connect_interface(&_presenter,
@@ -80,12 +80,12 @@ BrushToolOptionsBar::BrushToolOptionsBar(IBrushToolPresenter& presenter, QWidget
 
 void BrushToolOptionsBar::onBrushChanged()
 {
-    PresenterAssignment<ISizeSelectionPresenter> sizePresenter(
-        _presenter.selectedBrushPresenter()->sizeSelection(),
-        _presenter.selectedBrushPresenter().toWeakRef()
-    );
-
-    _button_sizeSelector->setPresenter(sizePresenter);
+//     PresenterAssignment<ISizeSelectionPresenter> sizePresenter(
+//         _presenter.selectedBrushPresenter()->sizeSelection(),
+//         _presenter.selectedBrushPresenter().toWeakRef()
+//     );
+// 
+//     _button_sizeSelector->setPresenter(sizePresenter);
 }
 void BrushToolOptionsBar::onRefreshPreviews()
 {

@@ -16,25 +16,25 @@
 // #include "utilities/config/injector.hpp"
 // #include "utilities/config/factory.hpp"
 
-#include "utilities/config/injectorconfig.hpp"
+// #include "utilities/config/injectorconfig.hpp"
 
 using namespace Addle;
 
-void widgetsgui_config(InjectorConfig& config)
-{
-    static_assert(
-        std::is_same<
-            aux_view::presenter_of_t<Addle::IMainEditorView>,
-            Addle::IMainEditorPresenter
-        >::value
-    );
-    
-    
-    using namespace Config;
-    config.extend(
-        fill_deferred_binding<IMainEditorView, MainEditorView>()
-    );
-}
+// void widgetsgui_config(InjectorConfig& config)
+// {
+//     static_assert(
+//         std::is_same<
+//             aux_view::presenter_of_t<Addle::IMainEditorView>,
+//             Addle::IMainEditorPresenter
+//         >::value
+//     );
+//     
+//     
+//     using namespace Config;
+//     config.extend(
+//         fill_deferred_binding<IMainEditorView, MainEditorView>()
+//     );
+// }
 
 // boost::di::injector<IFactory<IMainEditorView>&> config_widgetsgui ()
 // {   

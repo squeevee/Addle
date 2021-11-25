@@ -47,7 +47,7 @@ DocumentPresenter::DocumentPresenter(
     }
     else
     {
-        _model = std::move(defaultModel.bind(modelBuilder)).asShared();
+//         _model = std::move(defaultModel.bind(modelBuilder)).asShared();
     }
 
     _layers.root().setValencyHint(aux_datatree::ValencyHint_Branch);

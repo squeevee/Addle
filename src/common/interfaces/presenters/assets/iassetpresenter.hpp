@@ -11,7 +11,7 @@
 
 #include <QString>
 #include <QSharedPointer>
-#include "idtypes/addleid.hpp"
+// #include "idtypes/addleid.hpp"
 namespace Addle {
 
 class IAssetPresenter
@@ -19,7 +19,7 @@ class IAssetPresenter
 public:
     virtual ~IAssetPresenter() = default;
 
-    virtual AddleId id() = 0;
+//     virtual AddleId id() = 0;
 
     // virtual IToolWithAssetsPresenter* ownerTool() = 0;
     // virtual void setOwnerTool(IToolWithAssetsPresenter* owner) = 0;

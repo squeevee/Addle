@@ -19,13 +19,13 @@
 #include "interfaces/iamqobject.hpp"
 #include "interfaces/metaobjectinfo.hpp"
 
-#include "idtypes/toolid.hpp"
+// #include "idtypes/toolid.hpp"
 
 #include "tools/itoolpresenter.hpp"
 
 #include "ihaveundostackpresenter.hpp"
 #include "interfaces/services/ifactory.hpp"
-#include "interfaces/services/irepository.hpp"
+// #include "interfaces/services/irepository.hpp"
 
 namespace Addle {
 
@@ -71,12 +71,10 @@ public:
 
     virtual QSharedPointer<ILayerPresenter> topSelectedLayer() const = 0;
 
-    virtual ToolId currentTool() const = 0;
-    virtual void setCurrentTool(ToolId tool) = 0;
+    virtual QHash<QByteArray, QSharedPointer<IToolPresenter>> tools() const = 0;
 
-    virtual const IRepository<IToolPresenter>& tools() const = 0;
-
-    virtual QSharedPointer<IToolPresenter> currentToolPresenter() const = 0;
+    virtual QSharedPointer<IToolPresenter> currentTool() const = 0;
+    virtual void setCurrentTool(QSharedPointer<IToolPresenter> tool) = 0;
 
     virtual QSharedPointer<FileRequest> pendingDocumentFileRequest() const = 0;
 
@@ -85,7 +83,7 @@ public slots:
     virtual void loadDocument(QSharedPointer<FileRequest> request) = 0;
 
 signals:
-    virtual void currentToolChanged(ToolId tool) = 0;
+//     virtual void currentToolChanged(ToolId tool) = 0;
 
     virtual void topSelectedLayerChanged(QSharedPointer<ILayerPresenter>) = 0;
     virtual void documentPresenterChanged(QSharedPointer<IDocumentPresenter> documentPresenter) = 0;

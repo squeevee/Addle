@@ -10,7 +10,7 @@
 #define INAVIGATEPRESENTERAUX_HPP
 
 #include "compat.hpp"
-#include "idtypes/toolid.hpp"
+// #include "idtypes/toolid.hpp"
 #include <QObject>
 
 // Separte file from INavigateToolPresenter for the benefit of AutoMoc
@@ -20,7 +20,7 @@ namespace INavigateToolPresenterAux
 {
     Q_NAMESPACE_EXPORT(ADDLE_COMMON_EXPORT)
 
-    extern ADDLE_COMMON_EXPORT const ToolId ID;
+//     extern ADDLE_COMMON_EXPORT const ToolId ID;
 
     enum NavigateOperationOptions {
         gripPan,

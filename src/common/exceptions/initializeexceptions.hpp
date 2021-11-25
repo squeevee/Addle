@@ -17,11 +17,11 @@
 
 namespace Addle {
 
-DECL_LOGIC_ERROR(InitializeException)
 class ADDLE_COMMON_EXPORT InitializeException : public AddleException
 {
 #ifdef ADDLE_DEBUG
 public:
+    static constexpr bool IsLogicError = true;
     InitializeException(const QString what)
         : AddleException(what)
     {
@@ -36,8 +36,6 @@ public:
 
 };
 
-DECL_LOGIC_ERROR(NotInitializedException)
-
 /**
  * @class NotInitializedException
  * @brief Thrown by objects that expect initialization, if a method was called
@@ -50,6 +48,7 @@ class ADDLE_COMMON_EXPORT NotInitializedException : public InitializeException
     ADDLE_EXCEPTION_BOILERPLATE(NotInitializedException)
 
 public:
+    static constexpr bool IsLogicError = true;
 #ifdef ADDLE_DEBUG
     NotInitializedException()
         : InitializeException(
@@ -64,8 +63,6 @@ public:
     virtual ~NotInitializedException() = default;
 };
 
-DECL_LOGIC_ERROR(AlreadyInitializedException)
-
 /**
  * @class NotInitializedException
  * @brief Thrown by objects that expect initialization, if the object had
@@ -78,6 +75,7 @@ class ADDLE_COMMON_EXPORT AlreadyInitializedException : public InitializeExcepti
     ADDLE_EXCEPTION_BOILERPLATE(AlreadyInitializedException)
 
 public:
+    static constexpr bool IsLogicError = true;
 #ifdef ADDLE_DEBUG
     AlreadyInitializedException()
         : InitializeException(
@@ -92,8 +90,6 @@ public:
     virtual ~AlreadyInitializedException() = default;
 };
 
-DECL_LOGIC_ERROR(InvalidInitializeException)
-
 /**
  * @class InvalidInitializeException
  * @brief Thrown by InitializeHelper if a logic error was encountered during
@@ -103,6 +99,7 @@ class ADDLE_COMMON_EXPORT InvalidInitializeException : public InitializeExceptio
 {
     ADDLE_EXCEPTION_BOILERPLATE(InvalidInitializeException)
 public:
+    static constexpr bool IsLogicError = true;
     enum Why
     {
         improper_order // 0

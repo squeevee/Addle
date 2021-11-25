@@ -6,7 +6,7 @@
 #include <boost/di.hpp>
 
 #include "interfaces/services/ifactory.hpp"
-#include "./storedparameters.hpp"
+// #include "./storedparameters.hpp"
 
 namespace Addle {
 
@@ -31,17 +31,17 @@ public:
         }
     }
     
-    template<typename... Args>
-    inline LazyInjection& bind(Args&&... args)
-    {
-        const IFactory<Interface>& factory = _factory;
-        auto params = config_detail::make_stored_parameters(std::forward<Args>(args)...);
-        _initializer = [ params{ std::move(params) }, &factory ] () {
-                return std::unique_ptr<Interface>(std::move(params).applyToMake(factory));
-            };
-            
-        return *this;
-    }
+//     template<typename... Args>
+//     inline LazyInjection& bind(Args&&... args)
+//     {
+//         const IFactory<Interface>& factory = _factory;
+//         auto params = config_detail::make_stored_parameters(std::forward<Args>(args)...);
+//         _initializer = [ params{ std::move(params) }, &factory ] () {
+//                 return std::unique_ptr<Interface>(std::move(params).applyToMake(factory));
+//             };
+//             
+//         return *this;
+//     }
     
     inline const Interface& get() const 
     {

@@ -25,7 +25,9 @@ template<typename T>
 QString debugString(T&& v)
 {
     QString result;
-    QDebug(&result) << std::forward<T>(v);
+    QDebug debug(&result);
+    debug.setAutoInsertSpaces(false);
+    debug << std::forward<T>(v);
     return result;
 }
 
@@ -36,7 +38,9 @@ QByteArray debugString_b(T&& v)
     {
         QBuffer buff(&result);
         buff.open(QIODevice::WriteOnly);
-        QDebug(&buff) << std::forward<T>(v);
+        QDebug debug(&buff);
+        debug.setAutoInsertSpaces(false);
+        debug << std::forward<T>(v);
     }
     return result;
 }

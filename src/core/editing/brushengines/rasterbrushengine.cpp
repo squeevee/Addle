@@ -12,7 +12,8 @@
 #include "globals.hpp"
 #include "utils.hpp"
 
-#include "interfaces/editing/irastersurface.hpp"
+#include <QPainter>
+// #include "interfaces/editing/irastersurface.hpp"
 #include "utilities/editing/rasterengineparams.hpp"
 #include "utilities/editing/brushstroke.hpp"
 
@@ -37,7 +38,7 @@ QPainterPath RasterBrushEngine::indicatorShape(const BrushStroke& painter) const
 
 void RasterBrushEngine::paint(BrushStroke& brushStroke) const
 {
-    RasterEngineParams params(ServiceLocator::get<IBrush>(brushStroke.id()));
+//     RasterEngineParams params(ServiceLocator::get<IBrush>(brushStroke.id()));
 
     QPointF pos = brushStroke.positions().last();
     double size = brushStroke.size();
@@ -47,36 +48,36 @@ void RasterBrushEngine::paint(BrushStroke& brushStroke) const
     
     if (brushStroke.positions().size() == 1)
     {
-        auto handle = brushStroke.buffer()->paintHandle(bound);
-        QPainter& painter = handle.painter();
-
-        paint_p(painter, params, pos, color, size);
+//         auto handle = brushStroke.buffer()->paintHandle(bound);
+//         QPainter& painter = handle.painter();
+// 
+//         paint_p(painter, params, pos, color, size);
     }
     else
     {
-        double spacing = params.spacing() * size;
-        if (brushStroke.lengthSincePaint() < spacing) return;
-        
-        bound = bound.united(brushStroke.lastPaintedBound());
+//         double spacing = params.spacing() * size;
+//         if (brushStroke.lengthSincePaint() < spacing) return;
+//         
+//         bound = bound.united(brushStroke.lastPaintedBound());
 
-        auto handle = brushStroke.buffer()->paintHandle(bound);
-        QPainter& painter = handle.painter();
-
-        int steps = ceil(distance(brushStroke.lastPositionPainted(), pos) / spacing);
-
-        if (steps == 1)
-        {
-            paint_p(painter, params, pos, color, size);
-        }
-        else 
-        {
-            const QLineF line(brushStroke.lastPositionPainted(), pos);
-            for (int i = 0; i < steps; i++)
-            {
-                const qreal t = (qreal)(i + 1) / steps;
-                paint_p(painter, params, line.pointAt(t), color, size);
-            }
-        }
+//         auto handle = brushStroke.buffer()->paintHandle(bound);
+//         QPainter& painter = handle.painter();
+// 
+//         int steps = ceil(distance(brushStroke.lastPositionPainted(), pos) / spacing);
+// 
+//         if (steps == 1)
+//         {
+//             paint_p(painter, params, pos, color, size);
+//         }
+//         else 
+//         {
+//             const QLineF line(brushStroke.lastPositionPainted(), pos);
+//             for (int i = 0; i < steps; i++)
+//             {
+//                 const qreal t = (qreal)(i + 1) / steps;
+//                 paint_p(painter, params, line.pointAt(t), color, size);
+//             }
+//         }
     }
 
     brushStroke.setBound(bound);

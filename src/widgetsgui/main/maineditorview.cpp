@@ -164,23 +164,23 @@ void MainEditorView::setupUi()
         _optionGroup_toolSelection
     );
 
-    setupHelper.addTool(
-        CoreTools::Brush,
-        &_action_selectBrushTool,
-        &_optionsToolBar_brush
-    );
+//     setupHelper.addTool(
+//         CoreTools::Brush,
+//         &_action_selectBrushTool,
+//         &_optionsToolBar_brush
+//     );
 
-    setupHelper.addTool(
-        CoreTools::Eraser,
-        &_action_selectEraserTool,
-        &_optionsToolBar_eraser
-    );
+//     setupHelper.addTool(
+//         CoreTools::Eraser,
+//         &_action_selectEraserTool,
+//         &_optionsToolBar_eraser
+//     );
 
-    setupHelper.addTool(
-        CoreTools::Navigate,
-        &_action_selectNavigateTool,
-        &_optionsToolBar_navigate
-    );
+//     setupHelper.addTool(
+//         CoreTools::Navigate,
+//         &_action_selectNavigateTool,
+//         &_optionsToolBar_navigate
+//     );
 
     _toolBar_editorToolSelection->addAction(new QAction(QIcon::fromTheme("select-tool"), "", this));
 

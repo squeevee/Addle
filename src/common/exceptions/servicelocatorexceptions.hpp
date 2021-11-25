@@ -10,14 +10,13 @@
 #define SERVICELOCATOREXCEPTIONS_HPP
 
 #include "addleexception.hpp"
-#include "idtypes/addleid.hpp"
 
 namespace Addle {
 
-DECL_LOGIC_ERROR(ServiceLocatorException)
 class ADDLE_COMMON_EXPORT ServiceLocatorException : public AddleException
 {
 #ifdef ADDLE_DEBUG
+    static constexpr bool IsLogicError = true;
 public:
     ServiceLocatorException(const QString what)
         : AddleException(what)
@@ -31,8 +30,6 @@ public:
     virtual ~ServiceLocatorException() = default;
 };
 
-DECL_LOGIC_ERROR(ServiceLocatorNotInitializedException)
-
 /**
  * @class ServiceLocatorNotInitializedException
  * @brief Thrown if the ServiceLocator is expected to be initialized, but isn't,
@@ -43,6 +40,7 @@ class ADDLE_COMMON_EXPORT ServiceLocatorNotInitializedException: public ServiceL
     ADDLE_EXCEPTION_BOILERPLATE(ServiceLocatorNotInitializedException)
 #ifdef ADDLE_DEBUG
 public:
+    static constexpr bool IsLogicError = true;
     ServiceLocatorNotInitializedException()
         : ServiceLocatorException(
             //% "The service locator is not initialized."
@@ -77,23 +75,19 @@ public:
         _requestedInterfaceName(requestedInterfaceName)
     {
     }
-    FactoryNotFoundException(
-            const char* requestedInterfaceName,
-            AddleId id
-        )
-        : ServiceLocatorException(
-            //% "No factory was found for the interface \"%1\" and the ID \"%2\"."
-            qtTrId("debug-messages.service-locator.factory-by-id-not-found-error")
-                .arg(requestedInterfaceName)
-                .arg(id.key())
-        ),
-        _requestedInterfaceName(requestedInterfaceName),
-        _id(id)
-    {
-    }
+//     FactoryNotFoundException(
+//             const char* requestedInterfaceName
+//         )
+//         : ServiceLocatorException(
+//             //% "No factory was found for the interface \"%1\" and the ID \"%2\"."
+//             qtTrId("debug-messages.service-locator.factory-by-id-not-found-error")
+//                 .arg(requestedInterfaceName)
+//         ),
+//         _requestedInterfaceName(requestedInterfaceName)
+//     {
+//     }
 private:
     const char* _requestedInterfaceName;
-    const AddleId _id;
 #else
 public:
     FactoryNotFoundException() = default;

@@ -12,7 +12,7 @@
 #include <QObject>
 #include <QSharedPointer>
 
-#include "idtypes/brushid.hpp"
+// #include "idtypes/brushid.hpp"
 #include "iassetpresenter.hpp"
 
 #include "interfaces/models/ibrush.hpp"
@@ -59,9 +59,9 @@ public:
     virtual ~IBrushPresenter() = default;
     
     virtual void initialize(IBrush& model, QSharedPointer<const PreviewInfoProvider> info = nullptr) = 0;
-    virtual void initialize(BrushId id, QSharedPointer<const PreviewInfoProvider> info = nullptr) = 0;
+//     virtual void initialize(BrushId id, QSharedPointer<const PreviewInfoProvider> info = nullptr) = 0;
 
-    virtual BrushId brushId() = 0;
+//     virtual BrushId brushId() = 0;
     virtual IBrush& model() const = 0;
 
     virtual ISizeSelectionPresenter& sizeSelection() = 0;
@@ -76,7 +76,7 @@ namespace aux_IBrushPresenter {
     using namespace config_detail::generic_id_parameter;
 }
 
-ADDLE_DECL_UNIQUE_REPO_MEMBER(IBrushPresenter, BrushId)
+// ADDLE_DECL_UNIQUE_REPO_MEMBER(IBrushPresenter, BrushId)
 
 } // namespace Addle
 #endif // IBRUSHPRESENTER_HPP

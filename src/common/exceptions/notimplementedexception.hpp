@@ -5,11 +5,11 @@
 
 namespace Addle {
     
-DECL_LOGIC_ERROR(NotImplementedException);
 class NotImplementedException : public AddleException
 {
     ADDLE_EXCEPTION_BOILERPLATE(NotImplementedException)
 public:
+    static constexpr bool IsLogicError = true;
     NotImplementedException(QString note = QString())
 #ifdef ADDLE_DEBUG
         : AddleException([=]() -> QString {

@@ -21,7 +21,7 @@ namespace Addle {
 class IShapesToolPresenter : public virtual IToolPresenter
 {
 public:
-    static const ToolId SHAPES_TOOL_ID;
+//     static const ToolId SHAPES_TOOL_ID;
 
     virtual ~IShapesToolPresenter() = default;
 };

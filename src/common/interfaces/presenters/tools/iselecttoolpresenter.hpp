@@ -40,7 +40,7 @@ public:
         distort
     };
 
-    static const ToolId SELECT_TOOL_ID;
+//     static const ToolId SELECT_TOOL_ID;
 
     virtual ~ISelectToolPresenter() = default;
 

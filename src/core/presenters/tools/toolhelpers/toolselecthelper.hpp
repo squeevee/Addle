@@ -27,12 +27,12 @@ public:
 
     inline void setSelected(bool isSelected)
     {
-        if (_isSelected == (_owner.id() == _owner.owner()->currentTool())) return;
+//         if (_isSelected == (_owner.id() == _owner.owner()->currentTool())) return;
 
-        if (isSelected)
-            _owner.owner()->setCurrentTool(_owner.id());
-        else if (_owner.id() == _owner.owner()->currentTool())
-            _owner.owner()->setCurrentTool(ToolId());
+//         if (isSelected)
+//             _owner.owner()->setCurrentTool(_owner.id());
+//         else if (_owner.id() == _owner.owner()->currentTool())
+//             _owner.owner()->setCurrentTool(ToolId());
 
         _isSelected = isSelected;
 

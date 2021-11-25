@@ -8,6 +8,7 @@
 
 #include <QAtomicPointer>
 #include <QList>
+#include <QMap>
 #include <QPainter>
 #include <QPainterPath>
 #include <QRegion>

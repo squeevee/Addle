@@ -25,11 +25,14 @@
 #include "utilities/debugging/messagehandler.hpp"
 #endif
 
-#include "utilities/config/injectorconfig.hpp"
+// #include "utilities/config/injectorconfig.hpp"
+
+#include "utilities/config3/addleconfig.hpp"
+extern "C" void addle_core_config3(Addle::aux_config3::AddleConfig& config);
 
 using namespace Addle;
 
-extern void widgetsgui_config(InjectorConfig& config);
+// extern void widgetsgui_config(InjectorConfig& config);
 
 int main(int argc, char *argv[])
 {   
@@ -65,11 +68,16 @@ int main(int argc, char *argv[])
     qInstallMessageHandler(&addleMessageHandler);
 #endif
     
-    auto config = core_config();
-    widgetsgui_config(*config);
-    
-    auto& appService = config->getSingleton<IApplicationService>();
+//     auto config = core_config();
+//     widgetsgui_config(*config);
+//     
+//     auto& appService = config->getSingleton<IApplicationService>();
 
+    aux_config3::AddleConfig config;
+    addle_core_config3(config);
+    
+    auto&& appService = config.applicationService();
+    
     if (appService.start())
     {
         connect_interface(&a, SIGNAL(aboutToQuit()), &appService, SLOT(quitting()), Qt::ConnectionType::DirectConnection);

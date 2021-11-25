@@ -24,9 +24,9 @@ void BrushPresenter::initialize(IBrush& model, QSharedPointer<const PreviewInfoP
     const Initializer init(_initHelper);
 
     _model = &model;
-    _id = _model->id();
+//     _id = _model->id();
 
-    _iconHelper.setBrush(_id);
+//     _iconHelper.setBrush(_id);
     _iconHelper.setInfoProvider(info);
 
     _sizeSelection = ServiceLocator::makeUnique<ISizeSelectionPresenter>(_iconHelper.sizeIconProvider());
@@ -63,12 +63,12 @@ void BrushPresenter::initialize(IBrush& model, QSharedPointer<const PreviewInfoP
     }
 }
 
-void BrushPresenter::initialize(BrushId id, QSharedPointer<const PreviewInfoProvider> info)
-{
-    const Initializer init(_initHelper);
-
-    initialize(ServiceLocator::get<IBrush>(id), info);
-}
+// void BrushPresenter::initialize(BrushId id, QSharedPointer<const PreviewInfoProvider> info)
+// {
+//     const Initializer init(_initHelper);
+// 
+//     initialize(ServiceLocator::get<IBrush>(id), info);
+// }
 
 QIcon BrushPresenter::icon()
 {
@@ -77,7 +77,7 @@ QIcon BrushPresenter::icon()
 
 QString BrushPresenter::name()
 {
-    return dynamic_qtTrId({ "brushes", _id.key(), "name"});
+//     return dynamic_qtTrId({ "brushes", _id.key(), "name"});
 }
 
 void BrushPresenter::setPreviewInfo(QSharedPointer<const PreviewInfoProvider> info)

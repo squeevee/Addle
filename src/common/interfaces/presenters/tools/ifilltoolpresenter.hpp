@@ -19,7 +19,7 @@ namespace Addle {
 class IFillToolPresenter
 {
 public:
-    static const ToolId FILL_TOOL_ID;
+//     static const ToolId FILL_TOOL_ID;
 
     virtual ~IFillToolPresenter() = default;
 };

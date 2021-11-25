@@ -14,11 +14,11 @@
 
 namespace Addle {
 
-DECL_LOGIC_ERROR(UnhandledException)
 class UnhandledException : public AddleException
 {
     ADDLE_EXCEPTION_BOILERPLATE(UnhandledException)
 public:    
+    static constexpr bool IsLogicError = true;
     enum Severity
     {
         Normal,

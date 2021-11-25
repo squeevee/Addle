@@ -1,7 +1,6 @@
 #pragma once
 
 #include "interfaces/rendering/irenderable.hpp"
-#include "utilities/image/tilesurface.hpp"
 
 namespace Addle {
     

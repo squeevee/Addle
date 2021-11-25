@@ -47,7 +47,7 @@ public:
     void initialize(IMainEditorPresenter* owner);
 
     IMainEditorPresenter* owner() { return _owner; }
-    ToolId id() const { return CoreTools::Navigate; }
+//     ToolId id() const { return CoreTools::Navigate; }
 
     NavigateOperationOptions navigateOperation() { ASSERT_INIT(); return _operation; }
 

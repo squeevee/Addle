@@ -23,13 +23,13 @@ class PaletteBuilder
     };
 
 public:
-    inline PaletteBuilder& setId(PaletteId id)
-    {
-        _id = id;
-        return *this;
-    }
-
-    inline PaletteId id() const { return _id; }
+//     inline PaletteBuilder& setId(PaletteId id)
+//     {
+//         _id = id;
+//         return *this;
+//     }
+// 
+//     inline PaletteId id() const { return _id; }
 
     inline PaletteBuilder& setSize(QSize size)
     {
@@ -49,7 +49,7 @@ public:
     inline MultiArray<ColorInfo, 2> colors() const { return _colors; }
 
 private:
-    PaletteId _id;
+//     PaletteId _id;
     MultiArray<ColorInfo, 2> _colors;
 };
 

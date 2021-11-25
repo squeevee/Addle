@@ -26,8 +26,6 @@
 
 namespace Addle {
 
-DECL_LOGIC_ERROR(GenericLogicError);
-
 #ifdef ADDLE_DEBUG
 
 /**
@@ -37,6 +35,7 @@ class ADDLE_COMMON_EXPORT GenericLogicError : public AddleException
 {
     ADDLE_EXCEPTION_BOILERPLATE(GenericLogicError);
 public:
+    static constexpr bool IsLogicError = true;
     GenericLogicError(const char* expression = nullptr, QString message = QString());
     virtual ~GenericLogicError() = default;
 

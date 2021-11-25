@@ -85,9 +85,9 @@ struct factory_param_dispatcher {};
 
 template<class Interface, typename F>
 inline factory_param_dispatcher<Interface, F> 
-    make_factory_param_dispatcher(const F& f)
+    make_factory_param_dispatcher(F&& f)
 {
-    return factory_param_dispatcher<Interface, F>(f);
+    return factory_param_dispatcher<Interface, std::decay_t<F>>(std::forward<F>(f));
 }
 
 // A parameter in a Boost.Parameter enabled function cannot be explicitly typed
@@ -127,6 +127,14 @@ using factory_params_t = typename Traits::factory_params<Interface>::type;
     
 template<class Interface>
 using has_factory_params = boost::is_detected<factory_params_t, Interface>;
+
+template<class Interface, typename... Args>
+using _validate_factory_args_t = decltype(
+        std::declval<factory_param_dispatcher<Interface, void(&)(...)>>()(std::declval<Args>()...)
+    );
+
+template<class Interface, typename... Args>
+using is_makeable_with_params = boost::is_detected<_validate_factory_args_t, Interface, Args...>;
 
 } // namespace config_detail
 

@@ -20,8 +20,6 @@
 #include "interfaces/models/ilayer.hpp"
 #include "interfaces/models/idocument.hpp"
 
-#include "interfaces/editing/irastersurface.hpp"
-
 #include "utilities/initializehelper.hpp"
 namespace Addle {
 class ADDLE_CORE_EXPORT Layer : public QObject, public ILayer
@@ -121,7 +119,7 @@ private:
     QPainter::CompositionMode _compositionMode;
     double _opacity;
     
-    QSharedPointer<IRasterSurface> _rasterSurface;
+//     QSharedPointer<IRasterSurface> _rasterSurface;
 //     QSharedPointer<IRenderable> _renderable;
     
     RenderRoutine _renderRoutine;

@@ -18,10 +18,10 @@
 
 namespace Addle {
 
-DECL_RUNTIME_ERROR(CommandLineException)
 class ADDLE_COMMON_EXPORT CommandLineException : public AddleException
 {
 public:
+    static constexpr bool IsRuntimeError = true;
     CommandLineException(
             const QString errorText
         )
@@ -40,12 +40,12 @@ protected:
     QString _errorText;
 };
 
-DECL_RUNTIME_ERROR(CommandLineParserException)
 class ADDLE_COMMON_EXPORT CommandLineParserException : public CommandLineException
 {
     ADDLE_EXCEPTION_BOILERPLATE(CommandLineParserException)
 
 public:
+    static constexpr bool IsRuntimeError = true;
     CommandLineParserException(const QString errorText)
         : CommandLineException(
 #ifdef ADDLE_DEBUG
@@ -59,11 +59,11 @@ public:
     }
 };
 
-DECL_RUNTIME_ERROR(MultipleStartModesException)
 class ADDLE_COMMON_EXPORT MultipleStartModesException : public CommandLineException
 {
     ADDLE_EXCEPTION_BOILERPLATE(MultipleStartModesException)
 public: 
+    static constexpr bool IsRuntimeError = true;
     MultipleStartModesException()
         : CommandLineException(
             //% "You may not specify multiple modes to start Addle in."

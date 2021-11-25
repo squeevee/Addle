@@ -15,11 +15,10 @@
 
 using namespace Addle;
 
-BrushStroke::BrushStroke(BrushId id,
+BrushStroke::BrushStroke(
         QColor color,
-        double size,
-        QSharedPointer<IRasterSurface> buffer)
-    : _id(id), _brush(ServiceLocator::get<IBrush>(id)), _buffer(buffer)
+        double size
+        /*QSharedPointer<IRasterSurface> buffer*/)
 {
     _painterStates.push(PainterState(color, size));
 }
@@ -155,5 +154,5 @@ QVariantHash& BrushStroke::engineState()
 
 void BrushStroke::paint()
 {
-    ServiceLocator::get<IBrushEngine>(_brush.engineId()).paint(*this);
+//     ServiceLocator::get<IBrushEngine>(_brush.engineId()).paint(*this);
 }

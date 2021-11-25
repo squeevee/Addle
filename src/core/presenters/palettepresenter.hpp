@@ -27,7 +27,7 @@ public:
     PalettePresenter(IPalette& model);
     virtual ~PalettePresenter() = default;
 
-    PaletteId id() const override { return _model.id(); }
+//     PaletteId id() const override { return _model.id(); }
 
     IPalette& model() const override { return _model; }
 

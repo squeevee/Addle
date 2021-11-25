@@ -35,13 +35,13 @@ QUrl FileRequest::setUntitled(
         //% "untitled"
         baseName = qtTrId("general.untitled-filename");
 
-    if (extension.isEmpty())
-    {
-        if (_favoriteFormat)
-            extension = "." % _favoriteFormat.fileExtension();
-        else if (!_availableFormats.isEmpty())
-            extension = "." % _availableFormats.constFirst().fileExtension();
-    }
+//     if (extension.isEmpty())
+//     {
+//         if (_favoriteFormat)
+//             extension = "." % _favoriteFormat.fileExtension();
+//         else if (!_availableFormats.isEmpty())
+//             extension = "." % _availableFormats.constFirst().fileExtension();
+//     }
 
     if (discriminator.isEmpty())
     {

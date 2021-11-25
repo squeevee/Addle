@@ -74,8 +74,7 @@ QImage RasterTile::asImage_p() const
 {    
     assert(_data);
     
-    _data->ref.ref(); // The image occupies one reference count on this data.
-    
+    _data->buffer->ref.ref();
     QImage result(_data->buffer->data, SIDE_LENGTH, SIDE_LENGTH, _data->format, 
         &cleanupTileQImage, _data->buffer);
     result.setOffset(offset());

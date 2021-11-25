@@ -25,7 +25,7 @@ public:
         currentLayer
     };
 
-    static const ToolId EYEDROP_TOOL_ID;
+//     static const ToolId EYEDROP_TOOL_ID;
 
     virtual ~IEyedropToolPresenter() = default;
 

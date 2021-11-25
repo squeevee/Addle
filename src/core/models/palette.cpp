@@ -10,10 +10,9 @@
 #include "palette.hpp"
 using namespace Addle;
 
-Palette::Palette(PaletteId id, const PaletteBuilder& builder)
-    : _id(id)
+Palette::Palette(const PaletteBuilder& builder)
 {
-    ADDLE_ASSERT(!builder.id() || _id == builder.id());
+//     ADDLE_ASSERT(!builder.id() || _id == builder.id());
     
     _colors = builder.colors();
     buildIndex();

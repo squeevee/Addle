@@ -7,7 +7,7 @@
  */
 
 #include "layer.hpp"
-#include "interfaces/editing/irastersurface.hpp"
+// #include "interfaces/editing/irastersurface.hpp"
 
 #include "utilities/qobject.hpp"
 

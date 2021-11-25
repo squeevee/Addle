@@ -7,8 +7,8 @@
 #include "utilities/helpercallback.hpp"
 #include "utilities/presenter/filerequest.hpp"
 
-#include "utilities/format/genericformat.hpp"
-#include "utilities/idinfo.hpp"
+// #include "utilities/format/genericformat.hpp"
+// #include "utilities/idinfo.hpp"
 #include "utilities/ranges.hpp"
 #include "servicelocator.hpp"
 
@@ -57,22 +57,22 @@ public:
 //         );
     }
     
-    GenericSharedFormatModel model() const
-    {
-        const auto lock = lockRead();
-        return _model;
-    }
+//     GenericSharedFormatModel model() const
+//     {
+//         const auto lock = lockRead();
+//         return _model;
+//     }
     
-    void setRequest(QSharedPointer<FileRequest> request)
-    {
-        const auto lock = lockWrite();
-        _request = request;
-        
-        connect(
-            request.data(), &FileRequest::urlChanged,
-            this, &LoadTask::onUrlChanged
-        ); //disconnect
-    }
+//     void setRequest(QSharedPointer<FileRequest> request)
+//     {
+//         const auto lock = lockWrite();
+//         _request = request;
+//         
+//         connect(
+//             request.data(), &FileRequest::urlChanged,
+//             this, &LoadTask::onUrlChanged
+//         ); //disconnect
+//     }
     
 private slots:
     void onUrlChanged()
@@ -89,7 +89,7 @@ protected:
     
 private:
     QSharedPointer<FileRequest> _request;
-    GenericSharedFormatModel _model;
+//     GenericSharedFormatModel _model;
 };
     
 template<class ModelType, class PresenterType>
@@ -116,7 +116,7 @@ void LoadHelper<ModelType, PresenterType>::load(QSharedPointer<FileRequest> requ
     if (!canLoad()) return;
     
     _request = request;
-    _task->setRequest(request);
+//     _task->setRequest(request);
     
 //     _request->setAvailableFormats(
 //         cpplinq::from(IdInfo::getIds<FormatId<ModelType>>())
@@ -137,10 +137,10 @@ void LoadHelper<ModelType, PresenterType>::load(QSharedPointer<FileRequest> requ
 template<class ModelType, class PresenterType>
 void LoadHelper<ModelType, PresenterType>::onTaskComplete_p()
 {
-    auto model = _task->model().get<ModelType>();
-    _request = nullptr; //set on _task
-    _presenter = ServiceLocator::makeShared<PresenterType>(model);
-    onLoaded(_presenter);
+//     auto model = _task->model().get<ModelType>();
+//     _request = nullptr; //set on _task
+//     _presenter = ServiceLocator::makeShared<PresenterType>(model);
+//     onLoaded(_presenter);
 }
 
 // template<class ModelType, class PresenterType>

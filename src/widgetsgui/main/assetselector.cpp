@@ -37,33 +37,33 @@ AssetSelector::AssetSelector(IAssetSelectionPresenter& presenter, QWidget* paren
         item->setText(asset->name());
         item->setIcon(asset->icon());
 
-        _items[asset->id()] = item;
+//         _items[asset->id()] = item;
         _itemValues[item] = asset;
 
         _list->addItem(item);
     }
 
-    connect_interface(&_presenter, SIGNAL(selectionChanged(QList<AddleId>)), this, SLOT(onPresenterSelectionChanged()));
+//     connect_interface(&_presenter, SIGNAL(selectionChanged(QList<AddleId>)), this, SLOT(onPresenterSelectionChanged()));
     onPresenterSelectionChanged();
 }
 
 void AssetSelector::onListSelectionChanged()
 {
-    QList<AddleId> selected;
-    for (auto item : _list->selectedItems())
-    {
-        selected.append(_itemValues[item]->id());
-    }
-
-    _presenter.select(selected);
+//     QList<AddleId> selected;
+//     for (auto item : _list->selectedItems())
+//     {
+//         selected.append(_itemValues[item]->id());
+//     }
+// 
+//     _presenter.select(selected);
 
     emit changed();
 }
 
 void AssetSelector::onPresenterSelectionChanged()
 {
-    for (auto selected : _presenter.selectedIds())
-    {
-        _items.value(selected)->setSelected(true);
-    }
+//     for (auto selected : _presenter.selectedIds())
+//     {
+//         _items.value(selected)->setSelected(true);
+//     }
 }

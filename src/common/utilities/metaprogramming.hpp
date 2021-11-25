@@ -260,4 +260,95 @@ using mp_apply_undeferred = boost::mp11::mp_apply<
 template<class Q, typename... T>
 using mp_defer_q = boost::mp11::mp_defer<Q::template fn, T...>;
 
+
+namespace metaprogramming_detail {
+    
+template<typename L>
+struct mp_only_impl {};
+
+template<template<typename...> class L, typename T>
+struct mp_only_impl<L<T>> { using type = T; };
+
+template<template<typename...> class L, typename T, typename... U>
+struct mp_only_impl<L<T, U...>> {};
+    
+}
+
+// If L is a list containing only one element, mp_only<L> is an alias for that
+// element, otherwise mp_only<L> is a substitution failure.
+template<typename L>
+using mp_only = typename metaprogramming_detail::mp_only_impl<L>::type;
+
+namespace metaprogramming_detail {
+
+template<template<class> class P, typename _>
+struct _static_predicate_bitmap_impl {};
+    
+template<template<class> class P, template<class...> class L>
+struct _static_predicate_bitmap_impl<P, L<>>
+{
+    static constexpr unsigned long long value = 0;
+};
+ 
+template<template<class> class P, template<class...> class L, typename T1, typename... Ts>
+struct _static_predicate_bitmap_impl<P, L<T1, Ts...>>
+{
+    static constexpr unsigned long long value = (_static_predicate_bitmap_impl<P, L<Ts...>>::value << 1) | (bool)(P<T1>::value);
+};
+
+template<template<class> class P, typename _>
+struct _common_predicate_type { using type = void; };
+
+template<template<class> class P, template<class...> class L>
+struct _common_predicate_type<P, L<>> { using type = void; };
+
+template<template<class> class P, template<class...> class L, typename... Ts>
+struct _common_predicate_type<P, L<Ts...>> { using type = std::common_type_t<decltype(P<Ts>::value)...>; };
+
+template<template<class> class P, typename _>
+struct _static_predicate_array_impl {};
+
+template<template<class> class P, template<class...> class L>
+struct _static_predicate_array_impl<P, L<>> {};
+
+template<template<class> class P, template<class...> class L, typename... Ts>
+struct _static_predicate_array_impl<P, L<Ts...>>
+{
+    using value_t = typename _common_predicate_type<P, L<Ts...>>::type;
+    static constexpr value_t value[] = { P<Ts>::value... };
+};
+
+template <template<class> class P, class L,
+    bool = (
+           boost::mp11::mp_size<L>::value <= (sizeof(unsigned long long) * 8)
+        && std::is_same_v<typename _common_predicate_type<P, L>::type, bool>
+    )>
+struct test_static_predicate_impl
+{
+    inline bool operator()(std::size_t index) const
+    {
+        return (0x01 << index) & _static_predicate_bitmap_impl<P, L>::value;
+    }
+};
+
+template <template<class> class P, class L>
+struct test_static_predicate_impl<P, L, false>
+{
+    inline auto operator()(std::size_t index) const
+    {
+        return _static_predicate_array_impl<P, L>::value[index];
+    }
+};
+
+}
+
+// Tests whether metafunction predicate `P` is true for the member of type list 
+// `L` at `index` where index is only known at runtime.
+// WARNING undefined behavior if index exceeds `boost::mp11::mp_size<L>::value`
+template<template<class> class P, class L>
+inline auto test_static_predicate(std::size_t index)
+{
+    return metaprogramming_detail::test_static_predicate_impl<P, L> {} (index);
+}
+
 } // namespace Addle

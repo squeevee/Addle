@@ -9,7 +9,7 @@
 #include "layerpresenter.hpp"
 #include "servicelocator.hpp"
 #include "interfaces/presenters/ilayergrouppresenter.hpp"
-#include "interfaces/editing/irastersurface.hpp"
+// #include "interfaces/editing/irastersurface.hpp"
 #include "interfaces/rendering/irenderer.hpp"
 
 #include "utilities/qobject.hpp"

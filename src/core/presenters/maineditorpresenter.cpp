@@ -17,7 +17,7 @@
 #include "servicelocator.hpp"
 
 //#include "interfaces/services/itaskservice.hpp"
-#include "interfaces/services/iformatservice.hpp"
+// #include "interfaces/services/iformatservice.hpp"
 
 //#include "interfaces/tasks/itaskcontroller.hpp"
 //#include "interfaces/tasks/iloaddocumentfiletask.hpp"
@@ -53,7 +53,7 @@
 #include "globals.hpp"
 
 //#include "utilities/presenter/genericerrorpresenter.hpp"
-#include "exceptions/formatexception.hpp"
+// #include "exceptions/formatexception.hpp"
 
 #include "utilities/iocheck.hpp"
 
@@ -64,8 +64,8 @@ MainEditorPresenter::MainEditorPresenter(
         std::unique_ptr<IColorSelectionPresenter> colorSelection,
         QSharedPointer<ICanvasPresenter> canvas,
         std::unique_ptr<IMessageContext> messageContext,
-        std::unique_ptr<IRepository<IPalettePresenter>> palettes,
-        std::unique_ptr<IRepository<IToolPresenter>> tools,
+        IFactory<IPalettePresenter> paletteFactory,
+        IFactory<IToolPresenter> toolFactory,
         const IFactory<IViewPortPresenter>& viewPortFactory,
         const IFactory<IDocumentPresenter>& documentFactory
     )
@@ -74,8 +74,8 @@ MainEditorPresenter::MainEditorPresenter(
     _canvas(std::move(canvas)),
     _viewPortPresenter(viewPortFactory.makeUnique(_canvas)),
     _messageContext(std::move(messageContext)),
-    _palettes(std::move(palettes)),
-    _tools(std::move(tools)),
+    _paletteFactory(paletteFactory),
+    _toolFactory(toolFactory),
     _documentFactory(documentFactory)
 {
     _undoStackHelper.undoStateChanged.bind(&MainEditorPresenter::undoStateChanged, this);
@@ -85,11 +85,11 @@ MainEditorPresenter::MainEditorPresenter(
     
     _loadDocumentHelper.onLoaded.bind(&MainEditorPresenter::onLoadDocumentCompleted, this);
     
-    _palettes->addStaticIds<CorePalettes::all_palettes>();
-    _colorSelection->setPalette(_palettes->getShared(CorePalettes::BasicPalette));
-    
-    _tools->bindFactoryParameters(aux_IToolPresenter::editor_ = *this);
-    _tools->add({ CoreTools::Brush, CoreTools::Eraser, CoreTools::Navigate });
+//     _palettes->addStaticIds<CorePalettes::all_palettes>();
+//     _colorSelection->setPalette(_palettes->getShared(CorePalettes::BasicPalette));
+//     
+//     _tools->bindFactoryParameters(aux_IToolPresenter::editor_ = *this);
+//     _tools->add({ CoreTools::Brush, CoreTools::Eraser, CoreTools::Navigate });
         
 //     _loadDocumentTask = new LoadDocumentTask(this);
 //     connect(_loadDocumentTask, &AsyncTask::completed, this, &MainEditorPresenter::onLoadDocumentCompleted);
@@ -174,8 +174,8 @@ void MainEditorPresenter::loadDocument(QSharedPointer<FileRequest> request)
     {
         if (!_loadDocumentHelper.canLoad()) return;
         
-        request->setModelType(GenericFormatModelTypeInfo::fromType<IDocument>());
-        request->setFavoriteFormat(CoreFormats::PNG);
+//         request->setModelType(GenericFormatModelTypeInfo::fromType<IDocument>());
+//         request->setFavoriteFormat(CoreFormats::PNG);
 //         request->setDirectory(
 //                 cpplinq::from(QStandardPaths::standardLocations(QStandardPaths::PicturesLocation))
 //             >>  cpplinq::first_or_default()
@@ -357,7 +357,7 @@ void MainEditorPresenter::onLoadDocumentFailed()
 // 
 // }
 
-void MainEditorPresenter::setCurrentTool(ToolId tool)
+void MainEditorPresenter::setCurrentTool(QSharedPointer<IToolPresenter> tool)
 {
 //     ASSERT_INIT(); 
 //     if (tool == _currentTool)

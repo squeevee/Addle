@@ -3,8 +3,16 @@
 
 #include <boost/di.hpp>
 
-#include "utilities/config3/addleconfig.hpp"
+#include "utilities/config3/interfacebindingconfig.hpp"
 #include "utilities/config3/factory.hpp"
+#include "utilities/config3/repository.hpp"
+
+#include "utilities/coordinatedreadwritelock.hpp"
+
+#include "exceptions/addleexception.hpp"
+#include "utilities/config3/bindingcondition.hpp"
+#include "utilities/config3/interfacebindingconfig.hpp"
+#include "utilities/config3/moduleconfig.hpp"
 
 namespace Addle {
 class IA
@@ -17,18 +25,24 @@ public:
 
 namespace aux_IA {
     ADDLE_FACTORY_PARAMETER_NAME(s)
+    ADDLE_FACTORY_PARAMETER_NAME(q)
 }
 
-ADDLE_DECL_MAKEABLE(IA);
-ADDLE_DECL_FACTORY_PARAMETERS(IA,
-    (optional ( s, (QString), "spiff" ))
-)
+ADDLE_DECL_SERVICE(IA)
+
+// ADDLE_DECL_MAKEABLE(IA);
+// ADDLE_DECL_FACTORY_PARAMETERS(IA,
+//     (optional 
+//         ( s, (QString), QString() )
+//     )
+// )
 
 class IB
 {
-public:
+public:    
     virtual ~IB() = default;
-    virtual int v() const = 0;
+    virtual QByteArray v() const = 0;
+    virtual IA& a() = 0;
     virtual const IA& a() const = 0;
 };
 
@@ -36,7 +50,20 @@ namespace aux_IB {
     ADDLE_FACTORY_PARAMETER_NAME(v)
 }
 
-ADDLE_DECL_SERVICE(IB);
+ADDLE_DECL_MAKEABLE(IB);
+ADDLE_DECL_FACTORY_PARAMETERS(IB,
+    (optional
+        ( v, (QByteArray), "spiff")
+    )
+)
+
+template<>
+struct Traits::repo_hints<IB>
+{
+//     static constexpr bool infer_defaults = false;
+//     using key_type = int;
+    static constexpr auto key_getter = &IB::v;
+};
 
 class IC
 {
@@ -52,9 +79,9 @@ class D {};
 class A : public IA, public QEnableSharedFromThis<A>
 {
 public:
-    A(IB&)
-        //: _s(s)
+    A(IB* b)
     {
+        qDebug() << b->v();
     }
     
     virtual ~A() = default;
@@ -68,25 +95,36 @@ private:
 class B : public IB
 {
 public:
-// //     B(A* a, int v)
-//     BOOST_DI_INJECT(B, IA* a, (named = aux_IB::v_) int v)
-//         : _a(a), _v(v)
-//     {
-//     }
-    
-    B() = default;
+    B(QByteArray v) : _v(v) {}
     
     virtual ~B() = default;
-    int v() const override { return _v; }
-    const IA& a() const override { return *_a; }
+    QByteArray v() const override { return _v; }
+    IA& a() override { Q_UNREACHABLE(); }
+    const IA& a() const override { Q_UNREACHABLE(); }
     
 private:
-    std::unique_ptr<IA> _a;
-    int _v;
+    QByteArray _v;
 };
 
-
+// class B2 : public IB
+// {
+// public:
+//     B2(IA& a, QByteArray b) :_a(a) { assert(b == "gorz"); }
+//     
+//     virtual ~B2() = default;
+//     int v() const override { return 2; }
+//     IA& a() override { return _a; }
+//     const IA& a() const override { return _a; }
+//     
+// private:
+//     IA& _a;
+// };
 }
+
+Q_DECLARE_INTERFACE(Addle::IB, "org.addle.testing.IB");
+
+// Q_DECLARE_METATYPE(QSharedPointer<Addle::IA>);
+Q_DECLARE_METATYPE(QSharedPointer<Addle::IB>);
 
 using namespace Addle;
 
@@ -95,31 +133,40 @@ class Config3_UTest : public QObject
     Q_OBJECT
 private:
     QTranslator fallbackTranslator;
-    
+        
 private slots:
     void initTestCase()
     {
         fallbackTranslator.load(":/l10n/en_US.qm");
         QCoreApplication::instance()->installTranslator(&fallbackTranslator);
+        
+//         qRegisterMetaType<QSharedPointer<Addle::IA>>();
+        qRegisterMetaType<QSharedPointer<Addle::IB>>();
+        
+//         qRegisterMetaType<Addle::aux_config3::GenericRepoMemberRef>();
+//         qRegisterMetaType<Addle::aux_config3::GenericRepoMemberConstRef>();
     }
     
     void dev_1()
     {
-        using namespace aux_config3;
         using namespace boost::di;
         using namespace boost::mp11;
+        using namespace aux_config3;
         
-        AddleConfig cfg;
-        cfg.addInjector( bind<IA>().to<A>() );
-        cfg.addInjector( bind<IB>().to<B>() );
+        InterfaceBindingConfig config;
         
-        auto f = Factory<IA>(cfg);
-        for (int i = 0; i < 100; ++i)
-            delete f.make();
+        {
+            auto mc = config.addModule("test");
+            mc.addBindings(
+                    bind<IA>.to<A>(),
+                    bind<IB>.to<B>()
+                );
+            
+            mc.commit();
+        }
         
-        auto g = Factory<A>(cfg);
-        for (int i = 0; i < 100; ++i)
-            delete g.make();
+        auto& a = *di_runtime_bindings_traits<InterfaceBindingConfig>::get_service<IA>(&config);
+        
     }
 };
 

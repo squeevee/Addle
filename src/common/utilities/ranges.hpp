@@ -27,6 +27,8 @@
 #include <boost/range.hpp>
 #include <boost/range/adaptor/transformed.hpp>
 
+#include <boost/mp11.hpp>
+
 #include <boost/type_traits.hpp>
 #include <boost/type_traits/is_detected.hpp>
 #include <boost/type_traits/is_detected_convertible.hpp>
@@ -37,29 +39,27 @@
 namespace Addle {
 
 /**
- * Prevent implicitly shared data type container from detaching.
+ * Wraps usage of an implicitly shared data type to prevent it from detaching.
+ * 
+ * If given an l-value reference, this gives the equivalent const l-value 
+ * reference, i.e., behaves the same as qAsConst or std::as_const.
+ * 
+ * If given an r-value reference, this gives a const pr-value move-constructed 
+ * from the input. This is assumed to be quite cheap for an implicitly shared
+ * data type, your mileage may vary with non-shared types.
+ * 
+ * This can be used in the same way as qAsConst to select const overloads of 
+ * member functions of an object, e.g., `noDetach(repo).members()`. It can also 
+ * wrap the range expression of a for loop such that the const overloads of 
+ * `begin` and `end` are called. This is especially convenient if the range 
+ * expression is an r-value, e.g., `for (auto&& x : noDetach(spiff.getFoo()))`,
+ * 
  */
 template<typename T>
-inline const T& noDetach(T& container)
-{
-    return qAsConst(container);
-}
+inline const T& noDetach(T& container) { return const_cast<const T&>(container); }
 
-/**
- * Prevent implicitly shared data type container from detaching.
- */
 template<typename T>
-inline const T noDetach(T&& container)
-{
-    // Assuming T is an implicitly shared type, the "copy" made here is an
-    // inexpensive shared reference. In the calling context it will be a const 
-    // prvalue (thus non-detaching) whose validitity is assured for its own
-    // lifetime.
-
-    // Naturally, it should only be used for implicitly shared types
-
-    return T(std::move(container));
-}
+inline const boost::remove_cv_ref_t<T> noDetach(T&& container) { return boost::remove_cv_ref_t<T>{ std::move(container) }; }
 
 // template<typename T>
 // inline QList<T> qToList(const QSet<T>& set)
@@ -91,16 +91,19 @@ namespace aux_range_utils {
 template<typename Range>
 using _range_iterator_t = typename boost::range_iterator<boost::remove_cv_ref_t<Range>>::type;
 
+// TODO: make more of these, no prepended underscore, and just use them instead 
+// of calling out the full verbose Boost range traits
+
 }
 
 template<typename Range, std::enable_if_t<boost::is_detected<aux_range_utils::_range_iterator_t, Range>::value, void*> = nullptr>
-QList<std::decay_t<typename boost::range_value<boost::remove_cv_ref_t<Range>>::type>>
-qToList(Range&& range)
+auto qToList(Range&& range)
 {
     using list_t = QList<std::decay_t<typename boost::range_value<boost::remove_cv_ref_t<Range>>::type>>;
     return list_t(std::begin(range), std::end(range));
 }
 
+// TODO: more generic
 template<typename T>
 inline QSet<T> qToSet(const QList<T>& list)
 {
@@ -258,6 +261,7 @@ auto&& only_value(Range&& r)
     return *std::begin(std::forward<Range>(r));
 }
 
+/// DEPRECATED (soft deprecation)
 template<class TargetContainer, typename SourceRange>
 inline void reserve_for_size_if_forward_range(TargetContainer& t, const SourceRange& s)
 {
@@ -272,6 +276,28 @@ inline void reserve_for_size_if_forward_range(TargetContainer& t, const SourceRa
     }
 }
 
+// Slightly more efficient because it only checks the size of the source once
+// and applies it to multile targets. Because the order of target and source are 
+// reversed, I can't just replace the old one with this definition.
+template<typename SourceRange, class... TargetContainer>
+inline void reserve_for_size_if_forward_range2(const SourceRange& s, TargetContainer&... t)
+{
+    if constexpr (
+            std::is_convertible_v<
+                typename boost::range_category<SourceRange>::type, 
+                std::forward_iterator_tag
+            >
+            && sizeof...(TargetContainer) > 0 
+            // not sure why you're calling this function if you don't have any 
+            // target containers, but whatever floats your boat
+        )
+    {
+        auto size = boost::size(s);
+        const int _[] = { (t.reserve(size + t.size()), 0)... };
+        Q_UNUSED(_);
+    }
+}
+
 template<class Range>
 inline QList<
         typename boost::range_value<boost::remove_cv_ref_t<Range>>::type
@@ -283,10 +309,13 @@ inline QList<
         std::begin(std::forward<Range>(range)), 
         std::end(std::forward<Range>(range)) 
     );
-}
+} // ### ??? why are there two of these?
 
 namespace aux_range_utils {
 
+    
+// TODO: I don't remember what I wanted these for but I think it turned out not
+// to be important. ?
 template<typename Range>
 struct has_contiguous_storage : std::false_type {};
 

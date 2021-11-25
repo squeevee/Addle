@@ -3,7 +3,7 @@
 
 #include "utilities/asynctask.hpp"
 #include "utilities/presenter/filerequest.hpp"
-#include "utilities/format/genericformat.hpp"
+// #include "utilities/format/genericformat.hpp"
 
 namespace Addle {
     
@@ -15,7 +15,7 @@ public:
     SaveTask(IMessageContext& messageContext);
     virtual ~SaveTask() = default;
     
-    GenericSharedFormatModel model() const;
+//     GenericSharedFormatModel model() const;
     
 protected:
     void doTask() override;

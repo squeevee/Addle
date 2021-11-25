@@ -14,7 +14,7 @@
 #include "globals.hpp"
 #include "itoolpresenter.hpp"
 
-#include "idtypes/brushid.hpp"
+// #include "idtypes/brushid.hpp"
 #include "interfaces/iamqobject.hpp"
 
 #include "interfaces/traits.hpp"
@@ -47,12 +47,10 @@ public:
 
     virtual IAssetSelectionPresenter& brushSelection() = 0;
 
-    virtual void selectBrush(BrushId id) = 0;
-    virtual BrushId selectedBrush() = 0;
-
-    virtual QSharedPointer<IBrushPresenter> selectedBrushPresenter() = 0;
+    virtual void selectBrush(QSharedPointer<IBrushPresenter>) = 0;
+    virtual QSharedPointer<IBrushPresenter> selectedBrush() = 0;
 signals:
-    virtual void brushChanged(BrushId brush) = 0;
+//     virtual void brushChanged(BrushId brush) = 0;
     virtual void refreshPreviews() = 0;
 };
 

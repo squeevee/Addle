@@ -13,7 +13,7 @@
 #include <QPainterPath>
 #include <QRect>
 
-#include "idtypes/brushengineid.hpp"
+// #include "idtypes/brushengineid.hpp"
 
 #include "utilities/editing/brushstroke.hpp"
 
@@ -26,7 +26,7 @@ class IBrushEngine
 public:
     virtual ~IBrushEngine() = default;
 
-    virtual BrushEngineId id() const = 0;
+//     virtual BrushEngineId id() const = 0;
 
     virtual QPainterPath indicatorShape(const BrushStroke& painter) const = 0;
     virtual void paint(BrushStroke& painter) const = 0;
@@ -34,7 +34,7 @@ public:
 
 namespace aux_IBrushEngine { using namespace config_detail::generic_id_parameter; }
 
-ADDLE_DECL_SINGLETON_REPO_MEMBER(IBrushEngine, BrushEngineId);
+// ADDLE_DECL_SINGLETON_REPO_MEMBER(IBrushEngine, BrushEngineId);
 } // namespace Addle
 
 #endif // IBRUSHENGINE_HPP

@@ -16,8 +16,8 @@ void Brush::initialize(const BrushBuilder& builder)
 {
     const Initializer init(_initHelper);
 
-    ADDLE_ASSERT(!builder.id() || _id == builder.id());
-    _engineId = builder.engine();
+//     ADDLE_ASSERT(!builder.id() || _id == builder.id());
+//     _engineId = builder.engine();
     _customEngineParameters = builder.customEngineParameters();
 
     _icon = builder.icon();

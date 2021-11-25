@@ -11,13 +11,15 @@
 #include <type_traits>
 
 #include <boost/di.hpp> 
+#include <boost/di/extension/injections/extensible_injector.hpp>
 #include <boost/mp11.hpp>
 
 #include <QSharedPointer>
 
 #include "interfaces/traits.hpp"
 
-#include "./servicestorage.hpp"
+#include "../config/factoryparams.hpp"
+#include "utilities/metaprogramming.hpp"
 
 template<typename T>
 struct boost::di::aux::deref_type<QSharedPointer<T>> { using type = boost::di::aux::decay_t<T>; };
@@ -31,7 +33,12 @@ struct boost::di::type_traits::rebind_traits<QSharedPointer<T>, U> { using type 
 template <class T, class TName, class _>
 struct boost::di::type_traits::rebind_traits<QSharedPointer<T>, boost::di::named<TName, _>> { using type = named<TName, QSharedPointer<T>>; };
 
+template <class T>
+struct boost::di::scopes::detail::wrapper_traits<QSharedPointer<T>>;
+
 namespace Addle::aux_config3 {
+    
+class di_service_storage_base; // defined in servicestorage.hpp
 
 template<typename TDep> using dep_interface_t   = typename TDep::expected;
 template<typename TDep> using dep_impl_t        = typename TDep::given;
@@ -58,29 +65,9 @@ struct di_qshared_memory /*: boost::di::type_traits::heap*/ {};
 template<typename T> struct remove_qsharedpointer { using type = T; };
 template<typename T> struct remove_qsharedpointer<QSharedPointer<T>> { using type = T; };
 
-template<typename... TDeps>
-using service_storage_t = boost::mp11::mp_apply<ServiceStorage,
-    boost::mp11::mp_transform_q<
-        boost::mp11::mp_bind<boost::mp11::mp_list, 
-            boost::mp11::mp_bind<dep_interface_t, boost::mp11::_1>, 
-            boost::mp11::mp_bind<dep_impl_t, boost::mp11::_1>
-        >,
-        boost::mp11::mp_filter_q<
-            boost::mp11::mp_compose<dep_interface_t, Traits::is_singleton>,
-            boost::di::core::bindings_t<TDeps...>
-        >
-    >>;
+template<class> struct di_runtime_bindings_traits;
 
-template<class RuntimeConfig>
-struct di_runtime_config_traits
-{
-    // template<typename I> static I* make(const RuntimeConfig*, ...);
-    // template<typename I> static I* make_shared(const RuntimeConfig*, ...);
-    // template<typename I> static I* get_service(const RuntimeConfig*);
-    // template<typename I, typename F> static I* get_informal_service(const RuntimeConfig*, F&&);
-};
-
-template<class RuntimeConfig>
+template<class RuntimeBindings>
 struct di_provider : boost::di::providers::stack_over_heap
 {
     using base_provider_t = boost::di::providers::stack_over_heap;
@@ -108,73 +95,88 @@ struct di_provider : boost::di::providers::stack_over_heap
     auto get(const TInit&, const di_qshared_memory&, TArgs&&... args) const
     {
         if constexpr (base_is_creatable<TInit, T, TArgs...>::value)
+        {
+            // TODO: For QObject classes, it'd be better to create shared 
+            // pointers that use QObject::deleteLater rather than the default 
+            // deleter. This would eliminate the possibility of certain races 
+            // between the event loop and destructors of shared objects.
+            // 
+            // This could have unintended side-effects, e.g., in tests it may be
+            // necessary to call `QCoreApplication::sendPostedEvents` before any
+            // destructors can be observed.
+            
             return QSharedPointer<T>::create(std::forward<TArgs>(args)...);
+        }
         else
+        {
             return this->runtime_make_shared<T>();
+        }
     }
     
     template<class T, std::enable_if_t<
-            Traits::is_makeable<T>::value
-            && !config_detail::has_factory_params<T>::value
+            Traits::is_makeable<T>::value && !config_detail::has_factory_params<T>::value
         , void*> = nullptr>
     inline T* runtime_make() const
     {
-        return di_runtime_config_traits<RuntimeConfig>::template make<T>(runtimeConfig);
+        return di_runtime_bindings_traits<RuntimeBindings>::template make<T>(runtimeBindings);
     }
     
     template<class T, std::enable_if_t<
-            Traits::is_makeable<T>::value
-            && config_detail::has_factory_params<T>::value
+            Traits::is_makeable<T>::value && config_detail::has_factory_params<T>::value
         , void*> = nullptr>
     inline T* runtime_make() const
     {
         return config_detail::make_factory_param_dispatcher<T>(
-            std::bind(&di_runtime_config_traits<RuntimeConfig>
-                    ::template make<T, const config_detail::factory_params_t<T>&>,
-                runtimeConfig,
-                std::placeholders::_1))();
+            [&] (auto&& params) {
+                return di_runtime_bindings_traits<RuntimeBindings>::template make<T>(runtimeBindings, std::move(params));
+            })();
+    }
+    
+//     template<class T, std::enable_if_t<
+//             Traits::is_singleton<T>::value
+//             && !Traits::is_makeable<T>::value,
+//         void*> = nullptr>
+//     inline T* runtime_make() const
+//     {
+//         return di_runtime_bindings_traits<RuntimeBindings>
+//             ::template get_service<T>(RuntimeBindings);
+//     }
+    
+    template<class T, std::enable_if_t<
+            Traits::is_makeable<T>::value
+            && !config_detail::has_factory_params<T>::value, 
+        void*> = nullptr>
+    inline QSharedPointer<T> runtime_make_shared() const
+    {
+        return di_runtime_bindings_traits<RuntimeBindings>::template make_shared<T>(runtimeBindings);
     }
     
     template<class T, std::enable_if_t<
-            Traits::is_singleton<T>::value
-            && !Traits::is_makeable<T>::value
-        , void*> = nullptr>
-    inline T* runtime_make() const
-    {
-        return di_runtime_config_traits<RuntimeConfig>::template get_service<T>(runtimeConfig);
-    }
-    
-    template<class T, std::enable_if_t<!config_detail::has_factory_params<T>::value, void*> = nullptr>
+            Traits::is_makeable<T>::value
+            && config_detail::has_factory_params<T>::value, 
+        void*> = nullptr>
     inline QSharedPointer<T> runtime_make_shared() const
     {
-        static_assert(Traits::is_makeable<T>::value);
-        return di_runtime_config_traits<RuntimeConfig>::template make_shared<T>(runtimeConfig);
-    }
-    
-    template<class T, std::enable_if_t<config_detail::has_factory_params<T>::value, void*> = nullptr>
-    inline QSharedPointer<T> runtime_make_shared() const
-    {
-        static_assert(Traits::is_makeable<T>::value);
         return config_detail::make_factory_param_dispatcher<T>(
-            std::bind(&di_runtime_config_traits<RuntimeConfig>
-                    ::template make_shared<T, const config_detail::factory_params_t<T>&>,
-                runtimeConfig,
-                std::placeholders::_1))();
+            [&] (auto&& params) {
+                return di_runtime_bindings_traits<RuntimeBindings>
+                    ::template make_shared<T>(runtimeBindings, std::move(params));
+            })();
     }
     
-    template<class T>
-    inline T* runtime_get_singleton() const
+//     template<class T>
+//     inline T* runtime_get_singleton() const
+//     {
+//         static_assert(Traits::is_singleton<T>::value);
+//         return di_runtime_bindings_traits<RuntimeBindings>::template get_singleton<T>(runtimeBindings);
+//     }
+    
+    di_provider(const RuntimeBindings* runtimeBindings_)
+        : runtimeBindings(runtimeBindings_)
     {
-        static_assert(Traits::is_singleton<T>::value);
-        return di_runtime_config_traits<RuntimeConfig>::template get_singleton<T>(runtimeConfig);
     }
     
-    di_provider(const RuntimeConfig* config_)
-        : runtimeConfig(config_)
-    {
-    }
-    
-    const RuntimeConfig* runtimeConfig;
+    const RuntimeBindings* runtimeBindings;
 };
 
 // This scope and wrapper mirror boost::di:scopes::unique but allowing use of
@@ -227,71 +229,107 @@ struct di_service_scope
     {
         template<class, class>
         using is_referable = std::true_type;
-        
-        template <class TProvider>
-        using _get_ref_t = decltype(*(std::declval<TProvider>().get()));
-        
+                
         template<class TProvider>
-        using service_storage_t = typename boost::remove_cv_ref_t<
-                decltype(std::declval<TProvider>().cfg())
-            >::service_storage_t;
+        using runtime_config_t = decltype(std::declval<TProvider>().cfg().runtimeBindings);
+        using _wrapper_t = boost::di::wrappers::shared<di_service_scope, TExpected&>;
         
-        template <class T, class, class TProvider>
-        static std::enable_if_t<
-                std::is_reference<_get_ref_t<TProvider>>::value,
-                boost::di::wrappers::shared<di_service_scope, _get_ref_t<TProvider>>>
-            try_create(const TProvider&);
+        template<class ServiceStorage_>
+        using _contains_expected = typename ServiceStorage_::template contains<TExpected>;
+            
+        template<class TProvider>
+        using service_storage_t = mp_only<
+            boost::mp11::mp_filter<
+                _contains_expected,
+                boost::mp11::mp_filter_q<
+                    boost::mp11::mp_bind<std::is_base_of, di_service_storage_base, boost::mp11::_1>,
+                    boost::mp11::mp_transform<dep_impl_t, typename TProvider::injector::deps>
+                >
+            >>;
+            
+        //,
+//             std::enable_if_t<
+//                    boost::mp11::mp_valid<runtime_config_t, TProvider>::value
+//                 && (
+//                        boost::mp11::mp_valid<service_storage_t, TProvider>::value
+//                     || Traits::is_singleton<TExpected>::value
+//                     || !std::is_abstract_v<TExpected>
+//                 )
+//             , void*> = nullptr>
+        template <class, class, class TProvider>
+        static _wrapper_t try_create(const TProvider&);
         
         template <class, class, class TProvider, 
-            std::enable_if_t<boost::mp11::mp_valid<service_storage_t, TProvider>::value,
-            void*> = nullptr>
+            std::enable_if_t<
+                boost::mp11::mp_valid<runtime_config_t, TProvider>::value
+                && boost::mp11::mp_valid<service_storage_t, TProvider>::value
+            , void*> = nullptr>
         auto create(const TProvider& provider) const 
         {
-            using wrapper = boost::di::wrappers::shared<di_service_scope, 
-                _get_ref_t<TProvider>>;
-            using service_storage_t = service_storage_t<TProvider>;
+            auto&& serviceStorage = provider.super()
+                .template create<service_storage_t<TProvider>>();
             
-            if constexpr (service_storage_t::template contains<TExpected>::value)
+            auto result = serviceStorage.template getService<TExpected>();
+            if (Q_UNLIKELY(!result))
             {
-                auto result = provider.cfg().template getService<TExpected>();
-                if (Q_UNLIKELY(!result))
-                {
-                    std::tie(result, std::ignore) = provider.cfg()
-                        .template initializeService<TExpected>(
-                            [&] () { return provider.get(); }
-                        );
-                }
-                
-                assert(result);
-                return wrapper { *result };
-            }
-            else if constexpr (Traits::is_singleton<TExpected>::value)
-            {
-                return wrapper { *(provider.get()) };
-            }
-            else
-            {
-                auto* runtimeConfig = provider.cfg().runtimeConfig;
-                auto result = di_runtime_config_traits<
-                        std::remove_cv_t<std::remove_pointer_t<decltype(runtimeConfig)>>
-                    >::template get_informal_service<TExpected>(
-                        runtimeConfig, [&] { return provider.get(); }
+                std::tie(result, std::ignore) = serviceStorage
+                    .template initializeService<TExpected>(
+                        [&] () { return provider.get(); }
                     );
-                    
-                assert(result);
-                return wrapper { *result };
             }
+            
+            assert(result);
+            return _wrapper_t( static_cast<TExpected&>(*result) );
         }
         
         template <class, class, class TProvider, 
-            std::enable_if_t<!boost::mp11::mp_valid<service_storage_t, TProvider>::value,
-            void*> = nullptr>
-        auto create(const TProvider& provider) const
-            -> boost::di::wrappers::shared<di_service_scope, _get_ref_t<TProvider>>;
-        // a bit hackish, this exists so this class fulfills the "scopable" 
-        // concept, to enable `.in(di_service_scope {})` in DI bind expressions, 
-        // but is undefined as service scope is not actually usable with a 
-        // generic provider.
+            std::enable_if_t<
+                boost::mp11::mp_valid<runtime_config_t, TProvider>::value
+                && !boost::mp11::mp_valid<service_storage_t, TProvider>::value
+                && std::is_abstract_v<TExpected>
+                && Traits::is_singleton<TExpected>::value
+            , void*> = nullptr>
+        auto create(const TProvider& provider) const 
+        {
+            using _bindings_traits = di_runtime_bindings_traits< 
+                    std::remove_cv_t<std::remove_pointer_t< runtime_config_t<TProvider> >> 
+                >;
+            runtime_config_t<TProvider> runtimeBindings = provider.cfg().runtimeBindings;
+            
+            auto result = _bindings_traits::template get_service<TExpected>(runtimeBindings);
+            
+            assert(result);
+            return _wrapper_t{ static_cast<TExpected&>(*result) };
+        }
+        
+        template <class, class, class TProvider, 
+            std::enable_if_t<
+                boost::mp11::mp_valid<runtime_config_t, TProvider>::value
+                && !boost::mp11::mp_valid<service_storage_t, TProvider>::value
+                && !std::is_abstract_v<TExpected>
+            , void*> = nullptr>
+        auto create(const TProvider& provider) const 
+        {
+            using _bindings_traits = di_runtime_bindings_traits< 
+                    std::remove_cv_t<std::remove_pointer_t< runtime_config_t<TProvider> >> 
+                >;
+            runtime_config_t<TProvider> runtimeBindings = provider.cfg().runtimeBindings;
+            
+            auto result = _bindings_traits::template get_or_initialize_service<TExpected>(
+                    runtimeBindings, [&]() { return provider.get(); }
+                );
+            
+            assert(result);
+            return _wrapper_t{ static_cast<TExpected&>(*result) };
+        }
+        
+//         template <class, class, class TProvider, 
+//             std::enable_if_t<!boost::mp11::mp_valid<runtime_config_t, TProvider>::value,
+//             void*> = nullptr>
+//         auto create(const TProvider& provider) const -> _wrapper_t;
+//         // a bit hackish, this exists so this class fulfills the "scopable" 
+//         // concept, to enable `.in(di_service_scope {})` in DI bind expressions, 
+//         // but is not defined.
     };
 };
 
@@ -322,10 +360,10 @@ struct di_scope_traits<QSharedPointer<T>>
 template<typename T>
 struct di_scope_traits<T&> { using type = di_service_scope; };
 
-template<class ServiceStorage_, class RuntimeConfig>
-struct di_cfg : boost::di::config, ServiceStorage_
+template<class RuntimeBindings>
+struct di_cfg : boost::di::config
 {
-    using service_storage_t = ServiceStorage_;
+    using runtime_config_t = RuntimeBindings;
     
     template<typename T>
     using memory_traits = di_memory_traits<T>;
@@ -333,9 +371,9 @@ struct di_cfg : boost::di::config, ServiceStorage_
     template<typename T>
     using scope_traits = di_scope_traits<T>;
     
-    auto provider(...) noexcept { return di_provider(runtimeConfig); }
+    auto provider(...) noexcept { return di_provider(runtimeBindings); }
     
-    const RuntimeConfig* runtimeConfig = nullptr;
+    const RuntimeBindings* runtimeBindings = nullptr;
 };
 
 #ifdef ADDLE_DEBUG
@@ -345,25 +383,86 @@ struct di_cfg : boost::di::config, ServiceStorage_
 #define ADDLE_DI_POLICIES boost::di::core::pool<>
 #endif
 
-template<class RuntimeConfig, class... TDeps>
-struct di_injector : public boost::di::core::injector<di_cfg<service_storage_t<TDeps...>, RuntimeConfig>, ADDLE_DI_POLICIES, TDeps...>
+template<class RuntimeBindings>
+using _runtime_bindings_dep_t = boost::di::core::dependency<boost::di::scopes::instance, RuntimeBindings, const RuntimeBindings&>;
+
+template<class RuntimeBindings, class... TDeps>
+struct di_injector : public boost::di::core::injector<di_cfg<RuntimeBindings>, 
+    ADDLE_DI_POLICIES, _runtime_bindings_dep_t<RuntimeBindings>, TDeps...>
 {
-    using cfg_t = di_cfg<service_storage_t<TDeps...>, RuntimeConfig>;
-    using base_injector_t = boost::di::core::injector<cfg_t, ADDLE_DI_POLICIES, TDeps...>;
+    using cfg_t = di_cfg<RuntimeBindings>;
+    using base_injector_t = boost::di::core::injector<cfg_t, ADDLE_DI_POLICIES, 
+        _runtime_bindings_dep_t<RuntimeBindings>, TDeps...>;
     using base_injector_t::is_creatable;
         
-    di_injector(const RuntimeConfig* runtimeConfig, TDeps&&... deps) noexcept
-        : base_injector_t { boost::di::core::init {}, std::forward<TDeps>(deps)... }
+    di_injector(const RuntimeBindings* runtimeBindings, TDeps&&... deps) noexcept
+        : base_injector_t { 
+            boost::di::core::init {}, 
+            boost::di::bind<RuntimeBindings>.to(*runtimeBindings),
+            std::forward<TDeps>(deps)... 
+        }
     {
-        static_cast<cfg_t&>(this->cfg()).runtimeConfig = runtimeConfig;
+        static_cast<cfg_t&>(this->cfg()).runtimeBindings = runtimeBindings;
     }
     
-    const RuntimeConfig* runtimeConfig() const
+    const RuntimeBindings* runtimeBindings() const
     { 
-        return static_cast<const cfg_t&>(this->cfg()).runtimeConfig; 
+        return static_cast<const cfg_t&>(this->cfg()).runtimeBindings; 
     }
 };
 
+#undef ADDLE_DI_POLICIES
+
+template<bool, typename>
+struct bindFactoryParams;
+
+template<bool UseNames, template<typename...> class L, typename... ParamList>
+struct bindFactoryParams<UseNames, L<ParamList...>>
+{
+    using params_t = L<ParamList...>;
+    
+    template<typename ParamEntry>
+    static auto _entry(params_t&& params)
+    {
+        using value_t = typename ParamEntry::value_type;
+        
+        static_assert(!std::is_pointer_v<std::remove_pointer_t<value_t>>
+            && !std::is_pointer_v<std::remove_reference_t<value_t>>);
+        // I doubt DI (as is) has a way to pass pointers-to-pointers or 
+        // references-to-pointers as factory parameters, and in the (quite 
+        // unlikely) case we need something like that, I'm sure we can work 
+        // around this limitation with a wrapper class.
+        
+        using bound_t = boost::mp11::mp_if<
+                std::is_pointer<value_t>,
+                std::remove_cv_t<std::remove_pointer_t<value_t>>,
+                value_t
+            >;
+        
+        const auto& keyword = boost::parameter::keyword<typename ParamEntry::tag_type>::instance;
+        auto&& value = params[keyword];
+        
+        if constexpr (UseNames)
+            return boost::di::bind<bound_t>().to(static_cast<value_t&&>(value)).named(keyword)[boost::di::override];
+        else
+            return boost::di::bind<bound_t>().to(static_cast<value_t&&>(value))[boost::di::override];
+    }
+    
+    template<typename Injector, typename... TExtraDeps>
+    static auto extend(Injector& injector, params_t&& params, TExtraDeps&&... extraDeps)
+    {
+        return boost::di::make_injector<typename Injector::config>(
+                boost::di::extension::make_extensible(injector),
+                _entry<ParamList>(std::move(params))...,
+                std::forward<TExtraDeps>(extraDeps)...
+            );
+    }
+};
+
+
+
 }
 
-#undef ADDLE_DI_POLICIES
+template <class T>
+struct boost::di::scopes::detail::wrapper_traits<QSharedPointer<T>> 
+{ using type = Addle::aux_config3::di_qshared_wrapper<instance, T>; };

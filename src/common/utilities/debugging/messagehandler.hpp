@@ -37,11 +37,11 @@ namespace Addle {
 
 // This should only be used by `main()`
 
-DECL_LOGIC_ERROR(QtWarningAsException)
 class QtWarningAsException : public AddleException
 {
     ADDLE_EXCEPTION_BOILERPLATE(QtWarningAsException)
 public:
+    static constexpr bool IsLogicError = true;
     QtWarningAsException(const QString& message, DebugBehavior::DebugBehaviorOption reason)
         //% "A Qt warning was intercepted (%1):\n"
         //% "%2"

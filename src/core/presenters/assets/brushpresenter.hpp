@@ -29,10 +29,10 @@ public:
     virtual ~BrushPresenter() = default;
 
     void initialize(IBrush& model, QSharedPointer<const PreviewInfoProvider> info = nullptr);
-    void initialize(BrushId id, QSharedPointer<const PreviewInfoProvider> info = nullptr);
+//     void initialize(BrushId id, QSharedPointer<const PreviewInfoProvider> info = nullptr);
 
-    AddleId id() { return brushId(); }
-    BrushId brushId() { ASSERT_INIT(); return _id; }
+//     AddleId id() { return brushId(); }
+//     BrushId brushId() { ASSERT_INIT(); return _id; }
     virtual IBrush& model() const { ASSERT_INIT(); return *_model; }
 
     QString name();
@@ -69,7 +69,7 @@ private:
 
     QIcon _assetIcon;
 
-    BrushId _id;
+//     BrushId _id;
     IBrush* _model;
 
     std::unique_ptr<ISizeSelectionPresenter> _sizeSelection;

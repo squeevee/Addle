@@ -11,7 +11,7 @@
 
 #include "compat.hpp"
 
-#include "utilities/format/genericformat.hpp"
+// #include "utilities/format/genericformat.hpp"
 
 #include <QList>
 #include <QObject>
@@ -85,19 +85,19 @@ public:
     bool isCompleted() const { const QReadLocker lock(&_lock); return _isCompleted; }
     bool isDone() const { const QReadLocker lock(&_lock); return _isCanceled || _isCompleted; }
     
-    GenericFormatModelTypeInfo modelType() const { const QReadLocker lock(&_lock); return _modelType; }
-    void setModelType(GenericFormatModelTypeInfo type) { const QWriteLocker lock(&_lock); _modelType = type; }
+//     GenericFormatModelTypeInfo modelType() const { const QReadLocker lock(&_lock); return _modelType; }
+//     void setModelType(GenericFormatModelTypeInfo type) { const QWriteLocker lock(&_lock); _modelType = type; }
 
-    QList<GenericFormatId> availableFormats() const { const QReadLocker lock(&_lock); return _availableFormats; }
-    void setAvailableFormats(QList<GenericFormatId> formats) { const QWriteLocker lock(&_lock); _availableFormats = formats; }
+//     QList<GenericFormatId> availableFormats() const { const QReadLocker lock(&_lock); return _availableFormats; }
+//     void setAvailableFormats(QList<GenericFormatId> formats) { const QWriteLocker lock(&_lock); _availableFormats = formats; }
 
     // A TrId for the label for a file filter that selects for all available
     // formats, e.g., "Image files". If left blank, a generic label will be used.
     const char* allFormatsLabelTrId() const { const QReadLocker lock(&_lock); return _allFormatsLabelTrId; }
     void setAllFormatsLabelTrId(const char* label) { const QWriteLocker lock(&_lock); _allFormatsLabelTrId = label; }
 
-    GenericFormatId favoriteFormat() const { const QReadLocker lock(&_lock); return _favoriteFormat; }
-    void setFavoriteFormat(GenericFormatId format) { const QWriteLocker lock(&_lock); _favoriteFormat = format; }
+//     GenericFormatId favoriteFormat() const { const QReadLocker lock(&_lock); return _favoriteFormat; }
+//     void setFavoriteFormat(GenericFormatId format) { const QWriteLocker lock(&_lock); _favoriteFormat = format; }
 
     IMessageContext* messageContext() const { const QReadLocker lock(&_lock); return _messageContext; }
     void setMessageContext(IMessageContext* messageContext) { const QWriteLocker lock(&_lock); _messageContext = messageContext; }
@@ -163,16 +163,16 @@ private:
     bool _isCanceled = false;
     bool _isCompleted = false;
     
-    GenericFormatModelTypeInfo _modelType;
+//     GenericFormatModelTypeInfo _modelType;
     
     QString _directory;
     
     IMessageContext* _messageContext = nullptr;
 
-    QList<GenericFormatId> _availableFormats;
+//     QList<GenericFormatId> _availableFormats;
     const char* _allFormatsLabelTrId = nullptr;
 
-    GenericFormatId _favoriteFormat;
+//     GenericFormatId _favoriteFormat;
 };
 
 } // namespace Addle

@@ -22,21 +22,21 @@
 #include <QStack>
 namespace Addle {
 
-class IRasterSurface;
+// class IRasterSurface;
 class ADDLE_COMMON_EXPORT BrushStroke : public QObject
 {
     Q_OBJECT
 public:    
     BrushStroke(
-        BrushId id,
+//         BrushId id,
         QColor color = QColor(),
-        double size = 0,
-        QSharedPointer<IRasterSurface> buffer = QSharedPointer<IRasterSurface>()
+        double size = 0
+//         QSharedPointer<IRasterSurface> buffer = QSharedPointer<IRasterSurface>()
     );
     
-    inline BrushId id() const { return _id; }
-    inline IBrush& brush() const { return _brush; }
-    inline QSharedPointer<IRasterSurface> buffer() const { return _buffer; }
+//     inline BrushId id() const { return _id; }
+//     inline IBrush& brush() const { return _brush; }
+//     inline QSharedPointer<IRasterSurface> buffer() const { return _buffer; }
 
     void conform();
 
@@ -82,9 +82,9 @@ public:
 //     virtual void sizeChanged(QColor color);
 
 private:
-    BrushId _id;
-    IBrush& _brush;
-    QSharedPointer<IRasterSurface> _buffer;
+//     BrushId _id;
+//     IBrush& _brush;
+//     QSharedPointer<IRasterSurface> _buffer;
 
     struct PainterState
     {
