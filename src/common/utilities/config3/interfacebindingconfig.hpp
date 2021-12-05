@@ -18,6 +18,12 @@
 
 #include "utilities/hashfunctions.hpp"
 
+#ifdef ADDLE_DEBUG
+#include "utilities/debugging/debugstring.hpp"
+#include "utilities/debugging/qdebug_extensions.hpp"
+#include "utilities/debugging/threadcrumbs.hpp"
+#endif
+
 namespace Addle {
 namespace aux_config3 {
 
@@ -95,6 +101,39 @@ struct MakeBinding
         function(&result, injector, nullptr, Shared);
         return result;
     }
+    
+#ifdef ADDLE_DEBUG
+    friend QDebug operator<<(QDebug debug, MakeBinding binding)
+    {
+        if (!binding.function)
+            return debug << "MakeBinding()";
+        
+        bool addspace = false;
+        
+        debug << "MakeBinding(";
+        
+        if (!binding.condition.isNull())
+        {
+            debug << "condition:" << binding.condition;
+            addspace = true;
+        }
+        
+        if (binding.interfaceType)
+        {
+            if (addspace) debug << ' ';
+            debug << "interface:" << aux_debug::_typeNameHelper(*binding.interfaceType).data();
+            addspace = true;
+        }
+        
+        if (binding.implType)
+        {
+            if (addspace) debug << ' ';
+            debug << "impl:" << aux_debug::_typeNameHelper(*binding.implType).data();
+        }
+        
+        return debug << ")";
+    }
+#endif
 };
 
 struct GetBinding
@@ -119,6 +158,24 @@ struct GetBinding
         assert(function && injector);
         return reinterpret_cast<Interface*>(function(injector));
     }
+    
+#ifdef ADDLE_DEBUG
+    friend QDebug operator<<(QDebug debug, GetBinding binding)
+    {
+        if (!binding.function)
+            return debug << "GetBinding()";
+        
+        debug << "GetBinding(";
+        
+        if (binding.interfaceType)
+            return debug << "interface:" << aux_debug::_typeNameHelper(*binding.interfaceType).data();
+        
+        if (binding.implType)
+            return debug << "impl:" << aux_debug::_typeNameHelper(*binding.implType).data();
+        
+        return debug << ")";
+    }
+#endif
 };
 
 class ModuleConfig;
@@ -200,28 +257,83 @@ private:
     Interface* make_p(config_detail::factory_params_t<Interface>&& params) const
     {
         const QReadLocker lock(&_lock);
-        return findMakeBinding<Interface>(params)->template make<Interface>(std::move(params));
+        
+        auto binding = findMakeBinding<Interface>(params);
+#ifdef ADDLE_DEBUG
+        const ThreadCrumb crumb(binding->function);
+        if (Q_UNLIKELY(!crumb))
+        {
+            qFatal("%s", qUtf8Printable(
+                //% "An attempt was made to invoke an interface binding (%1) "
+                //% "while it was already being invoked. This indicates that "
+                //% "the InterfaceBindingConfig contains one or more circular "
+                //% "dependencies."
+                qtTrId("debug-messages.interface-binding-config.self-invoking-binding")
+                    .arg(aux_debug::debugString(*binding))
+            ));
+        }
+#endif
+        return binding->template make<Interface>(std::move(params));
     }
     
     template<typename Interface, std::enable_if_t<!config_detail::has_factory_params<Interface>::value, void*> = nullptr>
     Interface* make_p() const
     {
         const QReadLocker lock(&_lock);
-        return findMakeBinding<Interface>()->template make<Interface>();
+        
+        auto binding = findMakeBinding<Interface>();
+        
+#ifdef ADDLE_DEBUG
+        const ThreadCrumb crumb(binding->function);
+        if (Q_UNLIKELY(!crumb))
+        {
+            qFatal("%s", qUtf8Printable(
+                qtTrId("debug-messages.interface-binding-config.self-invoking-binding")
+                    .arg(aux_debug::debugString(*binding))
+            ));
+        }
+#endif
+        return binding->template make<Interface>();
     }
     
     template<typename Interface, std::enable_if_t<config_detail::has_factory_params<Interface>::value, void*> = nullptr>
     QSharedPointer<Interface> makeShared_p(config_detail::factory_params_t<Interface>&& params) const
     {
         const QReadLocker lock(&_lock);
-        return findMakeBinding<Interface>(params)->template makeShared<Interface>(std::move(params));
+        
+        auto binding = findMakeBinding<Interface>(params);
+        
+#ifdef ADDLE_DEBUG
+        const ThreadCrumb crumb(binding->function);
+        if (Q_UNLIKELY(!crumb))
+        {
+            qFatal("%s", qUtf8Printable(
+                qtTrId("debug-messages.interface-binding-config.self-invoking-binding")
+                    .arg(aux_debug::debugString(*binding))
+            ));
+        }
+#endif
+        return binding->template makeShared<Interface>(std::move(params));
     }
     
     template<typename Interface, std::enable_if_t<!config_detail::has_factory_params<Interface>::value, void*> = nullptr>
     QSharedPointer<Interface> makeShared_p() const
     {
         const QReadLocker lock(&_lock);
-        return findMakeBinding<Interface>()->template makeShared<Interface>();
+        
+        auto binding = findMakeBinding<Interface>();
+        
+#ifdef ADDLE_DEBUG
+        const ThreadCrumb crumb(binding->function);
+        if (Q_UNLIKELY(!crumb))
+        {
+            qFatal("%s", qUtf8Printable(
+                qtTrId("debug-messages.interface-binding-config.self-invoking-binding")
+                    .arg(aux_debug::debugString(*binding))
+            ));
+        }
+#endif
+        return binding->template makeShared<Interface>();;
     }
     
     std::list<ModuleEntry> _modules;
@@ -232,7 +344,7 @@ private:
     
     mutable DynamicServiceStorage _dynamicServices;
     
-    mutable QReadWriteLock _lock;
+    mutable QReadWriteLock _lock = QReadWriteLock(QReadWriteLock::Recursive);
     
     friend class ModuleConfig;
     friend struct di_runtime_bindings_traits<InterfaceBindingConfig>;
@@ -383,7 +495,19 @@ Interface* InterfaceBindingConfig::getService(bool silenceErrors) const
         }
     }
     
-    return (**find).get.get<Interface>();
+    auto binding = (**find).get;
+    
+#ifdef ADDLE_DEBUG
+    const ThreadCrumb crumb(binding.function);
+    if (Q_UNLIKELY(!crumb))
+    {
+        qFatal("%s", qUtf8Printable(
+            qtTrId("debug-messages.interface-binding-config.self-invoking-binding")
+                .arg(aux_debug::debugString(binding))
+        ));
+    }
+#endif
+    return binding.get<Interface>();
 }
 
 template<typename Interface, typename F> 

@@ -15,11 +15,8 @@
 
 #ifdef ADDLE_DEBUG
 #include <functional> // std::function
-# if defined(ADDLE_USE_LIBBACKTRACE)
-#  define BOOST_STACKTRACE_USE_BACKTRACE
-# endif
-#include <boost/stacktrace/stacktrace.hpp>
-#endif // ADDLE_DEBUG
+#include "utilities/debugging/stacktrace_config.hpp"
+#endif
 
 #include "compat.hpp"
 #include <exception>
@@ -110,7 +107,7 @@ public:
         int line;
         QDateTime dateTime;
         QString threadName;
-        const void* threadId;
+        Qt::HANDLE threadId;
         
         boost::stacktrace::stacktrace backTrace;
     };

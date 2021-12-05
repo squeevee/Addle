@@ -11,6 +11,7 @@
 
 #ifdef ADDLE_DEBUG
 #include "utilities/debugging/qdebug_extensions.hpp"
+#include "utilities/debugging/debugstring.hpp"
 #endif
 
 using namespace Addle;

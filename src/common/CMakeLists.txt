@@ -40,6 +40,8 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     set (common_sources
         ${common_sources}
         utilities/debugging/debugbehavior.cpp
+        utilities/debugging/qdebug_extensions.cpp
+        utilities/debugging/threadcrumbs.cpp
     )
 endif()
 

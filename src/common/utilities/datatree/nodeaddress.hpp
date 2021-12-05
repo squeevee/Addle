@@ -14,6 +14,7 @@
 #if defined(ADDLE_DEBUG) || defined(ADDLE_TEST)
 #include <QtDebug>      // QDebug operator<< for NodeAddress and NodeChunk
 #include "utilities/debugging/qdebug_extensions.hpp"
+#include "utilities/debugging/debugstring.hpp"
 #endif
 
 #ifdef ADDLE_TEST

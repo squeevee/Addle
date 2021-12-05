@@ -2,14 +2,14 @@
 
 #if defined(ADDLE_DEBUG) || defined(ADDLE_TEST)
 
-#include <QtGlobal>
-#include <QString>
-#include <QBuffer>
-
 #include <QtDebug>
 
 #include <type_traits>
+
 #include <optional>
+#include <variant>
+#include <functional>
+
 #include <utility>
 #include <boost/type_traits/is_detected_convertible.hpp>
 
@@ -21,76 +21,136 @@ using _qdebug_t = decltype(std::declval<QDebug>() << std::declval<T>());
 template<typename T>
 using has_qdebug_stream = boost::is_detected_convertible<QDebug, _qdebug_t, T>;
 
-template<typename T>
-QString debugString(T&& v)
-{
-    QString result;
-    QDebug debug(&result);
-    debug.setAutoInsertSpaces(false);
-    debug << std::forward<T>(v);
-    return result;
-}
+QByteArray _typeNameHelper(const std::type_info& type);
 
-template<typename T>
-QByteArray debugString_b(T&& v)
+// use to stream info about the current thread into QDebug
+struct CurrentThreadInfo_t final {};
+QDebug operator<< (QDebug d, CurrentThreadInfo_t);
+
+constexpr CurrentThreadInfo_t CurrentThreadInfo = {};
+
+void _functionHelper(QDebug& d, const void* function);
+
+struct _stdVariantDebugVisitor
 {
-    QByteArray result;
+    QDebug& debug;
+    
+    template<typename T, std::enable_if_t<has_qdebug_stream<T>::value, void*> = nullptr>
+    void operator()(const T& value) const 
     {
-        QBuffer buff(&result);
-        buff.open(QIODevice::WriteOnly);
-        QDebug debug(&buff);
-        debug.setAutoInsertSpaces(false);
-        debug << std::forward<T>(v);
+        debug << "value:" << value;
     }
-    return result;
-}
+    
+    template<typename T, std::enable_if_t<!has_qdebug_stream<T>::value, void*> = nullptr>
+    void operator()(const T&) const
+    {
+        debug << "<value type does not support QDebug>";
+    }
+};
 
 }
+
+template<class R, class... A>
+inline QDebug operator<< (QDebug d, R(&function)(A...))
+{ ::Addle::aux_debug::_functionHelper(d, reinterpret_cast<const void*>(&function)); return d; }
+
+template<class R, class... A>
+QDebug operator<< (QDebug d, R(*function)(A...))
+{ ::Addle::aux_debug::_functionHelper(d, reinterpret_cast<const void*>(function)); return d; }
+
+template<class R, class... A>
+QDebug operator<< (QDebug d, R(&function)(A...) noexcept)
+{ ::Addle::aux_debug::_functionHelper(d, reinterpret_cast<const void*>(&function)); return d; }
+
+template<class R, class... A>
+QDebug operator<< (QDebug d, R(*function)(A...) noexcept)
+{ ::Addle::aux_debug::_functionHelper(d, reinterpret_cast<const void*>(function)); return d; }
 
 namespace std {
-    template<typename T>
-    QDebug operator<< (QDebug d, const std::optional<T>& opt)
+    
+    inline QDebug operator<< (QDebug d, std::type_info& info)
     {
-        if (opt)
-            return d << *opt;
-        else
-            return d << "(none)";
+        QDebugStateSaver s(d);
+        d.noquote();
+        d.nospace();
+        d << "std::type_info(" << ::Addle::aux_debug::_typeNameHelper(info) << ")";
+        return d;
     }
+    
+    template<typename T>
+    QDebug operator<< (QDebug d, const std::optional<T>& optional)
+    {
+        QDebugStateSaver s(d);
+        d.nospace();
+        d << "std::optional(";
+        
+        if (optional)
+            d << *optional;
+        else
+            d << "<empty>";
+        
+        d << ")";
+        return d;
+    }
+    
+    template<class... Ts, std::enable_if_t<
+            ( ::Addle::aux_debug::has_qdebug_stream<Ts>::value || ... )
+        , void*> = nullptr>
+    QDebug operator<< (QDebug d, const std::variant<Ts...>& variant)
+    {
+        QDebugStateSaver s(d);
+        d.nospace();
+        d << "std::variant(";
+        
+        if (Q_LIKELY(!variant.valueless_by_exception()))
+        {
+            d << "index:" << variant.index();
+            std::visit(::Addle::aux_debug::_stdVariantDebugVisitor { d }, variant);
+        }
+        else
+        {
+            d << "<valueless by exception>";
+        }
+        
+        d << ")";
+        return d;
+    }
+        
+    template<class R, class... A>
+    inline QDebug operator<< (QDebug d, const std::function<R(A...)>& function)
+    {
+        if (!function)
+        {
+            d << "std::function(<empty>)";
+        }
+        else if ( function.target_type() == typeid(R(A...)) )
+        {
+            QDebugStateSaver s(d);
+            d.nospace();
+            d << "std::function(";
+            ::Addle::aux_debug::_functionHelper(d, reinterpret_cast<const void*>( function.template target<R(A...)>() ));
+            d << ")";
+        }
+        else if ( function.target_type() == typeid(R(A...) noexcept) )
+        {
+            QDebugStateSaver s(d);
+            d.nospace();
+            d << "std::function(";
+            ::Addle::aux_debug::_functionHelper(d, reinterpret_cast<const void*>( function.template target<R(A...) noexcept>() ));
+            d << ")";
+        }
+        else
+        {
+            QDebugStateSaver s(d);
+            d.nospace();
+            d.noquote();
+            d << "std::function(<callable of type "
+                << ::Addle::aux_debug::_typeNameHelper(function.target_type())
+                << ">)";
+        }
+        return d;
+    }
+
 } // namespace std
 
 #endif // defined(ADDLE_DEBUG) || defined(ADDLE_TEST)
-
-#ifdef ADDLE_TEST
-
-#include <QtTest/QtTest>
-
-#include <boost/utility/identity_type.hpp>
-
-// While QDebug works well at making human-readable (and console safe) string
-// representations of objects for essentially all purposes, QtTest requires a 
-// bespoke toString function in order to print objects to the console from the 
-// QCOMPARE macro.
-//
-// Fortunately, we can just use QDebug for this as well. A truly generic
-// solution does not seem to be possible from our position, so we'll have to put 
-// up with a little bit of boilerplating.
-//
-// NOTE: Qt recommends new code do not specialize the ::QTest::toString function 
-// template and instead provide a `toString` function for ADL, but we're not 
-// going to do that. A function with such a generic name, so little utility, and 
-// a return value that is uncharacteristically awkward for Qt does not get place 
-// in our namespaces.
-
-// Standalone toString function body macro in case a custom signature is needed
-#define QTEST_TOSTRING_IMPL_BY_QDEBUG_BODY(x)                               \
-{                                                                           \
-    return qstrdup(::Addle::aux_debug::debugString_b(x).data());            \
-}
-
-// NOTE: Type must be wrapped in parentheses when passed into this macro, e.g.,
-// QTEST_TOSTRING_IMPL_BY_QDEBUG(( ::Addle::aux_spiff::Spiff ))
-#define QTEST_TOSTRING_IMPL_BY_QDEBUG(Type)                                   \
-template<> inline char* ::QTest::toString(const BOOST_IDENTITY_TYPE(Type)& x) \
-QTEST_TOSTRING_IMPL_BY_QDEBUG_BODY(x)
-
-#endif // ADDLE_TEST

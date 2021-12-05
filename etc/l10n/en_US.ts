@@ -314,79 +314,74 @@
         <source>Starting Addle. This is a debug build.</source>
         <translation>Starting Addle. This is a debug build.</translation>
     </message>
-    <message id="debug-messages.main-thread-name">
-        <location filename="../../src/common/exceptions/addleexception.cpp" line="72" />
-        <source>&lt;Main Thread&gt;</source>
-        <oldsource>Main Thread</oldsource>
-        <translation>&lt;Main Thread&gt;</translation>
-    </message>
     <message id="debug-messages.logic-error-occurred">
-        <location filename="../../src/common/exceptions/addleexception.cpp" line="86" />
+        <location filename="../../src/common/exceptions/addleexception.cpp" line="78" />
         <source>A logic error has occurred: %1</source>
         <oldsource>A logic error occurred:
 %1</oldsource>
         <translation>A logic error has occurred: %1</translation>
     </message>
     <message id="debug-messages.exception.instance-of-header">
-        <location filename="../../src/common/exceptions/addleexception.cpp" line="222" />
+        <location filename="../../src/common/exceptions/addleexception.cpp" line="219" />
         <source>=== Instance of exception type `%1` ===</source>
         <oldsource>=== Exception instance of `%1` ===</oldsource>
         <translation>=== Instance of exception type `%1` ===</translation>
     </message>
     <message id="debug-messages.exception.is-logic-error">
-        <location filename="../../src/common/exceptions/addleexception.cpp" line="233" />
+        <location filename="../../src/common/exceptions/addleexception.cpp" line="232" />
         <source>(this is a logic error)</source>
         <translation>(this is a logic error)</translation>
     </message>
     <message id="debug-messages.exception.is-runtime-error">
-        <location filename="../../src/common/exceptions/addleexception.cpp" line="241" />
+        <location filename="../../src/common/exceptions/addleexception.cpp" line="240" />
         <source>(this is a runtime error)</source>
         <translation>(this is a runtime error)</translation>
     </message>
     <message id="debug-messages.exception.data-header">
-        <location filename="../../src/common/exceptions/addleexception.cpp" line="255" />
+        <location filename="../../src/common/exceptions/addleexception.cpp" line="258" />
         <source>==== Exception data ====</source>
         <translation>==== Exception data ====</translation>
     </message>
     <message id="debug-messages.exception.inner-exceptions-header">
-        <location filename="../../src/common/exceptions/addleexception.cpp" line="286" />
+        <location filename="../../src/common/exceptions/addleexception.cpp" line="294" />
         <source>==== Inner exceptions ====</source>
         <translation>==== Inner exceptions ====</translation>
     </message>
     <message id="debug-messages.exception.null-inner-addleexception">
-        <location filename="../../src/common/exceptions/addleexception.cpp" line="300" />
+        <location filename="../../src/common/exceptions/addleexception.cpp" line="310" />
         <source>(null QSharedPointer&lt;AddleException&gt;)</source>
         <translation>(null QSharedPointer&lt;AddleException&gt;)</translation>
     </message>
     <message id="debug-messages.exception.null-std-exception_ptr">
-        <location filename="../../src/common/exceptions/addleexception.cpp" line="313" />
+        <location filename="../../src/common/exceptions/addleexception.cpp" line="323" />
         <source>(null std::exception_ptr)</source>
         <translation>(null std::exception_ptr)</translation>
     </message>
     <message id="debug-messages.exceptions.unknown-inner-exception-type">
-        <location filename="../../src/common/exceptions/addleexception.cpp" line="334" />
+        <location filename="../../src/common/exceptions/addleexception.cpp" line="344" />
         <source>(instance of unknown exception type)</source>
         <translation>(instance of unknown exception type)</translation>
     </message>
     <message id="debug-messages.exception.history-header">
-        <location filename="../../src/common/exceptions/addleexception.cpp" line="354" />
+        <location filename="../../src/common/exceptions/addleexception.cpp" line="366" />
         <source>==== Throw history ====</source>
         <oldsource>==== Exception history ====</oldsource>
         <translation>==== Throw history ====</translation>
     </message>
     <message id="debug-messages.exception.history-thread">
-        <location filename="../../src/common/exceptions/addleexception.cpp" line="373" />
-        <source>on thread "%1" (%2)</source>
-        <translation>on thread "%1" (%2)</translation>
+        <location filename="../../src/common/exceptions/addleexception.cpp" line="392" />
+        <source>on thread (%1)</source>
+        <oldsource>on thread "%1" (%2)</oldsource>
+        <translation>on thread (%1)</translation>
     </message>
     <message id="debug-messages.exception.history-location">
-        <location filename="../../src/common/exceptions/addleexception.cpp" line="379" />
+        <location filename="../../src/common/exceptions/addleexception.cpp" line="399" />
         <source>    Location:</source>
         <oldsource>    Throw location:</oldsource>
         <translation>    Location:</translation>
     </message>
     <message id="debug-messages.exception.history-backtrace">
-        <location filename="../../src/common/exceptions/addleexception.cpp" line="388" />
+        <location filename="../../src/common/exceptions/addleexception.cpp" line="412" />
         <source>    Backtrace:</source>
         <translation>    Backtrace:</translation>
     </message>
@@ -897,7 +892,7 @@ range: [0, %3)</translation>
         <translation>At least %1 lingering references are preventing these events from being deleted.</translation>
     </message>
     <message id="debug-messages.renderroutine.query-timeout-exception">
-        <location filename="../../src/common/utilities/render/renderroutine.cpp" line="139" />
+        <location filename="../../src/common/utilities/render/renderroutine.cpp" line="140" />
         <source>A lock timeout occurred in a query on a RenderRoutine
   duration waited: %1 ms
   query operation: %2
@@ -908,7 +903,7 @@ range: [0, %3)</translation>
   lock category:   %3</translation>
     </message>
     <message id="debug-messages.renderroutine.component-id-collision-exception">
-        <location filename="../../src/common/utilities/render/renderroutine.cpp" line="168" />
+        <location filename="../../src/common/utilities/render/renderroutine.cpp" line="169" />
         <source>Attempted to insert one or more components into RenderRoutine with names that are the same as preexisting routine components or subcomponents.
   names: %1</source>
         <oldsource>Attempted to insert one or more components into RenderRoutine with ids that are the same as preexisting routine components or subcomponents.
@@ -917,8 +912,8 @@ range: [0, %3)</translation>
   names: %1</translation>
     </message>
     <message id="debug-messages.renderroutine.subordinate-differing-thread-affinity">
-        <location filename="../../src/common/utilities/render/renderroutine.cpp" line="499" />
-        <location filename="../../src/common/utilities/render/renderroutine.cpp" line="690" />
+        <location filename="../../src/common/utilities/render/renderroutine.cpp" line="500" />
+        <location filename="../../src/common/utilities/render/renderroutine.cpp" line="691" />
         <source>Encountered a render subroutine associated to an IRenderable with a different thread affinity to the IRenderable of this routine.
   subroutine name: %1</source>
         <oldsource>Encountered a render subroutine associated to an IRenderable with a different thread affinity to the IRenderable of this routine.
@@ -927,8 +922,8 @@ range: [0, %3)</translation>
   subroutine name: %1</translation>
     </message>
     <message id="debug-messages.renderroutine.subordinate-thread-affinity-timeout">
-        <location filename="../../src/common/utilities/render/renderroutine.cpp" line="515" />
-        <location filename="../../src/common/utilities/render/renderroutine.cpp" line="699" />
+        <location filename="../../src/common/utilities/render/renderroutine.cpp" line="516" />
+        <location filename="../../src/common/utilities/render/renderroutine.cpp" line="700" />
         <source>Attempted lock of subroutine cache mutex timed out, thread affinity of associated IRenderable could not be verified.
   subroutine name: %1</source>
         <oldsource>Attempted lock of subroutine cache mutex timed out, thread affinity of associated IRenderable could not be verified.
@@ -948,8 +943,8 @@ range: [0, %3)</translation>
         <translation>Renderer was created with a null renderable and an empty render routine. The renderer will be unable to do anything useful.</translation>
     </message>
     <message id="debug-messages.raster-tile.offset-truncated">
-        <location filename="../../src/common/utilities/image/rastertile.hpp" line="73" />
-        <location filename="../../src/common/utilities/image/rastertile.hpp" line="93" />
+        <location filename="../../src/common/utilities/image/rastertile.hpp" line="74" />
+        <location filename="../../src/common/utilities/image/rastertile.hpp" line="94" />
         <source>Non-aligned tile offset (%1) will be truncated.</source>
         <translation>Non-aligned tile offset (%1) will be truncated.</translation>
     </message>
@@ -1010,6 +1005,46 @@ range: [0, %3)</translation>
         <location filename="../../src/common/utilities/config3/configexceptions.cpp" line="211" />
         <source>An error occurred while attempting to lazily initialize a member of this repository.</source>
         <translation>An error occurred while attempting to lazily initialize a member of this repository.</translation>
+    </message>
+    <message id="debug-messages.util.main-thread">
+        <location filename="../../src/common/utilities/debugging/qdebug_extensions.cpp" line="36" />
+        <source>(Main Thread)</source>
+        <translation>(Main Thread)</translation>
+    </message>
+    <message id="debug-messages.threadcrumbs.crumb-repeated">
+        <location filename="../../src/common/utilities/debugging/threadcrumbs.cpp" line="39" />
+        <location filename="../../src/common/utilities/debugging/threadcrumbs.cpp" line="54" />
+        <source>The breadcrumb (%1) was already pushed to the thread (%2).</source>
+        <oldsource>The breadcrumb (%1) was already pushed to the thread (%2). Terminating to prevent infinite recursion.</oldsource>
+        <translation>The breadcrumb (%1) was already pushed to the thread (%2).</translation>
+    </message>
+    <message id="debug-messages.threadcrumbs.terminating">
+        <location filename="../../src/common/utilities/debugging/threadcrumbs.cpp" line="46" />
+        <source>Repeated breadcrumb failure detected. Terminating to prevent unbounded recursion.</source>
+        <oldsource>Multiple breadcrumb failures detected. Terminating to prevent unbounded recursion.</oldsource>
+        <translation>Repeated breadcrumb failure detected. Terminating to prevent unbounded recursion.</translation>
+    </message>
+    <message id="debug-messages.threadcrumbs.non-empty-destruction">
+        <location filename="../../src/common/utilities/debugging/threadcrumbs.cpp" line="82" />
+        <source>ThreadCrumbs destroyed with entries remaining on thread (%1).</source>
+        <translation>ThreadCrumbs destroyed with entries remaining on thread (%1).</translation>
+    </message>
+    <message id="debug-messages.interface-binding-config.self-invoking-binding">
+        <location filename="../../src/common/utilities/config3/interfacebindingconfig.hpp" line="271" />
+        <location filename="../../src/common/utilities/config3/interfacebindingconfig.hpp" line="291" />
+        <location filename="../../src/common/utilities/config3/interfacebindingconfig.hpp" line="311" />
+        <location filename="../../src/common/utilities/config3/interfacebindingconfig.hpp" line="331" />
+        <location filename="../../src/common/utilities/config3/interfacebindingconfig.hpp" line="505" />
+        <source>An attempt was made to invoke an interface binding (%1) while it was already being invoked. This indicates that the InterfaceBindingConfig contains one or more circular dependencies.</source>
+        <oldsource>An attempt was made to invoke an interface binding (%1) during the invocation of that same binding. This indicates that the interface bindings are configured with a circular dependency.</oldsource>
+        <translation>An attempt was made to invoke an interface binding (%1) while it was already being invoked. This indicates that the InterfaceBindingConfig contains one or more circular dependencies.</translation>
+    </message>
+    <message id="debug-messages.service-storage.recursive-init">
+        <location filename="../../src/common/utilities/config3/servicestorage.hpp" line="166" />
+        <source>An attempt was made to access the service %1 (implemented as %2) from within its own initialization. This likely indicates a circular dependency.</source>
+        <oldsource>Attempt was made to access the service %1 (implemented as %2) while it was in the process of being initialized, 
+likely due to a circular dependency.</oldsource>
+        <translation>An attempt was made to access the service %1 (implemented as %2) from within its own initialization. This likely indicates a circular dependency.</translation>
     </message>
 </context>
 </TS>

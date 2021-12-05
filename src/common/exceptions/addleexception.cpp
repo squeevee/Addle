@@ -30,7 +30,8 @@
 #include <QThread>
 #include <QtDebug>
 #include "utilities/debugging/debugbehavior.hpp"
-#include <utilities/debugging/qdebug_extensions.hpp>
+#include "utilities/debugging/debugstring.hpp"
+#include "utilities/debugging/qdebug_extensions.hpp"
 
 using namespace Addle;
 
@@ -57,18 +58,15 @@ void AddleException::debugRaise(const char* function, const char* file, const in
 {
     QString threadName;
     
-    auto thread = QThread::currentThread();
-    if (thread) threadName = thread->objectName();
-    
-    if (threadName.isEmpty() && QCoreApplication::instance() && thread == QCoreApplication::instance()->thread())
-    {
-        //% "<Main Thread>"
-        threadName = qtTrId("debug-messages.main-thread-name");
-    }
-    
-    HistoryEntry entry { function, file, line, QDateTime::currentDateTime(), threadName, QThread::currentThreadId() };
-
-    _history.append(entry);
+    _history.append(HistoryEntry { 
+            function, 
+            file, 
+            line, 
+            QDateTime::currentDateTime(), 
+            aux_debug::debugString(aux_debug::CurrentThreadInfo),
+            QThread::currentThreadId(),
+            boost::stacktrace::stacktrace(1, SIZE_MAX)
+        });
     dataChanged();
 
     if (isLogicError())
@@ -390,10 +388,9 @@ QString AddleException::what_p(int verbosity) const
                     
                 stream << entry.dateTime.toString(Qt::ISODateWithMs) << '\t'
                     << (
-                        //% "on thread \"%1\" (%2)"
+                        //% "on thread (%1)"
                         qtTrId("debug-messages.exception.history-thread")
                             .arg(entry.threadName)
-                            .arg(aux_debug::debugString(entry.threadId))
                         ) << "\n\n";
                 
                 if (color) stream << "\x1B[1m"; // bold    

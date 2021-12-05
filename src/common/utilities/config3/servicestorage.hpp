@@ -9,6 +9,10 @@
 #include <boost/mp11.hpp>
 #include "./aux.hpp" // di_service_storage_base
 
+#ifdef ADDLE_DEBUG
+#include "utilities/debugging/threadcrumbs.hpp"
+#endif
+
 namespace Addle::aux_config3 {
     
 template<typename Interface, typename Impl>
@@ -35,7 +39,30 @@ class ServiceStorage : public di_service_storage_base
         }
         
         QAtomicPointer<TService> ptr = nullptr;
-        mutable QMutex initMutex;
+        
+        mutable
+#ifdef ADDLE_DEBUG
+        QRecursiveMutex
+            // recursive initialization is still an error in debug, but this 
+            // allows the problem to be detected by ThreadCrumbs (causing 
+            // termination) instead of deadlocking.
+#else 
+        QMutex 
+#endif
+        initMutex;
+        
+#ifdef ADDLE_DEBUG
+        // for ThreadCrumbs
+        friend QDebug operator<< (QDebug debug, const Entry* entry)
+        {
+            QDebugStateSaver s(debug);
+            return debug.noquote().nospace() 
+                << "ServiceStorage::Entry<" 
+                    << aux_debug::_typeNameHelper(typeid(TService)) 
+                << ">* (" << reinterpret_cast<const void*>(entry) << ") "
+                << ((entry && entry->ptr.loadRelaxed()) ? "[initialized]" : "[uninitialized]");
+        }
+#endif
     };
     
     using data_t = boost::mp11::mp_apply<
@@ -112,7 +139,7 @@ public:
     // being acquired), does nothing and returns false.
     template<class Interface, typename F>
     std::enable_if_t< contains<Interface>::value, std::pair<service_impl_t<Interface>*, bool> >
-    initializeService(F&& f)
+    getOrInitializeService(F&& f)
     {
         assert(_data);
         constexpr std::size_t I = boost::mp11::mp_find<
@@ -122,15 +149,31 @@ public:
         service_impl_t<Interface>* result;
         auto&& entry = std::get<I>(*_data);
         
+        if (Q_LIKELY(result = entry.ptr.loadRelaxed())) return { result, false };
+        
         QMutexLocker lock(&entry.initMutex);
         
         if (Q_UNLIKELY( result = entry.ptr.loadRelaxed() )) return { result, false };
-        assert(! entry.ptr.fetchAndStoreRelaxed((result = std::invoke(f))) );
         
+#ifdef ADDLE_DEBUG
+        const ThreadCrumb crumb(&entry);
+        if (Q_UNLIKELY(!crumb))
+        {
+            qFatal("%s", qUtf8Printable(
+                //% "An attempt was made to access the service %1 (implemented "
+                //% "as %2) from within its own initialization. This likely "
+                //% "indicates a circular dependency."
+                qtTrId("debug-messages.service-storage.recursive-init")
+                    .arg(aux_debug::_typeNameHelper(typeid(Interface)).constData())
+                    .arg(aux_debug::_typeNameHelper(typeid(service_impl_t<Interface>)).constData())
+            ));
+        }
+#endif
+        assert(! entry.ptr.fetchAndStoreRelaxed(result = std::invoke(f)) );
         return { result, true };
     }
     
-private:    
+private:
     std::shared_ptr<data_t> _data;
 };
 
@@ -146,11 +189,5 @@ using _make_storage_pair = _storage_pair<typename TDep::expected, typename TDep:
     
 template<typename T, typename U>
 using _storage_pair_match_interfaces = std::is_same<typename T::interface_t, typename U::interface_t>;
-
-template<typename... Interfaces>
-auto make_service_storage()
-{
-    return ServiceStorage<boost::mp11::mp_list<Interfaces, Interfaces>...> {};
-}
 
 }

@@ -9,6 +9,7 @@
 #include "exceptions/addleexception.hpp"
 
 #include "./qdebug_extensions.hpp"
+#include "./debugstring.hpp"
 #include <QMetaEnum>
 
 namespace Addle::aux_debug {

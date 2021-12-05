@@ -95,7 +95,7 @@ private:
 class B : public IB
 {
 public:
-    B(QByteArray v) : _v(v) {}
+    B(IA& b, QByteArray v) : _v(v) {}
     
     virtual ~B() = default;
     QByteArray v() const override { return _v; }
@@ -165,8 +165,8 @@ private slots:
             mc.commit();
         }
         
-        auto& a = *di_runtime_bindings_traits<InterfaceBindingConfig>::get_service<IA>(&config);
-        
+//         auto& a = *di_runtime_bindings_traits<InterfaceBindingConfig>::get_service<IA>(&config);
+        delete Factory<IB>(config).make();
     }
 };
 

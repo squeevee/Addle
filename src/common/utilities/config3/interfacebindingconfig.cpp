@@ -2,8 +2,8 @@
 #include "moduleconfig.hpp"
 
 #ifdef ADDLE_DEBUG
-#include <boost/core/demangle.hpp> 
-#include <boost/stacktrace/frame.hpp>
+#include "utilities/debugging/stacktrace_config.hpp"
+#include "utilities/debugging/qdebug_extensions.hpp"
 #endif
 
 using namespace Addle;
@@ -25,10 +25,10 @@ bool Addle::aux_config3::_typename_check_impl(const QVariant& var, const QByteAr
     else if (!var.canConvert(type)) 
         return false;
     
-    QVariant copy(var);
-    bool result = copy.convert(type);
+    QVariant converted(var);
+    bool result = converted.convert(type);
     
-    if (overwrite && result) *overwrite = std::move(copy);
+    if (overwrite && result) *overwrite = std::move(converted);
     return result;
 }
 
@@ -113,54 +113,9 @@ QDebug Addle::aux_config3::operator<<(QDebug debug, const BindingCondition& cond
     
     if (condition.function)
     {
-        debug << "(result of) ";
-#ifdef ADDLE_DEBUG
-        if (   condition.function.target_type() == typeid(bool(*)(const void*))
-            || condition.function.target_type() == typeid(bool(*)(const void*) noexcept))
-        {
-            const void* raw = nullptr;
-            if (condition.function.target_type() == typeid(bool(*)(const void*)))
-                raw = reinterpret_cast<const void*>(*condition.function.target<bool(*)(const void*)>());
-            else if (condition.function.target_type() == typeid(bool(*)(const void*) noexcept))
-                raw = reinterpret_cast<const void*>(*condition.function.target<bool(*)(const void*) noexcept>());
-                
-            assert(raw);
-            boost::stacktrace::frame frame(raw);
-            
-            std::string name = frame.name();
-            std::string info;
-            
-            if (debug.verbosity() <= QDebug::DefaultVerbosity)
-            {
-                if (!name.empty())
-                    debug << name.data();
-                else
-                    debug << "bool(const void*) " << raw;
-            }
-            else
-            {
-                info = boost::stacktrace::to_string(frame);                
-                if (name.empty()) 
-                    debug << "bool(const void*) ";
-                debug << info.data();
-            }
-        }
-        else
-#endif
-        {
-            auto name = boost::core::demangle(condition.function.target_type().name());
-            debug << "< " << name.data() << " >";
-        }
+        debug << "(result of) " << condition.function;
     }
 
-#ifdef ADDLE_DEBUG
-    if (debug.verbosity() == QDebug::MaximumVerbosity && condition.paramSetType)
-    {
-        auto name = boost::core::demangle(condition.paramSetType->name());
-        debug << " (expects parameter set of type < " << name.data() << " >)";
-    }
-#endif
-    
     return debug << ')'; 
 }
 #endif

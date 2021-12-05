@@ -75,12 +75,12 @@ struct di_provider : boost::di::providers::stack_over_heap
     template <class TInit, class T, class... TArgs>
     using base_is_creatable = base_provider_t::is_creatable<TInit, T, TArgs...>;
     
-    template <class TInit, class T, class... TArgs>
-    using is_creatable = boost::mp11::mp_or<
-            base_is_creatable<TInit, T, TArgs...>,
-            Traits::is_makeable<T>,
-            Traits::is_singleton<T>
-        >;
+//     template <class TInit, class T, class... TArgs>
+//     using is_creatable = boost::mp11::mp_or<
+//             base_is_creatable<TInit, T, TArgs...>,
+//             boost::mp11::mp_and<std::is_abstract<T>, Traits::is_makeable<T>>
+// //             boost::mp11::mp_and<std::is_abstract<T>, Traits::is_singleton<T>>
+//         >;
     
     template<class T, class TInit, class TMem, class... TArgs>
     auto get(const TInit& init, const TMem& mem, TArgs&&... args) const
@@ -266,18 +266,14 @@ struct di_service_scope
             , void*> = nullptr>
         auto create(const TProvider& provider) const 
         {
-            auto&& serviceStorage = provider.super()
-                .template create<service_storage_t<TProvider>>();
-            
-            auto result = serviceStorage.template getService<TExpected>();
-            if (Q_UNLIKELY(!result))
-            {
-                std::tie(result, std::ignore) = serviceStorage
-                    .template initializeService<TExpected>(
-                        [&] () { return provider.get(); }
-                    );
-            }
-            
+            auto&& serviceStorage = provider.super().template create<service_storage_t<TProvider>>();
+        
+            TExpected* result;
+            std::tie(result, std::ignore) = serviceStorage
+                .template getOrInitializeService<TExpected>(
+                    [&] () { return provider.get(); }
+                );
+                    
             assert(result);
             return _wrapper_t( static_cast<TExpected&>(*result) );
         }
@@ -404,7 +400,7 @@ struct di_injector : public boost::di::core::injector<di_cfg<RuntimeBindings>,
     {
         static_cast<cfg_t&>(this->cfg()).runtimeBindings = runtimeBindings;
     }
-    
+        
     const RuntimeBindings* runtimeBindings() const
     { 
         return static_cast<const cfg_t&>(this->cfg()).runtimeBindings; 
@@ -451,15 +447,18 @@ struct bindFactoryParams<UseNames, L<ParamList...>>
     template<typename Injector, typename... TExtraDeps>
     static auto extend(Injector& injector, params_t&& params, TExtraDeps&&... extraDeps)
     {
-        return boost::di::make_injector<typename Injector::config>(
+        auto result = boost::di::make_injector<typename Injector::config>(
                 boost::di::extension::make_extensible(injector),
                 _entry<ParamList>(std::move(params))...,
                 std::forward<TExtraDeps>(extraDeps)...
             );
+        
+        static_cast<boost::di::core::injector__<decltype(result)>&>(result).cfg() = 
+            static_cast<const boost::di::core::injector__<Injector>&>(injector).cfg();
+        
+        return result;
     }
 };
-
-
 
 }
 

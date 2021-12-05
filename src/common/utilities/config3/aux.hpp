@@ -34,6 +34,7 @@
 #ifdef ADDLE_DEBUG
 #include <QDebug> // operator<< for GenericRepoMemberRef_impl
 #include "utilities/debugging/qdebug_extensions.hpp"
+#include "utilities/debugging/debugstring.hpp"
 #endif
 
 

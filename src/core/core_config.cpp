@@ -43,20 +43,20 @@
 // #include "interfaces/services/irepository.hpp"
 
 // #include "utilities/config/injectorconfig.hpp"
-#include "utilities/config3/addleconfig.hpp"
-#include "utilities/config3/ifactoryworkaround.hpp"
+// #include "utilities/config3/addleconfig.hpp"
+// #include "utilities/config3/ifactoryworkaround.hpp"
 
 #include <QtDebug>
 
 using namespace Addle;
 
-extern "C" void addle_core_config3(Addle::aux_config3::AddleConfig& config)
-{
-    namespace di = boost::di;
-    config.addInjector(
-            di::bind<IApplicationService>().to<ApplicationService>()
-        );
-}
+// extern "C" void addle_core_config3(Addle::aux_config3::AddleConfig& config)
+// {
+//     namespace di = boost::di;
+//     config.addInjector(
+//             di::bind<IApplicationService>().to<ApplicationService>()
+//         );
+// }
 
 // std::unique_ptr<InjectorConfig> Addle::core_config()
 // {

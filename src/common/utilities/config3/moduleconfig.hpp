@@ -67,7 +67,7 @@ template<class Interface, class Impl>
 struct di_bind_functor_with_required_factory_params
 {
     template <class...>
-    struct _never { static constexpr auto value = false; };
+    struct _never : std::false_type {};
     
     template<class Injector, typename _>
     Interface* operator() (const Injector&, boost::di::scopes::detail::arg<Interface*, Interface, _>) const

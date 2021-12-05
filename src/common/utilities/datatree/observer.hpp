@@ -26,11 +26,12 @@
 #include "./aux.hpp"
 
 #if defined(ADDLE_DEBUG) || defined(ADDLE_TEST)
-// QDebug operator<< for std::optional<NodeAddress>
 #include <QtDebug>      
-
-// QTEST_TOSTRING_IMPL_BY_QDEBUG for std::optional<NodeAddress>
 #include "utilities/debugging/qdebug_extensions.hpp"
+// QDebug operator<< for std::optional<NodeAddress>
+
+#include "utilities/debugging/debugstring.hpp"
+// QTEST_TOSTRING_IMPL_BY_QDEBUG for std::optional<NodeAddress>
 #endif
 
 #ifdef ADDLE_TEST

@@ -17,6 +17,7 @@
 #if defined(ADDLE_DEBUG) || defined(ADDLE_TEST)
 #include <QDebug>
 #include "utilities/debugging/qdebug_extensions.hpp"
+#include "utilities/debugging/debugstring.hpp"
 #endif
 
 namespace Addle::config_detail {
@@ -192,8 +193,7 @@ QDebug operator<< (QDebug debug, const FactoryParamSet<ParamsInfo...>& params)
 {
     debug << "FactoryParamSet(";
     
-    const int _[] = { (_factoryParamSetDebugHelper<ParamsInfo>{}(debug, params), 0)... };
-    Q_UNUSED(_);
+    ((_factoryParamSetDebugHelper<ParamsInfo>{}(debug, params), 0) , ... );
     
     return debug << ')';
 }
